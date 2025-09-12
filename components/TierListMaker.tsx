@@ -8,6 +8,13 @@ import {
   fetchPlaylist,
   extractPlaylistId,
 } from "@/lib/spotify";
+import {
+  PlayIcon,
+  PauseIcon,
+  NextIcon,
+  PreviousIcon,
+  VolumeIcon,
+} from "./PlayerIcons";
 
 interface Item {
   id: string;
@@ -186,6 +193,24 @@ export default function TierListMaker() {
       }
     };
   }, [isAuthenticated, volume]);
+
+  // Update current time position while playing
+  useEffect(() => {
+    if (!isPlaying || !player) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const state = await player.getCurrentState();
+        if (state) {
+          setCurrentTime(state.position);
+        }
+      } catch (error) {
+        console.error("Error getting current state:", error);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isPlaying, player]);
 
   // Check authentication status on mount
   useEffect(() => {
@@ -697,14 +722,38 @@ export default function TierListMaker() {
   };
 
   const nextTrack = async () => {
-    if (player) {
-      await player.nextTrack();
+    const allTracks = getAllTracks();
+    if (allTracks.length === 0 || !currentTrack) return;
+
+    // Find current track in our playlist
+    const currentIndex = allTracks.findIndex(track => 
+      track.id.replace('spotify-', '') === currentTrack.id
+    );
+    
+    // Get next track (loop to beginning if at end)
+    const nextIndex = (currentIndex + 1) % allTracks.length;
+    const nextTrack = allTracks[nextIndex];
+    
+    if (nextTrack) {
+      await playTrackById(nextTrack.id);
     }
   };
 
   const previousTrack = async () => {
-    if (player) {
-      await player.previousTrack();
+    const allTracks = getAllTracks();
+    if (allTracks.length === 0 || !currentTrack) return;
+
+    // Find current track in our playlist
+    const currentIndex = allTracks.findIndex(track => 
+      track.id.replace('spotify-', '') === currentTrack.id
+    );
+    
+    // Get previous track (loop to end if at beginning)
+    const prevIndex = currentIndex <= 0 ? allTracks.length - 1 : currentIndex - 1;
+    const prevTrack = allTracks[prevIndex];
+    
+    if (prevTrack) {
+      await playTrackById(prevTrack.id);
     }
   };
 
@@ -988,8 +1037,11 @@ export default function TierListMaker() {
               >
                 {currentTrack?.id === item.id.replace("spotify-", "") &&
                 isPlaying
-                  ? "⏸️"
-                  : "▶️"}
+                  ? (
+                    <PauseIcon size={16} className="text-white" />
+                  ) : (
+                    <PlayIcon size={16} className="text-white" />
+                  )}
               </button>
             </div>
             <div className="track-info">
@@ -1285,7 +1337,7 @@ export default function TierListMaker() {
                 disabled={!deviceId || !currentTrack}
                 title="Previous track"
               >
-                ⏮️
+                <PreviousIcon size={20} className="text-white" />
               </button>
 
               <button
@@ -1300,7 +1352,11 @@ export default function TierListMaker() {
                 disabled={!deviceId || !currentTrack}
                 title={isPlaying ? "Pause" : "Play"}
               >
-                {isPlaying ? "⏸️" : "▶️"}
+                {isPlaying ? (
+                  <PauseIcon size={20} className="text-white" />
+                ) : (
+                  <PlayIcon size={20} className="text-white" />
+                )}
               </button>
 
               <button
@@ -1309,7 +1365,7 @@ export default function TierListMaker() {
                 disabled={!deviceId || !currentTrack}
                 title="Next track"
               >
-                ⏭️
+                <NextIcon size={20} className="text-white" />
               </button>
             </div>
 
@@ -1337,7 +1393,7 @@ export default function TierListMaker() {
             </div>
 
             <div className="volume-controls">
-              <span>🔊</span>
+              <VolumeIcon size={20} className="text-white" />
               <input
                 type="range"
                 className="volume-bar"
