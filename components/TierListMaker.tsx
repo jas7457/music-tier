@@ -32,6 +32,9 @@ interface Tier {
   items: Item[];
 }
 
+const DEFAULT_PLAYLIST =
+  "https://open.spotify.com/playlist/4Q2VnOr1fMv2K8qbZKpZdF?si=9aa4011ef11442b4";
+
 // localStorage helper functions
 const getTierListKey = (playlistUrl: string) => {
   const playlistId = extractPlaylistId(playlistUrl);
@@ -107,9 +110,12 @@ export default function TierListMaker() {
 
   // Spotify integration state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [playlistUrl, setPlaylistUrl] = useState(
-    "https://open.spotify.com/playlist/4Q2VnOr1fMv2K8qbZKpZdF?si=9aa4011ef11442b4"
-  );
+  const [playlistUrl, setPlaylistUrl] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("spotify_playlist_url") || DEFAULT_PLAYLIST;
+    }
+    return DEFAULT_PLAYLIST;
+  });
   const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(false);
   const [spotifyError, setSpotifyError] = useState<string | null>(null);
   const [hasAutoLoaded, setHasAutoLoaded] = useState(false);
@@ -169,7 +175,7 @@ export default function TierListMaker() {
 
         const newTrack = state.track_window.current_track;
         const previousTrackId = currentTrack?.id;
-        
+
         setCurrentTrack(newTrack);
         setIsPaused(state.paused);
         setIsPlaying(!state.paused);
@@ -212,15 +218,17 @@ export default function TierListMaker() {
         const state = await player.getCurrentState();
         if (state && state.track_window.current_track) {
           setCurrentTime(state.position);
-          
+
           const trackId = state.track_window.current_track.id;
-          const timeRemaining = state.track_window.current_track.duration_ms - state.position;
-          
+          const timeRemaining =
+            state.track_window.current_track.duration_ms - state.position;
+
           // Check if track is near the end (within 3 seconds) and we haven't triggered auto-play yet
-          if (timeRemaining <= 3000 && 
-              timeRemaining > 0 && 
-              autoPlayTriggeredRef.current !== trackId) {
-            
+          if (
+            timeRemaining <= 3000 &&
+            timeRemaining > 0 &&
+            autoPlayTriggeredRef.current !== trackId
+          ) {
             autoPlayTriggeredRef.current = trackId;
             setTimeout(() => {
               nextTrack(true);
@@ -234,6 +242,11 @@ export default function TierListMaker() {
 
     return () => clearInterval(interval);
   }, [isPlaying, player, currentTrack]);
+
+  // Save playlist URL to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem("spotify_playlist_url", playlistUrl);
+  }, [playlistUrl]);
 
   // Check authentication status on mount
   useEffect(() => {
@@ -749,21 +762,21 @@ export default function TierListMaker() {
     if (allTracks.length === 0 || !currentTrack) return;
 
     // Find current track in our playlist
-    const currentIndex = allTracks.findIndex(track => 
-      track.id.replace('spotify-', '') === currentTrack.id
+    const currentIndex = allTracks.findIndex(
+      (track) => track.id.replace("spotify-", "") === currentTrack.id
     );
-    
+
     // Get next track - if autoPlay is true, don't loop at end
     const nextIndex = currentIndex + 1;
     if (autoPlay && nextIndex >= allTracks.length) {
       // Don't auto-play if we're at the last song
       return;
     }
-    
+
     // For manual next button, loop to beginning if at end
     const finalIndex = autoPlay ? nextIndex : nextIndex % allTracks.length;
     const nextTrack = allTracks[finalIndex];
-    
+
     if (nextTrack) {
       await playTrackById(nextTrack.id);
     }
@@ -774,14 +787,15 @@ export default function TierListMaker() {
     if (allTracks.length === 0 || !currentTrack) return;
 
     // Find current track in our playlist
-    const currentIndex = allTracks.findIndex(track => 
-      track.id.replace('spotify-', '') === currentTrack.id
+    const currentIndex = allTracks.findIndex(
+      (track) => track.id.replace("spotify-", "") === currentTrack.id
     );
-    
+
     // Get previous track (loop to end if at beginning)
-    const prevIndex = currentIndex <= 0 ? allTracks.length - 1 : currentIndex - 1;
+    const prevIndex =
+      currentIndex <= 0 ? allTracks.length - 1 : currentIndex - 1;
     const prevTrack = allTracks[prevIndex];
-    
+
     if (prevTrack) {
       await playTrackById(prevTrack.id);
     }
@@ -1066,12 +1080,11 @@ export default function TierListMaker() {
                 }
               >
                 {currentTrack?.id === item.id.replace("spotify-", "") &&
-                isPlaying
-                  ? (
-                    <PauseIcon size={16} className="text-white" />
-                  ) : (
-                    <PlayIcon size={16} className="text-white" />
-                  )}
+                isPlaying ? (
+                  <PauseIcon size={16} className="text-white" />
+                ) : (
+                  <PlayIcon size={16} className="text-white" />
+                )}
               </button>
             </div>
             <div className="track-info">
