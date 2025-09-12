@@ -55,8 +55,15 @@ button:active {
     transform: translateY(0);
 }
 
+.main-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
 .tier-container {
-    margin-bottom: 30px;
+    /* Removed margin-bottom since it's now part of grid */
 }
 
 .tier-row {
@@ -257,7 +264,7 @@ button:active {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 12px;
     padding: 20px;
-    margin-top: 30px;
+    /* Removed margin-top since it's now part of grid */
 }
 
 .unranked-section h3 {
@@ -413,6 +420,11 @@ button:active {
 @media (max-width: 768px) {
     .app {
         padding: 10px;
+    }
+    
+    .main-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
     
     header h1 {

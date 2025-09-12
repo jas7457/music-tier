@@ -508,32 +508,35 @@ export default function TierListMaker() {
             </div>
           )}
         </div>
-        <div className="tier-container">
-          {tiers.map((tier, index) => (
-            <div key={tier.id} className="tier-row" data-tier-id={tier.id}>
-              <div
-                className={`tier-label tier-colors-${getTierColorClass(index)}`}
-              >
-                <span>{tier.name}</span>
+        
+        <div className="main-content">
+          <div className="tier-container">
+            {tiers.map((tier, index) => (
+              <div key={tier.id} className="tier-row" data-tier-id={tier.id}>
+                <div
+                  className={`tier-label tier-colors-${getTierColorClass(index)}`}
+                >
+                  <span>{tier.name}</span>
+                </div>
+                <div className="tier-content" data-tier-id={tier.id}>
+                  {tier.items.map((item) => renderItem(item))}
+                </div>
               </div>
-              <div className="tier-content" data-tier-id={tier.id}>
-                {tier.items.map((item) => renderItem(item))}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div className="unranked-section">
-          <h3>Unranked Items</h3>
-          <div className="unranked-items">
-            {unrankedItems.length === 0 && (
-              <div className="drop-zone">
-                {isAuthenticated
-                  ? "Load a Spotify playlist to get started"
-                  : "Connect to Spotify to load playlists"}
-              </div>
-            )}
-            {unrankedItems.map((item) => renderItem(item))}
+          <div className="unranked-section">
+            <h3>Unranked Items</h3>
+            <div className="unranked-items">
+              {unrankedItems.length === 0 && (
+                <div className="drop-zone">
+                  {isAuthenticated
+                    ? "Load a Spotify playlist to get started"
+                    : "Connect to Spotify to load playlists"}
+                </div>
+              )}
+              {unrankedItems.map((item) => renderItem(item))}
+            </div>
           </div>
         </div>
       </main>
