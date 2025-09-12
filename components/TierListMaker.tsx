@@ -471,7 +471,7 @@ export default function TierListMaker() {
                 </button>
               </div>
 
-              <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <input
                   className="playlist-input"
                   type="text"
@@ -479,12 +479,15 @@ export default function TierListMaker() {
                   value={playlistUrl}
                   onChange={(e) => setPlaylistUrl(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && loadPlaylist()}
+                  style={{ flex: 1, marginBottom: 0 }}
                 />
                 <button
                   onClick={loadPlaylist}
                   disabled={!playlistUrl.trim() || isLoadingPlaylist}
                   style={{
                     opacity: !playlistUrl.trim() || isLoadingPlaylist ? 0.5 : 1,
+                    fontSize: '12px',
+                    padding: '4px 8px'
                   }}
                 >
                   {isLoadingPlaylist ? "Loading..." : "Load Playlist"}
