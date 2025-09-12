@@ -136,6 +136,7 @@ export default function TierListMaker() {
     element: HTMLElement | null;
   }>({ x: 0, y: 0, element: null });
   const touchPreviewRef = useRef<HTMLDivElement | null>(null);
+  const autoPlayTriggeredRef = useRef<string | null>(null);
 
   // Initialize Spotify Web Playback SDK
   useEffect(() => {
@@ -166,11 +167,19 @@ export default function TierListMaker() {
       spotifyPlayer.addListener("player_state_changed", (state: any) => {
         if (!state) return;
 
-        setCurrentTrack(state.track_window.current_track);
+        const newTrack = state.track_window.current_track;
+        const previousTrackId = currentTrack?.id;
+        
+        setCurrentTrack(newTrack);
         setIsPaused(state.paused);
         setIsPlaying(!state.paused);
         setCurrentTime(state.position);
-        setDuration(state.track_window.current_track.duration_ms);
+        setDuration(newTrack.duration_ms);
+
+        // Reset auto-play trigger when track changes
+        if (newTrack.id !== previousTrackId) {
+          autoPlayTriggeredRef.current = null;
+        }
       });
 
       // Connect to the player
@@ -194,15 +203,29 @@ export default function TierListMaker() {
     };
   }, [isAuthenticated, volume]);
 
-  // Update current time position while playing
+  // Update current time position while playing and handle auto-play
   useEffect(() => {
-    if (!isPlaying || !player) return;
+    if (!isPlaying || !player || !currentTrack) return;
 
     const interval = setInterval(async () => {
       try {
         const state = await player.getCurrentState();
-        if (state) {
+        if (state && state.track_window.current_track) {
           setCurrentTime(state.position);
+          
+          const trackId = state.track_window.current_track.id;
+          const timeRemaining = state.track_window.current_track.duration_ms - state.position;
+          
+          // Check if track is near the end (within 3 seconds) and we haven't triggered auto-play yet
+          if (timeRemaining <= 3000 && 
+              timeRemaining > 0 && 
+              autoPlayTriggeredRef.current !== trackId) {
+            
+            autoPlayTriggeredRef.current = trackId;
+            setTimeout(() => {
+              nextTrack(true);
+            }, timeRemaining);
+          }
         }
       } catch (error) {
         console.error("Error getting current state:", error);
@@ -210,7 +233,7 @@ export default function TierListMaker() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isPlaying, player]);
+  }, [isPlaying, player, currentTrack]);
 
   // Check authentication status on mount
   useEffect(() => {
@@ -721,7 +744,7 @@ export default function TierListMaker() {
     }
   };
 
-  const nextTrack = async () => {
+  const nextTrack = async (autoPlay = false) => {
     const allTracks = getAllTracks();
     if (allTracks.length === 0 || !currentTrack) return;
 
@@ -730,9 +753,16 @@ export default function TierListMaker() {
       track.id.replace('spotify-', '') === currentTrack.id
     );
     
-    // Get next track (loop to beginning if at end)
-    const nextIndex = (currentIndex + 1) % allTracks.length;
-    const nextTrack = allTracks[nextIndex];
+    // Get next track - if autoPlay is true, don't loop at end
+    const nextIndex = currentIndex + 1;
+    if (autoPlay && nextIndex >= allTracks.length) {
+      // Don't auto-play if we're at the last song
+      return;
+    }
+    
+    // For manual next button, loop to beginning if at end
+    const finalIndex = autoPlay ? nextIndex : nextIndex % allTracks.length;
+    const nextTrack = allTracks[finalIndex];
     
     if (nextTrack) {
       await playTrackById(nextTrack.id);
@@ -1361,7 +1391,7 @@ export default function TierListMaker() {
 
               <button
                 className="control-btn"
-                onClick={nextTrack}
+                onClick={() => nextTrack()}
                 disabled={!deviceId || !currentTrack}
                 title="Next track"
               >
