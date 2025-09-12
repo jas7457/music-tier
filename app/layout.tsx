@@ -13,6 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://sdk.scdn.co/spotify-player.js" async></script>
+      </head>
       <body>{children}</body>
     </html>
   )

@@ -101,10 +101,77 @@ export default function TierListMaker() {
   const [votes, setVotes] = useState<{ [itemId: string]: number }>({});
   const [totalVotes, setTotalVotes] = useState(10);
 
+  // Spotify Web Playback SDK state
+  const [player, setPlayer] = useState<Spotify.Player | null>(null);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState<Spotify.WebPlaybackTrack | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.7);
+  const [isPaused, setIsPaused] = useState(true);
+
   const dragPreviewRef = useRef<HTMLDivElement>(null);
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const touchStartRef = useRef<{ x: number; y: number; element: HTMLElement | null }>({ x: 0, y: 0, element: null });
   const touchPreviewRef = useRef<HTMLDivElement | null>(null);
+
+  // Initialize Spotify Web Playback SDK
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const token = Cookies.get("spotify_access_token");
+      if (!token) return;
+
+      const spotifyPlayer = new window.Spotify.Player({
+        name: 'Music Tier List Player',
+        getOAuthToken: (cb) => cb(token),
+        volume: volume
+      });
+
+      // Ready event - device is ready
+      spotifyPlayer.addListener('ready', ({ device_id }: Spotify.WebPlaybackPlayer) => {
+        console.log('Spotify Player Ready with Device ID:', device_id);
+        setDeviceId(device_id);
+      });
+
+      // Not Ready event - device has gone offline
+      spotifyPlayer.addListener('not_ready', ({ device_id }: Spotify.WebPlaybackPlayer) => {
+        console.log('Spotify Player Not Ready with Device ID:', device_id);
+      });
+
+      // Player state changed
+      spotifyPlayer.addListener('player_state_changed', (state: Spotify.WebPlaybackState | null) => {
+        if (!state) return;
+
+        setCurrentTrack(state.track_window.current_track);
+        setIsPaused(state.paused);
+        setIsPlaying(!state.paused);
+        setCurrentTime(state.position);
+        setDuration(state.track_window.current_track.duration_ms);
+      });
+
+      // Connect to the player
+      spotifyPlayer.connect().then((success: boolean) => {
+        if (success) {
+          console.log('Spotify Player Connected');
+          setPlayer(spotifyPlayer);
+        }
+      });
+    };
+
+    // If SDK is already loaded, initialize immediately
+    if (window.Spotify) {
+      window.onSpotifyWebPlaybackSDKReady();
+    }
+
+    return () => {
+      if (player) {
+        player.disconnect();
+      }
+    };
+  }, [isAuthenticated, volume]);
 
   // Check authentication status on mount
   useEffect(() => {
@@ -540,6 +607,106 @@ export default function TierListMaker() {
     setVotes({});
   };
 
+  // Spotify Web Playback functions
+  const playSpotifyTrack = async (trackUri: string) => {
+    if (!deviceId) {
+      console.error('No Spotify device available');
+      return;
+    }
+
+    const accessToken = Cookies.get("spotify_access_token");
+    if (!accessToken) {
+      console.error('No Spotify access token');
+      return;
+    }
+
+    try {
+      // Use Spotify Web API to start playback on our device
+      const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uris: [trackUri]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to start playback: ${response.statusText}`);
+      }
+
+      setIsPlaying(true);
+    } catch (error) {
+      console.error('Error playing track:', error);
+      setSpotifyError('Failed to play track. Make sure you have Spotify Premium.');
+    }
+  };
+
+  const pausePlayback = async () => {
+    if (player) {
+      await player.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const resumePlayback = async () => {
+    if (player) {
+      await player.resume();
+      setIsPlaying(true);
+    }
+  };
+
+  const nextTrack = async () => {
+    if (player) {
+      await player.nextTrack();
+    }
+  };
+
+  const previousTrack = async () => {
+    if (player) {
+      await player.previousTrack();
+    }
+  };
+
+  const seekToPosition = async (position: number) => {
+    if (player) {
+      await player.seek(position);
+    }
+  };
+
+  const setPlayerVolume = async (volume: number) => {
+    setVolume(volume);
+    if (player) {
+      await player.setVolume(volume);
+    }
+  };
+
+  // Get all tracks from tiers and unranked items
+  const getAllTracks = (): Item[] => {
+    const allTracks: Item[] = [];
+    // Add tracks from tiers
+    tiers.forEach(tier => {
+      allTracks.push(...tier.items);
+    });
+    // Add unranked tracks
+    allTracks.push(...unrankedItems);
+    return allTracks.filter(item => item.type === 'image' && item.title && item.artist);
+  };
+
+  // Play a track by item ID
+  const playTrackById = async (itemId: string) => {
+    const track = getAllTracks().find(t => t.id === itemId);
+    if (!track) return;
+
+    // Convert our item ID to Spotify URI
+    const spotifyId = track.id.replace('spotify-', '');
+    const trackUri = `spotify:track:${spotifyId}`;
+    
+    await playSpotifyTrack(trackUri);
+  };
+
   // Click-to-select and click-to-move functionality
   const handleItemClick = (e: React.MouseEvent, itemId: string) => {
     // Prevent triggering if this was part of a drag operation
@@ -730,18 +897,37 @@ export default function TierListMaker() {
         return (
           <div
             key={item.id}
-            className={`item music-card ${selectedItem === item.id ? 'selected' : ''}`}
+            className={`item music-card ${selectedItem === item.id ? 'selected' : ''} ${currentTrack?.id === item.id.replace('spotify-', '') ? 'currently-playing' : ''}`}
             draggable
             data-item-id={item.id}
             onDragStart={(e) => dragStart(e, item.id)}
             onClick={(e) => handleItemClick(e, item.id)}
             title={`${item.title} - ${item.artist}`}
           >
-            <img
-              className="album-art"
-              src={item.content}
-              alt={`${item.title} album art`}
-            />
+            <div className="album-art-container">
+              <img
+                className="album-art"
+                src={item.content}
+                alt={`${item.title} album art`}
+              />
+              <button 
+                className={`play-btn-overlay ${currentTrack?.id === item.id.replace('spotify-', '') && isPlaying ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (currentTrack?.id === item.id.replace('spotify-', '') && isPlaying) {
+                    pausePlayback();
+                  } else if (currentTrack?.id === item.id.replace('spotify-', '') && !isPlaying) {
+                    resumePlayback();
+                  } else {
+                    playTrackById(item.id);
+                  }
+                }}
+                disabled={!deviceId}
+                title={deviceId ? "Play track (Premium required)" : "Spotify Premium required"}
+              >
+                {currentTrack?.id === item.id.replace('spotify-', '') && isPlaying ? '⏸️' : '▶️'}
+              </button>
+            </div>
             <div className="track-info">
               <div className="track-title">{item.title}</div>
               <div className="track-artist">{item.artist}</div>
@@ -980,6 +1166,110 @@ export default function TierListMaker() {
       </main>
 
       <div ref={dragPreviewRef} className="drag-preview"></div>
+
+      {/* Spotify Web Playback SDK Music Player */}
+      {isAuthenticated && (
+        <div className="music-player">
+          <div className="player-content">
+            <div className="track-display">
+              {currentTrack ? (
+                <>
+                  <img 
+                    src={currentTrack.album.images[0]?.url} 
+                    alt="Current track" 
+                    className="player-album-art"
+                  />
+                  <div className="player-track-info">
+                    <div className="player-track-title">{currentTrack.name}</div>
+                    <div className="player-track-artist">
+                      {currentTrack.artists.map((artist: any) => artist.name).join(', ')}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="no-track">
+                  {deviceId ? "Select a track to play" : "Connecting to Spotify..."}
+                </div>
+              )}
+            </div>
+
+            <div className="player-controls">
+              <button 
+                className="control-btn"
+                onClick={previousTrack}
+                disabled={!deviceId || !currentTrack}
+                title="Previous track"
+              >
+                ⏮️
+              </button>
+              
+              <button 
+                className="control-btn play-pause"
+                onClick={() => {
+                  if (isPlaying) {
+                    pausePlayback();
+                  } else {
+                    resumePlayback();
+                  }
+                }}
+                disabled={!deviceId || !currentTrack}
+                title={isPlaying ? "Pause" : "Play"}
+              >
+                {isPlaying ? '⏸️' : '▶️'}
+              </button>
+              
+              <button 
+                className="control-btn"
+                onClick={nextTrack}
+                disabled={!deviceId || !currentTrack}
+                title="Next track"
+              >
+                ⏭️
+              </button>
+            </div>
+
+            <div className="player-progress">
+              <span className="time-display">
+                {Math.floor(currentTime / 1000 / 60)}:{String(Math.floor((currentTime / 1000) % 60)).padStart(2, '0')}
+              </span>
+              <input
+                type="range"
+                className="progress-bar"
+                min="0"
+                max={duration || 0}
+                value={currentTime}
+                onChange={(e) => seekToPosition(Number(e.target.value))}
+                disabled={!deviceId || !currentTrack}
+              />
+              <span className="time-display">
+                {Math.floor((duration || 0) / 1000 / 60)}:{String(Math.floor(((duration || 0) / 1000) % 60)).padStart(2, '0')}
+              </span>
+            </div>
+
+            <div className="volume-controls">
+              <span>🔊</span>
+              <input
+                type="range"
+                className="volume-bar"
+                min="0"
+                max="1"
+                step="0.1"
+                value={volume}
+                onChange={(e) => setPlayerVolume(Number(e.target.value))}
+                disabled={!deviceId}
+              />
+            </div>
+
+            {!deviceId && (
+              <div className="player-status">
+                <span style={{ color: '#ff6b6b', fontSize: '12px' }}>
+                  Premium required for playback
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
