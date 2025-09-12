@@ -69,42 +69,7 @@ export default function TierListMaker() {
   }, [searchParams, isAuthenticated, hasAutoLoaded])
 
   useEffect(() => {
-    const handlePaste = (e: ClipboardEvent) => {
-      const items = e.clipboardData?.items
-      if (!items) return
-
-      for (let item of Array.from(items)) {
-        if (item.type.indexOf('image') !== -1) {
-          const blob = item.getAsFile()
-          if (!blob) continue
-          
-          const reader = new FileReader()
-          reader.onload = (event) => {
-            const img = new Image()
-            img.onload = () => {
-              const aspectRatio = img.width / img.height
-              const newItem: Item = {
-                id: `item-${itemIdCounter}`,
-                type: 'image',
-                content: event.target?.result as string,
-                aspectRatio: aspectRatio
-              }
-              
-              setUnrankedItems(prev => [...prev, newItem])
-              setItemIdCounter(prev => prev + 1)
-            }
-            img.src = event.target?.result as string
-          }
-          reader.readAsDataURL(blob)
-        }
-      }
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Delete' && draggedItem) {
-        deleteItem(draggedItem)
-      }
-    }
+    // Removed image pasting functionality - items only come from Spotify playlists
 
     const handleDragOver = (e: DragEvent) => {
       e.preventDefault()
@@ -134,15 +99,11 @@ export default function TierListMaker() {
       clearDragState()
     }
 
-    document.addEventListener('paste', handlePaste)
-    document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('dragover', handleDragOver)
     document.addEventListener('drop', handleDrop)
     document.addEventListener('dragend', handleDragEnd)
 
     return () => {
-      document.removeEventListener('paste', handlePaste)
-      document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('dragover', handleDragOver)
       document.removeEventListener('drop', handleDrop)
       document.removeEventListener('dragend', handleDragEnd)
@@ -154,47 +115,7 @@ export default function TierListMaker() {
     return colors[index % colors.length]
   }
 
-  const addTier = () => {
-    const newTier: Tier = {
-      id: tierIdCounter,
-      name: 'New Tier',
-      items: []
-    }
-    setTiers(prev => [...prev, newTier])
-    setTierIdCounter(prev => prev + 1)
-  }
-
-  const deleteTier = (tierId: number) => {
-    setTiers(prev => {
-      const tierIndex = prev.findIndex(t => t.id === tierId)
-      if (tierIndex === -1) return prev
-      
-      const tier = prev[tierIndex]
-      setUnrankedItems(prevUnranked => [...prevUnranked, ...tier.items])
-      
-      return prev.filter(t => t.id !== tierId)
-    })
-  }
-
-  const updateTierName = (tierId: number, newName: string) => {
-    setTiers(prev => prev.map(tier => 
-      tier.id === tierId ? { ...tier, name: newName } : tier
-    ))
-  }
-
-  const addTextItem = () => {
-    const text = prompt('Enter text for the item:')
-    if (!text) return
-
-    const item: Item = {
-      id: `item-${itemIdCounter}`,
-      type: 'text',
-      content: text
-    }
-    
-    setUnrankedItems(prev => [...prev, item])
-    setItemIdCounter(prev => prev + 1)
-  }
+  // Removed tier and item management functions - fixed tiers, Spotify-only items
 
   const handleSpotifyAuth = () => {
     setSpotifyError(null)
@@ -225,11 +146,14 @@ export default function TierListMaker() {
 
       const playlistData = await fetchPlaylist(playlistId, accessToken)
       
+      // Clear all existing items from tiers and unranked
+      setTiers(prev => prev.map(tier => ({ ...tier, items: [] })))
+      
       // Transform Spotify tracks to items
       const newItems: Item[] = playlistData.tracks.items
         .filter(item => item.track && item.track.album.images.length > 0)
         .map((item, index) => ({
-          id: `spotify-${itemIdCounter + index}`,
+          id: `spotify-${Date.now()}-${index}`, // Use timestamp to ensure uniqueness
           type: 'image' as const,
           content: item.track.album.images[0]?.url || '',
           aspectRatio: 1, // Album covers are square
@@ -238,7 +162,7 @@ export default function TierListMaker() {
           album: item.track.album.name,
         }))
 
-      setUnrankedItems(prev => [...prev, ...newItems])
+      setUnrankedItems(newItems) // Replace all items instead of adding
       setItemIdCounter(prev => prev + newItems.length)
       // Don't clear the URL so user can load it again or modify it
     } catch (error) {
@@ -327,9 +251,7 @@ export default function TierListMaker() {
     return foundItem
   }
 
-  const deleteItem = (itemId: string) => {
-    findAndRemoveItem(itemId)
-  }
+  // Removed deleteItem function - items can't be deleted, only moved between tiers
 
   const clearDragState = () => {
     document.querySelectorAll('.dragging').forEach(el => {
@@ -363,7 +285,6 @@ export default function TierListMaker() {
               <div className="track-title">{item.title}</div>
               <div className="track-artist">{item.artist}</div>
             </div>
-            <button className="delete-item" onClick={() => deleteItem(item.id)}>×</button>
           </div>
         )
       } else {
@@ -380,7 +301,6 @@ export default function TierListMaker() {
             title="Item"
           >
             <img src={item.content} alt="Item" />
-            <button className="delete-item" onClick={() => deleteItem(item.id)}>×</button>
           </div>
         )
       }
@@ -394,7 +314,6 @@ export default function TierListMaker() {
           onDragStart={(e) => dragStart(e, item.id)}
         >
           {item.content}
-          <button className="delete-item" onClick={() => deleteItem(item.id)}>×</button>
         </div>
       )
     }
@@ -405,8 +324,7 @@ export default function TierListMaker() {
       <header>
         <h1>Music Tier List Maker</h1>
         <div className="controls">
-          <button onClick={addTier}>Add Tier</button>
-          <button onClick={addTextItem}>Add Text Item</button>
+          {/* Controls removed - items only come from Spotify playlists */}
         </div>
       </header>
       
@@ -473,12 +391,7 @@ export default function TierListMaker() {
           {tiers.map((tier, index) => (
             <div key={tier.id} className="tier-row" data-tier-id={tier.id}>
               <div className={`tier-label tier-colors-${getTierColorClass(index)}`}>
-                <input
-                  type="text"
-                  value={tier.name}
-                  onChange={(e) => updateTierName(tier.id, e.target.value)}
-                />
-                <button className="delete-tier" onClick={() => deleteTier(tier.id)}>×</button>
+                <span>{tier.name}</span>
               </div>
               <div className="tier-content" data-tier-id={tier.id}>
                 {tier.items.map(item => renderItem(item))}
@@ -492,7 +405,7 @@ export default function TierListMaker() {
           <div className="unranked-items">
             {unrankedItems.length === 0 && (
               <div className="drop-zone">
-                Drop images here or paste them (Ctrl+V)
+                {isAuthenticated ? 'Load a Spotify playlist to get started' : 'Connect to Spotify to load playlists'}
               </div>
             )}
             {unrankedItems.map(item => renderItem(item))}
