@@ -9,20 +9,6 @@ import {
   extractPlaylistId,
 } from "@/lib/spotify";
 
-// Spotify Web Playback SDK types
-declare global {
-  interface Window {
-    onSpotifyWebPlaybackSDKReady: () => void;
-    Spotify: {
-      Player: new (options: {
-        name: string;
-        getOAuthToken: (callback: (token: string) => void) => void;
-        volume?: number;
-      }) => any;
-    };
-  }
-}
-
 interface Item {
   id: string;
   type: "image" | "text";
@@ -45,7 +31,12 @@ const getTierListKey = (playlistUrl: string) => {
   return `tierlist_${playlistId}`;
 };
 
-const saveTierListToStorage = (playlistUrl: string, tiers: Tier[], unrankedItems: Item[], votes: { [itemId: string]: number }) => {
+const saveTierListToStorage = (
+  playlistUrl: string,
+  tiers: Tier[],
+  unrankedItems: Item[],
+  votes: { [itemId: string]: number }
+) => {
   try {
     const key = getTierListKey(playlistUrl);
     const data = {
@@ -53,11 +44,11 @@ const saveTierListToStorage = (playlistUrl: string, tiers: Tier[], unrankedItems
       unrankedItems,
       votes,
       timestamp: Date.now(),
-      playlistUrl
+      playlistUrl,
     };
     localStorage.setItem(key, JSON.stringify(data));
   } catch (error) {
-    console.warn('Failed to save tier list to localStorage:', error);
+    console.warn("Failed to save tier list to localStorage:", error);
   }
 };
 
@@ -68,17 +59,22 @@ const loadTierListFromStorage = (playlistUrl: string) => {
     if (stored) {
       const data = JSON.parse(stored);
       // Validate that the data has the expected structure
-      if (data.tiers && data.unrankedItems && Array.isArray(data.tiers) && Array.isArray(data.unrankedItems)) {
+      if (
+        data.tiers &&
+        data.unrankedItems &&
+        Array.isArray(data.tiers) &&
+        Array.isArray(data.unrankedItems)
+      ) {
         return {
           tiers: data.tiers,
           unrankedItems: data.unrankedItems,
           votes: data.votes || {},
-          timestamp: data.timestamp
+          timestamp: data.timestamp,
         };
       }
     }
   } catch (error) {
-    console.warn('Failed to load tier list from localStorage:', error);
+    console.warn("Failed to load tier list from localStorage:", error);
   }
   return null;
 };
@@ -127,7 +123,11 @@ export default function TierListMaker() {
 
   const dragPreviewRef = useRef<HTMLDivElement>(null);
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const touchStartRef = useRef<{ x: number; y: number; element: HTMLElement | null }>({ x: 0, y: 0, element: null });
+  const touchStartRef = useRef<{
+    x: number;
+    y: number;
+    element: HTMLElement | null;
+  }>({ x: 0, y: 0, element: null });
   const touchPreviewRef = useRef<HTMLDivElement | null>(null);
 
   // Initialize Spotify Web Playback SDK
@@ -139,24 +139,24 @@ export default function TierListMaker() {
       if (!token) return;
 
       const spotifyPlayer = new window.Spotify.Player({
-        name: 'Music Tier List Player',
+        name: "Music Tier List Player",
         getOAuthToken: (cb) => cb(token),
-        volume: volume
+        volume: volume,
       });
 
       // Ready event - device is ready
-      spotifyPlayer.addListener('ready', ({ device_id }: any) => {
-        console.log('Spotify Player Ready with Device ID:', device_id);
+      spotifyPlayer.addListener("ready", ({ device_id }: any) => {
+        console.log("Spotify Player Ready with Device ID:", device_id);
         setDeviceId(device_id);
       });
 
       // Not Ready event - device has gone offline
-      spotifyPlayer.addListener('not_ready', ({ device_id }: any) => {
-        console.log('Spotify Player Not Ready with Device ID:', device_id);
+      spotifyPlayer.addListener("not_ready", ({ device_id }: any) => {
+        console.log("Spotify Player Not Ready with Device ID:", device_id);
       });
 
       // Player state changed
-      spotifyPlayer.addListener('player_state_changed', (state: any) => {
+      spotifyPlayer.addListener("player_state_changed", (state: any) => {
         if (!state) return;
 
         setCurrentTrack(state.track_window.current_track);
@@ -169,7 +169,7 @@ export default function TierListMaker() {
       // Connect to the player
       spotifyPlayer.connect().then((success: boolean) => {
         if (success) {
-          console.log('Spotify Player Connected');
+          console.log("Spotify Player Connected");
           setPlayer(spotifyPlayer);
         }
       });
@@ -208,7 +208,12 @@ export default function TierListMaker() {
 
   // Save tier list to localStorage whenever tiers, unranked items, or votes change
   useEffect(() => {
-    if (playlistUrl && (tiers.some(tier => tier.items.length > 0) || unrankedItems.length > 0 || Object.keys(votes).length > 0)) {
+    if (
+      playlistUrl &&
+      (tiers.some((tier) => tier.items.length > 0) ||
+        unrankedItems.length > 0 ||
+        Object.keys(votes).length > 0)
+    ) {
       saveTierListToStorage(playlistUrl, tiers, unrankedItems, votes);
     }
   }, [tiers, unrankedItems, votes, playlistUrl]);
@@ -274,13 +279,13 @@ export default function TierListMaker() {
     // Touch event handlers for mobile
     const handleTouchStart = (e: TouchEvent) => {
       const touch = e.touches[0];
-      const element = (e.target as HTMLElement).closest('.item') as HTMLElement;
+      const element = (e.target as HTMLElement).closest(".item") as HTMLElement;
       if (!element) return;
 
       touchStartRef.current = {
         x: touch.clientX,
         y: touch.clientY,
-        element: element
+        element: element,
       };
     };
 
@@ -291,24 +296,28 @@ export default function TierListMaker() {
       const touch = e.touches[0];
       const startX = touchStartRef.current.x;
       const startY = touchStartRef.current.y;
-      
+
       // Check if we've moved enough to start dragging
       const deltaX = touch.clientX - startX;
       const deltaY = touch.clientY - startY;
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      
+
       if (distance > 10 && !draggedItem) {
         // Start dragging
         const itemId = touchStartRef.current.element.dataset.itemId;
         if (itemId) {
           setDraggedItem(itemId);
-          touchStartRef.current.element.classList.add('dragging');
-          
+          touchStartRef.current.element.classList.add("dragging");
+
           // Add global dragging class to body for cursor styling
           document.body.classList.add("dragging");
-          
+
           // Create touch preview
-          createTouchPreview(touchStartRef.current.element, touch.clientX, touch.clientY);
+          createTouchPreview(
+            touchStartRef.current.element,
+            touch.clientX,
+            touch.clientY
+          );
         }
       }
 
@@ -316,22 +325,25 @@ export default function TierListMaker() {
         // Update preview position
         touchPreviewRef.current.style.left = `${touch.clientX - 32}px`;
         touchPreviewRef.current.style.top = `${touch.clientY - 32}px`;
-        
+
         // Handle auto-scroll
         handleTouchScroll(touch.clientY);
-        
+
         // Handle drop zone highlighting
-        const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+        const elementBelow = document.elementFromPoint(
+          touch.clientX,
+          touch.clientY
+        );
         clearDropHighlights();
-        
-        const tierContent = elementBelow?.closest('.tier-content');
+
+        const tierContent = elementBelow?.closest(".tier-content");
         if (tierContent) {
-          tierContent.classList.add('drag-over');
+          tierContent.classList.add("drag-over");
         }
-        
-        const unrankedItems = elementBelow?.closest('.unranked-items');
+
+        const unrankedItems = elementBelow?.closest(".unranked-items");
         if (unrankedItems) {
-          unrankedItems.classList.add('drag-over');
+          unrankedItems.classList.add("drag-over");
         }
       }
     };
@@ -343,27 +355,32 @@ export default function TierListMaker() {
       }
 
       const touch = e.changedTouches[0];
-      const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-      
-      const tierContent = elementBelow?.closest('.tier-content') as HTMLElement;
-      const unrankedItemsEl = elementBelow?.closest('.unranked-items');
-      
+      const elementBelow = document.elementFromPoint(
+        touch.clientX,
+        touch.clientY
+      );
+
+      const tierContent = elementBelow?.closest(".tier-content") as HTMLElement;
+      const unrankedItemsEl = elementBelow?.closest(".unranked-items");
+
       if (tierContent) {
         const targetTierId = parseInt(tierContent.dataset.tierId || "0");
         moveItemToTier(draggedItem, targetTierId);
       } else if (unrankedItemsEl) {
         moveItemToUnranked(draggedItem);
       }
-      
+
       clearTouchDragState();
     };
 
     document.addEventListener("dragover", handleDragOver);
     document.addEventListener("drop", handleDrop);
     document.addEventListener("dragend", handleDragEnd);
-    
+
     // Add touch event listeners
-    document.addEventListener("touchstart", handleTouchStart, { passive: false });
+    document.addEventListener("touchstart", handleTouchStart, {
+      passive: false,
+    });
     document.addEventListener("touchmove", handleTouchMove, { passive: false });
     document.addEventListener("touchend", handleTouchEnd);
 
@@ -380,7 +397,7 @@ export default function TierListMaker() {
         clearInterval(scrollIntervalRef.current);
         scrollIntervalRef.current = null;
       }
-      
+
       // Clean up touch preview
       if (touchPreviewRef.current) {
         document.body.removeChild(touchPreviewRef.current);
@@ -443,32 +460,34 @@ export default function TierListMaker() {
 
       // Check for saved tier list data
       const savedData = loadTierListFromStorage(playlistUrl);
-      
+
       if (savedData) {
         // Restore saved tier list, but ensure we only include tracks that are still in the playlist
-        const newItemIds = new Set(newItems.map(item => item.id));
-        
+        const newItemIds = new Set(newItems.map((item) => item.id));
+
         // Filter saved tiers to only include items that are still in the playlist
         const restoredTiers = savedData.tiers.map((tier: Tier) => ({
           ...tier,
-          items: tier.items.filter((item: Item) => newItemIds.has(item.id))
+          items: tier.items.filter((item: Item) => newItemIds.has(item.id)),
         }));
-        
+
         // Get items that were in saved tiers
         const tieredItemIds = new Set();
         restoredTiers.forEach((tier: Tier) => {
           tier.items.forEach((item: Item) => tieredItemIds.add(item.id));
         });
-        
+
         // Unranked items are those not in any tier
-        const restoredUnrankedItems = newItems.filter(item => !tieredItemIds.has(item.id));
-        
+        const restoredUnrankedItems = newItems.filter(
+          (item) => !tieredItemIds.has(item.id)
+        );
+
         setTiers(restoredTiers);
         setUnrankedItems(restoredUnrankedItems);
-        
+
         // Restore votes, but only for items that are still in the playlist
         const restoredVotes: { [itemId: string]: number } = {};
-        Object.keys(savedData.votes || {}).forEach(itemId => {
+        Object.keys(savedData.votes || {}).forEach((itemId) => {
           if (newItemIds.has(itemId)) {
             restoredVotes[itemId] = savedData.votes[itemId];
           }
@@ -481,7 +500,7 @@ export default function TierListMaker() {
         setUnrankedItems(newItems); // Replace all items instead of adding
         setVotes({}); // Clear votes
       }
-      
+
       setItemIdCounter((prev) => prev + newItems.length);
       // Don't clear the URL so user can load it again or modify it
     } catch (error) {
@@ -500,37 +519,37 @@ export default function TierListMaker() {
       document.body.removeChild(touchPreviewRef.current);
     }
 
-    const preview = document.createElement('div');
-    preview.style.position = 'fixed';
+    const preview = document.createElement("div");
+    preview.style.position = "fixed";
     preview.style.left = `${x - 32}px`;
     preview.style.top = `${y - 32}px`;
-    preview.style.width = '64px';
-    preview.style.height = '64px';
-    preview.style.pointerEvents = 'none';
-    preview.style.zIndex = '10000';
-    preview.style.opacity = '0.8';
-    preview.style.transform = 'rotate(5deg)';
-    preview.style.borderRadius = '6px';
-    preview.style.overflow = 'hidden';
-    preview.style.backgroundColor = '#333';
-    preview.style.display = 'flex';
-    preview.style.alignItems = 'center';
-    preview.style.justifyContent = 'center';
+    preview.style.width = "64px";
+    preview.style.height = "64px";
+    preview.style.pointerEvents = "none";
+    preview.style.zIndex = "10000";
+    preview.style.opacity = "0.8";
+    preview.style.transform = "rotate(5deg)";
+    preview.style.borderRadius = "6px";
+    preview.style.overflow = "hidden";
+    preview.style.backgroundColor = "#333";
+    preview.style.display = "flex";
+    preview.style.alignItems = "center";
+    preview.style.justifyContent = "center";
 
-    const img = element.querySelector('img');
+    const img = element.querySelector("img");
     if (img) {
-      const previewImg = document.createElement('img');
+      const previewImg = document.createElement("img");
       previewImg.src = img.src;
-      previewImg.style.width = '100%';
-      previewImg.style.height = '100%';
-      previewImg.style.objectFit = 'cover';
+      previewImg.style.width = "100%";
+      previewImg.style.height = "100%";
+      previewImg.style.objectFit = "cover";
       preview.appendChild(previewImg);
     } else {
-      preview.style.background = 'linear-gradient(135deg, #4a5568, #2d3748)';
-      preview.style.fontSize = '12px';
-      preview.style.fontWeight = 'bold';
-      preview.style.color = 'white';
-      preview.textContent = element.textContent?.replace('×', '') || '';
+      preview.style.background = "linear-gradient(135deg, #4a5568, #2d3748)";
+      preview.style.fontSize = "12px";
+      preview.style.fontWeight = "bold";
+      preview.style.color = "white";
+      preview.textContent = element.textContent?.replace("×", "") || "";
     }
 
     document.body.appendChild(preview);
@@ -564,10 +583,10 @@ export default function TierListMaker() {
     document.querySelectorAll(".dragging").forEach((el) => {
       el.classList.remove("dragging");
     });
-    
+
     // Remove global dragging class from body
     document.body.classList.remove("dragging");
-    
+
     setDraggedItem(null);
     clearDropHighlights();
     touchStartRef.current = { x: 0, y: 0, element: null };
@@ -596,16 +615,16 @@ export default function TierListMaker() {
 
   const addVote = (itemId: string) => {
     if (getRemainingVotes() > 0) {
-      setVotes(prev => ({
+      setVotes((prev) => ({
         ...prev,
-        [itemId]: (prev[itemId] || 0) + 1
+        [itemId]: (prev[itemId] || 0) + 1,
       }));
     }
   };
 
   const removeVote = (itemId: string) => {
     if (votes[itemId] > 0) {
-      setVotes(prev => {
+      setVotes((prev) => {
         const newVotes = { ...prev };
         if (newVotes[itemId] === 1) {
           delete newVotes[itemId];
@@ -624,28 +643,31 @@ export default function TierListMaker() {
   // Spotify Web Playback functions
   const playSpotifyTrack = async (trackUri: string) => {
     if (!deviceId) {
-      console.error('No Spotify device available');
+      console.error("No Spotify device available");
       return;
     }
 
     const accessToken = Cookies.get("spotify_access_token");
     if (!accessToken) {
-      console.error('No Spotify access token');
+      console.error("No Spotify access token");
       return;
     }
 
     try {
       // Use Spotify Web API to start playback on our device
-      const response = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          uris: [trackUri]
-        })
-      });
+      const response = await fetch(
+        `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            uris: [trackUri],
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to start playback: ${response.statusText}`);
@@ -653,8 +675,10 @@ export default function TierListMaker() {
 
       setIsPlaying(true);
     } catch (error) {
-      console.error('Error playing track:', error);
-      setSpotifyError('Failed to play track. Make sure you have Spotify Premium.');
+      console.error("Error playing track:", error);
+      setSpotifyError(
+        "Failed to play track. Make sure you have Spotify Premium."
+      );
     }
   };
 
@@ -701,23 +725,25 @@ export default function TierListMaker() {
   const getAllTracks = (): Item[] => {
     const allTracks: Item[] = [];
     // Add tracks from tiers
-    tiers.forEach(tier => {
+    tiers.forEach((tier) => {
       allTracks.push(...tier.items);
     });
     // Add unranked tracks
     allTracks.push(...unrankedItems);
-    return allTracks.filter(item => item.type === 'image' && item.title && item.artist);
+    return allTracks.filter(
+      (item) => item.type === "image" && item.title && item.artist
+    );
   };
 
   // Play a track by item ID
   const playTrackById = async (itemId: string) => {
-    const track = getAllTracks().find(t => t.id === itemId);
+    const track = getAllTracks().find((t) => t.id === itemId);
     if (!track) return;
 
     // Convert our item ID to Spotify URI
-    const spotifyId = track.id.replace('spotify-', '');
+    const spotifyId = track.id.replace("spotify-", "");
     const trackUri = `spotify:track:${spotifyId}`;
-    
+
     await playSpotifyTrack(trackUri);
   };
 
@@ -725,9 +751,9 @@ export default function TierListMaker() {
   const handleItemClick = (e: React.MouseEvent, itemId: string) => {
     // Prevent triggering if this was part of a drag operation
     if (e.defaultPrevented) return;
-    
+
     e.stopPropagation();
-    
+
     if (selectedItem === itemId) {
       // Clicking the same item again deselects it
       setSelectedItem(null);
@@ -739,9 +765,9 @@ export default function TierListMaker() {
 
   const handleTierClick = (e: React.MouseEvent, tierId: number) => {
     if (!selectedItem) return;
-    
+
     e.stopPropagation();
-    
+
     // Move selected item to this tier
     moveItemToTier(selectedItem, tierId);
     setSelectedItem(null);
@@ -749,9 +775,9 @@ export default function TierListMaker() {
 
   const handleUnrankedClick = (e: React.MouseEvent) => {
     if (!selectedItem) return;
-    
+
     e.stopPropagation();
-    
+
     // Move selected item to unranked
     moveItemToUnranked(selectedItem);
     setSelectedItem(null);
@@ -763,7 +789,7 @@ export default function TierListMaker() {
       ".item"
     ) as HTMLElement;
     itemElement.classList.add("dragging");
-    
+
     // Add global dragging class to body for cursor styling
     document.body.classList.add("dragging");
 
@@ -884,10 +910,10 @@ export default function TierListMaker() {
     document.querySelectorAll(".dragging").forEach((el) => {
       el.classList.remove("dragging");
     });
-    
+
     // Remove global dragging class from body
     document.body.classList.remove("dragging");
-    
+
     setDraggedItem(null);
     clearDropHighlights();
 
@@ -911,7 +937,13 @@ export default function TierListMaker() {
         return (
           <div
             key={item.id}
-            className={`item music-card ${selectedItem === item.id ? 'selected' : ''} ${currentTrack?.id === item.id.replace('spotify-', '') ? 'currently-playing' : ''}`}
+            className={`item music-card ${
+              selectedItem === item.id ? "selected" : ""
+            } ${
+              currentTrack?.id === item.id.replace("spotify-", "")
+                ? "currently-playing"
+                : ""
+            }`}
             draggable
             data-item-id={item.id}
             onDragStart={(e) => dragStart(e, item.id)}
@@ -924,22 +956,40 @@ export default function TierListMaker() {
                 src={item.content}
                 alt={`${item.title} album art`}
               />
-              <button 
-                className={`play-btn-overlay ${currentTrack?.id === item.id.replace('spotify-', '') && isPlaying ? 'active' : ''}`}
+              <button
+                className={`play-btn-overlay ${
+                  currentTrack?.id === item.id.replace("spotify-", "") &&
+                  isPlaying
+                    ? "active"
+                    : ""
+                }`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (currentTrack?.id === item.id.replace('spotify-', '') && isPlaying) {
+                  if (
+                    currentTrack?.id === item.id.replace("spotify-", "") &&
+                    isPlaying
+                  ) {
                     pausePlayback();
-                  } else if (currentTrack?.id === item.id.replace('spotify-', '') && !isPlaying) {
+                  } else if (
+                    currentTrack?.id === item.id.replace("spotify-", "") &&
+                    !isPlaying
+                  ) {
                     resumePlayback();
                   } else {
                     playTrackById(item.id);
                   }
                 }}
                 disabled={!deviceId}
-                title={deviceId ? "Play track (Premium required)" : "Spotify Premium required"}
+                title={
+                  deviceId
+                    ? "Play track (Premium required)"
+                    : "Spotify Premium required"
+                }
               >
-                {currentTrack?.id === item.id.replace('spotify-', '') && isPlaying ? '⏸️' : '▶️'}
+                {currentTrack?.id === item.id.replace("spotify-", "") &&
+                isPlaying
+                  ? "⏸️"
+                  : "▶️"}
               </button>
             </div>
             <div className="track-info">
@@ -947,7 +997,7 @@ export default function TierListMaker() {
               <div className="track-artist">{item.artist}</div>
             </div>
             <div className="vote-controls">
-              <button 
+              <button
                 className="vote-btn plus"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -959,7 +1009,7 @@ export default function TierListMaker() {
                 +
               </button>
               <span className="vote-count">{votes[item.id] || 0}</span>
-              <button 
+              <button
                 className="vote-btn minus"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -981,7 +1031,7 @@ export default function TierListMaker() {
         return (
           <div
             key={item.id}
-            className={`item ${selectedItem === item.id ? 'selected' : ''}`}
+            className={`item ${selectedItem === item.id ? "selected" : ""}`}
             draggable
             data-item-id={item.id}
             style={{ width: `${width}px` }}
@@ -997,7 +1047,9 @@ export default function TierListMaker() {
       return (
         <div
           key={item.id}
-          className={`item text-item ${selectedItem === item.id ? 'selected' : ''}`}
+          className={`item text-item ${
+            selectedItem === item.id ? "selected" : ""
+          }`}
           draggable
           data-item-id={item.id}
           onDragStart={(e) => dragStart(e, item.id)}
@@ -1067,7 +1119,9 @@ export default function TierListMaker() {
                 </button>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "10px" }}
+              >
                 <input
                   className="playlist-input"
                   type="text"
@@ -1082,8 +1136,8 @@ export default function TierListMaker() {
                   disabled={!playlistUrl.trim() || isLoadingPlaylist}
                   style={{
                     opacity: !playlistUrl.trim() || isLoadingPlaylist ? 0.5 : 1,
-                    fontSize: '12px',
-                    padding: '4px 8px'
+                    fontSize: "12px",
+                    padding: "4px 8px",
                   }}
                 >
                   {isLoadingPlaylist ? "Loading..." : "Load Playlist"}
@@ -1107,30 +1161,39 @@ export default function TierListMaker() {
 
         {/* Show playlist name if loaded */}
         {playlistName && (
-          <div style={{
-            textAlign: 'center',
-            margin: '20px 0',
-            padding: '15px',
-            background: 'rgba(0, 0, 0, 0.3)',
-            borderRadius: '8px',
-            color: '#ffffff'
-          }}>
-            <h2 style={{
-              fontSize: '1.5rem',
-              margin: '0',
-              color: '#1db954'
-            }}>
+          <div
+            style={{
+              textAlign: "center",
+              margin: "20px 0",
+              padding: "15px",
+              background: "rgba(0, 0, 0, 0.3)",
+              borderRadius: "8px",
+              color: "#ffffff",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "1.5rem",
+                margin: "0",
+                color: "#1db954",
+              }}
+            >
               🎵 {playlistName}
             </h2>
           </div>
         )}
 
         {/* Vote summary */}
-        {(unrankedItems.length > 0 || tiers.some(tier => tier.items.length > 0)) && (
+        {(unrankedItems.length > 0 ||
+          tiers.some((tier) => tier.items.length > 0)) && (
           <div className="vote-summary">
             <div className="vote-info">
-              <span className="votes-used">Votes Used: {getUsedVotes()}/{totalVotes}</span>
-              <span className="votes-remaining">Remaining: {getRemainingVotes()}</span>
+              <span className="votes-used">
+                Votes Used: {getUsedVotes()}/{totalVotes}
+              </span>
+              <span className="votes-remaining">
+                Remaining: {getRemainingVotes()}
+              </span>
             </div>
             {getUsedVotes() > 0 && (
               <button className="reset-votes-btn" onClick={resetAllVotes}>
@@ -1139,18 +1202,20 @@ export default function TierListMaker() {
             )}
           </div>
         )}
-        
+
         <div className="main-content">
           <div className="tier-container">
             {tiers.map((tier, index) => (
               <div key={tier.id} className="tier-row" data-tier-id={tier.id}>
                 <div
-                  className={`tier-label tier-colors-${getTierColorClass(index)}`}
+                  className={`tier-label tier-colors-${getTierColorClass(
+                    index
+                  )}`}
                 >
                   <span>{tier.name}</span>
                 </div>
-                <div 
-                  className={`tier-content ${selectedItem ? 'clickable' : ''}`} 
+                <div
+                  className={`tier-content ${selectedItem ? "clickable" : ""}`}
                   data-tier-id={tier.id}
                   onClick={(e) => handleTierClick(e, tier.id)}
                 >
@@ -1162,8 +1227,8 @@ export default function TierListMaker() {
 
           <div className="unranked-section">
             <h3>Unranked Items</h3>
-            <div 
-              className={`unranked-items ${selectedItem ? 'clickable' : ''}`}
+            <div
+              className={`unranked-items ${selectedItem ? "clickable" : ""}`}
               onClick={handleUnrankedClick}
             >
               {unrankedItems.length === 0 && (
@@ -1188,27 +1253,33 @@ export default function TierListMaker() {
             <div className="track-display">
               {currentTrack ? (
                 <>
-                  <img 
-                    src={currentTrack.album.images[0]?.url} 
-                    alt="Current track" 
+                  <img
+                    src={currentTrack.album.images[0]?.url}
+                    alt="Current track"
                     className="player-album-art"
                   />
                   <div className="player-track-info">
-                    <div className="player-track-title">{currentTrack.name}</div>
+                    <div className="player-track-title">
+                      {currentTrack.name}
+                    </div>
                     <div className="player-track-artist">
-                      {currentTrack.artists.map((artist: any) => artist.name).join(', ')}
+                      {currentTrack.artists
+                        .map((artist: any) => artist.name)
+                        .join(", ")}
                     </div>
                   </div>
                 </>
               ) : (
                 <div className="no-track">
-                  {deviceId ? "Select a track to play" : "Connecting to Spotify..."}
+                  {deviceId
+                    ? "Select a track to play"
+                    : "Connecting to Spotify..."}
                 </div>
               )}
             </div>
 
             <div className="player-controls">
-              <button 
+              <button
                 className="control-btn"
                 onClick={previousTrack}
                 disabled={!deviceId || !currentTrack}
@@ -1216,8 +1287,8 @@ export default function TierListMaker() {
               >
                 ⏮️
               </button>
-              
-              <button 
+
+              <button
                 className="control-btn play-pause"
                 onClick={() => {
                   if (isPlaying) {
@@ -1229,10 +1300,10 @@ export default function TierListMaker() {
                 disabled={!deviceId || !currentTrack}
                 title={isPlaying ? "Pause" : "Play"}
               >
-                {isPlaying ? '⏸️' : '▶️'}
+                {isPlaying ? "⏸️" : "▶️"}
               </button>
-              
-              <button 
+
+              <button
                 className="control-btn"
                 onClick={nextTrack}
                 disabled={!deviceId || !currentTrack}
@@ -1244,7 +1315,8 @@ export default function TierListMaker() {
 
             <div className="player-progress">
               <span className="time-display">
-                {Math.floor(currentTime / 1000 / 60)}:{String(Math.floor((currentTime / 1000) % 60)).padStart(2, '0')}
+                {Math.floor(currentTime / 1000 / 60)}:
+                {String(Math.floor((currentTime / 1000) % 60)).padStart(2, "0")}
               </span>
               <input
                 type="range"
@@ -1256,7 +1328,11 @@ export default function TierListMaker() {
                 disabled={!deviceId || !currentTrack}
               />
               <span className="time-display">
-                {Math.floor((duration || 0) / 1000 / 60)}:{String(Math.floor(((duration || 0) / 1000) % 60)).padStart(2, '0')}
+                {Math.floor((duration || 0) / 1000 / 60)}:
+                {String(Math.floor(((duration || 0) / 1000) % 60)).padStart(
+                  2,
+                  "0"
+                )}
               </span>
             </div>
 
@@ -1276,7 +1352,7 @@ export default function TierListMaker() {
 
             {!deviceId && (
               <div className="player-status">
-                <span style={{ color: '#ff6b6b', fontSize: '12px' }}>
+                <span style={{ color: "#ff6b6b", fontSize: "12px" }}>
                   Premium required for playback
                 </span>
               </div>
