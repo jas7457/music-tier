@@ -53,6 +53,7 @@ export default function TierListMaker() {
   const [spotifyError, setSpotifyError] = useState<string | null>(null);
   const [hasAutoLoaded, setHasAutoLoaded] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [playlistName, setPlaylistName] = useState<string | null>(null);
 
   const dragPreviewRef = useRef<HTMLDivElement>(null);
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -289,6 +290,9 @@ export default function TierListMaker() {
       }
 
       const playlistData = await fetchPlaylist(playlistId, accessToken);
+
+      // Set the playlist name
+      setPlaylistName(playlistData.name);
 
       // Clear all existing items from tiers and unranked
       setTiers((prev) => prev.map((tier) => ({ ...tier, items: [] })));
@@ -749,6 +753,26 @@ export default function TierListMaker() {
             </div>
           )}
         </div>
+
+        {/* Show playlist name if loaded */}
+        {playlistName && (
+          <div style={{
+            textAlign: 'center',
+            margin: '20px 0',
+            padding: '15px',
+            background: 'rgba(0, 0, 0, 0.3)',
+            borderRadius: '8px',
+            color: '#ffffff'
+          }}>
+            <h2 style={{
+              fontSize: '1.5rem',
+              margin: '0',
+              color: '#1db954'
+            }}>
+              🎵 {playlistName}
+            </h2>
+          </div>
+        )}
         
         <div className="main-content">
           <div className="tier-container">

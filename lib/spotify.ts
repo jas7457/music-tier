@@ -10,6 +10,7 @@ export interface SpotifyTrack {
 }
 
 export interface SpotifyPlaylistResponse {
+  name: string;
   tracks: {
     items: Array<{
       track: SpotifyTrack;
