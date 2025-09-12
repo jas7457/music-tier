@@ -352,6 +352,10 @@ export default function TierListMaker() {
       }
 
       const playlistData = await fetchPlaylist(playlistId, accessToken);
+      
+      // Debug: log the full response to understand the structure
+      console.log('Full playlist response:', playlistData);
+      console.log('Track items:', playlistData.tracks.items.slice(0, 3)); // Log first 3 tracks
 
       // Set the playlist name
       setPlaylistName(playlistData.name);

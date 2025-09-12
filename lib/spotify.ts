@@ -55,7 +55,7 @@ export const initiateSpotifyAuth = async (): Promise<void> => {
   const hashed = await sha256(codeVerifier);
   const codeChallenge = base64encode(hashed);
 
-  const scope = "playlist-read-private playlist-read-collaborative";
+  const scope = "playlist-read-private playlist-read-collaborative streaming user-read-playback-state";
   const authUrl = new URL("https://accounts.spotify.com/authorize");
 
   window.localStorage.setItem("code_verifier", codeVerifier);
@@ -109,8 +109,9 @@ export const fetchPlaylist = async (
   playlistId: string,
   accessToken: string
 ): Promise<SpotifyPlaylistResponse> => {
+  // Add market parameter to get preview URLs for the user's market
   const response = await fetch(
-    `https://api.spotify.com/v1/playlists/${playlistId}`,
+    `https://api.spotify.com/v1/playlists/${playlistId}?market=from_token&fields=name,tracks.items(track(id,name,artists,album(name,images),preview_url))`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
