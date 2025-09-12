@@ -1,12 +1,18 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
+import Cookies from 'js-cookie'
+import { initiateSpotifyAuth, fetchPlaylist, extractPlaylistId, SpotifyTrack } from '@/lib/spotify'
 
 interface Item {
   id: string
   type: 'image' | 'text'
   content: string
   aspectRatio?: number
+  title?: string
+  artist?: string
+  album?: string
 }
 
 interface Tier {
@@ -16,6 +22,8 @@ interface Tier {
 }
 
 export default function TierListMaker() {
+  const searchParams = useSearchParams()
+  
   const [tiers, setTiers] = useState<Tier[]>([
     { id: 1, name: 'Jen', items: [] },
     { id: 2, name: 'Kelsey', items: [] },
@@ -31,7 +39,25 @@ export default function TierListMaker() {
   const [itemIdCounter, setItemIdCounter] = useState(1)
   const [tierIdCounter, setTierIdCounter] = useState(8)
   
+  // Spotify integration state
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [playlistUrl, setPlaylistUrl] = useState('')
+  const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(false)
+  const [spotifyError, setSpotifyError] = useState<string | null>(null)
+  
   const dragPreviewRef = useRef<HTMLDivElement>(null)
+
+  // Check authentication status on mount
+  useEffect(() => {
+    const token = Cookies.get('spotify_access_token')
+    setIsAuthenticated(!!token)
+    
+    // Check for auth errors
+    const error = searchParams.get('error')
+    if (error) {
+      setSpotifyError(error)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
@@ -161,6 +187,59 @@ export default function TierListMaker() {
     setItemIdCounter(prev => prev + 1)
   }
 
+  const handleSpotifyAuth = () => {
+    setSpotifyError(null)
+    initiateSpotifyAuth()
+  }
+
+  const handleLogout = () => {
+    Cookies.remove('spotify_access_token')
+    setIsAuthenticated(false)
+  }
+
+  const loadPlaylist = async () => {
+    if (!playlistUrl.trim()) return
+
+    setIsLoadingPlaylist(true)
+    setSpotifyError(null)
+
+    try {
+      const playlistId = extractPlaylistId(playlistUrl)
+      if (!playlistId) {
+        throw new Error('Invalid Spotify playlist URL')
+      }
+
+      const accessToken = Cookies.get('spotify_access_token')
+      if (!accessToken) {
+        throw new Error('No access token found')
+      }
+
+      const playlistData = await fetchPlaylist(playlistId, accessToken)
+      
+      // Transform Spotify tracks to items
+      const newItems: Item[] = playlistData.tracks.items
+        .filter(item => item.track && item.track.album.images.length > 0)
+        .map((item, index) => ({
+          id: `spotify-${itemIdCounter + index}`,
+          type: 'image' as const,
+          content: item.track.album.images[0]?.url || '',
+          aspectRatio: 1, // Album covers are square
+          title: item.track.name,
+          artist: item.track.artists.map(a => a.name).join(', '),
+          album: item.track.album.name,
+        }))
+
+      setUnrankedItems(prev => [...prev, ...newItems])
+      setItemIdCounter(prev => prev + newItems.length)
+      setPlaylistUrl('')
+    } catch (error) {
+      console.error('Error loading playlist:', error)
+      setSpotifyError(error instanceof Error ? error.message : 'Failed to load playlist')
+    } finally {
+      setIsLoadingPlaylist(false)
+    }
+  }
+
   const dragStart = (e: React.DragEvent, itemId: string) => {
     setDraggedItem(itemId)
     const itemElement = (e.target as HTMLElement).closest('.item') as HTMLElement
@@ -260,6 +339,8 @@ export default function TierListMaker() {
   const renderItem = (item: Item) => {
     if (item.type === 'image') {
       const width = item.aspectRatio ? Math.min(200, Math.max(64, 64 * item.aspectRatio)) : 64
+      const title = item.title && item.artist ? `${item.title} - ${item.artist}` : 'Item'
+      
       return (
         <div
           key={item.id}
@@ -268,8 +349,9 @@ export default function TierListMaker() {
           data-item-id={item.id}
           style={{ width: `${width}px` }}
           onDragStart={(e) => dragStart(e, item.id)}
+          title={title}
         >
-          <img src={item.content} alt="Item" />
+          <img src={item.content} alt={title} />
           <button className="delete-item" onClick={() => deleteItem(item.id)}>×</button>
         </div>
       )
@@ -292,7 +374,7 @@ export default function TierListMaker() {
   return (
     <div className="app">
       <header>
-        <h1>Tier List Maker</h1>
+        <h1>Music Tier List Maker</h1>
         <div className="controls">
           <button onClick={addTier}>Add Tier</button>
           <button onClick={addTextItem}>Add Text Item</button>
@@ -300,6 +382,64 @@ export default function TierListMaker() {
       </header>
       
       <main>
+        {/* Spotify Integration Section */}
+        <div className="spotify-section">
+          <h3>🎵 Spotify Integration</h3>
+          
+          {!isAuthenticated ? (
+            <div>
+              <p style={{ marginBottom: '15px', color: 'rgba(255, 255, 255, 0.8)' }}>
+                Connect your Spotify account to load playlists directly into your tier list.
+              </p>
+              <button className="auth-button" onClick={handleSpotifyAuth}>
+                <span>🎵</span>
+                Connect to Spotify
+              </button>
+              {spotifyError && (
+                <p style={{ color: '#ff6b6b', marginTop: '10px', fontSize: '14px' }}>
+                  Error: {spotifyError}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div>
+              <div className="user-info">
+                <div className="user-avatar">🎵</div>
+                <span>Connected to Spotify</span>
+                <button 
+                  style={{ marginLeft: 'auto', fontSize: '12px', padding: '4px 8px' }} 
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
+              
+              <div>
+                <input
+                  className="playlist-input"
+                  type="text"
+                  placeholder="Paste Spotify playlist URL here..."
+                  value={playlistUrl}
+                  onChange={(e) => setPlaylistUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && loadPlaylist()}
+                />
+                <button 
+                  onClick={loadPlaylist}
+                  disabled={!playlistUrl.trim() || isLoadingPlaylist}
+                  style={{ opacity: (!playlistUrl.trim() || isLoadingPlaylist) ? 0.5 : 1 }}
+                >
+                  {isLoadingPlaylist ? 'Loading...' : 'Load Playlist'}
+                </button>
+              </div>
+              
+              {spotifyError && (
+                <p style={{ color: '#ff6b6b', marginTop: '10px', fontSize: '14px' }}>
+                  Error: {spotifyError}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
         <div className="tier-container">
           {tiers.map((tier, index) => (
             <div key={tier.id} className="tier-row" data-tier-id={tier.id}>

@@ -278,6 +278,92 @@ button:active {
 .tier-colors-e { background: linear-gradient(135deg, #a8e6cf, #88d8a3); }
 .tier-colors-f { background: linear-gradient(135deg, #ff8a8a, #ffa8a8); }
 
+.loading-spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spotify-section {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.spotify-section h3 {
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+
+.playlist-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.playlist-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.playlist-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-button {
+    background: #1db954;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.auth-button:hover {
+    background: #1ed760;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #1db954;
+}
+
 @media (max-width: 768px) {
     .app {
         padding: 10px;
