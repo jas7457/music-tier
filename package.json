@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:ngrok": "ngrok http 3000",
+    "dev:ngrok": "ngrok http --url=herbert-effortful-leigha.ngrok-free.app 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
