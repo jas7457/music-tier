@@ -9,6 +9,20 @@ import {
   extractPlaylistId,
 } from "@/lib/spotify";
 
+// Spotify Web Playback SDK types
+declare global {
+  interface Window {
+    onSpotifyWebPlaybackSDKReady: () => void;
+    Spotify: {
+      Player: new (options: {
+        name: string;
+        getOAuthToken: (callback: (token: string) => void) => void;
+        volume?: number;
+      }) => any;
+    };
+  }
+}
+
 interface Item {
   id: string;
   type: "image" | "text";
@@ -102,10 +116,10 @@ export default function TierListMaker() {
   const [totalVotes, setTotalVotes] = useState(10);
 
   // Spotify Web Playback SDK state
-  const [player, setPlayer] = useState<Spotify.Player | null>(null);
+  const [player, setPlayer] = useState<any>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<Spotify.WebPlaybackTrack | null>(null);
+  const [currentTrack, setCurrentTrack] = useState<any>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
@@ -131,18 +145,18 @@ export default function TierListMaker() {
       });
 
       // Ready event - device is ready
-      spotifyPlayer.addListener('ready', ({ device_id }: Spotify.WebPlaybackPlayer) => {
+      spotifyPlayer.addListener('ready', ({ device_id }: any) => {
         console.log('Spotify Player Ready with Device ID:', device_id);
         setDeviceId(device_id);
       });
 
       // Not Ready event - device has gone offline
-      spotifyPlayer.addListener('not_ready', ({ device_id }: Spotify.WebPlaybackPlayer) => {
+      spotifyPlayer.addListener('not_ready', ({ device_id }: any) => {
         console.log('Spotify Player Not Ready with Device ID:', device_id);
       });
 
       // Player state changed
-      spotifyPlayer.addListener('player_state_changed', (state: Spotify.WebPlaybackState | null) => {
+      spotifyPlayer.addListener('player_state_changed', (state: any) => {
         if (!state) return;
 
         setCurrentTrack(state.track_window.current_track);
