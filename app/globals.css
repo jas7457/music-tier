@@ -181,9 +181,44 @@ button:active {
     transform: scale(1.05);
 }
 
+.item.selected {
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+    transform: scale(1.05);
+}
+
+.tier-content.clickable {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.tier-content.clickable:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.unranked-items.clickable {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.unranked-items.clickable:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
 .item.dragging {
     opacity: 0.5;
+    cursor: grabbing !important;
+}
+
+/* Ensure grabbing cursor shows during drag operations */
+.item:active {
     cursor: grabbing;
+}
+
+/* Global cursor during drag operations */
+body.dragging,
+body.dragging * {
+    cursor: grabbing !important;
 }
 
 .item img {

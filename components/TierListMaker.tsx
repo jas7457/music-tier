@@ -52,9 +52,12 @@ export default function TierListMaker() {
   const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(false);
   const [spotifyError, setSpotifyError] = useState<string | null>(null);
   const [hasAutoLoaded, setHasAutoLoaded] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
 
   const dragPreviewRef = useRef<HTMLDivElement>(null);
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number; element: HTMLElement | null }>({ x: 0, y: 0, element: null });
+  const touchPreviewRef = useRef<HTMLDivElement | null>(null);
 
   // Check authentication status on mount
   useEffect(() => {
@@ -133,19 +136,120 @@ export default function TierListMaker() {
       clearDragState();
     };
 
+    // Touch event handlers for mobile
+    const handleTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      const element = (e.target as HTMLElement).closest('.item') as HTMLElement;
+      if (!element) return;
+
+      touchStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        element: element
+      };
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!touchStartRef.current.element) return;
+
+      e.preventDefault(); // Prevent scrolling
+      const touch = e.touches[0];
+      const startX = touchStartRef.current.x;
+      const startY = touchStartRef.current.y;
+      
+      // Check if we've moved enough to start dragging
+      const deltaX = touch.clientX - startX;
+      const deltaY = touch.clientY - startY;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      
+      if (distance > 10 && !draggedItem) {
+        // Start dragging
+        const itemId = touchStartRef.current.element.dataset.itemId;
+        if (itemId) {
+          setDraggedItem(itemId);
+          touchStartRef.current.element.classList.add('dragging');
+          
+          // Add global dragging class to body for cursor styling
+          document.body.classList.add("dragging");
+          
+          // Create touch preview
+          createTouchPreview(touchStartRef.current.element, touch.clientX, touch.clientY);
+        }
+      }
+
+      if (draggedItem && touchPreviewRef.current) {
+        // Update preview position
+        touchPreviewRef.current.style.left = `${touch.clientX - 32}px`;
+        touchPreviewRef.current.style.top = `${touch.clientY - 32}px`;
+        
+        // Handle auto-scroll
+        handleTouchScroll(touch.clientY);
+        
+        // Handle drop zone highlighting
+        const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+        clearDropHighlights();
+        
+        const tierContent = elementBelow?.closest('.tier-content');
+        if (tierContent) {
+          tierContent.classList.add('drag-over');
+        }
+        
+        const unrankedItems = elementBelow?.closest('.unranked-items');
+        if (unrankedItems) {
+          unrankedItems.classList.add('drag-over');
+        }
+      }
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!draggedItem || !touchStartRef.current.element) {
+        touchStartRef.current = { x: 0, y: 0, element: null };
+        return;
+      }
+
+      const touch = e.changedTouches[0];
+      const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+      
+      const tierContent = elementBelow?.closest('.tier-content') as HTMLElement;
+      const unrankedItemsEl = elementBelow?.closest('.unranked-items');
+      
+      if (tierContent) {
+        const targetTierId = parseInt(tierContent.dataset.tierId || "0");
+        moveItemToTier(draggedItem, targetTierId);
+      } else if (unrankedItemsEl) {
+        moveItemToUnranked(draggedItem);
+      }
+      
+      clearTouchDragState();
+    };
+
     document.addEventListener("dragover", handleDragOver);
     document.addEventListener("drop", handleDrop);
     document.addEventListener("dragend", handleDragEnd);
+    
+    // Add touch event listeners
+    document.addEventListener("touchstart", handleTouchStart, { passive: false });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd);
 
     return () => {
       document.removeEventListener("dragover", handleDragOver);
       document.removeEventListener("drop", handleDrop);
       document.removeEventListener("dragend", handleDragEnd);
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
 
       // Clean up any active scroll interval
       if (scrollIntervalRef.current) {
         clearInterval(scrollIntervalRef.current);
         scrollIntervalRef.current = null;
+      }
+      
+      // Clean up touch preview
+      if (touchPreviewRef.current) {
+        document.body.removeChild(touchPreviewRef.current);
+        touchPreviewRef.current = null;
       }
     };
   }, [draggedItem, itemIdCounter]);
@@ -215,12 +319,142 @@ export default function TierListMaker() {
     }
   };
 
+  // Touch helper functions
+  const createTouchPreview = (element: HTMLElement, x: number, y: number) => {
+    if (touchPreviewRef.current) {
+      document.body.removeChild(touchPreviewRef.current);
+    }
+
+    const preview = document.createElement('div');
+    preview.style.position = 'fixed';
+    preview.style.left = `${x - 32}px`;
+    preview.style.top = `${y - 32}px`;
+    preview.style.width = '64px';
+    preview.style.height = '64px';
+    preview.style.pointerEvents = 'none';
+    preview.style.zIndex = '10000';
+    preview.style.opacity = '0.8';
+    preview.style.transform = 'rotate(5deg)';
+    preview.style.borderRadius = '6px';
+    preview.style.overflow = 'hidden';
+    preview.style.backgroundColor = '#333';
+    preview.style.display = 'flex';
+    preview.style.alignItems = 'center';
+    preview.style.justifyContent = 'center';
+
+    const img = element.querySelector('img');
+    if (img) {
+      const previewImg = document.createElement('img');
+      previewImg.src = img.src;
+      previewImg.style.width = '100%';
+      previewImg.style.height = '100%';
+      previewImg.style.objectFit = 'cover';
+      preview.appendChild(previewImg);
+    } else {
+      preview.style.background = 'linear-gradient(135deg, #4a5568, #2d3748)';
+      preview.style.fontSize = '12px';
+      preview.style.fontWeight = 'bold';
+      preview.style.color = 'white';
+      preview.textContent = element.textContent?.replace('×', '') || '';
+    }
+
+    document.body.appendChild(preview);
+    touchPreviewRef.current = preview;
+  };
+
+  const handleTouchScroll = (touchY: number) => {
+    const scrollThreshold = 250;
+    const scrollSpeed = 10;
+    const viewportHeight = window.innerHeight;
+
+    // Clear any existing scroll interval
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current);
+      scrollIntervalRef.current = null;
+    }
+
+    // Check if touch is near top or bottom of viewport
+    if (touchY < scrollThreshold) {
+      scrollIntervalRef.current = setInterval(() => {
+        window.scrollBy(0, -scrollSpeed);
+      }, 16);
+    } else if (touchY > viewportHeight - scrollThreshold) {
+      scrollIntervalRef.current = setInterval(() => {
+        window.scrollBy(0, scrollSpeed);
+      }, 16);
+    }
+  };
+
+  const clearTouchDragState = () => {
+    document.querySelectorAll(".dragging").forEach((el) => {
+      el.classList.remove("dragging");
+    });
+    
+    // Remove global dragging class from body
+    document.body.classList.remove("dragging");
+    
+    setDraggedItem(null);
+    clearDropHighlights();
+    touchStartRef.current = { x: 0, y: 0, element: null };
+
+    // Clear auto-scroll interval
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current);
+      scrollIntervalRef.current = null;
+    }
+
+    // Remove touch preview
+    if (touchPreviewRef.current) {
+      document.body.removeChild(touchPreviewRef.current);
+      touchPreviewRef.current = null;
+    }
+  };
+
+  // Click-to-select and click-to-move functionality
+  const handleItemClick = (e: React.MouseEvent, itemId: string) => {
+    // Prevent triggering if this was part of a drag operation
+    if (e.defaultPrevented) return;
+    
+    e.stopPropagation();
+    
+    if (selectedItem === itemId) {
+      // Clicking the same item again deselects it
+      setSelectedItem(null);
+    } else {
+      // Select this item
+      setSelectedItem(itemId);
+    }
+  };
+
+  const handleTierClick = (e: React.MouseEvent, tierId: number) => {
+    if (!selectedItem) return;
+    
+    e.stopPropagation();
+    
+    // Move selected item to this tier
+    moveItemToTier(selectedItem, tierId);
+    setSelectedItem(null);
+  };
+
+  const handleUnrankedClick = (e: React.MouseEvent) => {
+    if (!selectedItem) return;
+    
+    e.stopPropagation();
+    
+    // Move selected item to unranked
+    moveItemToUnranked(selectedItem);
+    setSelectedItem(null);
+  };
+
   const dragStart = (e: React.DragEvent, itemId: string) => {
     setDraggedItem(itemId);
     const itemElement = (e.target as HTMLElement).closest(
       ".item"
     ) as HTMLElement;
     itemElement.classList.add("dragging");
+    
+    // Add global dragging class to body for cursor styling
+    document.body.classList.add("dragging");
 
     const dragPreview = dragPreviewRef.current;
     if (dragPreview && itemElement) {
@@ -339,6 +573,10 @@ export default function TierListMaker() {
     document.querySelectorAll(".dragging").forEach((el) => {
       el.classList.remove("dragging");
     });
+    
+    // Remove global dragging class from body
+    document.body.classList.remove("dragging");
+    
     setDraggedItem(null);
     clearDropHighlights();
 
@@ -362,10 +600,11 @@ export default function TierListMaker() {
         return (
           <div
             key={item.id}
-            className="item music-card"
+            className={`item music-card ${selectedItem === item.id ? 'selected' : ''}`}
             draggable
             data-item-id={item.id}
             onDragStart={(e) => dragStart(e, item.id)}
+            onClick={(e) => handleItemClick(e, item.id)}
             title={`${item.title} - ${item.artist}`}
           >
             <img
@@ -387,11 +626,12 @@ export default function TierListMaker() {
         return (
           <div
             key={item.id}
-            className="item"
+            className={`item ${selectedItem === item.id ? 'selected' : ''}`}
             draggable
             data-item-id={item.id}
             style={{ width: `${width}px` }}
             onDragStart={(e) => dragStart(e, item.id)}
+            onClick={(e) => handleItemClick(e, item.id)}
             title="Item"
           >
             <img src={item.content} alt="Item" />
@@ -402,10 +642,11 @@ export default function TierListMaker() {
       return (
         <div
           key={item.id}
-          className="item text-item"
+          className={`item text-item ${selectedItem === item.id ? 'selected' : ''}`}
           draggable
           data-item-id={item.id}
           onDragStart={(e) => dragStart(e, item.id)}
+          onClick={(e) => handleItemClick(e, item.id)}
         >
           {item.content}
         </div>
@@ -518,7 +759,11 @@ export default function TierListMaker() {
                 >
                   <span>{tier.name}</span>
                 </div>
-                <div className="tier-content" data-tier-id={tier.id}>
+                <div 
+                  className={`tier-content ${selectedItem ? 'clickable' : ''}`} 
+                  data-tier-id={tier.id}
+                  onClick={(e) => handleTierClick(e, tier.id)}
+                >
                   {tier.items.map((item) => renderItem(item))}
                 </div>
               </div>
@@ -527,7 +772,10 @@ export default function TierListMaker() {
 
           <div className="unranked-section">
             <h3>Unranked Items</h3>
-            <div className="unranked-items">
+            <div 
+              className={`unranked-items ${selectedItem ? 'clickable' : ''}`}
+              onClick={handleUnrankedClick}
+            >
               {unrankedItems.length === 0 && (
                 <div className="drop-zone">
                   {isAuthenticated
