@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Cookies from 'js-cookie'
-import { initiateSpotifyAuth, fetchPlaylist, extractPlaylistId, SpotifyTrack } from '@/lib/spotify'
+import { initiateSpotifyAuth, fetchPlaylist, extractPlaylistId } from '@/lib/spotify'
 
 interface Item {
   id: string
@@ -26,18 +26,19 @@ export default function TierListMaker() {
   
   const [tiers, setTiers] = useState<Tier[]>([
     { id: 1, name: 'Jen', items: [] },
-    { id: 2, name: 'Kelsey', items: [] },
-    { id: 3, name: 'James', items: [] },
-    { id: 4, name: 'Dharam', items: [] },
-    { id: 5, name: 'Kayla', items: [] },
-    { id: 6, name: 'Cody', items: [] },
-    { id: 7, name: 'TJ', items: [] }
+    { id: 2, name: 'Jason', items: [] },
+    { id: 3, name: 'Kelsey', items: [] },
+    { id: 4, name: 'James', items: [] },
+    { id: 5, name: 'Dharam', items: [] },
+    { id: 6, name: 'Kayla', items: [] },
+    { id: 7, name: 'Cody', items: [] },
+    { id: 8, name: 'TJ', items: [] }
   ])
   
   const [unrankedItems, setUnrankedItems] = useState<Item[]>([])
   const [draggedItem, setDraggedItem] = useState<string | null>(null)
   const [itemIdCounter, setItemIdCounter] = useState(1)
-  const [tierIdCounter, setTierIdCounter] = useState(8)
+  const [tierIdCounter, setTierIdCounter] = useState(9)
   
   // Spotify integration state
   const [isAuthenticated, setIsAuthenticated] = useState(false)
