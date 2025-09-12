@@ -33,7 +33,12 @@ export const sha256 = async (plain: string): Promise<ArrayBuffer> => {
 }
 
 export const base64encode = (input: ArrayBuffer): string => {
-  return btoa(String.fromCharCode(...new Uint8Array(input)))
+  const uint8Array = new Uint8Array(input)
+  const chars: string[] = []
+  for (let i = 0; i < uint8Array.length; i++) {
+    chars.push(String.fromCharCode(uint8Array[i]))
+  }
+  return btoa(chars.join(''))
     .replace(/=/g, '')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
