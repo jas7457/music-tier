@@ -19,7 +19,10 @@ export interface SpotifyPlaylistResponse {
 }
 
 const CLIENT_ID = "3b4aa4f5d652435db1d08f41ea973c44";
-const REDIRECT_URI = "https://music-tier.vercel.app/callback";
+const REDIRECT_URI =
+  process.env.NODE_ENV === "development"
+    ? "https://85b1b5ee2f93.ngrok-free.app/callback"
+    : "https://music-tier.vercel.app/callback";
 
 export const generateRandomString = (length: number): string => {
   const possible =
@@ -55,7 +58,8 @@ export const initiateSpotifyAuth = async (): Promise<void> => {
   const hashed = await sha256(codeVerifier);
   const codeChallenge = base64encode(hashed);
 
-  const scope = "playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state";
+  const scope =
+    "playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state";
   const authUrl = new URL("https://accounts.spotify.com/authorize");
 
   window.localStorage.setItem("code_verifier", codeVerifier);
