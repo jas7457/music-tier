@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tier List Maker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>Tier List Maker</h1>
+            <div class="controls">
+                <button id="add-tier">Add Tier</button>
+                <button id="add-text-item">Add Text Item</button>
+            </div>
+        </header>
+        
+        <main>
+            <div id="tier-container" class="tier-container">
+                <!-- Tiers will be dynamically created here -->
+            </div>
+            
+            <div class="unranked-section">
+                <h3>Unranked Items</h3>
+                <div id="unranked-items" class="unranked-items">
+                    <div class="drop-zone">
+                        Drop images here or paste them (Ctrl+V)
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="drag-preview" class="drag-preview"></div>
+    <script src="script.js"></script>
+</body>
+</html>
