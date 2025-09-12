@@ -359,16 +359,19 @@ export default function TierListMaker() {
       // Transform Spotify tracks to items
       const newItems: Item[] = playlistData.tracks.items
         .filter((item) => item.track && item.track.album.images.length > 0)
-        .map((item) => ({
-          id: `spotify-${item.track.id}`, // Use Spotify track ID for consistency
-          type: "image" as const,
-          content: item.track.album.images[0]?.url || "",
-          aspectRatio: 1, // Album covers are square
-          title: item.track.name,
-          artist: item.track.artists.map((a) => a.name).join(", "),
-          album: item.track.album.name,
-          previewUrl: item.track.preview_url,
-        }));
+        .map((item) => {
+          console.log(`Track: ${item.track.name} - Preview URL:`, item.track.preview_url);
+          return {
+            id: `spotify-${item.track.id}`, // Use Spotify track ID for consistency
+            type: "image" as const,
+            content: item.track.album.images[0]?.url || "",
+            aspectRatio: 1, // Album covers are square
+            title: item.track.name,
+            artist: item.track.artists.map((a) => a.name).join(", "),
+            album: item.track.album.name,
+            previewUrl: item.track.preview_url,
+          };
+        });
 
       // Check for saved tier list data
       const savedData = loadTierListFromStorage(playlistUrl);
@@ -649,8 +652,24 @@ export default function TierListMaker() {
     if (allTracks.length === 0) return;
 
     const currentIndex = allTracks.findIndex(track => track.id === currentTrackId);
-    const nextIndex = (currentIndex + 1) % allTracks.length;
-    playTrack(allTracks[nextIndex].id);
+    let nextIndex = (currentIndex + 1) % allTracks.length;
+    
+    // Try to find the next track with a preview URL, but don't loop forever
+    let attempts = 0;
+    const maxAttempts = allTracks.length;
+    
+    while (attempts < maxAttempts && !allTracks[nextIndex].previewUrl) {
+      nextIndex = (nextIndex + 1) % allTracks.length;
+      attempts++;
+    }
+    
+    if (allTracks[nextIndex].previewUrl) {
+      playTrack(allTracks[nextIndex].id);
+    } else {
+      console.log('No tracks with preview URLs available');
+      setIsPlaying(false);
+      setCurrentTrackId(null);
+    }
   };
 
   const playPreviousTrack = () => {
@@ -658,8 +677,24 @@ export default function TierListMaker() {
     if (allTracks.length === 0) return;
 
     const currentIndex = allTracks.findIndex(track => track.id === currentTrackId);
-    const prevIndex = currentIndex <= 0 ? allTracks.length - 1 : currentIndex - 1;
-    playTrack(allTracks[prevIndex].id);
+    let prevIndex = currentIndex <= 0 ? allTracks.length - 1 : currentIndex - 1;
+    
+    // Try to find the previous track with a preview URL, but don't loop forever
+    let attempts = 0;
+    const maxAttempts = allTracks.length;
+    
+    while (attempts < maxAttempts && !allTracks[prevIndex].previewUrl) {
+      prevIndex = prevIndex <= 0 ? allTracks.length - 1 : prevIndex - 1;
+      attempts++;
+    }
+    
+    if (allTracks[prevIndex].previewUrl) {
+      playTrack(allTracks[prevIndex].id);
+    } else {
+      console.log('No tracks with preview URLs available');
+      setIsPlaying(false);
+      setCurrentTrackId(null);
+    }
   };
 
   const seekTo = (time: number) => {
@@ -873,43 +908,14 @@ export default function TierListMaker() {
             onClick={(e) => handleItemClick(e, item.id)}
             title={`${item.title} - ${item.artist}`}
           >
-            <img
-              className="album-art"
-              src={item.content}
-              alt={`${item.title} album art`}
-            />
-            <div className="track-info">
-              <div className="track-title">{item.title}</div>
-              <div className="track-artist">{item.artist}</div>
-            </div>
-            <div className="card-controls">
-              <div className="vote-controls">
-                <button 
-                  className="vote-btn plus"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addVote(item.id);
-                  }}
-                  disabled={getRemainingVotes() === 0}
-                  title="Add vote"
-                >
-                  +
-                </button>
-                <span className="vote-count">{votes[item.id] || 0}</span>
-                <button 
-                  className="vote-btn minus"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeVote(item.id);
-                  }}
-                  disabled={!votes[item.id]}
-                  title="Remove vote"
-                >
-                  −
-                </button>
-              </div>
+            <div className="album-art-container">
+              <img
+                className="album-art"
+                src={item.content}
+                alt={`${item.title} album art`}
+              />
               <button 
-                className={`play-btn ${currentTrackId === item.id ? 'active' : ''}`}
+                className={`play-btn-overlay ${currentTrackId === item.id ? 'active' : ''}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (currentTrackId === item.id && isPlaying) {
@@ -926,6 +932,42 @@ export default function TierListMaker() {
                 {currentTrackId === item.id && isPlaying ? '⏸️' : '▶️'}
               </button>
             </div>
+            <div className="track-info">
+              <div className="track-title">{item.title}</div>
+              <div className="track-artist">{item.artist}</div>
+            </div>
+            <div className="vote-controls">
+              <button 
+                className="vote-btn plus"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addVote(item.id);
+                }}
+                disabled={getRemainingVotes() === 0}
+                title="Add vote"
+              >
+                +
+              </button>
+              <span className="vote-count">{votes[item.id] || 0}</span>
+              <button 
+                className="vote-btn minus"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeVote(item.id);
+                }}
+                disabled={!votes[item.id]}
+                title="Remove vote"
+              >
+                −
+              </button>
+            </div>
+            
+            {/* Overlay for tracks without preview */}
+            {!item.previewUrl && (
+              <div className="no-preview-overlay">
+                <div className="no-preview-text">No Preview<br/>Available</div>
+              </div>
+            )}
           </div>
         );
       } else {
@@ -1172,9 +1214,14 @@ export default function TierListMaker() {
                 className="control-btn play-pause"
                 onClick={() => {
                   if (!currentTrackId) {
-                    // Play first track if none selected
-                    const firstTrack = getAllTracks()[0];
-                    if (firstTrack) playTrack(firstTrack.id);
+                    // Find first track with preview URL
+                    const allTracks = getAllTracks();
+                    const firstPlayableTrack = allTracks.find(track => track.previewUrl);
+                    if (firstPlayableTrack) {
+                      playTrack(firstPlayableTrack.id);
+                    } else {
+                      console.log('No playable tracks found in playlist');
+                    }
                   } else if (isPlaying) {
                     pauseTrack();
                   } else {
