@@ -17,7 +17,6 @@ interface Item {
   title?: string;
   artist?: string;
   album?: string;
-  previewUrl?: string | null;
 }
 
 interface Tier {
@@ -102,18 +101,10 @@ export default function TierListMaker() {
   const [votes, setVotes] = useState<{ [itemId: string]: number }>({});
   const [totalVotes, setTotalVotes] = useState(10);
 
-  // Music player state
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrackId, setCurrentTrackId] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.7);
-
   const dragPreviewRef = useRef<HTMLDivElement>(null);
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const touchStartRef = useRef<{ x: number; y: number; element: HTMLElement | null }>({ x: 0, y: 0, element: null });
   const touchPreviewRef = useRef<HTMLDivElement | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Check authentication status on mount
   useEffect(() => {
@@ -352,10 +343,6 @@ export default function TierListMaker() {
       }
 
       const playlistData = await fetchPlaylist(playlistId, accessToken);
-      
-      // Debug: log the full response to understand the structure
-      console.log('Full playlist response:', playlistData);
-      console.log('Track items:', playlistData.tracks.items.slice(0, 3)); // Log first 3 tracks
 
       // Set the playlist name
       setPlaylistName(playlistData.name);
@@ -363,19 +350,15 @@ export default function TierListMaker() {
       // Transform Spotify tracks to items
       const newItems: Item[] = playlistData.tracks.items
         .filter((item) => item.track && item.track.album.images.length > 0)
-        .map((item) => {
-          console.log(`Track: ${item.track.name} - Preview URL:`, item.track.preview_url);
-          return {
-            id: `spotify-${item.track.id}`, // Use Spotify track ID for consistency
-            type: "image" as const,
-            content: item.track.album.images[0]?.url || "",
-            aspectRatio: 1, // Album covers are square
-            title: item.track.name,
-            artist: item.track.artists.map((a) => a.name).join(", "),
-            album: item.track.album.name,
-            previewUrl: item.track.preview_url,
-          };
-        });
+        .map((item) => ({
+          id: `spotify-${item.track.id}`, // Use Spotify track ID for consistency
+          type: "image" as const,
+          content: item.track.album.images[0]?.url || "",
+          aspectRatio: 1, // Album covers are square
+          title: item.track.name,
+          artist: item.track.artists.map((a) => a.name).join(", "),
+          album: item.track.album.name,
+        }));
 
       // Check for saved tier list data
       const savedData = loadTierListFromStorage(playlistUrl);
@@ -555,164 +538,6 @@ export default function TierListMaker() {
 
   const resetAllVotes = () => {
     setVotes({});
-  };
-
-  // Music player functions
-  const getAllTracks = (): Item[] => {
-    const allTracks: Item[] = [];
-    // Add tracks from tiers
-    tiers.forEach(tier => {
-      allTracks.push(...tier.items);
-    });
-    // Add unranked tracks
-    allTracks.push(...unrankedItems);
-    return allTracks.filter(item => item.type === 'image' && item.title && item.artist);
-  };
-
-  const getCurrentTrack = (): Item | null => {
-    if (!currentTrackId) return null;
-    return getAllTracks().find(track => track.id === currentTrackId) || null;
-  };
-
-  const getTrackPreviewUrl = (trackId: string): string | null => {
-    const track = getAllTracks().find(t => t.id === trackId);
-    return track?.previewUrl || null;
-  };
-
-  const playTrack = (trackId: string) => {
-    const track = getAllTracks().find(t => t.id === trackId);
-    if (!track) return;
-
-    // Stop current audio if playing
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-
-    const previewUrl = getTrackPreviewUrl(trackId);
-    if (!previewUrl) {
-      console.warn('No preview URL available for track:', track.title);
-      // Still set as current track but show as unavailable
-      setCurrentTrackId(trackId);
-      setIsPlaying(false);
-      return;
-    }
-
-    const audio = new Audio(previewUrl);
-    audio.volume = volume;
-    audioRef.current = audio;
-    setCurrentTrackId(trackId);
-
-    audio.addEventListener('loadedmetadata', () => {
-      setDuration(audio.duration);
-    });
-
-    audio.addEventListener('timeupdate', () => {
-      setCurrentTime(audio.currentTime);
-    });
-
-    audio.addEventListener('ended', () => {
-      playNextTrack();
-    });
-
-    audio.play().then(() => {
-      setIsPlaying(true);
-    }).catch(err => {
-      console.error('Error playing track:', err);
-      setIsPlaying(false);
-    });
-  };
-
-  const pauseTrack = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  const resumeTrack = () => {
-    if (audioRef.current) {
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-      }).catch(err => {
-        console.error('Error resuming track:', err);
-      });
-    }
-  };
-
-  const stopTrack = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-      setIsPlaying(false);
-      setCurrentTrackId(null);
-      setCurrentTime(0);
-      setDuration(0);
-    }
-  };
-
-  const playNextTrack = () => {
-    const allTracks = getAllTracks();
-    if (allTracks.length === 0) return;
-
-    const currentIndex = allTracks.findIndex(track => track.id === currentTrackId);
-    let nextIndex = (currentIndex + 1) % allTracks.length;
-    
-    // Try to find the next track with a preview URL, but don't loop forever
-    let attempts = 0;
-    const maxAttempts = allTracks.length;
-    
-    while (attempts < maxAttempts && !allTracks[nextIndex].previewUrl) {
-      nextIndex = (nextIndex + 1) % allTracks.length;
-      attempts++;
-    }
-    
-    if (allTracks[nextIndex].previewUrl) {
-      playTrack(allTracks[nextIndex].id);
-    } else {
-      console.log('No tracks with preview URLs available');
-      setIsPlaying(false);
-      setCurrentTrackId(null);
-    }
-  };
-
-  const playPreviousTrack = () => {
-    const allTracks = getAllTracks();
-    if (allTracks.length === 0) return;
-
-    const currentIndex = allTracks.findIndex(track => track.id === currentTrackId);
-    let prevIndex = currentIndex <= 0 ? allTracks.length - 1 : currentIndex - 1;
-    
-    // Try to find the previous track with a preview URL, but don't loop forever
-    let attempts = 0;
-    const maxAttempts = allTracks.length;
-    
-    while (attempts < maxAttempts && !allTracks[prevIndex].previewUrl) {
-      prevIndex = prevIndex <= 0 ? allTracks.length - 1 : prevIndex - 1;
-      attempts++;
-    }
-    
-    if (allTracks[prevIndex].previewUrl) {
-      playTrack(allTracks[prevIndex].id);
-    } else {
-      console.log('No tracks with preview URLs available');
-      setIsPlaying(false);
-      setCurrentTrackId(null);
-    }
-  };
-
-  const seekTo = (time: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
-      setCurrentTime(time);
-    }
-  };
-
-  const setVolumeLevel = (newVolume: number) => {
-    setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-    }
   };
 
   // Click-to-select and click-to-move functionality
@@ -905,37 +730,18 @@ export default function TierListMaker() {
         return (
           <div
             key={item.id}
-            className={`item music-card ${selectedItem === item.id ? 'selected' : ''} ${currentTrackId === item.id ? 'currently-playing' : ''}`}
+            className={`item music-card ${selectedItem === item.id ? 'selected' : ''}`}
             draggable
             data-item-id={item.id}
             onDragStart={(e) => dragStart(e, item.id)}
             onClick={(e) => handleItemClick(e, item.id)}
             title={`${item.title} - ${item.artist}`}
           >
-            <div className="album-art-container">
-              <img
-                className="album-art"
-                src={item.content}
-                alt={`${item.title} album art`}
-              />
-              <button 
-                className={`play-btn-overlay ${currentTrackId === item.id ? 'active' : ''}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (currentTrackId === item.id && isPlaying) {
-                    pauseTrack();
-                  } else if (currentTrackId === item.id && !isPlaying) {
-                    resumeTrack();
-                  } else {
-                    playTrack(item.id);
-                  }
-                }}
-                disabled={!item.previewUrl}
-                title={item.previewUrl ? "Play track" : "No preview available"}
-              >
-                {currentTrackId === item.id && isPlaying ? '⏸️' : '▶️'}
-              </button>
-            </div>
+            <img
+              className="album-art"
+              src={item.content}
+              alt={`${item.title} album art`}
+            />
             <div className="track-info">
               <div className="track-title">{item.title}</div>
               <div className="track-artist">{item.artist}</div>
@@ -965,13 +771,6 @@ export default function TierListMaker() {
                 −
               </button>
             </div>
-            
-            {/* Overlay for tracks without preview */}
-            {!item.previewUrl && (
-              <div className="no-preview-overlay">
-                <div className="no-preview-text">No Preview<br/>Available</div>
-              </div>
-            )}
           </div>
         );
       } else {
@@ -1181,106 +980,6 @@ export default function TierListMaker() {
       </main>
 
       <div ref={dragPreviewRef} className="drag-preview"></div>
-
-      {/* Music Player */}
-      {getAllTracks().length > 0 && (
-        <div className="music-player">
-          <div className="player-content">
-            <div className="track-display">
-              {getCurrentTrack() ? (
-                <>
-                  <img 
-                    src={getCurrentTrack()?.content} 
-                    alt="Current track" 
-                    className="player-album-art"
-                  />
-                  <div className="player-track-info">
-                    <div className="player-track-title">{getCurrentTrack()?.title}</div>
-                    <div className="player-track-artist">{getCurrentTrack()?.artist}</div>
-                  </div>
-                </>
-              ) : (
-                <div className="no-track">No track selected</div>
-              )}
-            </div>
-
-            <div className="player-controls">
-              <button 
-                className="control-btn"
-                onClick={playPreviousTrack}
-                disabled={getAllTracks().length <= 1}
-                title="Previous track"
-              >
-                ⏮️
-              </button>
-              
-              <button 
-                className="control-btn play-pause"
-                onClick={() => {
-                  if (!currentTrackId) {
-                    // Find first track with preview URL
-                    const allTracks = getAllTracks();
-                    const firstPlayableTrack = allTracks.find(track => track.previewUrl);
-                    if (firstPlayableTrack) {
-                      playTrack(firstPlayableTrack.id);
-                    } else {
-                      console.log('No playable tracks found in playlist');
-                    }
-                  } else if (isPlaying) {
-                    pauseTrack();
-                  } else {
-                    resumeTrack();
-                  }
-                }}
-                disabled={getAllTracks().length === 0}
-                title={isPlaying ? "Pause" : "Play"}
-              >
-                {isPlaying ? '⏸️' : '▶️'}
-              </button>
-              
-              <button 
-                className="control-btn"
-                onClick={playNextTrack}
-                disabled={getAllTracks().length <= 1}
-                title="Next track"
-              >
-                ⏭️
-              </button>
-            </div>
-
-            <div className="player-progress">
-              <span className="time-display">
-                {Math.floor(currentTime / 60)}:{String(Math.floor(currentTime % 60)).padStart(2, '0')}
-              </span>
-              <input
-                type="range"
-                className="progress-bar"
-                min="0"
-                max={duration || 0}
-                value={currentTime}
-                onChange={(e) => seekTo(Number(e.target.value))}
-                disabled={!currentTrackId || !audioRef.current}
-              />
-              <span className="time-display">
-                {Math.floor((duration || 0) / 60)}:{String(Math.floor((duration || 0) % 60)).padStart(2, '0')}
-              </span>
-            </div>
-
-            <div className="volume-controls">
-              <span>🔊</span>
-              <input
-                type="range"
-                className="volume-bar"
-                min="0"
-                max="1"
-                step="0.1"
-                value={volume}
-                onChange={(e) => setVolumeLevel(Number(e.target.value))}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
