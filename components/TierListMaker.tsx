@@ -31,12 +31,13 @@ const getTierListKey = (playlistUrl: string) => {
   return `tierlist_${playlistId}`;
 };
 
-const saveTierListToStorage = (playlistUrl: string, tiers: Tier[], unrankedItems: Item[]) => {
+const saveTierListToStorage = (playlistUrl: string, tiers: Tier[], unrankedItems: Item[], votes: { [itemId: string]: number }) => {
   try {
     const key = getTierListKey(playlistUrl);
     const data = {
       tiers,
       unrankedItems,
+      votes,
       timestamp: Date.now(),
       playlistUrl
     };
@@ -57,6 +58,7 @@ const loadTierListFromStorage = (playlistUrl: string) => {
         return {
           tiers: data.tiers,
           unrankedItems: data.unrankedItems,
+          votes: data.votes || {},
           timestamp: data.timestamp
         };
       }
@@ -96,6 +98,8 @@ export default function TierListMaker() {
   const [hasAutoLoaded, setHasAutoLoaded] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [playlistName, setPlaylistName] = useState<string | null>(null);
+  const [votes, setVotes] = useState<{ [itemId: string]: number }>({});
+  const [totalVotes, setTotalVotes] = useState(10);
 
   const dragPreviewRef = useRef<HTMLDivElement>(null);
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -121,12 +125,12 @@ export default function TierListMaker() {
     }
   }, [searchParams, isAuthenticated, hasAutoLoaded]);
 
-  // Save tier list to localStorage whenever tiers or unranked items change
+  // Save tier list to localStorage whenever tiers, unranked items, or votes change
   useEffect(() => {
-    if (playlistUrl && (tiers.some(tier => tier.items.length > 0) || unrankedItems.length > 0)) {
-      saveTierListToStorage(playlistUrl, tiers, unrankedItems);
+    if (playlistUrl && (tiers.some(tier => tier.items.length > 0) || unrankedItems.length > 0 || Object.keys(votes).length > 0)) {
+      saveTierListToStorage(playlistUrl, tiers, unrankedItems, votes);
     }
-  }, [tiers, unrankedItems, playlistUrl]);
+  }, [tiers, unrankedItems, votes, playlistUrl]);
 
   useEffect(() => {
     // Removed image pasting functionality - items only come from Spotify playlists
@@ -346,7 +350,7 @@ export default function TierListMaker() {
       // Transform Spotify tracks to items
       const newItems: Item[] = playlistData.tracks.items
         .filter((item) => item.track && item.track.album.images.length > 0)
-        .map((item, index) => ({
+        .map((item) => ({
           id: `spotify-${item.track.id}`, // Use Spotify track ID for consistency
           type: "image" as const,
           content: item.track.album.images[0]?.url || "",
@@ -380,11 +384,21 @@ export default function TierListMaker() {
         
         setTiers(restoredTiers);
         setUnrankedItems(restoredUnrankedItems);
+        
+        // Restore votes, but only for items that are still in the playlist
+        const restoredVotes: { [itemId: string]: number } = {};
+        Object.keys(savedData.votes || {}).forEach(itemId => {
+          if (newItemIds.has(itemId)) {
+            restoredVotes[itemId] = savedData.votes[itemId];
+          }
+        });
+        setVotes(restoredVotes);
       } else {
         // No saved data, start fresh
         // Clear all existing items from tiers and unranked
         setTiers((prev) => prev.map((tier) => ({ ...tier, items: [] })));
         setUnrankedItems(newItems); // Replace all items instead of adding
+        setVotes({}); // Clear votes
       }
       
       setItemIdCounter((prev) => prev + newItems.length);
@@ -488,6 +502,42 @@ export default function TierListMaker() {
       document.body.removeChild(touchPreviewRef.current);
       touchPreviewRef.current = null;
     }
+  };
+
+  // Voting functionality
+  const getUsedVotes = () => {
+    return Object.values(votes).reduce((sum, count) => sum + count, 0);
+  };
+
+  const getRemainingVotes = () => {
+    return totalVotes - getUsedVotes();
+  };
+
+  const addVote = (itemId: string) => {
+    if (getRemainingVotes() > 0) {
+      setVotes(prev => ({
+        ...prev,
+        [itemId]: (prev[itemId] || 0) + 1
+      }));
+    }
+  };
+
+  const removeVote = (itemId: string) => {
+    if (votes[itemId] > 0) {
+      setVotes(prev => {
+        const newVotes = { ...prev };
+        if (newVotes[itemId] === 1) {
+          delete newVotes[itemId];
+        } else {
+          newVotes[itemId] = newVotes[itemId] - 1;
+        }
+        return newVotes;
+      });
+    }
+  };
+
+  const resetAllVotes = () => {
+    setVotes({});
   };
 
   // Click-to-select and click-to-move functionality
@@ -696,6 +746,31 @@ export default function TierListMaker() {
               <div className="track-title">{item.title}</div>
               <div className="track-artist">{item.artist}</div>
             </div>
+            <div className="vote-controls">
+              <button 
+                className="vote-btn minus"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeVote(item.id);
+                }}
+                disabled={!votes[item.id]}
+                title="Remove vote"
+              >
+                −
+              </button>
+              <span className="vote-count">{votes[item.id] || 0}</span>
+              <button 
+                className="vote-btn plus"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addVote(item.id);
+                }}
+                disabled={getRemainingVotes() === 0}
+                title="Add vote"
+              >
+                +
+              </button>
+            </div>
           </div>
         );
       } else {
@@ -847,6 +922,21 @@ export default function TierListMaker() {
             }}>
               🎵 {playlistName}
             </h2>
+          </div>
+        )}
+
+        {/* Vote summary */}
+        {(unrankedItems.length > 0 || tiers.some(tier => tier.items.length > 0)) && (
+          <div className="vote-summary">
+            <div className="vote-info">
+              <span className="votes-used">Votes Used: {getUsedVotes()}/{totalVotes}</span>
+              <span className="votes-remaining">Remaining: {getRemainingVotes()}</span>
+            </div>
+            {getUsedVotes() > 0 && (
+              <button className="reset-votes-btn" onClick={resetAllVotes}>
+                Reset All Votes
+              </button>
+            )}
           </div>
         )}
         
