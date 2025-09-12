@@ -41,23 +41,31 @@ export default function TierListMaker() {
   
   // Spotify integration state
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [playlistUrl, setPlaylistUrl] = useState('')
+  const [playlistUrl, setPlaylistUrl] = useState('https://open.spotify.com/playlist/4Q2VnOr1fMv2K8qbZKpZdF?si=9aa4011ef11442b4')
   const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(false)
   const [spotifyError, setSpotifyError] = useState<string | null>(null)
+  const [hasAutoLoaded, setHasAutoLoaded] = useState(false)
   
   const dragPreviewRef = useRef<HTMLDivElement>(null)
 
   // Check authentication status on mount
   useEffect(() => {
     const token = Cookies.get('spotify_access_token')
+    const wasAuthenticated = isAuthenticated
     setIsAuthenticated(!!token)
+    
+    // Auto-load default playlist when user first authenticates
+    if (token && !wasAuthenticated && !hasAutoLoaded) {
+      setHasAutoLoaded(true)
+      loadPlaylist()
+    }
     
     // Check for auth errors
     const error = searchParams.get('error')
     if (error) {
       setSpotifyError(error)
     }
-  }, [searchParams])
+  }, [searchParams, isAuthenticated, hasAutoLoaded])
 
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
@@ -231,7 +239,7 @@ export default function TierListMaker() {
 
       setUnrankedItems(prev => [...prev, ...newItems])
       setItemIdCounter(prev => prev + newItems.length)
-      setPlaylistUrl('')
+      // Don't clear the URL so user can load it again or modify it
     } catch (error) {
       console.error('Error loading playlist:', error)
       setSpotifyError(error instanceof Error ? error.message : 'Failed to load playlist')
