@@ -17,6 +17,7 @@ interface Item {
   title?: string;
   artist?: string;
   album?: string;
+  previewUrl?: string | null;
 }
 
 interface Tier {
@@ -101,10 +102,18 @@ export default function TierListMaker() {
   const [votes, setVotes] = useState<{ [itemId: string]: number }>({});
   const [totalVotes, setTotalVotes] = useState(10);
 
+  // Music player state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrackId, setCurrentTrackId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.7);
+
   const dragPreviewRef = useRef<HTMLDivElement>(null);
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const touchStartRef = useRef<{ x: number; y: number; element: HTMLElement | null }>({ x: 0, y: 0, element: null });
   const touchPreviewRef = useRef<HTMLDivElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Check authentication status on mount
   useEffect(() => {
@@ -358,6 +367,7 @@ export default function TierListMaker() {
           title: item.track.name,
           artist: item.track.artists.map((a) => a.name).join(", "),
           album: item.track.album.name,
+          previewUrl: item.track.preview_url,
         }));
 
       // Check for saved tier list data
@@ -538,6 +548,132 @@ export default function TierListMaker() {
 
   const resetAllVotes = () => {
     setVotes({});
+  };
+
+  // Music player functions
+  const getAllTracks = (): Item[] => {
+    const allTracks: Item[] = [];
+    // Add tracks from tiers
+    tiers.forEach(tier => {
+      allTracks.push(...tier.items);
+    });
+    // Add unranked tracks
+    allTracks.push(...unrankedItems);
+    return allTracks.filter(item => item.type === 'image' && item.title && item.artist);
+  };
+
+  const getCurrentTrack = (): Item | null => {
+    if (!currentTrackId) return null;
+    return getAllTracks().find(track => track.id === currentTrackId) || null;
+  };
+
+  const getTrackPreviewUrl = (trackId: string): string | null => {
+    const track = getAllTracks().find(t => t.id === trackId);
+    return track?.previewUrl || null;
+  };
+
+  const playTrack = (trackId: string) => {
+    const track = getAllTracks().find(t => t.id === trackId);
+    if (!track) return;
+
+    // Stop current audio if playing
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    const previewUrl = getTrackPreviewUrl(trackId);
+    if (!previewUrl) {
+      console.warn('No preview URL available for track:', track.title);
+      // Still set as current track but show as unavailable
+      setCurrentTrackId(trackId);
+      setIsPlaying(false);
+      return;
+    }
+
+    const audio = new Audio(previewUrl);
+    audio.volume = volume;
+    audioRef.current = audio;
+    setCurrentTrackId(trackId);
+
+    audio.addEventListener('loadedmetadata', () => {
+      setDuration(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      setCurrentTime(audio.currentTime);
+    });
+
+    audio.addEventListener('ended', () => {
+      playNextTrack();
+    });
+
+    audio.play().then(() => {
+      setIsPlaying(true);
+    }).catch(err => {
+      console.error('Error playing track:', err);
+      setIsPlaying(false);
+    });
+  };
+
+  const pauseTrack = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const resumeTrack = () => {
+    if (audioRef.current) {
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(err => {
+        console.error('Error resuming track:', err);
+      });
+    }
+  };
+
+  const stopTrack = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setIsPlaying(false);
+      setCurrentTrackId(null);
+      setCurrentTime(0);
+      setDuration(0);
+    }
+  };
+
+  const playNextTrack = () => {
+    const allTracks = getAllTracks();
+    if (allTracks.length === 0) return;
+
+    const currentIndex = allTracks.findIndex(track => track.id === currentTrackId);
+    const nextIndex = (currentIndex + 1) % allTracks.length;
+    playTrack(allTracks[nextIndex].id);
+  };
+
+  const playPreviousTrack = () => {
+    const allTracks = getAllTracks();
+    if (allTracks.length === 0) return;
+
+    const currentIndex = allTracks.findIndex(track => track.id === currentTrackId);
+    const prevIndex = currentIndex <= 0 ? allTracks.length - 1 : currentIndex - 1;
+    playTrack(allTracks[prevIndex].id);
+  };
+
+  const seekTo = (time: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+
+  const setVolumeLevel = (newVolume: number) => {
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
   };
 
   // Click-to-select and click-to-move functionality
@@ -730,7 +866,7 @@ export default function TierListMaker() {
         return (
           <div
             key={item.id}
-            className={`item music-card ${selectedItem === item.id ? 'selected' : ''}`}
+            className={`item music-card ${selectedItem === item.id ? 'selected' : ''} ${currentTrackId === item.id ? 'currently-playing' : ''}`}
             draggable
             data-item-id={item.id}
             onDragStart={(e) => dragStart(e, item.id)}
@@ -746,29 +882,48 @@ export default function TierListMaker() {
               <div className="track-title">{item.title}</div>
               <div className="track-artist">{item.artist}</div>
             </div>
-            <div className="vote-controls">
+            <div className="card-controls">
+              <div className="vote-controls">
+                <button 
+                  className="vote-btn plus"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addVote(item.id);
+                  }}
+                  disabled={getRemainingVotes() === 0}
+                  title="Add vote"
+                >
+                  +
+                </button>
+                <span className="vote-count">{votes[item.id] || 0}</span>
+                <button 
+                  className="vote-btn minus"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeVote(item.id);
+                  }}
+                  disabled={!votes[item.id]}
+                  title="Remove vote"
+                >
+                  −
+                </button>
+              </div>
               <button 
-                className="vote-btn minus"
+                className={`play-btn ${currentTrackId === item.id ? 'active' : ''}`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  removeVote(item.id);
+                  if (currentTrackId === item.id && isPlaying) {
+                    pauseTrack();
+                  } else if (currentTrackId === item.id && !isPlaying) {
+                    resumeTrack();
+                  } else {
+                    playTrack(item.id);
+                  }
                 }}
-                disabled={!votes[item.id]}
-                title="Remove vote"
+                disabled={!item.previewUrl}
+                title={item.previewUrl ? "Play track" : "No preview available"}
               >
-                −
-              </button>
-              <span className="vote-count">{votes[item.id] || 0}</span>
-              <button 
-                className="vote-btn plus"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addVote(item.id);
-                }}
-                disabled={getRemainingVotes() === 0}
-                title="Add vote"
-              >
-                +
+                {currentTrackId === item.id && isPlaying ? '⏸️' : '▶️'}
               </button>
             </div>
           </div>
@@ -980,6 +1135,101 @@ export default function TierListMaker() {
       </main>
 
       <div ref={dragPreviewRef} className="drag-preview"></div>
+
+      {/* Music Player */}
+      {getAllTracks().length > 0 && (
+        <div className="music-player">
+          <div className="player-content">
+            <div className="track-display">
+              {getCurrentTrack() ? (
+                <>
+                  <img 
+                    src={getCurrentTrack()?.content} 
+                    alt="Current track" 
+                    className="player-album-art"
+                  />
+                  <div className="player-track-info">
+                    <div className="player-track-title">{getCurrentTrack()?.title}</div>
+                    <div className="player-track-artist">{getCurrentTrack()?.artist}</div>
+                  </div>
+                </>
+              ) : (
+                <div className="no-track">No track selected</div>
+              )}
+            </div>
+
+            <div className="player-controls">
+              <button 
+                className="control-btn"
+                onClick={playPreviousTrack}
+                disabled={getAllTracks().length <= 1}
+                title="Previous track"
+              >
+                ⏮️
+              </button>
+              
+              <button 
+                className="control-btn play-pause"
+                onClick={() => {
+                  if (!currentTrackId) {
+                    // Play first track if none selected
+                    const firstTrack = getAllTracks()[0];
+                    if (firstTrack) playTrack(firstTrack.id);
+                  } else if (isPlaying) {
+                    pauseTrack();
+                  } else {
+                    resumeTrack();
+                  }
+                }}
+                disabled={getAllTracks().length === 0}
+                title={isPlaying ? "Pause" : "Play"}
+              >
+                {isPlaying ? '⏸️' : '▶️'}
+              </button>
+              
+              <button 
+                className="control-btn"
+                onClick={playNextTrack}
+                disabled={getAllTracks().length <= 1}
+                title="Next track"
+              >
+                ⏭️
+              </button>
+            </div>
+
+            <div className="player-progress">
+              <span className="time-display">
+                {Math.floor(currentTime / 60)}:{String(Math.floor(currentTime % 60)).padStart(2, '0')}
+              </span>
+              <input
+                type="range"
+                className="progress-bar"
+                min="0"
+                max={duration || 0}
+                value={currentTime}
+                onChange={(e) => seekTo(Number(e.target.value))}
+                disabled={!currentTrackId || !audioRef.current}
+              />
+              <span className="time-display">
+                {Math.floor((duration || 0) / 60)}:{String(Math.floor((duration || 0) % 60)).padStart(2, '0')}
+              </span>
+            </div>
+
+            <div className="volume-controls">
+              <span>🔊</span>
+              <input
+                type="range"
+                className="volume-bar"
+                min="0"
+                max="1"
+                step="0.1"
+                value={volume}
+                onChange={(e) => setVolumeLevel(Number(e.target.value))}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
