@@ -208,47 +208,74 @@ export default function TierListMaker() {
     
     if (tierContent) {
       const targetTierId = parseInt(tierContent.dataset.tierId || '0')
-      const item = findAndRemoveItem(draggedItem)
-      
-      if (item) {
-        setTiers(prev => prev.map(tier => 
-          tier.id === targetTierId 
-            ? { ...tier, items: [...tier.items, item] }
-            : tier
-        ))
-      }
+      moveItemToTier(draggedItem, targetTierId)
     } else if (unrankedItemsEl) {
-      const item = findAndRemoveItem(draggedItem)
-      if (item) {
-        setUnrankedItems(prev => [...prev, item])
-      }
+      moveItemToUnranked(draggedItem)
     }
     
     clearDragState()
   }
 
-  const findAndRemoveItem = (itemId: string): Item | null => {
+  const moveItemToTier = (itemId: string, targetTierId: number) => {
     let foundItem: Item | null = null
     
-    // Check unranked items
+    // First, find the item in unranked items
     const unrankedIndex = unrankedItems.findIndex(i => i.id === itemId)
     if (unrankedIndex !== -1) {
       foundItem = unrankedItems[unrankedIndex]
-      setUnrankedItems(prev => prev.filter((_, i) => i !== unrankedIndex))
-      return foundItem
+      setUnrankedItems(prev => prev.filter(item => item.id !== itemId))
+      setTiers(prev => prev.map(tier => 
+        tier.id === targetTierId 
+          ? { ...tier, items: [...tier.items, foundItem!] }
+          : tier
+      ))
+      return
     }
-    
-    // Check tier items
-    setTiers(prev => prev.map(tier => {
+
+    // If not found in unranked, find in tiers
+    for (const tier of tiers) {
       const itemIndex = tier.items.findIndex(i => i.id === itemId)
-      if (itemIndex !== -1 && !foundItem) {
+      if (itemIndex !== -1) {
         foundItem = tier.items[itemIndex]
-        return { ...tier, items: tier.items.filter((_, i) => i !== itemIndex) }
+        break
       }
-      return tier
+    }
+
+    if (!foundItem) return
+
+    // Remove from all tiers and add to target tier
+    setTiers(prev => prev.map(tier => {
+      const filteredItems = tier.items.filter(item => item.id !== itemId)
+      
+      if (tier.id === targetTierId) {
+        return { ...tier, items: [...filteredItems, foundItem!] }
+      } else {
+        return { ...tier, items: filteredItems }
+      }
     }))
+  }
+
+  const moveItemToUnranked = (itemId: string) => {
+    let foundItem: Item | null = null
     
-    return foundItem
+    // Find the item in tiers
+    for (const tier of tiers) {
+      const itemIndex = tier.items.findIndex(i => i.id === itemId)
+      if (itemIndex !== -1) {
+        foundItem = tier.items[itemIndex]
+        break
+      }
+    }
+
+    if (!foundItem) return
+
+    // Remove from all tiers and add to unranked
+    setTiers(prev => prev.map(tier => ({
+      ...tier,
+      items: tier.items.filter(item => item.id !== itemId)
+    })))
+    
+    setUnrankedItems(prev => [...prev, foundItem!])
   }
 
   // Removed deleteItem function - items can't be deleted, only moved between tiers
