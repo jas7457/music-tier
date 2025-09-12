@@ -25,6 +25,48 @@ interface Tier {
   items: Item[];
 }
 
+// localStorage helper functions
+const getTierListKey = (playlistUrl: string) => {
+  const playlistId = extractPlaylistId(playlistUrl);
+  return `tierlist_${playlistId}`;
+};
+
+const saveTierListToStorage = (playlistUrl: string, tiers: Tier[], unrankedItems: Item[]) => {
+  try {
+    const key = getTierListKey(playlistUrl);
+    const data = {
+      tiers,
+      unrankedItems,
+      timestamp: Date.now(),
+      playlistUrl
+    };
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.warn('Failed to save tier list to localStorage:', error);
+  }
+};
+
+const loadTierListFromStorage = (playlistUrl: string) => {
+  try {
+    const key = getTierListKey(playlistUrl);
+    const stored = localStorage.getItem(key);
+    if (stored) {
+      const data = JSON.parse(stored);
+      // Validate that the data has the expected structure
+      if (data.tiers && data.unrankedItems && Array.isArray(data.tiers) && Array.isArray(data.unrankedItems)) {
+        return {
+          tiers: data.tiers,
+          unrankedItems: data.unrankedItems,
+          timestamp: data.timestamp
+        };
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to load tier list from localStorage:', error);
+  }
+  return null;
+};
+
 export default function TierListMaker() {
   const searchParams = useSearchParams();
 
@@ -78,6 +120,13 @@ export default function TierListMaker() {
       setSpotifyError(error);
     }
   }, [searchParams, isAuthenticated, hasAutoLoaded]);
+
+  // Save tier list to localStorage whenever tiers or unranked items change
+  useEffect(() => {
+    if (playlistUrl && (tiers.some(tier => tier.items.length > 0) || unrankedItems.length > 0)) {
+      saveTierListToStorage(playlistUrl, tiers, unrankedItems);
+    }
+  }, [tiers, unrankedItems, playlistUrl]);
 
   useEffect(() => {
     // Removed image pasting functionality - items only come from Spotify playlists
@@ -294,14 +343,11 @@ export default function TierListMaker() {
       // Set the playlist name
       setPlaylistName(playlistData.name);
 
-      // Clear all existing items from tiers and unranked
-      setTiers((prev) => prev.map((tier) => ({ ...tier, items: [] })));
-
       // Transform Spotify tracks to items
       const newItems: Item[] = playlistData.tracks.items
         .filter((item) => item.track && item.track.album.images.length > 0)
         .map((item, index) => ({
-          id: `spotify-${Date.now()}-${index}`, // Use timestamp to ensure uniqueness
+          id: `spotify-${item.track.id}`, // Use Spotify track ID for consistency
           type: "image" as const,
           content: item.track.album.images[0]?.url || "",
           aspectRatio: 1, // Album covers are square
@@ -310,7 +356,37 @@ export default function TierListMaker() {
           album: item.track.album.name,
         }));
 
-      setUnrankedItems(newItems); // Replace all items instead of adding
+      // Check for saved tier list data
+      const savedData = loadTierListFromStorage(playlistUrl);
+      
+      if (savedData) {
+        // Restore saved tier list, but ensure we only include tracks that are still in the playlist
+        const newItemIds = new Set(newItems.map(item => item.id));
+        
+        // Filter saved tiers to only include items that are still in the playlist
+        const restoredTiers = savedData.tiers.map((tier: Tier) => ({
+          ...tier,
+          items: tier.items.filter((item: Item) => newItemIds.has(item.id))
+        }));
+        
+        // Get items that were in saved tiers
+        const tieredItemIds = new Set();
+        restoredTiers.forEach((tier: Tier) => {
+          tier.items.forEach((item: Item) => tieredItemIds.add(item.id));
+        });
+        
+        // Unranked items are those not in any tier
+        const restoredUnrankedItems = newItems.filter(item => !tieredItemIds.has(item.id));
+        
+        setTiers(restoredTiers);
+        setUnrankedItems(restoredUnrankedItems);
+      } else {
+        // No saved data, start fresh
+        // Clear all existing items from tiers and unranked
+        setTiers((prev) => prev.map((tier) => ({ ...tier, items: [] })));
+        setUnrankedItems(newItems); // Replace all items instead of adding
+      }
+      
       setItemIdCounter((prev) => prev + newItems.length);
       // Don't clear the URL so user can load it again or modify it
     } catch (error) {
