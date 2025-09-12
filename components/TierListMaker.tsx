@@ -1,339 +1,362 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
-import Cookies from 'js-cookie'
-import { initiateSpotifyAuth, fetchPlaylist, extractPlaylistId } from '@/lib/spotify'
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import Cookies from "js-cookie";
+import {
+  initiateSpotifyAuth,
+  fetchPlaylist,
+  extractPlaylistId,
+} from "@/lib/spotify";
 
 interface Item {
-  id: string
-  type: 'image' | 'text'
-  content: string
-  aspectRatio?: number
-  title?: string
-  artist?: string
-  album?: string
+  id: string;
+  type: "image" | "text";
+  content: string;
+  aspectRatio?: number;
+  title?: string;
+  artist?: string;
+  album?: string;
 }
 
 interface Tier {
-  id: number
-  name: string
-  items: Item[]
+  id: number;
+  name: string;
+  items: Item[];
 }
 
 export default function TierListMaker() {
-  const searchParams = useSearchParams()
-  
+  const searchParams = useSearchParams();
+
   const [tiers, setTiers] = useState<Tier[]>([
-    { id: 1, name: 'Jen', items: [] },
-    { id: 2, name: 'Jason', items: [] },
-    { id: 3, name: 'Kelsey', items: [] },
-    { id: 4, name: 'James', items: [] },
-    { id: 5, name: 'Dharam', items: [] },
-    { id: 6, name: 'Kayla', items: [] },
-    { id: 7, name: 'Cody', items: [] },
-    { id: 8, name: 'TJ', items: [] }
-  ])
-  
-  const [unrankedItems, setUnrankedItems] = useState<Item[]>([])
-  const [draggedItem, setDraggedItem] = useState<string | null>(null)
-  const [itemIdCounter, setItemIdCounter] = useState(1)
-  const [tierIdCounter, setTierIdCounter] = useState(9)
-  
+    { id: 1, name: "Jen", items: [] },
+    { id: 2, name: "Jason", items: [] },
+    { id: 3, name: "Kelsey", items: [] },
+    { id: 4, name: "James", items: [] },
+    { id: 5, name: "Dharam", items: [] },
+    { id: 6, name: "Kayla", items: [] },
+    { id: 7, name: "Cody", items: [] },
+    { id: 8, name: "TJ", items: [] },
+  ]);
+
+  const [unrankedItems, setUnrankedItems] = useState<Item[]>([]);
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [itemIdCounter, setItemIdCounter] = useState(1);
+  const [tierIdCounter, setTierIdCounter] = useState(9);
+
   // Spotify integration state
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [playlistUrl, setPlaylistUrl] = useState('https://open.spotify.com/playlist/4Q2VnOr1fMv2K8qbZKpZdF?si=9aa4011ef11442b4')
-  const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(false)
-  const [spotifyError, setSpotifyError] = useState<string | null>(null)
-  const [hasAutoLoaded, setHasAutoLoaded] = useState(false)
-  
-  const dragPreviewRef = useRef<HTMLDivElement>(null)
-  const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [playlistUrl, setPlaylistUrl] = useState(
+    "https://open.spotify.com/playlist/4Q2VnOr1fMv2K8qbZKpZdF?si=9aa4011ef11442b4"
+  );
+  const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(false);
+  const [spotifyError, setSpotifyError] = useState<string | null>(null);
+  const [hasAutoLoaded, setHasAutoLoaded] = useState(false);
+
+  const dragPreviewRef = useRef<HTMLDivElement>(null);
+  const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check authentication status on mount
   useEffect(() => {
-    const token = Cookies.get('spotify_access_token')
-    const wasAuthenticated = isAuthenticated
-    setIsAuthenticated(!!token)
-    
+    const token = Cookies.get("spotify_access_token");
+    const wasAuthenticated = isAuthenticated;
+    setIsAuthenticated(!!token);
+
     // Auto-load default playlist when user first authenticates
     if (token && !wasAuthenticated && !hasAutoLoaded) {
-      setHasAutoLoaded(true)
-      loadPlaylist()
+      setHasAutoLoaded(true);
+      loadPlaylist();
     }
-    
+
     // Check for auth errors
-    const error = searchParams.get('error')
+    const error = searchParams.get("error");
     if (error) {
-      setSpotifyError(error)
+      setSpotifyError(error);
     }
-  }, [searchParams, isAuthenticated, hasAutoLoaded])
+  }, [searchParams, isAuthenticated, hasAutoLoaded]);
 
   useEffect(() => {
     // Removed image pasting functionality - items only come from Spotify playlists
 
     const handleDragOver = (e: DragEvent) => {
-      e.preventDefault()
-      if (!draggedItem) return
-      
-      clearDropHighlights()
-      
+      e.preventDefault();
+      if (!draggedItem) return;
+
+      clearDropHighlights();
+
       // Auto-scroll functionality
-      const scrollThreshold = 100 // pixels from top/bottom to trigger scroll
-      const scrollSpeed = 10 // pixels per scroll
-      const viewportHeight = window.innerHeight
-      const mouseY = e.clientY
-      
+      const scrollThreshold = 250; // pixels from top/bottom to trigger scroll
+      const scrollSpeed = 10; // pixels per scroll
+      const viewportHeight = window.innerHeight;
+      const mouseY = e.clientY;
+
       // Clear any existing scroll interval
       if (scrollIntervalRef.current) {
-        clearInterval(scrollIntervalRef.current)
-        scrollIntervalRef.current = null
+        clearInterval(scrollIntervalRef.current);
+        scrollIntervalRef.current = null;
       }
-      
+
       // Check if mouse is near top or bottom of viewport
       if (mouseY < scrollThreshold) {
         // Near top - scroll up
         scrollIntervalRef.current = setInterval(() => {
-          window.scrollBy(0, -scrollSpeed)
-        }, 16) // ~60fps
+          window.scrollBy(0, -scrollSpeed);
+        }, 16); // ~60fps
       } else if (mouseY > viewportHeight - scrollThreshold) {
         // Near bottom - scroll down
         scrollIntervalRef.current = setInterval(() => {
-          window.scrollBy(0, scrollSpeed)
-        }, 16) // ~60fps
+          window.scrollBy(0, scrollSpeed);
+        }, 16); // ~60fps
       }
-      
-      const tierContent = (e.target as HTMLElement).closest('.tier-content')
+
+      const tierContent = (e.target as HTMLElement).closest(".tier-content");
       if (tierContent) {
-        tierContent.classList.add('drag-over')
-        return
+        tierContent.classList.add("drag-over");
+        return;
       }
-      
-      const unrankedItems = (e.target as HTMLElement).closest('.unranked-items')
+
+      const unrankedItems = (e.target as HTMLElement).closest(
+        ".unranked-items"
+      );
       if (unrankedItems) {
-        unrankedItems.classList.add('drag-over')
+        unrankedItems.classList.add("drag-over");
       }
-    }
+    };
 
     const handleDrop = (e: DragEvent) => {
-      e.preventDefault()
-      handleDropEvent(e)
-      clearDropHighlights()
-    }
+      e.preventDefault();
+      handleDropEvent(e);
+      clearDropHighlights();
+    };
 
     const handleDragEnd = () => {
-      clearDragState()
-    }
+      clearDragState();
+    };
 
-    document.addEventListener('dragover', handleDragOver)
-    document.addEventListener('drop', handleDrop)
-    document.addEventListener('dragend', handleDragEnd)
+    document.addEventListener("dragover", handleDragOver);
+    document.addEventListener("drop", handleDrop);
+    document.addEventListener("dragend", handleDragEnd);
 
     return () => {
-      document.removeEventListener('dragover', handleDragOver)
-      document.removeEventListener('drop', handleDrop)
-      document.removeEventListener('dragend', handleDragEnd)
-      
+      document.removeEventListener("dragover", handleDragOver);
+      document.removeEventListener("drop", handleDrop);
+      document.removeEventListener("dragend", handleDragEnd);
+
       // Clean up any active scroll interval
       if (scrollIntervalRef.current) {
-        clearInterval(scrollIntervalRef.current)
-        scrollIntervalRef.current = null
+        clearInterval(scrollIntervalRef.current);
+        scrollIntervalRef.current = null;
       }
-    }
-  }, [draggedItem, itemIdCounter])
+    };
+  }, [draggedItem, itemIdCounter]);
 
   const getTierColorClass = (index: number) => {
-    const colors = ['s', 'a', 'b', 'c', 'd', 'e', 'f']
-    return colors[index % colors.length]
-  }
+    const colors = ["s", "a", "b", "c", "d", "e", "f"];
+    return colors[index % colors.length];
+  };
 
   // Removed tier and item management functions - fixed tiers, Spotify-only items
 
   const handleSpotifyAuth = () => {
-    setSpotifyError(null)
-    initiateSpotifyAuth()
-  }
+    setSpotifyError(null);
+    initiateSpotifyAuth();
+  };
 
   const handleLogout = () => {
-    Cookies.remove('spotify_access_token')
-    setIsAuthenticated(false)
-  }
+    Cookies.remove("spotify_access_token");
+    setIsAuthenticated(false);
+  };
 
   const loadPlaylist = async () => {
-    if (!playlistUrl.trim()) return
+    if (!playlistUrl.trim()) return;
 
-    setIsLoadingPlaylist(true)
-    setSpotifyError(null)
+    setIsLoadingPlaylist(true);
+    setSpotifyError(null);
 
     try {
-      const playlistId = extractPlaylistId(playlistUrl)
+      const playlistId = extractPlaylistId(playlistUrl);
       if (!playlistId) {
-        throw new Error('Invalid Spotify playlist URL')
+        throw new Error("Invalid Spotify playlist URL");
       }
 
-      const accessToken = Cookies.get('spotify_access_token')
+      const accessToken = Cookies.get("spotify_access_token");
       if (!accessToken) {
-        throw new Error('No access token found')
+        throw new Error("No access token found");
       }
 
-      const playlistData = await fetchPlaylist(playlistId, accessToken)
-      
+      const playlistData = await fetchPlaylist(playlistId, accessToken);
+
       // Clear all existing items from tiers and unranked
-      setTiers(prev => prev.map(tier => ({ ...tier, items: [] })))
-      
+      setTiers((prev) => prev.map((tier) => ({ ...tier, items: [] })));
+
       // Transform Spotify tracks to items
       const newItems: Item[] = playlistData.tracks.items
-        .filter(item => item.track && item.track.album.images.length > 0)
+        .filter((item) => item.track && item.track.album.images.length > 0)
         .map((item, index) => ({
           id: `spotify-${Date.now()}-${index}`, // Use timestamp to ensure uniqueness
-          type: 'image' as const,
-          content: item.track.album.images[0]?.url || '',
+          type: "image" as const,
+          content: item.track.album.images[0]?.url || "",
           aspectRatio: 1, // Album covers are square
           title: item.track.name,
-          artist: item.track.artists.map(a => a.name).join(', '),
+          artist: item.track.artists.map((a) => a.name).join(", "),
           album: item.track.album.name,
-        }))
+        }));
 
-      setUnrankedItems(newItems) // Replace all items instead of adding
-      setItemIdCounter(prev => prev + newItems.length)
+      setUnrankedItems(newItems); // Replace all items instead of adding
+      setItemIdCounter((prev) => prev + newItems.length);
       // Don't clear the URL so user can load it again or modify it
     } catch (error) {
-      console.error('Error loading playlist:', error)
-      setSpotifyError(error instanceof Error ? error.message : 'Failed to load playlist')
+      console.error("Error loading playlist:", error);
+      setSpotifyError(
+        error instanceof Error ? error.message : "Failed to load playlist"
+      );
     } finally {
-      setIsLoadingPlaylist(false)
+      setIsLoadingPlaylist(false);
     }
-  }
+  };
 
   const dragStart = (e: React.DragEvent, itemId: string) => {
-    setDraggedItem(itemId)
-    const itemElement = (e.target as HTMLElement).closest('.item') as HTMLElement
-    itemElement.classList.add('dragging')
-    
-    const dragPreview = dragPreviewRef.current
+    setDraggedItem(itemId);
+    const itemElement = (e.target as HTMLElement).closest(
+      ".item"
+    ) as HTMLElement;
+    itemElement.classList.add("dragging");
+
+    const dragPreview = dragPreviewRef.current;
     if (dragPreview && itemElement) {
-      const img = itemElement.querySelector('img')
+      const img = itemElement.querySelector("img");
       if (img) {
-        dragPreview.innerHTML = `<img src="${img.src}" style="width: 100%; height: 100%; object-fit: cover;">`
+        dragPreview.innerHTML = `<img src="${img.src}" style="width: 100%; height: 100%; object-fit: cover;">`;
       } else {
-        dragPreview.innerHTML = itemElement.textContent?.replace('×', '') || ''
-        dragPreview.style.background = 'linear-gradient(135deg, #4a5568, #2d3748)'
-        dragPreview.style.display = 'flex'
-        dragPreview.style.alignItems = 'center'
-        dragPreview.style.justifyContent = 'center'
-        dragPreview.style.fontSize = '12px'
-        dragPreview.style.fontWeight = 'bold'
-        dragPreview.style.color = 'white'
-        dragPreview.style.textAlign = 'center'
+        dragPreview.innerHTML = itemElement.textContent?.replace("×", "") || "";
+        dragPreview.style.background =
+          "linear-gradient(135deg, #4a5568, #2d3748)";
+        dragPreview.style.display = "flex";
+        dragPreview.style.alignItems = "center";
+        dragPreview.style.justifyContent = "center";
+        dragPreview.style.fontSize = "12px";
+        dragPreview.style.fontWeight = "bold";
+        dragPreview.style.color = "white";
+        dragPreview.style.textAlign = "center";
       }
-      
-      e.dataTransfer.effectAllowed = 'move'
-      e.dataTransfer.setDragImage(dragPreview, 32, 32)
+
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setDragImage(dragPreview, 32, 32);
     }
-  }
+  };
 
   const handleDropEvent = (e: DragEvent) => {
-    if (!draggedItem) return
+    if (!draggedItem) return;
 
-    const tierContent = (e.target as HTMLElement).closest('.tier-content') as HTMLElement
-    const unrankedItemsEl = (e.target as HTMLElement).closest('.unranked-items')
-    
+    const tierContent = (e.target as HTMLElement).closest(
+      ".tier-content"
+    ) as HTMLElement;
+    const unrankedItemsEl = (e.target as HTMLElement).closest(
+      ".unranked-items"
+    );
+
     if (tierContent) {
-      const targetTierId = parseInt(tierContent.dataset.tierId || '0')
-      moveItemToTier(draggedItem, targetTierId)
+      const targetTierId = parseInt(tierContent.dataset.tierId || "0");
+      moveItemToTier(draggedItem, targetTierId);
     } else if (unrankedItemsEl) {
-      moveItemToUnranked(draggedItem)
+      moveItemToUnranked(draggedItem);
     }
-    
-    clearDragState()
-  }
+
+    clearDragState();
+  };
 
   const moveItemToTier = (itemId: string, targetTierId: number) => {
-    let foundItem: Item | null = null
-    
+    let foundItem: Item | null = null;
+
     // First, find the item in unranked items
-    const unrankedIndex = unrankedItems.findIndex(i => i.id === itemId)
+    const unrankedIndex = unrankedItems.findIndex((i) => i.id === itemId);
     if (unrankedIndex !== -1) {
-      foundItem = unrankedItems[unrankedIndex]
-      setUnrankedItems(prev => prev.filter(item => item.id !== itemId))
-      setTiers(prev => prev.map(tier => 
-        tier.id === targetTierId 
-          ? { ...tier, items: [...tier.items, foundItem!] }
-          : tier
-      ))
-      return
+      foundItem = unrankedItems[unrankedIndex];
+      setUnrankedItems((prev) => prev.filter((item) => item.id !== itemId));
+      setTiers((prev) =>
+        prev.map((tier) =>
+          tier.id === targetTierId
+            ? { ...tier, items: [...tier.items, foundItem!] }
+            : tier
+        )
+      );
+      return;
     }
 
     // If not found in unranked, find in tiers
     for (const tier of tiers) {
-      const itemIndex = tier.items.findIndex(i => i.id === itemId)
+      const itemIndex = tier.items.findIndex((i) => i.id === itemId);
       if (itemIndex !== -1) {
-        foundItem = tier.items[itemIndex]
-        break
+        foundItem = tier.items[itemIndex];
+        break;
       }
     }
 
-    if (!foundItem) return
+    if (!foundItem) return;
 
     // Remove from all tiers and add to target tier
-    setTiers(prev => prev.map(tier => {
-      const filteredItems = tier.items.filter(item => item.id !== itemId)
-      
-      if (tier.id === targetTierId) {
-        return { ...tier, items: [...filteredItems, foundItem!] }
-      } else {
-        return { ...tier, items: filteredItems }
-      }
-    }))
-  }
+    setTiers((prev) =>
+      prev.map((tier) => {
+        const filteredItems = tier.items.filter((item) => item.id !== itemId);
+
+        if (tier.id === targetTierId) {
+          return { ...tier, items: [...filteredItems, foundItem!] };
+        } else {
+          return { ...tier, items: filteredItems };
+        }
+      })
+    );
+  };
 
   const moveItemToUnranked = (itemId: string) => {
-    let foundItem: Item | null = null
-    
+    let foundItem: Item | null = null;
+
     // Find the item in tiers
     for (const tier of tiers) {
-      const itemIndex = tier.items.findIndex(i => i.id === itemId)
+      const itemIndex = tier.items.findIndex((i) => i.id === itemId);
       if (itemIndex !== -1) {
-        foundItem = tier.items[itemIndex]
-        break
+        foundItem = tier.items[itemIndex];
+        break;
       }
     }
 
-    if (!foundItem) return
+    if (!foundItem) return;
 
     // Remove from all tiers and add to unranked
-    setTiers(prev => prev.map(tier => ({
-      ...tier,
-      items: tier.items.filter(item => item.id !== itemId)
-    })))
-    
-    setUnrankedItems(prev => [...prev, foundItem!])
-  }
+    setTiers((prev) =>
+      prev.map((tier) => ({
+        ...tier,
+        items: tier.items.filter((item) => item.id !== itemId),
+      }))
+    );
+
+    setUnrankedItems((prev) => [...prev, foundItem!]);
+  };
 
   // Removed deleteItem function - items can't be deleted, only moved between tiers
 
   const clearDragState = () => {
-    document.querySelectorAll('.dragging').forEach(el => {
-      el.classList.remove('dragging')
-    })
-    setDraggedItem(null)
-    clearDropHighlights()
-    
+    document.querySelectorAll(".dragging").forEach((el) => {
+      el.classList.remove("dragging");
+    });
+    setDraggedItem(null);
+    clearDropHighlights();
+
     // Clear auto-scroll interval
     if (scrollIntervalRef.current) {
-      clearInterval(scrollIntervalRef.current)
-      scrollIntervalRef.current = null
+      clearInterval(scrollIntervalRef.current);
+      scrollIntervalRef.current = null;
     }
-  }
+  };
 
   const clearDropHighlights = () => {
-    document.querySelectorAll('.drag-over').forEach(el => {
-      el.classList.remove('drag-over')
-    })
-  }
+    document.querySelectorAll(".drag-over").forEach((el) => {
+      el.classList.remove("drag-over");
+    });
+  };
 
   const renderItem = (item: Item) => {
-    if (item.type === 'image') {
+    if (item.type === "image") {
       // Check if this is a Spotify track (has title and artist)
       if (item.title && item.artist) {
         return (
@@ -345,16 +368,22 @@ export default function TierListMaker() {
             onDragStart={(e) => dragStart(e, item.id)}
             title={`${item.title} - ${item.artist}`}
           >
-            <img className="album-art" src={item.content} alt={`${item.title} album art`} />
+            <img
+              className="album-art"
+              src={item.content}
+              alt={`${item.title} album art`}
+            />
             <div className="track-info">
               <div className="track-title">{item.title}</div>
               <div className="track-artist">{item.artist}</div>
             </div>
           </div>
-        )
+        );
       } else {
         // Regular image item
-        const width = item.aspectRatio ? Math.min(200, Math.max(64, 64 * item.aspectRatio)) : 64
+        const width = item.aspectRatio
+          ? Math.min(200, Math.max(64, 64 * item.aspectRatio))
+          : 64;
         return (
           <div
             key={item.id}
@@ -367,7 +396,7 @@ export default function TierListMaker() {
           >
             <img src={item.content} alt="Item" />
           </div>
-        )
+        );
       }
     } else {
       return (
@@ -380,9 +409,9 @@ export default function TierListMaker() {
         >
           {item.content}
         </div>
-      )
+      );
     }
-  }
+  };
 
   return (
     <div className="app">
@@ -392,23 +421,35 @@ export default function TierListMaker() {
           {/* Controls removed - items only come from Spotify playlists */}
         </div>
       </header>
-      
+
       <main>
         {/* Spotify Integration Section */}
         <div className="spotify-section">
           <h3>🎵 Spotify Integration</h3>
-          
+
           {!isAuthenticated ? (
             <div>
-              <p style={{ marginBottom: '15px', color: 'rgba(255, 255, 255, 0.8)' }}>
-                Connect your Spotify account to load playlists directly into your tier list.
+              <p
+                style={{
+                  marginBottom: "15px",
+                  color: "rgba(255, 255, 255, 0.8)",
+                }}
+              >
+                Connect your Spotify account to load playlists directly into
+                your tier list.
               </p>
               <button className="auth-button" onClick={handleSpotifyAuth}>
                 <span>🎵</span>
                 Connect to Spotify
               </button>
               {spotifyError && (
-                <p style={{ color: '#ff6b6b', marginTop: '10px', fontSize: '14px' }}>
+                <p
+                  style={{
+                    color: "#ff6b6b",
+                    marginTop: "10px",
+                    fontSize: "14px",
+                  }}
+                >
                   Error: {spotifyError}
                 </p>
               )}
@@ -418,14 +459,18 @@ export default function TierListMaker() {
               <div className="user-info">
                 <div className="user-avatar">🎵</div>
                 <span>Connected to Spotify</span>
-                <button 
-                  style={{ marginLeft: 'auto', fontSize: '12px', padding: '4px 8px' }} 
+                <button
+                  style={{
+                    marginLeft: "auto",
+                    fontSize: "12px",
+                    padding: "4px 8px",
+                  }}
                   onClick={handleLogout}
                 >
                   Logout
                 </button>
               </div>
-              
+
               <div>
                 <input
                   className="playlist-input"
@@ -433,19 +478,27 @@ export default function TierListMaker() {
                   placeholder="Paste Spotify playlist URL here..."
                   value={playlistUrl}
                   onChange={(e) => setPlaylistUrl(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && loadPlaylist()}
+                  onKeyDown={(e) => e.key === "Enter" && loadPlaylist()}
                 />
-                <button 
+                <button
                   onClick={loadPlaylist}
                   disabled={!playlistUrl.trim() || isLoadingPlaylist}
-                  style={{ opacity: (!playlistUrl.trim() || isLoadingPlaylist) ? 0.5 : 1 }}
+                  style={{
+                    opacity: !playlistUrl.trim() || isLoadingPlaylist ? 0.5 : 1,
+                  }}
                 >
-                  {isLoadingPlaylist ? 'Loading...' : 'Load Playlist'}
+                  {isLoadingPlaylist ? "Loading..." : "Load Playlist"}
                 </button>
               </div>
-              
+
               {spotifyError && (
-                <p style={{ color: '#ff6b6b', marginTop: '10px', fontSize: '14px' }}>
+                <p
+                  style={{
+                    color: "#ff6b6b",
+                    marginTop: "10px",
+                    fontSize: "14px",
+                  }}
+                >
                   Error: {spotifyError}
                 </p>
               )}
@@ -455,30 +508,34 @@ export default function TierListMaker() {
         <div className="tier-container">
           {tiers.map((tier, index) => (
             <div key={tier.id} className="tier-row" data-tier-id={tier.id}>
-              <div className={`tier-label tier-colors-${getTierColorClass(index)}`}>
+              <div
+                className={`tier-label tier-colors-${getTierColorClass(index)}`}
+              >
                 <span>{tier.name}</span>
               </div>
               <div className="tier-content" data-tier-id={tier.id}>
-                {tier.items.map(item => renderItem(item))}
+                {tier.items.map((item) => renderItem(item))}
               </div>
             </div>
           ))}
         </div>
-        
+
         <div className="unranked-section">
           <h3>Unranked Items</h3>
           <div className="unranked-items">
             {unrankedItems.length === 0 && (
               <div className="drop-zone">
-                {isAuthenticated ? 'Load a Spotify playlist to get started' : 'Connect to Spotify to load playlists'}
+                {isAuthenticated
+                  ? "Load a Spotify playlist to get started"
+                  : "Connect to Spotify to load playlists"}
               </div>
             )}
-            {unrankedItems.map(item => renderItem(item))}
+            {unrankedItems.map((item) => renderItem(item))}
           </div>
         </div>
       </main>
-      
+
       <div ref={dragPreviewRef} className="drag-preview"></div>
     </div>
-  )
+  );
 }
