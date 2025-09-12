@@ -48,6 +48,7 @@ export default function TierListMaker() {
   const [hasAutoLoaded, setHasAutoLoaded] = useState(false)
   
   const dragPreviewRef = useRef<HTMLDivElement>(null)
+  const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Check authentication status on mount
   useEffect(() => {
@@ -76,6 +77,31 @@ export default function TierListMaker() {
       if (!draggedItem) return
       
       clearDropHighlights()
+      
+      // Auto-scroll functionality
+      const scrollThreshold = 100 // pixels from top/bottom to trigger scroll
+      const scrollSpeed = 10 // pixels per scroll
+      const viewportHeight = window.innerHeight
+      const mouseY = e.clientY
+      
+      // Clear any existing scroll interval
+      if (scrollIntervalRef.current) {
+        clearInterval(scrollIntervalRef.current)
+        scrollIntervalRef.current = null
+      }
+      
+      // Check if mouse is near top or bottom of viewport
+      if (mouseY < scrollThreshold) {
+        // Near top - scroll up
+        scrollIntervalRef.current = setInterval(() => {
+          window.scrollBy(0, -scrollSpeed)
+        }, 16) // ~60fps
+      } else if (mouseY > viewportHeight - scrollThreshold) {
+        // Near bottom - scroll down
+        scrollIntervalRef.current = setInterval(() => {
+          window.scrollBy(0, scrollSpeed)
+        }, 16) // ~60fps
+      }
       
       const tierContent = (e.target as HTMLElement).closest('.tier-content')
       if (tierContent) {
@@ -107,6 +133,12 @@ export default function TierListMaker() {
       document.removeEventListener('dragover', handleDragOver)
       document.removeEventListener('drop', handleDrop)
       document.removeEventListener('dragend', handleDragEnd)
+      
+      // Clean up any active scroll interval
+      if (scrollIntervalRef.current) {
+        clearInterval(scrollIntervalRef.current)
+        scrollIntervalRef.current = null
+      }
     }
   }, [draggedItem, itemIdCounter])
 
@@ -286,6 +318,12 @@ export default function TierListMaker() {
     })
     setDraggedItem(null)
     clearDropHighlights()
+    
+    // Clear auto-scroll interval
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current)
+      scrollIntervalRef.current = null
+    }
   }
 
   const clearDropHighlights = () => {
