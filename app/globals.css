@@ -159,6 +159,17 @@ button:active {
     user-select: none;
 }
 
+.item.music-card {
+    height: 80px;
+    min-width: 200px;
+    max-width: 300px;
+    background: linear-gradient(135deg, #2d3748, #4a5568);
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .item:hover {
     border-color: rgba(255, 255, 255, 0.3);
     transform: scale(1.05);
@@ -175,6 +186,39 @@ button:active {
     max-width: 200px;
     object-fit: contain;
     border-radius: 4px;
+}
+
+.music-card .album-art {
+    width: 64px;
+    height: 64px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.music-card .track-info {
+    flex: 1;
+    min-width: 0;
+    color: white;
+}
+
+.music-card .track-title {
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.music-card .track-artist {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
 }
 
 .item.text-item {
@@ -387,5 +431,26 @@ button:active {
     
     .item.text-item {
         width: 48px;
+    }
+    
+    .item.music-card {
+        height: 72px;
+        min-width: 160px;
+        max-width: 250px;
+        padding: 6px;
+        gap: 8px;
+    }
+    
+    .music-card .album-art {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .music-card .track-title {
+        font-size: 11px;
+    }
+    
+    .music-card .track-artist {
+        font-size: 9px;
     }
 }

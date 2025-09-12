@@ -338,23 +338,43 @@ export default function TierListMaker() {
 
   const renderItem = (item: Item) => {
     if (item.type === 'image') {
-      const width = item.aspectRatio ? Math.min(200, Math.max(64, 64 * item.aspectRatio)) : 64
-      const title = item.title && item.artist ? `${item.title} - ${item.artist}` : 'Item'
-      
-      return (
-        <div
-          key={item.id}
-          className="item"
-          draggable
-          data-item-id={item.id}
-          style={{ width: `${width}px` }}
-          onDragStart={(e) => dragStart(e, item.id)}
-          title={title}
-        >
-          <img src={item.content} alt={title} />
-          <button className="delete-item" onClick={() => deleteItem(item.id)}>×</button>
-        </div>
-      )
+      // Check if this is a Spotify track (has title and artist)
+      if (item.title && item.artist) {
+        return (
+          <div
+            key={item.id}
+            className="item music-card"
+            draggable
+            data-item-id={item.id}
+            onDragStart={(e) => dragStart(e, item.id)}
+            title={`${item.title} - ${item.artist}`}
+          >
+            <img className="album-art" src={item.content} alt={`${item.title} album art`} />
+            <div className="track-info">
+              <div className="track-title">{item.title}</div>
+              <div className="track-artist">{item.artist}</div>
+            </div>
+            <button className="delete-item" onClick={() => deleteItem(item.id)}>×</button>
+          </div>
+        )
+      } else {
+        // Regular image item
+        const width = item.aspectRatio ? Math.min(200, Math.max(64, 64 * item.aspectRatio)) : 64
+        return (
+          <div
+            key={item.id}
+            className="item"
+            draggable
+            data-item-id={item.id}
+            style={{ width: `${width}px` }}
+            onDragStart={(e) => dragStart(e, item.id)}
+            title="Item"
+          >
+            <img src={item.content} alt="Item" />
+            <button className="delete-item" onClick={() => deleteItem(item.id)}>×</button>
+          </div>
+        )
+      }
     } else {
       return (
         <div
