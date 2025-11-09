@@ -122,7 +122,8 @@ export async function POST(
       roundId,
       userId: payload.userId,
       trackId,
-      note
+      note,
+      submissionDate: Date.now()
     };
 
     await submissionsCollection.insertOne({ ...newSubmission, _id: submissionId } as any);
@@ -202,7 +203,8 @@ export async function PUT(
       {
         $set: {
           trackId,
-          note
+          note,
+          submissionDate: Date.now()
         }
       },
       { returnDocument: 'after' }

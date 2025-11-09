@@ -139,7 +139,7 @@ export const fetchPlaylist = async (
 export const getSpotifyUserProfile = async (
   accessToken: string
 ): Promise<SpotifyUserProfile> => {
-  const response = await fetch('https://api.spotify.com/v1/me', {
+  const response = await fetch("https://api.spotify.com/v1/me", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -188,18 +188,15 @@ export const getTrackDetails = async (
   trackId: string,
   accessToken: string
 ): Promise<SpotifyTrack> => {
-  const response = await fetch(
-    `https://api.spotify.com/v1/tracks/${trackId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
+  const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch track: ${response.statusText}`);
   }
 
-  return response.json();
+  return response.json() as Promise<SpotifyTrack>;
 };

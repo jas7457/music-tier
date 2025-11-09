@@ -39,12 +39,11 @@ async function seed() {
       const leagueId = new ObjectId();
       const league: WithRealId<League> = {
         _id: leagueId,
-        adminId: EXISTING_USER_ID,
         title: "Indie Rock Showdown",
         description:
           "A league dedicated to discovering the best indie rock tracks. Submit your favorite hidden gems and vote for the best tracks each round!",
         numberOfRounds: 6,
-        pickingOrder: [EXISTING_USER_ID],
+        users: [EXISTING_USER_ID],
         daysForSubmission: 5,
         daysForVoting: 3,
       };

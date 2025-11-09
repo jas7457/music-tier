@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken } from "@/lib/auth";
-import { getCollection } from "@/lib/mongodb";
-import { League } from "@/databaseTypes";
+import { getUserLeagues } from "@/lib/data";
 
 export async function GET(request: NextRequest) {
   try {
     const sessionToken = request.cookies.get("session_token")?.value;
+    const accessToken = request.cookies.get("spotify_access_token")?.value;
 
-    if (!sessionToken) {
+    if (!sessionToken || !accessToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -17,16 +17,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
 
-    const leaguesCollection = await getCollection<League>("leagues");
+    const userLeagues = await getUserLeagues(payload.userId, accessToken);
 
-    // Find leagues where user is admin or in pickingOrder
-    const leagues = await leaguesCollection
-      .find({
-        $or: [{ adminId: payload.userId }, { pickingOrder: payload.userId }],
-      })
-      .toArray();
-
-    return NextResponse.json({ leagues });
+    return NextResponse.json(userLeagues);
   } catch (error) {
     console.error("Error fetching user leagues:", error);
     return NextResponse.json(

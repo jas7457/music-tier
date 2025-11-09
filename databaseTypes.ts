@@ -13,13 +13,11 @@ export type User = {
 export type League = {
   // a mongo ObjectId
   _id: string;
-  // which user is in charge of settings things up for this league
-  adminId: string;
   title: string;
   description: string;
   numberOfRounds: number;
   // array of user IDs
-  pickingOrder: string[];
+  users: string[];
 
   // how many days after submissions start that people can submit their songs
   daysForSubmission: number;
@@ -36,8 +34,8 @@ export type Round = {
   title: string;
   description: string;
   creatorId: string;
-  submissionStartDate?: number;
-  voteStartDate?: number;
+  submissionStartDate: number;
+  voteStartDate: number;
 };
 
 // "songSubmissions" collection */
@@ -50,6 +48,8 @@ export type SongSubmission = {
   userId: string;
   // a track id from spotify
   trackId: string;
+  // timestamp of when the submission was created/updated
+  submissionDate: number;
   note?: string;
 };
 

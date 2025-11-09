@@ -79,10 +79,51 @@ export function SpotifyPlayerProvider({
       });
 
       // Ready event - device is ready
-      spotifyPlayer.addListener("ready", ({ device_id }: any) => {
+      spotifyPlayer.addListener("ready", async ({ device_id }: any) => {
         console.log("Spotify Player Ready with Device ID:", device_id);
         setDeviceId(device_id);
         setIsReady(true);
+
+        // Fetch currently playing track
+        try {
+          const response = await fetch(
+            "https://api.spotify.com/v1/me/player/currently-playing",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (response.ok && response.status !== 204) {
+            const data = await response.json();
+            if (data && data.item) {
+              // Convert Spotify API track to WebPlaybackTrack format
+              const track = {
+                id: data.item.id,
+                uri: data.item.uri,
+                name: data.item.name,
+                album: {
+                  uri: data.item.album.uri,
+                  name: data.item.album.name,
+                  images: data.item.album.images,
+                },
+                artists: data.item.artists.map((artist: any) => ({
+                  uri: artist.uri,
+                  name: artist.name,
+                })),
+                duration_ms: data.item.duration_ms,
+              };
+              setCurrentTrack(track);
+              setIsPlaying(data.is_playing);
+              setIsPaused(!data.is_playing);
+              setDuration(data.item.duration_ms);
+              setCurrentTime(data.progress_ms || 0);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching currently playing track:", error);
+        }
       });
 
       // Not Ready event - device has gone offline
@@ -124,23 +165,73 @@ export function SpotifyPlayerProvider({
     };
   }, []);
 
-  // Update current time position while playing
+  // Poll currently playing track to sync with other devices
   useEffect(() => {
-    if (!isPlaying || !player || !currentTrack) return;
+    const token = Cookies.get("spotify_access_token");
+    if (!token) return;
 
-    const interval = setInterval(async () => {
+    const pollCurrentlyPlaying = async () => {
       try {
-        const state = await player.getCurrentState();
-        if (state && state.track_window.current_track) {
-          setCurrentTime(state.position);
+        const response = await fetch(
+          "https://api.spotify.com/v1/me/player/currently-playing",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.ok && response.status !== 204) {
+          const data = await response.json();
+          if (data && data.item) {
+            // Convert Spotify API track to WebPlaybackTrack format
+            const track = {
+              id: data.item.id,
+              uri: data.item.uri,
+              name: data.item.name,
+              album: {
+                uri: data.item.album.uri,
+                name: data.item.album.name,
+                images: data.item.album.images,
+              },
+              artists: data.item.artists.map((artist: any) => ({
+                uri: artist.uri,
+                name: artist.name,
+              })),
+              duration_ms: data.item.duration_ms,
+            };
+
+            // Only update if track changed
+            if (currentTrack?.id !== track.id) {
+              setCurrentTrack(track);
+            }
+
+            setIsPlaying(data.is_playing);
+            setIsPaused(!data.is_playing);
+            setDuration(data.item.duration_ms);
+            setCurrentTime(data.progress_ms || 0);
+          } else {
+            // Nothing playing
+            if (currentTrack) {
+              setCurrentTrack(null);
+              setIsPlaying(false);
+              setIsPaused(true);
+            }
+          }
         }
       } catch (error) {
-        console.error("Error getting current state:", error);
+        console.error("Error polling currently playing:", error);
       }
-    }, 1000);
+    };
+
+    // Poll every 1 second
+    const interval = setInterval(pollCurrentlyPlaying, 1000);
+
+    // Poll immediately on mount
+    pollCurrentlyPlaying();
 
     return () => clearInterval(interval);
-  }, [isPlaying, player, currentTrack]);
+  }, [currentTrack]);
 
   const playTrack = async (trackUri: string) => {
     if (!deviceId) {
@@ -182,16 +273,36 @@ export function SpotifyPlayerProvider({
   };
 
   const pausePlayback = async () => {
-    if (player) {
-      await player.pause();
+    const accessToken = Cookies.get("spotify_access_token");
+    if (!accessToken) return;
+
+    try {
+      await fetch("https://api.spotify.com/v1/me/player/pause", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       setIsPlaying(false);
+    } catch (error) {
+      console.error("Error pausing playback:", error);
     }
   };
 
   const resumePlayback = async () => {
-    if (player) {
-      await player.resume();
+    const accessToken = Cookies.get("spotify_access_token");
+    if (!accessToken) return;
+
+    try {
+      await fetch("https://api.spotify.com/v1/me/player/play", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       setIsPlaying(true);
+    } catch (error) {
+      console.error("Error resuming playback:", error);
     }
   };
 
@@ -223,15 +334,46 @@ export function SpotifyPlayerProvider({
   };
 
   const seekToPosition = async (position: number) => {
-    if (player) {
-      await player.seek(position);
+    const accessToken = Cookies.get("spotify_access_token");
+    if (!accessToken) return;
+
+    try {
+      await fetch(
+        `https://api.spotify.com/v1/me/player/seek?position_ms=${Math.floor(
+          position
+        )}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      setCurrentTime(position);
+    } catch (error) {
+      console.error("Error seeking:", error);
     }
   };
 
   const setPlayerVolume = async (newVolume: number) => {
     setVolume(newVolume);
-    if (player) {
-      await player.setVolume(newVolume);
+    const accessToken = Cookies.get("spotify_access_token");
+    if (!accessToken) return;
+
+    try {
+      await fetch(
+        `https://api.spotify.com/v1/me/player/volume?volume_percent=${Math.floor(
+          newVolume * 100
+        )}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error setting volume:", error);
     }
   };
 
