@@ -18,6 +18,13 @@ export interface SpotifyPlaylistResponse {
   };
 }
 
+export interface SpotifyUserProfile {
+  id: string;
+  display_name: string;
+  email?: string;
+  images?: Array<{ url: string; height: number; width: number }>;
+}
+
 const CLIENT_ID = "3b4aa4f5d652435db1d08f41ea973c44";
 const REDIRECT_URI =
   process.env.NODE_ENV === "development"
@@ -59,7 +66,7 @@ export const initiateSpotifyAuth = async (): Promise<void> => {
   const codeChallenge = base64encode(hashed);
 
   const scope =
-    "playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state";
+    "user-read-email playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state";
   const authUrl = new URL("https://accounts.spotify.com/authorize");
 
   window.localStorage.setItem("code_verifier", codeVerifier);
@@ -129,6 +136,22 @@ export const fetchPlaylist = async (
   return response.json();
 };
 
+export const getSpotifyUserProfile = async (
+  accessToken: string
+): Promise<SpotifyUserProfile> => {
+  const response = await fetch('https://api.spotify.com/v1/me', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user profile: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
 export const extractPlaylistId = (url: string): string | null => {
   const patterns = [
     /spotify:playlist:([a-zA-Z0-9]+)/,
@@ -143,4 +166,40 @@ export const extractPlaylistId = (url: string): string | null => {
   }
 
   return null;
+};
+
+export const extractTrackId = (url: string): string | null => {
+  const patterns = [
+    /spotify:track:([a-zA-Z0-9]+)/,
+    /open\.spotify\.com\/track\/([a-zA-Z0-9]+)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) {
+      return match[1];
+    }
+  }
+
+  return null;
+};
+
+export const getTrackDetails = async (
+  trackId: string,
+  accessToken: string
+): Promise<SpotifyTrack> => {
+  const response = await fetch(
+    `https://api.spotify.com/v1/tracks/${trackId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch track: ${response.statusText}`);
+  }
+
+  return response.json();
 };

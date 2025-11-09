@@ -40,12 +40,10 @@ export default function CallbackPage() {
   }, [searchParams, router])
 
   return (
-    <div className="app">
-      <div style={{ textAlign: 'center', marginTop: '50px' }}>
-        <h2>Authenticating with Spotify...</h2>
-        <div style={{ marginTop: '20px' }}>
-          <div className="loading-spinner"></div>
-        </div>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold mb-4">Authenticating with Spotify...</h2>
+        <p className="text-gray-600">Please wait while we connect your account</p>
       </div>
     </div>
   )
