@@ -16,6 +16,8 @@ import MusicPlayer from "./MusicPlayer";
 import Cookies from "js-cookie";
 import { SubmittedUsers } from "./SubmittedUsers";
 import { GetUserLeagueReturnType } from "@/lib/data";
+import { formatDate } from "@/lib/utils/formatDate";
+import { Round } from "./Round";
 
 interface SubmissionContextType {
   setCurrentTrackAsSubmission: (trackUrl: string) => void;
@@ -104,15 +106,6 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  const formatDate = (timestamp?: number) => {
-    if (!timestamp) return "Not set";
-    return new Date(timestamp).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
   if (!user) {
     return null;
   }
@@ -145,73 +138,18 @@ export default function Home() {
             if (!league.rounds.current) {
               return null;
             }
+
             return (
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-3 text-green-700">
                   Current Round
                 </h3>
                 <Card className="border-green-200 bg-green-50 p-4">
-                  <h4 className="font-semibold text-lg mb-1">
-                    {league.rounds.current.title}
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-2">
-                    {league.rounds.current.description}
-                  </p>
-                  <div className="flex gap-4 text-xs text-gray-500">
-                    <span>
-                      Submissions start date:{" "}
-                      {formatDate(league.rounds.current.submissionStartDate)}
-                    </span>
-                    <span>•</span>
-                    <span>
-                      Submission end date:{" "}
-                      {formatDate(
-                        league.rounds.current.submissionStartDate! +
-                          league.daysForSubmission * 24 * 60 * 60 * 1000
-                      )}
-                    </span>
-                    <span>•</span>
-                    <span>
-                      Round ends:{" "}
-                      {formatDate(
-                        league.rounds.current.submissionStartDate! +
-                          (league.daysForSubmission + league.daysForVoting) *
-                            24 *
-                            60 *
-                            60 *
-                            1000
-                      )}
-                    </span>
-                  </div>
-
-                  {/* Song Submission Section */}
-                  <div id={`submission-${league.rounds.current._id}`}>
-                    <SongSubmission
-                      userSubmission={league.rounds.current.userSubmission}
-                      onSubmit={fetchData}
-                      ref={(ref) => {
-                        if (ref) {
-                          submissionRefs.current.set(
-                            league.rounds!.current!._id,
-                            ref
-                          );
-                        }
-                      }}
-                      roundId={league.rounds.current._id}
-                      roundEndDate={
-                        league.rounds.current.voteStartDate
-                          ? league.rounds.current.voteStartDate +
-                            league.daysForVoting * 24 * 60 * 60 * 1000
-                          : null
-                      }
-                    />
-
-                    {/* Submitted Users */}
-                    <SubmittedUsers
-                      submissions={league.rounds.current.submissions}
-                      users={league.users}
-                    />
-                  </div>
+                  <Round
+                    round={league.rounds.current}
+                    league={league}
+                    onSongSubmissionSubmit={fetchData}
+                  />
                 </Card>
               </div>
             );

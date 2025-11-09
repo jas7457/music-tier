@@ -46,6 +46,7 @@ async function seed() {
         users: [EXISTING_USER_ID],
         daysForSubmission: 5,
         daysForVoting: 3,
+        votesPerRound: 7,
       };
 
       await leaguesCollection.insertOne(league);

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useEffect,
-  useRef,
-  useImperativeHandle,
-  forwardRef,
-} from "react";
+import { useState, useRef, useImperativeHandle, forwardRef } from "react";
 import { SpotifyTrack } from "@/lib/spotify";
 import AlbumArt from "./AlbumArt";
 import { GetUserLeagueReturnType } from "@/lib/data";

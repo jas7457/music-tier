@@ -16,6 +16,7 @@ export type League = {
   title: string;
   description: string;
   numberOfRounds: number;
+  votesPerRound: number;
   // array of user IDs
   users: string[];
 
