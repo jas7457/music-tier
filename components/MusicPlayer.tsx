@@ -35,35 +35,25 @@ export default function MusicPlayer() {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-linear-to-r from-gray-800 to-gray-900 border-t-2 border-white border-opacity-10 shadow-2xl z-50">
       <div className="max-w-7xl mx-auto px-5 py-4">
-        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_3fr_1fr] gap-5 items-center">
+        <div className="flex gap-5 items-center">
           {/* Track Display */}
-          <div className="flex items-center gap-3 min-w-0">
-            {currentTrack ? (
-              <>
-                <img
-                  src={currentTrack.album.images[0]?.url}
-                  alt="Current track"
-                  className="w-15 h-15 rounded-lg object-cover shrink-0"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-sm text-white truncate">
-                    {currentTrack.name}
-                  </div>
-                  <div className="text-xs text-gray-400 truncate">
-                    {currentTrack.artists
-                      .map((artist) => artist.name)
-                      .join(", ")}
-                  </div>
+          {currentTrack && (
+            <div className="flex items-center gap-3 min-w-0">
+              <img
+                src={currentTrack.album.images[0]?.url}
+                alt="Current track"
+                className="w-15 h-15 rounded-lg object-cover shrink-0"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="font-semibold text-sm text-white truncate">
+                  {currentTrack.name}
                 </div>
-              </>
-            ) : (
-              <div className="text-sm text-gray-400">
-                {isReady
-                  ? "Select a track to play"
-                  : "Connecting to Spotify..."}
+                <div className="text-xs text-gray-400 truncate">
+                  {currentTrack.artists.map((artist) => artist.name).join(", ")}
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Player Controls */}
           <div className="flex items-center justify-center gap-4">
@@ -106,7 +96,7 @@ export default function MusicPlayer() {
           </div>
 
           {/* Progress Bar */}
-          <div className="flex items-center gap-3 text-white">
+          <div className="flex items-center gap-3 text-white grow">
             <span className="text-xs text-gray-400 min-w-[35px] text-center">
               {formatTime(currentTime)}
             </span>

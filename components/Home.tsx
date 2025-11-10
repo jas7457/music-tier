@@ -8,34 +8,19 @@ import Cookies from "js-cookie";
 import { formatDate } from "@/lib/utils/formatDate";
 import { Round } from "./Round";
 import { PopulatedLeague } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
   const { user } = useAuth();
-  const [leagues, setLeagues] = useState<PopulatedLeague[] | undefined>(
-    undefined
-  );
   const [hasSpotifyAccess, setHasSpotifyAccess] = useState(false);
+  const router = useRouter();
 
   const fetchData = useCallback(async () => {
-    if (!user) {
-      return;
-    }
-
-    try {
-      // Fetch user's leagues
-      const leaguesResponse = await fetch("/api/leagues/user");
-      if (!leaguesResponse.ok) {
-        throw new Error("Failed to fetch leagues");
-      }
-      const leaguesData = (await leaguesResponse.json()) as PopulatedLeague[];
-      setLeagues(leaguesData);
-    } catch (error) {
-      console.error("Error fetching leagues and rounds:", error);
-    }
-  }, [user]);
+    router.refresh();
+  }, [router]);
 
   useEffect(() => {
-    fetchData();
+    // fetchData();
   }, [fetchData]);
 
   // Check for Spotify access token
@@ -56,14 +41,6 @@ export default function Home() {
   }
 
   const leagueMarkup = (() => {
-    if (!leagues) {
-      return (
-        <Card className="p-8 text-center">
-          <p className="text-gray-600">Loading leagues...</p>
-        </Card>
-      );
-    }
-
     if (leagues.length === 0) {
       return (
         <Card className="p-8 text-center">

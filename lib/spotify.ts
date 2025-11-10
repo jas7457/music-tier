@@ -57,13 +57,13 @@ export const base64encode = (input: ArrayBuffer): string => {
     .replace(/\+/g, "-")
     .replace(/\//g, "_");
 };
+const codeVerifier = generateRandomString(64);
 
 export const initiateSpotifyAuth = async (): Promise<void> => {
   if (!CLIENT_ID) {
     throw new Error("Spotify Client ID not configured");
   }
 
-  const codeVerifier = generateRandomString(64);
   const hashed = await sha256(codeVerifier);
   const codeChallenge = base64encode(hashed);
 

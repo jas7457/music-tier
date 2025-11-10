@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react';
-import { initiateSpotifyAuth } from '@/lib/spotify';
-import { useAuth } from '@/lib/AuthContext';
-import Cookies from 'js-cookie';
+import { useState, useEffect } from "react";
+import { initiateSpotifyAuth } from "@/lib/spotify";
+import { useAuth } from "@/lib/AuthContext";
+import Cookies from "js-cookie";
 
 interface SpotifyProfile {
   id: string;
@@ -14,36 +14,38 @@ interface SpotifyProfile {
 export default function Landing() {
   const { refreshUser } = useAuth();
   const [hasSpotifyToken, setHasSpotifyToken] = useState(false);
-  const [spotifyProfile, setSpotifyProfile] = useState<SpotifyProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [spotifyProfile, setSpotifyProfile] = useState<SpotifyProfile | null>(
+    null
+  );
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    userName: '',
+    firstName: "",
+    lastName: "",
+    userName: "",
   });
 
   useEffect(() => {
     const checkSpotifyToken = async () => {
-      const token = Cookies.get('spotify_access_token');
+      const token = Cookies.get("spotify_access_token");
 
       if (token) {
         setHasSpotifyToken(true);
 
         // Fetch Spotify profile
         try {
-          const response = await fetch('/api/spotify/profile');
+          const response = await fetch("/api/spotify/profile");
           if (response.ok) {
             const profile = await response.json();
             setSpotifyProfile(profile);
 
             // Check if user already exists with this Spotify ID
-            const checkResponse = await fetch('/api/auth/check-spotify', {
-              method: 'POST',
+            const checkResponse = await fetch("/api/auth/check-spotify", {
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
               },
               body: JSON.stringify({ spotifyId: profile.id }),
             });
@@ -58,24 +60,24 @@ export default function Landing() {
 
             // User doesn't exist, pre-fill form with Spotify data
             if (profile.display_name) {
-              const nameParts = profile.display_name.trim().split(' ');
+              const nameParts = profile.display_name.trim().split(" ");
               if (nameParts.length === 1) {
                 setFormData({
                   firstName: nameParts[0],
-                  lastName: '',
-                  userName: profile.id || '',
+                  lastName: "",
+                  userName: profile.id || "",
                 });
               } else {
                 setFormData({
                   firstName: nameParts[0],
-                  lastName: nameParts.slice(1).join(' '),
-                  userName: profile.id || '',
+                  lastName: nameParts.slice(1).join(" "),
+                  userName: profile.id || "",
                 });
               }
             }
           }
         } catch (err) {
-          console.error('Error fetching Spotify profile:', err);
+          console.error("Error fetching Spotify profile:", err);
         }
       }
 
@@ -89,8 +91,8 @@ export default function Landing() {
     try {
       await initiateSpotifyAuth();
     } catch (error) {
-      console.error('Error initiating Spotify auth:', error);
-      setError('Failed to connect to Spotify');
+      console.error("Error initiating Spotify auth:", error);
+      setError("Failed to connect to Spotify");
     }
   };
 
@@ -100,10 +102,10 @@ export default function Landing() {
     setSubmitting(true);
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           firstName: formData.firstName,
@@ -117,7 +119,7 @@ export default function Landing() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Failed to create account');
+        setError(data.error || "Failed to create account");
         setSubmitting(false);
         return;
       }
@@ -125,8 +127,8 @@ export default function Landing() {
       // Refresh user context to load the new user
       await refreshUser();
     } catch (err) {
-      console.error('Error signing up:', err);
-      setError('Failed to create account');
+      console.error("Error signing up:", err);
+      setError("Failed to create account");
       setSubmitting(false);
     }
   };
@@ -162,9 +164,7 @@ export default function Landing() {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4">
       <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
         <h1 className="text-3xl font-bold mb-2">Create Your Account</h1>
-        <p className="text-gray-600 mb-6">
-          Complete your profile to continue
-        </p>
+        <p className="text-gray-600 mb-6">Complete your profile to continue</p>
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
@@ -174,7 +174,10 @@ export default function Landing() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="firstName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               First Name *
             </label>
             <input
@@ -182,13 +185,18 @@ export default function Landing() {
               type="text"
               required
               value={formData.firstName}
-              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, firstName: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
 
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Last Name *
             </label>
             <input
@@ -196,13 +204,18 @@ export default function Landing() {
               type="text"
               required
               value={formData.lastName}
-              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, lastName: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
 
           <div>
-            <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="userName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Username *
             </label>
             <input
@@ -210,7 +223,9 @@ export default function Landing() {
               type="text"
               required
               value={formData.userName}
-              onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, userName: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
@@ -220,7 +235,7 @@ export default function Landing() {
             disabled={submitting}
             className="w-full bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Creating Account...' : 'Create Account'}
+            {submitting ? "Creating Account..." : "Create Account"}
           </button>
         </form>
       </div>

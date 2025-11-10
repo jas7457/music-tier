@@ -1,23 +1,28 @@
-'use client'
+import { cookies } from "next/headers";
+import Landing from "@/components/Landing";
+import Home from "@/components/Home";
+import { getUserLeagues } from "@/lib/data";
+import { verifySessionToken } from "@/lib/auth";
 
-import { useAuth } from '@/lib/AuthContext';
-import Landing from '@/components/Landing';
-import Home from '@/components/Home';
+export default async function Page() {
+  // Get cookies from the server
+  const cookieStore = cookies();
+  const sessionToken = cookieStore.get("session_token")?.value;
 
-export default function Page() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <p className="text-lg">Loading...</p>
-      </div>
-    );
-  }
-
-  if (!user) {
+  // If no session token, show landing page
+  if (!sessionToken) {
     return <Landing />;
   }
 
-  return <Home />;
+  // Verify the session token
+  const payload = verifySessionToken(sessionToken);
+
+  if (!payload) {
+    return <Landing />;
+  }
+
+  // Fetch the user's leagues directly from the database
+  const leagues = await getUserLeagues(payload.userId);
+
+  return <Home leagues={leagues} />;
 }
