@@ -87,6 +87,14 @@ export async function getUserLeagues(
         index,
       }));
 
+      const usersById = users.reduce(
+        (acc, user) => {
+          acc[user._id.toString()] = user;
+          return acc;
+        },
+        {} as Record<string, PopulatedUser>
+      );
+
       const populatedRounds = await Promise.all(
         rounds.map(async (round) => {
           const [_submissions, _votes] = await Promise.all([
@@ -103,6 +111,9 @@ export async function getUserLeagues(
           const votes: PopulatedVote[] = _votes.map((vote) => ({
             ...vote,
             _id: vote._id.toString(),
+            userGuessObject: vote.userGuessId
+              ? usersById[vote.userGuessId]
+              : undefined,
           }));
 
           return {
@@ -113,11 +124,6 @@ export async function getUserLeagues(
           };
         })
       );
-
-      const usersById = users.reduce((acc, user) => {
-        acc[user._id.toString()] = user;
-        return acc;
-      }, {} as Record<string, PopulatedUser>);
 
       const roundsWithData: PopulatedRound[] = league.users
         .map((userId) => {

@@ -31,6 +31,7 @@ export function RoundPageClient({
       <div className="max-w-4xl mx-auto px-4">
         <Card className="p-6">
           <Round
+            key={round.stage}
             currentUser={currentUser}
             round={round}
             league={league}

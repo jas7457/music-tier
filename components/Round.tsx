@@ -1,7 +1,7 @@
 import { formatDate } from "@/lib/utils/formatDate";
 import { SongSubmission } from "./SongSubmission";
 import { SubmittedUsers, UnsubmittedUsers } from "./SubmittedUsers";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import VotingRound from "./VotingRound";
 import CompletedRound from "./CompletedRound";
 import { PopulatedLeague, PopulatedRound, PopulatedUser } from "@/lib/types";
@@ -24,10 +24,24 @@ export function Round({
   league: FullLeague;
   onDataSaved: () => void;
 }) {
+  const [showVotesView, setShowVotesView] = useState(false);
+
   const bodyMarkup = useMemo(() => {
     switch (round.stage) {
       case "completed": {
-        return <CompletedRound round={round} users={league.users} />;
+        if (showVotesView) {
+          return (
+            <VotingRound
+              key={round.stage}
+              round={round}
+              league={league}
+              currentUser={currentUser}
+              onDataSaved={onDataSaved}
+            />
+          );
+        } else {
+          return <CompletedRound round={round} users={league.users} />;
+        }
       }
       case "submission": {
         return (
@@ -58,7 +72,6 @@ export function Round({
             league={league}
             currentUser={currentUser}
             onDataSaved={onDataSaved}
-            isVotingEnabled={round.stage === "voting"}
           />
         );
       }
@@ -66,7 +79,7 @@ export function Round({
         return null;
       }
     }
-  }, [currentUser, league, onDataSaved, round]);
+  }, [currentUser, league, onDataSaved, round, showVotesView]);
 
   return (
     <div>
@@ -109,7 +122,48 @@ export function Round({
       </div>
 
       {/* Song Submission Section */}
-      <div id={`submission-${round._id}`}>{bodyMarkup}</div>
+      <div>
+        {round.stage === "completed" && (
+          <div className="flex justify-center gap-2 my-4">
+            <ToggleButton
+              onClick={() => setShowVotesView(false)}
+              selected={!showVotesView}
+            >
+              Results
+            </ToggleButton>
+            <ToggleButton
+              onClick={() => setShowVotesView(true)}
+              selected={showVotesView}
+            >
+              Votes & Guesses
+            </ToggleButton>
+          </div>
+        )}
+        {bodyMarkup}
+      </div>
     </div>
+  );
+}
+
+function ToggleButton({
+  children,
+  onClick,
+  selected,
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+  selected: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+        selected
+          ? "bg-blue-600 text-white"
+          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+      }`}
+    >
+      {children}
+    </button>
   );
 }

@@ -74,4 +74,6 @@ export type Vote = {
   points: number;
   voteDate: number;
   note?: string;
+  // corresponds to a guess for who submitted the song
+  userGuessId?: string;
 };

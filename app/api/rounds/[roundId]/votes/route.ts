@@ -32,13 +32,18 @@ export async function POST(
     const now = Date.now();
 
     const data = Object.entries(body).map(([submissionId, entry]) => {
-      const { points, note } = entry as { points: number; note?: string };
+      const { points, note, userGuessId } = entry as {
+        points: number;
+        note?: string;
+        userGuessId?: string;
+      };
       return {
         _id: new ObjectId(),
         voteDate: now,
         submissionId,
         points,
         note,
+        userGuessId,
         userId: payload.userId,
         roundId,
       };

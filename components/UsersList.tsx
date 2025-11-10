@@ -4,6 +4,7 @@ import { PopulatedUser } from "@/lib/types";
 import { Avatar } from "./Avatar";
 
 interface UsersListProps {
+  className?: string;
   users: (PopulatedUser & { index: number })[];
   text: {
     verb: string;
@@ -11,12 +12,12 @@ interface UsersListProps {
   };
 }
 
-export function UsersList({ users, text }: UsersListProps) {
+export function UsersList({ users, text, className }: UsersListProps) {
   const formattedVerb = text.verb.charAt(0).toUpperCase() + text.verb.slice(1);
 
   if (users.length === 0) {
     return (
-      <div className="mt-4">
+      <div className={className}>
         <h6 className="text-xs font-semibold text-gray-600 mb-2">
           {formattedVerb}
         </h6>
@@ -26,7 +27,7 @@ export function UsersList({ users, text }: UsersListProps) {
   }
 
   return (
-    <div className="mt-4">
+    <div className={className}>
       <h6 className="text-xs font-semibold text-gray-600 mb-2">
         {formattedVerb} ({users.length})
       </h6>

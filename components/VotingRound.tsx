@@ -4,14 +4,12 @@ import { useState, useMemo } from "react";
 import AlbumArt from "./AlbumArt";
 import Card from "./Card";
 import { UsersList } from "./UsersList";
-import { PopulatedSubmission, PopulatedUser, PopulatedVote } from "@/lib/types";
+import { PopulatedRound, PopulatedUser } from "@/lib/types";
+import { UserGuess } from "./UserGuess";
+import { title } from "process";
 
 interface VotingRoundProps {
-  round: {
-    _id: string;
-    submissions: PopulatedSubmission[];
-    votes: PopulatedVote[];
-  };
+  round: PopulatedRound;
   league: {
     votesPerRound: number;
     users: Array<PopulatedUser>;
@@ -26,7 +24,6 @@ export default function VotingRound({
   league,
   currentUser,
   onDataSaved,
-  isVotingEnabled,
 }: VotingRoundProps) {
   const [votes, setVotes] = useState(() =>
     round.submissions.reduce((acc, submission) => {
@@ -39,12 +36,13 @@ export default function VotingRound({
         acc[submission._id] = {
           points: currentVote.points,
           note: currentVote.note || "",
+          userGuessId: currentVote.userGuessId,
         };
       } else {
-        acc[submission._id] = { points: 0, note: "" };
+        acc[submission._id] = { points: 0, note: "", userGuessId: undefined };
       }
       return acc;
-    }, {} as Record<string, { points: number; note: string }>)
+    }, {} as Record<string, { points: number; note: string; userGuessId?: string }>)
   );
   const [saving, setSaving] = useState(false);
 
@@ -72,6 +70,7 @@ export default function VotingRound({
       [submissionId]: {
         points: newVotes,
         note: prev[submissionId]?.note || "",
+        userGuessId: prev[submissionId]?.userGuessId,
       },
     }));
   };
@@ -85,8 +84,20 @@ export default function VotingRound({
     });
   };
 
+  const handleGuessChange = (
+    submissionId: string,
+    userId: string | undefined
+  ) => {
+    setVotes((prev) => {
+      return {
+        ...prev,
+        [submissionId]: { ...prev[submissionId], userGuessId: userId },
+      };
+    });
+  };
+
   const handleSave = async () => {
-    if (!isVotingEnabled) {
+    if (round.stage !== "voting") {
       return;
     }
     try {
@@ -135,38 +146,59 @@ export default function VotingRound({
     return { usersThatHaveVoted, usersThatHaveNotVoted };
   }, [league, round]);
 
+  const { title, subtitle } = (() => {
+    switch (round.stage) {
+      case "voting":
+        return {
+          title: "Voting in Progress",
+          subtitle: (
+            <>
+              Vote for your favorite tracks! You have{" "}
+              <span className="font-semibold">{league.votesPerRound}</span>{" "}
+              total votes to distribute.
+            </>
+          ),
+        };
+      case "currentUserVotingCompleted":
+        return {
+          title: "Waiting on others to vote",
+          subtitle: "You have already submitted your votes.",
+        };
+      case "completed": {
+        return {
+          title: "Round Completed",
+          subtitle: "View the results of the round below.",
+        };
+      }
+      default:
+        return {
+          title: "Unexpected state",
+          subtitle: "Tell Jason you saw this",
+        };
+    }
+  })();
+
   return (
     <div className="mt-4 space-y-4">
       {/* Voting Summary */}
       <Card
-        className="p-4 bg-blue-50 border-blue-200 flex flex-col gap-3"
+        className="py-4 bg-blue-50 border-blue-200 flex flex-col gap-3"
         variant="outlined"
       >
-        <div className="flex items-center justify-between">
+        <div className="px-4 flex items-center justify-between">
           <div>
-            <h6 className="font-semibold text-sm text-gray-700">
-              {isVotingEnabled
-                ? "Voting in Progress"
-                : "Waiting on others to vote"}
-            </h6>
-            <p className="text-xs text-gray-600 mt-1">
-              {isVotingEnabled ? (
-                <>
-                  Vote for your favorite tracks! You have{" "}
-                  <span className="font-semibold">{league.votesPerRound}</span>{" "}
-                  total votes to distribute.
-                </>
-              ) : (
-                <>You have already submitted your votes.</>
-              )}
-            </p>
+            <h6 className="font-semibold text-sm text-gray-700">{title}</h6>
+            <p className="text-xs text-gray-600">{subtitle}</p>
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-blue-600">
-              {remainingVotes}
+
+          {round.stage === "voting" && (
+            <div className="text-right">
+              <div className="text-2xl font-bold text-blue-600">
+                {remainingVotes}
+              </div>
+              <div className="text-xs text-gray-600">votes left</div>
             </div>
-            <div className="text-xs text-gray-600">votes left</div>
-          </div>
+          )}
         </div>
 
         {/* Submissions */}
@@ -176,7 +208,10 @@ export default function VotingRound({
           const isYourSubmission = submission.userId === currentUser._id;
 
           return (
-            <div key={submission._id} className="space-y-2">
+            <div
+              key={submission._id}
+              className="px-4 space-y-2 border-b pb-1 border-gray-100"
+            >
               <div className="flex items-center gap-4">
                 {/* Album Art */}
                 {submission.trackInfo.albumImageUrl && (
@@ -207,50 +242,73 @@ export default function VotingRound({
 
                 {/* Voting Controls */}
                 {!isYourSubmission && (
-                  <div className="flex flex-col items-center min-w-[60px]">
-                    {isVotingEnabled && (
-                      <button
-                        onClick={() => handleVoteChange(submission._id, 1)}
-                        disabled={!canVoteUp || saving}
-                        className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                        title={canVoteUp ? "Vote up" : "No votes remaining"}
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
+                  <div className="flex items-center gap-1">
+                    <div className="flex flex-col items-center min-w-[60px]">
+                      {round.stage === "voting" && (
+                        <button
+                          onClick={() => handleVoteChange(submission._id, 1)}
+                          disabled={!canVoteUp || saving}
+                          className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          title={canVoteUp ? "Vote up" : "No votes remaining"}
                         >
-                          <path d="M18 15l-6-6-6 6" />
-                        </svg>
-                      </button>
-                    )}
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M18 15l-6-6-6 6" />
+                          </svg>
+                        </button>
+                      )}
 
-                    <div className="text-lg font-bold text-gray-700">
-                      {savedSubmission?.points || 0}
+                      <div className="text-lg font-bold text-gray-700">
+                        {savedSubmission?.points || 0}
+                      </div>
+
+                      {round.stage === "voting" && (
+                        <button
+                          onClick={() => handleVoteChange(submission._id, -1)}
+                          disabled={savedSubmission?.points === 0 || saving}
+                          className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          title="Vote down"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M6 9l6 6 6-6" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
 
-                    {isVotingEnabled && (
-                      <button
-                        onClick={() => handleVoteChange(submission._id, -1)}
-                        disabled={savedSubmission?.points === 0 || saving}
-                        className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                        title="Vote down"
-                      >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M6 9l6 6 6-6" />
-                        </svg>
-                      </button>
-                    )}
+                    {/* User Guess */}
+                    <div>
+                      <UserGuess
+                        isEditable={round.stage === "voting"}
+                        users={league.users.filter(
+                          (u) => u._id !== currentUser._id
+                        )}
+                        selectedUser={
+                          savedSubmission?.userGuessId
+                            ? league.users.find(
+                                (u) => u._id === savedSubmission.userGuessId
+                              )
+                            : undefined
+                        }
+                        onSelectUser={(user) =>
+                          handleGuessChange(submission._id, user?._id)
+                        }
+                        disabled={saving}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
@@ -258,7 +316,7 @@ export default function VotingRound({
               {/* Note Input */}
               {!isYourSubmission && (
                 <div className="pl-24">
-                  {isVotingEnabled ? (
+                  {round.stage === "voting" ? (
                     <textarea
                       value={votes[submission._id]?.note || ""}
                       onChange={(e) =>
@@ -280,8 +338,8 @@ export default function VotingRound({
         })}
 
         {/* Save All Button */}
-        {isVotingEnabled && (
-          <div className="pt-3">
+        {round.stage === "voting" && (
+          <div className="ps-4 pt-3">
             <button
               onClick={handleSave}
               disabled={saving || remainingVotes !== 0}
@@ -294,6 +352,7 @@ export default function VotingRound({
 
         {usersThatHaveVoted.length > 0 && (
           <UsersList
+            className="px-4"
             users={usersThatHaveVoted}
             text={{ noun: "votes", verb: "voted" }}
           />
@@ -301,6 +360,7 @@ export default function VotingRound({
 
         {usersThatHaveNotVoted.length > 0 && (
           <UsersList
+            className="px-4"
             users={usersThatHaveNotVoted}
             text={{ noun: "votes", verb: "not voted" }}
           />

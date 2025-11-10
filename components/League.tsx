@@ -50,6 +50,7 @@ export function League({
           {league.rounds.completed.map((round) => (
             <Card key={round._id.toString()} className="p-4" variant="outlined">
               <Round
+                key={round.stage}
                 round={round}
                 league={league}
                 onDataSaved={onDataSaved}
@@ -72,6 +73,7 @@ export function League({
         </h3>
         <Card className="border-green-200 bg-green-50 p-4">
           <Round
+            key={league.rounds.current.stage}
             currentUser={user}
             round={league.rounds.current}
             league={league}
