@@ -9,6 +9,8 @@ import { formatDate } from "@/lib/utils/formatDate";
 import { Round } from "./Round";
 import { PopulatedLeague } from "@/lib/types";
 import { useRouter } from "next/navigation";
+import { CreateRound } from "./CreateRound";
+import Link from "next/link";
 
 export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
   const { user } = useAuth();
@@ -56,6 +58,17 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
     return (
       <div className="space-y-8">
         {leagues.map((league) => {
+          // Check if user has created their round for this league
+          const allRounds = [
+            league.rounds.current,
+            ...league.rounds.upcoming,
+            ...league.rounds.completed,
+          ].filter((r) => r !== undefined && r !== null);
+
+          const userHasCreatedRound = allRounds.some(
+            (round) => round.creatorId === user._id
+          );
+
           const currentRoundMarkup = (() => {
             if (!league.rounds.current) {
               return null;
@@ -74,6 +87,19 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
                     onDataSaved={fetchData}
                   />
                 </Card>
+              </div>
+            );
+          })();
+
+          const createRoundMarkup = (() => {
+            // Only show if user hasn't created their round yet
+            if (userHasCreatedRound) {
+              return null;
+            }
+
+            return (
+              <div className="mb-6">
+                <CreateRound leagueId={league._id} onRoundCreated={fetchData} />
               </div>
             );
           })();
@@ -100,6 +126,9 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
               {/* Current Round */}
               {currentRoundMarkup}
 
+              {/* Create Round */}
+              {createRoundMarkup}
+
               {/* Completed Rounds */}
               {league.rounds.completed.length > 0 && (
                 <div className="mb-6">
@@ -113,9 +142,12 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
                         variant="outlined"
                         className="bg-gray-50 p-4"
                       >
-                        <h4 className="font-semibold mb-1">
+                        <Link
+                          href={`/rounds/${round._id}`}
+                          className="font-semibold mb-1 hover:text-purple-500 transition-colors"
+                        >
                           Round {round.roundIndex + 1}: {round.title}
-                        </h4>
+                        </Link>
                         <p className="text-gray-600 text-sm mb-2">
                           {round.description}
                         </p>
@@ -140,9 +172,12 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
                         key={round._id.toString()}
                         className="border-blue-200 bg-blue-50 p-4"
                       >
-                        <h4 className="font-semibold mb-1">
+                        <Link
+                          href={`/rounds/${round._id}`}
+                          className="font-semibold mb-1 hover:text-purple-500 transition-colors"
+                        >
                           Round {round.roundIndex + 1}: {round.title}
-                        </h4>
+                        </Link>
                         <p className="text-gray-600 text-sm mb-2">
                           {round.description}
                         </p>

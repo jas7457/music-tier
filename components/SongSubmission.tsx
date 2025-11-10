@@ -64,6 +64,10 @@ export function SongSubmission({
       return;
     }
 
+    if (trackId === submission?.trackInfo.trackId) {
+      return;
+    }
+
     setLoadingPreview(true);
     try {
       const trackData = await getTrackDetails(trackId);

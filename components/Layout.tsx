@@ -2,6 +2,10 @@
 
 import { useAuth } from "@/lib/AuthContext";
 import { Avatar } from "./Avatar";
+import Link from "next/link";
+import Image from "next/image";
+
+import logo from "../app/images/logo.png";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -13,7 +17,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex items-center justify-between bg-purple-600 text-white p-3">
         <div className="flex items-center gap-4">
-          <Avatar user={user} size={12} />
+          <Image
+            src={logo.src}
+            alt="Logo"
+            height={logo.height}
+            width={logo.width}
+            className="h-10 w-auto"
+          />
+          <Link href="/">
+            <Avatar user={user} size={12} />
+          </Link>
 
           <div>
             <h1 className="text-xl font-bold">
