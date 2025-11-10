@@ -2,24 +2,25 @@
 
 import { useState, useRef, useCallback } from "react";
 import AlbumArt from "./AlbumArt";
-import { PopulatedSubmission } from "@/lib/types";
+import { PopulatedRound, PopulatedSubmission } from "@/lib/types";
 import { getTrackDetails } from "@/lib/api";
 import { extractTrackIdFromUrl, getTrackUrlFromId } from "@/lib/spotify";
 import { useAuth } from "@/lib/AuthContext";
 
 interface SongSubmissionProps {
-  roundId: string;
+  round: PopulatedRound;
   roundEndDate: number | null;
   userSubmission: PopulatedSubmission | undefined;
   onDataSaved: () => void;
 }
 export function SongSubmission({
-  roundId,
+  round,
   roundEndDate,
   userSubmission,
   onDataSaved,
 }: SongSubmissionProps) {
   const { user } = useAuth();
+  const roundId = round._id;
   const [submission, _setSubmission] = useState(userSubmission ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [trackUrl, setTrackUrl] = useState(
@@ -170,7 +171,7 @@ export function SongSubmission({
             <AlbumArt
               trackInfo={submission.trackInfo}
               size={64}
-              usePlayerContext={true}
+              round={round}
             />
           )}
           <div className="flex-1">
@@ -256,7 +257,7 @@ export function SongSubmission({
                 <AlbumArt
                   trackInfo={submission.trackInfo}
                   size={56}
-                  usePlayerContext={true}
+                  round={round}
                 />
               )}
               <div className="flex-1 min-w-0">

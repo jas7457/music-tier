@@ -25,9 +25,9 @@ export default function MusicPlayer() {
     previousTrack,
     seekToPosition,
     setPlayerVolume,
+    hasNextTrack,
+    hasPreviousTrack,
   } = useSpotifyPlayer();
-
-  console.log({ hasInitialized });
 
   const formatTime = (ms: number) => {
     const minutes = Math.floor(ms / 1000 / 60);
@@ -62,7 +62,7 @@ export default function MusicPlayer() {
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={previousTrack}
-              disabled={!deviceId || !currentTrack}
+              disabled={!deviceId || !currentTrack || !hasPreviousTrack}
               className="w-10 h-10 rounded-full bg-white bg-opacity-10 text-black flex items-center justify-center transition-all hover:bg-opacity-20 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
               title="Previous track"
             >
@@ -90,7 +90,7 @@ export default function MusicPlayer() {
 
             <button
               onClick={nextTrack}
-              disabled={!deviceId || !currentTrack}
+              disabled={!deviceId || !currentTrack || !hasNextTrack}
               className="w-10 h-10 rounded-full bg-white bg-opacity-10 text-white flex items-center justify-center transition-all hover:bg-opacity-20 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
               title="Next track"
             >

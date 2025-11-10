@@ -99,7 +99,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                 <AlbumArt
                   trackInfo={submission.trackInfo}
                   size={120}
-                  usePlayerContext={true}
+                  round={round}
                 />
 
                 {/* Track Info */}

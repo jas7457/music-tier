@@ -6,7 +6,6 @@ import Card from "./Card";
 import { UsersList } from "./UsersList";
 import { PopulatedRound, PopulatedUser } from "@/lib/types";
 import { UserGuess } from "./UserGuess";
-import { title } from "process";
 
 interface VotingRoundProps {
   round: PopulatedRound;
@@ -16,7 +15,6 @@ interface VotingRoundProps {
   };
   currentUser: PopulatedUser;
   onDataSaved: () => void;
-  isVotingEnabled: boolean;
 }
 
 export default function VotingRound({
@@ -218,7 +216,7 @@ export default function VotingRound({
                   <AlbumArt
                     trackInfo={submission.trackInfo}
                     size={80}
-                    usePlayerContext={true}
+                    round={round}
                   />
                 )}
 

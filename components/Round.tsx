@@ -49,7 +49,7 @@ export function Round({
             <SongSubmission
               userSubmission={round.userSubmission}
               onDataSaved={onDataSaved}
-              roundId={round._id}
+              round={round}
               roundEndDate={round.votingEndDate}
             />
             <SubmittedUsers

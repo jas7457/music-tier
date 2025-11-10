@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
+import { PopulatedRound, PopulatedSubmission } from "./types";
 
 interface SpotifyPlayerContextType {
   player: Spotify.Player | null;
@@ -14,7 +15,9 @@ interface SpotifyPlayerContextType {
   volume: number;
   isReady: boolean;
   hasInitialized: boolean;
-  playTrack: (trackUri: string) => Promise<void>;
+  hasNextTrack: boolean;
+  hasPreviousTrack: boolean;
+  playTrack: (trackUri: string, round?: PopulatedRound) => Promise<void>;
   pausePlayback: () => Promise<void>;
   resumePlayback: () => Promise<void>;
   nextTrack: () => Promise<void>;
@@ -40,12 +43,10 @@ export const useSpotifyPlayer = () => {
 
 interface SpotifyPlayerProviderProps {
   children: React.ReactNode;
-  tracks?: Array<{ id: string; uri: string }>;
 }
 
 export function SpotifyPlayerProvider({
   children,
-  tracks = [],
 }: SpotifyPlayerProviderProps) {
   const [player, setPlayer] = useState<Spotify.Player | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
@@ -59,11 +60,16 @@ export function SpotifyPlayerProvider({
   const [isReady, setIsReady] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [playlist, setPlaylist] = useState<PopulatedSubmission["trackInfo"][]>(
+    []
+  );
 
-  const tracksRef = useRef(tracks);
-  useEffect(() => {
-    tracksRef.current = tracks;
-  }, [tracks]);
+  const currentTrackIndex = useMemo(() => {
+    return playlist.findIndex((t) => t.trackId === currentTrack?.id);
+  }, [playlist, currentTrack]);
+  const hasNextTrack =
+    playlist.length > 0 && currentTrackIndex < playlist.length - 1;
+  const hasPreviousTrack = playlist.length > 0 && currentTrackIndex > 0;
 
   // Initialize Spotify Web Playback SDK
   useEffect(() => {
@@ -248,7 +254,10 @@ export function SpotifyPlayerProvider({
     return () => clearInterval(interval);
   }, [currentTrack]);
 
-  const playTrack = async (trackUri: string) => {
+  const playTrack = async (
+    trackUri: string,
+    round?: PopulatedRound | "same"
+  ) => {
     if (!deviceId) {
       setError("No Spotify device available");
       return;
@@ -281,6 +290,15 @@ export function SpotifyPlayerProvider({
 
       setIsPlaying(true);
       setError(null);
+      if (round) {
+        if (round !== "same") {
+          setPlaylist(
+            round.submissions.map((submission) => submission.trackInfo)
+          );
+        }
+      } else {
+        setPlaylist([]);
+      }
     } catch (error) {
       console.error("Error playing track:", error);
       setError("Failed to play track. Make sure you have Spotify Premium.");
@@ -322,29 +340,20 @@ export function SpotifyPlayerProvider({
   };
 
   const nextTrack = async () => {
-    const allTracks = tracksRef.current;
-    if (allTracks.length === 0 || !currentTrack) return;
-
-    const currentIndex = allTracks.findIndex((t) => t.id === currentTrack.id);
-    const nextIndex = (currentIndex + 1) % allTracks.length;
-    const next = allTracks[nextIndex];
-
-    if (next) {
-      await playTrack(next.uri);
+    debugger;
+    const nextTrack = playlist[currentTrackIndex + 1];
+    if (nextTrack) {
+      playTrack(`spotify:track:${nextTrack.trackId}`, "same");
+      return;
     }
   };
 
   const previousTrack = async () => {
-    const allTracks = tracksRef.current;
-    if (allTracks.length === 0 || !currentTrack) return;
-
-    const currentIndex = allTracks.findIndex((t) => t.id === currentTrack.id);
-    const prevIndex =
-      currentIndex <= 0 ? allTracks.length - 1 : currentIndex - 1;
-    const prev = allTracks[prevIndex];
-
-    if (prev) {
-      await playTrack(prev.uri);
+    debugger;
+    const previousTrack = playlist[currentTrackIndex - 1];
+    if (previousTrack) {
+      playTrack(`spotify:track:${previousTrack.trackId}`, "same");
+      return;
     }
   };
 
@@ -410,6 +419,8 @@ export function SpotifyPlayerProvider({
     previousTrack,
     seekToPosition,
     setPlayerVolume,
+    hasNextTrack,
+    hasPreviousTrack,
     error,
   };
 
