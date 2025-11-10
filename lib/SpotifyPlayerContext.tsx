@@ -70,9 +70,10 @@ export function SpotifyPlayerProvider({
       setIsReady(false);
       return;
     }
+    let spotifyPlayer: Spotify.Player;
 
     window.onSpotifyWebPlaybackSDKReady = () => {
-      const spotifyPlayer = new window.Spotify.Player({
+      spotifyPlayer = new window.Spotify.Player({
         name: "Music Tier Player",
         getOAuthToken: (cb) => cb(token),
         volume: volume,
@@ -159,11 +160,11 @@ export function SpotifyPlayerProvider({
     }
 
     return () => {
-      if (player) {
-        player.disconnect();
+      if (spotifyPlayer) {
+        spotifyPlayer.disconnect();
       }
     };
-  }, [player, volume]);
+  }, [volume]);
 
   // Poll currently playing track to sync with other devices
   useEffect(() => {
