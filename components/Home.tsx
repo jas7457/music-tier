@@ -104,6 +104,22 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
             );
           })();
 
+          const { text, color } = (() => {
+            switch (league.status) {
+              case "active":
+                return { text: "Active", color: "bg-green-100 text-green-800" };
+              case "completed":
+                return {
+                  text: "Completed",
+                  color: "bg-gray-200 text-gray-700",
+                };
+              case "upcoming":
+                return { text: "Upcoming", color: "bg-blue-100 text-blue-800" };
+              default:
+                return { text: "Unknown", color: "" };
+            }
+          })();
+
           return (
             <Card
               key={league._id.toString()}
@@ -112,7 +128,15 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
             >
               {/* League Header */}
               <div className="border-b pb-4 mb-6">
-                <h2 className="text-2xl font-bold mb-2">{league.title}</h2>
+                <h2 className="text-2xl font-bold mb-2">
+                  {league.title}
+
+                  <span
+                    className={`ml-3 inline-block rounded-full px-3 py-1 text-xs font-semibold ${color}`}
+                  >
+                    {text}
+                  </span>
+                </h2>
                 <p className="text-gray-600 mb-3">{league.description}</p>
                 <div className="flex gap-4 text-sm text-gray-500">
                   <span>{league.numberOfRounds} rounds</span>

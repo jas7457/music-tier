@@ -230,7 +230,17 @@ export async function getUserLeagues(
         }
       );
 
-      return { ...league, users, rounds: roundsObject };
+      const status = (() => {
+        if (roundsObject.completed.length === roundsWithData.length) {
+          return "completed" as const;
+        }
+        if (roundsObject.current) {
+          return "active" as const;
+        }
+        return "upcoming" as const;
+      })();
+
+      return { ...league, users, status, rounds: roundsObject };
     })
   );
 

@@ -35,6 +35,7 @@ export type PopulatedRound = WithStringId<Round> & {
 };
 
 export type PopulatedLeague = WithStringId<Omit<League, "users">> & {
+  status: "active" | "completed" | "upcoming";
   users: PopulatedUser[];
   rounds: {
     current: PopulatedRound | undefined;
