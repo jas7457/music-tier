@@ -96,12 +96,10 @@ export function Round({
         <Avatar user={round.creatorObject} size={10} includeTooltip />
       </div>
       <div className="flex gap-4 text-xs text-gray-500">
-        <span>
-          Submissions start date: {formatDate(round.submissionStartDate)}
-        </span>
+        <span>Submissions start: {formatDate(round.submissionStartDate)}</span>
         <span>•</span>
         <span>
-          Submission end date:{" "}
+          Submissions end:{" "}
           {formatDate(
             round.submissionStartDate! +
               league.daysForSubmission * 24 * 60 * 60 * 1000

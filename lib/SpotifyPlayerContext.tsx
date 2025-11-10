@@ -3,6 +3,10 @@
 import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
 import { PopulatedRound, PopulatedSubmission } from "./types";
+import { getSpotifyDevices } from "./spotify";
+
+// working url:     https://api.spotify.com/v1/me/player/play?device_id=84ba12cbec6088ef868f60f97ca1b1f6a4c9a140
+// not working url: https://api.spotify.com/v1/me/player/play?device_id=baa7bbf1c2c8f54c444a1c917e6f1d00229d8e49
 
 interface SpotifyPlayerContextType {
   player: Spotify.Player | null;
@@ -80,6 +84,8 @@ export function SpotifyPlayerProvider({
       return;
     }
     let spotifyPlayer: Spotify.Player;
+    let stateTimeout: NodeJS.Timeout;
+    let mounted = true;
 
     // after 3 seconds, assume it will not itialize
     const initializedTimeout = setTimeout(() => {
@@ -151,17 +157,18 @@ export function SpotifyPlayerProvider({
         setIsReady(false);
       });
 
-      // Player state changed
-      spotifyPlayer.addListener("player_state_changed", (state: any) => {
+      const updateWithNewState = (state: Spotify.WebPlaybackState | null) => {
         if (!state) return;
-
         const newTrack = state.track_window.current_track;
         setCurrentTrack(newTrack);
         setIsPaused(state.paused);
         setIsPlaying(!state.paused);
         setCurrentTime(state.position);
         setDuration(newTrack.duration_ms);
-      });
+      };
+
+      // Player state changed
+      spotifyPlayer.addListener("player_state_changed", updateWithNewState);
 
       // Connect to the player
       spotifyPlayer.connect().then((success: boolean) => {
@@ -170,6 +177,25 @@ export function SpotifyPlayerProvider({
           setPlayer(spotifyPlayer);
         }
       });
+
+      setTimeout(async () => {
+        const devices = await getSpotifyDevices(token);
+        console.log(devices);
+      }, 1000);
+
+      const poll = async () => {
+        clearTimeout(stateTimeout);
+        stateTimeout = setTimeout(async () => {
+          if (!mounted) {
+            return;
+          }
+          const state = await spotifyPlayer.getCurrentState();
+          updateWithNewState(state);
+          poll();
+        }, 1000);
+      };
+
+      poll();
     };
 
     // If SDK is already loaded, initialize immediately
@@ -178,7 +204,10 @@ export function SpotifyPlayerProvider({
     }
 
     return () => {
+      mounted = false;
       clearTimeout(initializedTimeout);
+      clearTimeout(stateTimeout);
+
       if (spotifyPlayer) {
         spotifyPlayer.disconnect();
       }

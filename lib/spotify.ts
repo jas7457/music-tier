@@ -154,6 +154,20 @@ export const getSpotifyUserProfile = async (
   return response.json();
 };
 
+export async function getSpotifyDevices(accessToken: string) {
+  const response = await fetch("https://api.spotify.com/v1/me/player/devices", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user profile: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
 export const extractPlaylistId = (url: string): string | null => {
   const patterns = [
     /spotify:playlist:([a-zA-Z0-9]+)/,
