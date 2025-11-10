@@ -3,16 +3,12 @@
 import { useState, useRef, useImperativeHandle, forwardRef } from "react";
 import { SpotifyTrack } from "@/lib/spotify";
 import AlbumArt from "./AlbumArt";
-import { GetUserLeagueReturnType } from "@/lib/data";
-
-type SongSubmissionType = NonNullable<
-  GetUserLeagueReturnType[number]["rounds"]["current"]
->["userSubmission"];
+import { PopulatedSubmission } from "@/lib/types";
 
 interface SongSubmissionProps {
   roundId: string;
   roundEndDate: number | null;
-  userSubmission: SongSubmissionType | undefined;
+  userSubmission: PopulatedSubmission | undefined;
   onDataSaved: () => void;
 }
 export interface SongSubmissionRef {

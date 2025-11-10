@@ -36,7 +36,9 @@ export default function VotingRound({
   const [votes, setVotes] = useState(() =>
     round.submissions.reduce((acc, submission) => {
       const currentVote = round.votes.find(
-        (vote) => vote.submissionId === submission._id
+        (vote) =>
+          vote.userId === currentUser._id &&
+          vote.submissionId === submission._id
       );
       if (currentVote) {
         acc[submission._id] = {
@@ -59,7 +61,6 @@ export default function VotingRound({
     );
   }, [votes]);
   const remainingVotes = league.votesPerRound - totalVotesUsed;
-  console.log("Remaining Votes:", remainingVotes);
 
   const handleVoteChange = async (submissionId: string, change: number) => {
     const currentVotes = votes[submissionId]?.points || 0;
@@ -117,16 +118,20 @@ export default function VotingRound({
   };
 
   const { usersThatHaveVoted, usersThatHaveNotVoted } = useMemo(() => {
-    const usersById = league.users.reduce((acc, user) => {
+    const usersWithIndex = league.users.map((user, index) => ({
+      ...user,
+      index,
+    }));
+    const usersById = usersWithIndex.reduce((acc, user, index) => {
       acc[user._id] = user;
       return acc;
-    }, {} as Record<string, User>);
+    }, {} as Record<string, User & { index: number }>);
 
     const usersThatHaveVoted = round.votes
       .map((vote) => usersById[vote.userId])
       .filter((user, index, array) => user && array.indexOf(user) === index);
 
-    const usersThatHaveNotVoted = league.users.filter((user) => {
+    const usersThatHaveNotVoted = usersWithIndex.filter((user) => {
       return !usersThatHaveVoted.find(
         (votedUser) => votedUser._id === user._id
       );
@@ -303,7 +308,6 @@ export default function VotingRound({
           <UsersList
             users={usersThatHaveNotVoted}
             text={{ noun: "votes", verb: "not voted" }}
-            indexOffset={usersThatHaveVoted.length}
           />
         )}
       </Card>

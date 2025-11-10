@@ -20,6 +20,8 @@ export type League = {
   // array of user IDs
   users: string[];
 
+  // timestamp of when the league starts
+  leagueStartDate: number;
   // how many days after submissions start that people can submit their songs
   daysForSubmission: number;
   // how many days after voting starts for votes to come in
@@ -35,8 +37,6 @@ export type Round = {
   title: string;
   description: string;
   creatorId: string;
-  submissionStartDate: number;
-  voteStartDate: number;
 };
 
 // "songSubmissions" collection */

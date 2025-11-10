@@ -1,43 +1,30 @@
-import { SpotifyTrack } from "@/lib/spotify";
 import type {
-  Round as RoundType,
   SongSubmission as SongSubmissionType,
   User,
-  Vote,
 } from "../databaseTypes";
 import { formatDate } from "@/lib/utils/formatDate";
 import { SongSubmission } from "./SongSubmission";
-import { SubmittedUsers } from "./SubmittedUsers";
-import { GetUserLeagueReturnType } from "@/lib/data";
-import { decorateRound } from "@/lib/utils/decorateRound";
+import { SubmittedUsers, UnsubmittedUsers } from "./SubmittedUsers";
 import { useMemo } from "react";
 import VotingRound from "./VotingRound";
-
-type FullRound = RoundType & {
-  roundIndex: number;
-  submissions: (SongSubmissionType & { trackInfo: SpotifyTrack })[];
-  votes: Vote[];
-  userSubmission?: SongSubmissionType & { trackInfo: SpotifyTrack };
-};
+import { PopulatedLeague, PopulatedRound } from "@/lib/types";
 
 type FullLeague = Pick<
-  GetUserLeagueReturnType[number],
+  PopulatedLeague,
   "daysForSubmission" | "daysForVoting" | "users" | "votesPerRound"
 >;
 
 export function Round({
   currentUser,
-  round: _round,
+  round,
   league,
   onDataSaved,
 }: {
   currentUser: User;
-  round: FullRound;
+  round: PopulatedRound;
   league: FullLeague;
   onDataSaved: () => void;
 }) {
-  const round = decorateRound(currentUser._id, _round, league);
-
   const bodyMarkup = useMemo(() => {
     switch (round.stage) {
       case "completed": {
@@ -55,14 +42,13 @@ export function Round({
               //   }
               // }}
               roundId={round._id}
-              roundEndDate={
-                round.voteStartDate
-                  ? round.voteStartDate +
-                    league.daysForVoting * 24 * 60 * 60 * 1000
-                  : null
-              }
+              roundEndDate={round.votingEndDate}
             />
             <SubmittedUsers
+              submissions={round.submissions}
+              users={league.users}
+            />
+            <UnsubmittedUsers
               submissions={round.submissions}
               users={league.users}
             />
@@ -70,11 +56,11 @@ export function Round({
         );
       }
       case "voting":
-      case "votingCompleted": {
+      case "currentUserVotingCompleted": {
         return (
           <VotingRound
             key={round.stage}
-            round={_round}
+            round={round}
             league={league}
             currentUser={currentUser}
             onDataSaved={onDataSaved}
@@ -95,9 +81,6 @@ export function Round({
       </h4>
       <p className="text-gray-600 text-sm mb-2">{round.description}</p>
       <div className="flex gap-4 text-xs text-gray-500">
-        <span>
-          Stage: {round.stage.charAt(0).toUpperCase() + round.stage.slice(1)}
-        </span>
         <span>
           Submissions start date: {formatDate(round.submissionStartDate)}
         </span>

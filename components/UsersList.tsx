@@ -1,10 +1,9 @@
 "use client";
 
-import { GetUserLeagueReturnType } from "@/lib/data";
+import { PopulatedUser } from "@/lib/types";
 
 interface UsersListProps {
-  users: GetUserLeagueReturnType[number]["users"];
-  indexOffset?: number;
+  users: (PopulatedUser & { index: number })[];
   text: {
     verb: string;
     noun: string;
@@ -25,7 +24,7 @@ const gradients = [
   "from-fuchsia-500 to-pink-600",
 ];
 
-export function UsersList({ users, text, indexOffset = 0 }: UsersListProps) {
+export function UsersList({ users, text }: UsersListProps) {
   const formattedVerb = text.verb.charAt(0).toUpperCase() + text.verb.slice(1);
 
   if (users.length === 0) {
@@ -45,10 +44,10 @@ export function UsersList({ users, text, indexOffset = 0 }: UsersListProps) {
         {formattedVerb} ({users.length})
       </h6>
       <div className="flex flex-wrap gap-2">
-        {users.map((user, index) => {
+        {users.map((user) => {
           const fullName = `${user.firstName} ${user.lastName}`;
           const initial = user.userName.charAt(0).toUpperCase();
-          const gradient = gradients[(index + indexOffset) % gradients.length];
+          const gradient = gradients[user.index % gradients.length];
 
           return (
             <div key={user._id} className="relative group">

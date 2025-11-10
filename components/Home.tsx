@@ -10,14 +10,13 @@ import {
   useMemo,
   useCallback,
 } from "react";
-import { SongSubmission, SongSubmissionRef } from "./SongSubmission";
+import { SongSubmissionRef } from "./SongSubmission";
 import Card from "./Card";
 import MusicPlayer from "./MusicPlayer";
 import Cookies from "js-cookie";
-import { SubmittedUsers } from "./SubmittedUsers";
-import { GetUserLeagueReturnType } from "@/lib/data";
 import { formatDate } from "@/lib/utils/formatDate";
 import { Round } from "./Round";
+import { PopulatedLeague } from "@/lib/types";
 
 interface SubmissionContextType {
   setCurrentTrackAsSubmission: (trackUrl: string) => void;
@@ -35,7 +34,7 @@ export const useSubmission = () => {
 
 export default function Home() {
   const { user, logout } = useAuth();
-  const [leagues, setLeagues] = useState<GetUserLeagueReturnType | undefined>(
+  const [leagues, setLeagues] = useState<PopulatedLeague[] | undefined>(
     undefined
   );
   const [loading, setLoading] = useState(true);
@@ -79,8 +78,7 @@ export default function Home() {
       if (!leaguesResponse.ok) {
         throw new Error("Failed to fetch leagues");
       }
-      const leaguesData =
-        (await leaguesResponse.json()) as GetUserLeagueReturnType;
+      const leaguesData = (await leaguesResponse.json()) as PopulatedLeague[];
       setLeagues(leaguesData);
     } catch (error) {
       console.error("Error fetching leagues and rounds:", error);
@@ -192,13 +190,7 @@ export default function Home() {
                           {round.description}
                         </p>
                         <div className="text-xs text-gray-500">
-                          Ended:{" "}
-                          {formatDate(
-                            round.voteStartDate
-                              ? round.voteStartDate +
-                                  league.daysForVoting * 24 * 60 * 60 * 1000
-                              : undefined
-                          )}
+                          Ended: {formatDate(round.votingEndDate)}
                         </div>
                       </Card>
                     ))}
