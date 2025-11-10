@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
-import { SongSubmission, Round, League } from "@/databaseTypes";
+import { SongSubmission } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
 import { extractTrackId } from "@/lib/spotify";
 

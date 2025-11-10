@@ -7,7 +7,6 @@ import {
   useRef,
   createContext,
   useContext,
-  useMemo,
   useCallback,
 } from "react";
 import { SongSubmissionRef } from "./SongSubmission";
@@ -19,7 +18,7 @@ import { Round } from "./Round";
 import { PopulatedLeague } from "@/lib/types";
 
 interface SubmissionContextType {
-  setCurrentTrackAsSubmission: (trackUrl: string) => void;
+  setCurrentTrackAsSubmission: (_trackUrl: string) => void;
 }
 
 const SubmissionContext = createContext<SubmissionContextType | null>(null);
@@ -37,7 +36,6 @@ export default function Home() {
   const [leagues, setLeagues] = useState<PopulatedLeague[] | undefined>(
     undefined
   );
-  const [loading, setLoading] = useState(true);
   const [hasSpotifyAccess, setHasSpotifyAccess] = useState(false);
   const submissionRefs = useRef<Map<string, SongSubmissionRef>>(new Map());
 
@@ -72,7 +70,6 @@ export default function Home() {
     }
 
     try {
-      setLoading(true);
       // Fetch user's leagues
       const leaguesResponse = await fetch("/api/leagues/user");
       if (!leaguesResponse.ok) {
@@ -82,10 +79,8 @@ export default function Home() {
       setLeagues(leaguesData);
     } catch (error) {
       console.error("Error fetching leagues and rounds:", error);
-    } finally {
-      setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchData();
@@ -122,7 +117,7 @@ export default function Home() {
         <Card className="p-8 text-center">
           <h2 className="text-xl font-semibold mb-2">No Leagues Yet</h2>
           <p className="text-gray-600">
-            You're not part of any leagues yet. Create or join one to get
+            You&apos;re not part of any leagues yet. Create or join one to get
             started!
           </p>
         </Card>

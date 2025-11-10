@@ -205,7 +205,7 @@ export default function VotingRound({
                   </p>
                   {submission.note && (
                     <p className="text-xs text-gray-600 mt-2 italic">
-                      "{submission.note}"
+                      &quot;{submission.note}&quot;
                     </p>
                   )}
                 </div>

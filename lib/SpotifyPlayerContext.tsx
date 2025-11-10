@@ -163,7 +163,7 @@ export function SpotifyPlayerProvider({
         player.disconnect();
       }
     };
-  }, []);
+  }, [player, volume]);
 
   // Poll currently playing track to sync with other devices
   useEffect(() => {

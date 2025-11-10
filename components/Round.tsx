@@ -1,7 +1,4 @@
-import type {
-  SongSubmission as SongSubmissionType,
-  User,
-} from "../databaseTypes";
+import type { User } from "../databaseTypes";
 import { formatDate } from "@/lib/utils/formatDate";
 import { SongSubmission } from "./SongSubmission";
 import { SubmittedUsers, UnsubmittedUsers } from "./SubmittedUsers";
@@ -73,7 +70,7 @@ export function Round({
         return null;
       }
     }
-  }, [round]);
+  }, [currentUser, league, onDataSaved, round]);
 
   return (
     <>

@@ -129,7 +129,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
 
                   {submission.note && (
                     <p className="text-sm text-gray-700 italic">
-                      "{submission.note}"
+                      &quot;{submission.note}&quot;
                     </p>
                   )}
                 </div>

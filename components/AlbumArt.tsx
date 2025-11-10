@@ -28,17 +28,17 @@ export default function AlbumArt({
   className = "",
   usePlayerContext = false,
 }: AlbumArtProps) {
-  const playerContext = usePlayerContext ? useSpotifyPlayer() : null;
+  const playerContext = useSpotifyPlayer();
 
   // Determine if this track is currently playing
-  const isCurrentlyPlaying = usePlayerContext && playerContext
-    ? playerContext.currentTrack?.id === trackId && playerContext.isPlaying
-    : isPlayingProp;
+  const isCurrentlyPlaying =
+    usePlayerContext && playerContext
+      ? playerContext.currentTrack?.id === trackId && playerContext.isPlaying
+      : isPlayingProp;
 
   // Determine if player is disabled
-  const isDisabled = usePlayerContext && playerContext
-    ? !playerContext.deviceId
-    : disabledProp;
+  const isDisabled =
+    usePlayerContext && playerContext ? !playerContext.deviceId : disabledProp;
 
   // Handle play click
   const handlePlayClick = async () => {
@@ -59,7 +59,7 @@ export default function AlbumArt({
 
   return (
     <div
-      className={`relative flex-shrink-0 overflow-hidden rounded group ${className}`}
+      className={`relative shrink-0 overflow-hidden rounded group ${className}`}
       style={{ width: `${size}px`, height: `${size}px` }}
     >
       <div className="w-full h-full">

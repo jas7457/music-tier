@@ -35,7 +35,7 @@ export default function MusicPlayer() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-gray-800 to-gray-900 border-t-2 border-white border-opacity-10 shadow-2xl z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-linear-to-r from-gray-800 to-gray-900 border-t-2 border-white border-opacity-10 shadow-2xl z-50">
       <div className="max-w-7xl mx-auto px-5 py-4">
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_3fr_1fr] gap-5 items-center">
           {/* Track Display */}
@@ -45,7 +45,7 @@ export default function MusicPlayer() {
                 <img
                   src={currentTrack.album.images[0]?.url}
                   alt="Current track"
-                  className="w-15 h-15 rounded-lg object-cover flex-shrink-0"
+                  className="w-15 h-15 rounded-lg object-cover shrink-0"
                 />
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold text-sm text-white truncate">
@@ -62,7 +62,7 @@ export default function MusicPlayer() {
                     const trackUrl = `https://open.spotify.com/track/${currentTrack.id}`;
                     setCurrentTrackAsSubmission(trackUrl);
                   }}
-                  className="flex-shrink-0 px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+                  className="shrink-0 px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
                   title="Submit this track"
                 >
                   Submit
