@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
 
-    const userLeagues = await getUserLeagues(payload.userId, accessToken);
+    const userLeagues = await getUserLeagues(payload.userId);
 
     return NextResponse.json(userLeagues);
   } catch (error) {

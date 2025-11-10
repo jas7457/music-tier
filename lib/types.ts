@@ -5,16 +5,14 @@ import type {
   User,
   Vote,
 } from "../databaseTypes";
-import { SpotifyTrack } from "./spotify";
 
 type WithStringId<T> = Omit<T, "_id"> & { _id: string };
 
-type SongSubmissionWithTrack = WithStringId<SongSubmission> & {
-  trackInfo: SpotifyTrack;
-};
+type SongSubmissionWithTrack = WithStringId<SongSubmission>;
 export type PopulatedUser = WithStringId<User> & { index: number };
 export type PopulatedSubmission = WithStringId<SongSubmissionWithTrack>;
 export type PopulatedVote = WithStringId<Vote>;
+export type PopulatedTrackInfo = PopulatedSubmission["trackInfo"];
 
 export type PopulatedRoundStage =
   | "upcoming"

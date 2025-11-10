@@ -25,21 +25,11 @@ export async function POST(
     const { roundId } = params;
 
     const body = await request.json();
-    const { trackUrl, note } = body;
+    const { trackInfo, note } = body;
 
-    if (!trackUrl) {
+    if (!trackInfo) {
       return NextResponse.json(
         { error: "Track URL is required" },
-        { status: 400 }
-      );
-    }
-
-    // Extract track ID from URL
-    const trackId = extractTrackId(trackUrl);
-
-    if (!trackId) {
-      return NextResponse.json(
-        { error: "Invalid Spotify track URL" },
         { status: 400 }
       );
     }
@@ -70,7 +60,7 @@ export async function POST(
       _id: submissionId,
       roundId,
       userId: payload.userId,
-      trackId,
+      trackInfo,
       note,
       submissionDate: Date.now(),
     };

@@ -49,8 +49,14 @@ export type SongSubmission = {
   roundId: string;
   // corresponds to the user's _id
   userId: string;
-  // a track id from spotify
-  trackId: string;
+  trackInfo: {
+    // a track id from spotify
+    trackId: string;
+    title: string;
+    artists: string[];
+    albumName: string;
+    albumImageUrl: string;
+  };
   // timestamp of when the submission was created/updated
   submissionDate: number;
   note?: string;

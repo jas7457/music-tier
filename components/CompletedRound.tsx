@@ -96,30 +96,23 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
             <div className="flex items-start gap-4 p-6">
               <div className="flex grow gap-4 items-center">
                 {/* Album Art */}
-                {submission.trackInfo.album.images[0] && (
-                  <AlbumArt
-                    imageUrl={submission.trackInfo.album.images[0].url}
-                    trackName={submission.trackInfo.name}
-                    trackId={submission.trackId}
-                    trackUri={`spotify:track:${submission.trackId}`}
-                    size={120}
-                    usePlayerContext={true}
-                  />
-                )}
+                <AlbumArt
+                  trackInfo={submission.trackInfo}
+                  size={120}
+                  usePlayerContext={true}
+                />
 
                 {/* Track Info */}
                 <div className="flex-1 min-w-0 flex flex-col gap-1">
                   <h5 className="font-semibold text-xl">
-                    {submission.trackInfo.name}
+                    {submission.trackInfo.title}
                   </h5>
                   <div>
                     <p className="text-base text-gray-700">
-                      {submission.trackInfo.artists
-                        .map((a) => a.name)
-                        .join(", ")}
+                      {submission.trackInfo.artists.join(", ")}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {submission.trackInfo.album.name}
+                      {submission.trackInfo.albumName}
                     </p>
                   </div>
                   <p className="text-sm text-gray-600">

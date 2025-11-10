@@ -1,7 +1,6 @@
 import { getCollection } from "@/lib/mongodb";
 import { League, Round, SongSubmission, User, Vote } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
-import { getTrackDetails, SpotifyTrack } from "./spotify";
 import { ONE_DAY_MS } from "./utils/time";
 import {
   PopulatedLeague,
@@ -36,8 +35,7 @@ const dbPromise = (async () => {
 })();
 
 export async function getUserLeagues(
-  userId: string,
-  accessToken: string
+  userId: string
 ): Promise<PopulatedLeague[]> {
   const {
     leaguesCollection,
@@ -46,8 +44,6 @@ export async function getUserLeagues(
     submissionsCollection,
     votesCollection,
   } = await dbPromise;
-
-  const spotifyTrackInfoById = {} as Record<string, Promise<SpotifyTrack>>;
 
   // Find leagues where user is a member
   const leagues = (
@@ -100,22 +96,9 @@ export async function getUserLeagues(
             votesCollection.find({ roundId: round._id.toString() }).toArray(),
           ]);
 
-          const submissions: PopulatedSubmission[] = (
-            await Promise.all(
-              _submissions.map(async (submission) => {
-                const trackInfoPromise =
-                  spotifyTrackInfoById[submission.trackId] ??
-                  getTrackDetails(submission.trackId, accessToken);
-
-                spotifyTrackInfoById[submission.trackId] = trackInfoPromise;
-
-                const trackInfo = await trackInfoPromise;
-                return { ...submission, trackInfo };
-              })
-            )
-          ).map((submission) => {
-            return { ...submission, _id: submission._id.toString() };
-          });
+          const submissions: PopulatedSubmission[] = _submissions.map(
+            (submission) => ({ ...submission, _id: submission._id.toString() })
+          );
 
           const votes: PopulatedVote[] = _votes.map((vote) => ({
             ...vote,
@@ -225,16 +208,7 @@ export async function getUserLeagues(
           return undefined;
         }
 
-        const submissions = await Promise.all(
-          currentRound.submissions.map(async (submission) => {
-            const trackInfo = await getTrackDetails(
-              submission.trackId,
-              accessToken
-            );
-            return { ...submission, trackInfo };
-          })
-        );
-        return { ...currentRound, roundIndex: currentRoundIndex, submissions };
+        return { ...currentRound, roundIndex: currentRoundIndex };
       })();
 
       const roundsObject = roundsWithData.reduce(

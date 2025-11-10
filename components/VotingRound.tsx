@@ -176,12 +176,9 @@ export default function VotingRound({
             <div key={submission._id} className="space-y-2">
               <div className="flex items-center gap-4">
                 {/* Album Art */}
-                {submission.trackInfo.album.images[0] && (
+                {submission.trackInfo.albumImageUrl && (
                   <AlbumArt
-                    imageUrl={submission.trackInfo.album.images[0].url}
-                    trackName={submission.trackInfo.name}
-                    trackId={submission.trackId}
-                    trackUri={`spotify:track:${submission.trackId}`}
+                    trackInfo={submission.trackInfo}
                     size={80}
                     usePlayerContext={true}
                   />
@@ -190,13 +187,13 @@ export default function VotingRound({
                 {/* Track Info */}
                 <div className="flex-1 min-w-0">
                   <h5 className="font-semibold text-base truncate">
-                    {submission.trackInfo.name}
+                    {submission.trackInfo.title}
                   </h5>
                   <p className="text-sm text-gray-600 truncate">
-                    {submission.trackInfo.artists.map((a) => a.name).join(", ")}
+                    {submission.trackInfo.artists.join(", ")}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
-                    {submission.trackInfo.album.name}
+                    {submission.trackInfo.albumName}
                   </p>
                   {submission.note && (
                     <p className="text-xs text-gray-600 mt-2 italic">

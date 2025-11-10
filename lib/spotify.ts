@@ -1,3 +1,6 @@
+import { PopulatedTrackInfo } from "./types";
+import { spotifyTrackToSubmission } from "./utils/spotifyTrackToSubmission";
+
 export interface SpotifyTrack {
   id: string;
   name: string;
@@ -187,7 +190,7 @@ export const extractTrackId = (url: string): string | null => {
 export const getTrackDetails = async (
   trackId: string,
   accessToken: string
-): Promise<SpotifyTrack> => {
+): Promise<PopulatedTrackInfo> => {
   const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -198,5 +201,6 @@ export const getTrackDetails = async (
     throw new Error(`Failed to fetch track: ${response.statusText}`);
   }
 
-  return response.json() as Promise<SpotifyTrack>;
+  const spotifyTrack: SpotifyTrack = await response.json();
+  return spotifyTrackToSubmission(spotifyTrack);
 };

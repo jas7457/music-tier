@@ -1,13 +1,11 @@
 "use client";
 
+import { PopulatedTrackInfo } from "@/lib/types";
 import { PlayIcon, PauseIcon } from "./PlayerIcons";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 
 interface AlbumArtProps {
-  imageUrl: string;
-  trackName: string;
-  trackId?: string; // Spotify track ID (without "spotify:" prefix)
-  trackUri?: string; // Full Spotify URI like "spotify:track:xxxxx"
+  trackInfo: PopulatedTrackInfo;
   size?: number;
   isPlaying?: boolean;
   onPlayClick?: () => void;
@@ -17,10 +15,7 @@ interface AlbumArtProps {
 }
 
 export default function AlbumArt({
-  imageUrl,
-  trackName,
-  trackId,
-  trackUri,
+  trackInfo,
   size = 64,
   isPlaying: isPlayingProp,
   onPlayClick,
@@ -28,12 +23,14 @@ export default function AlbumArt({
   className = "",
   usePlayerContext = false,
 }: AlbumArtProps) {
+  const trackUri = `spotify:track:${trackInfo.trackId}`;
   const playerContext = useSpotifyPlayer();
 
   // Determine if this track is currently playing
   const isCurrentlyPlaying =
     usePlayerContext && playerContext
-      ? playerContext.currentTrack?.id === trackId && playerContext.isPlaying
+      ? playerContext.currentTrack?.id === trackInfo.trackId &&
+        playerContext.isPlaying
       : isPlayingProp;
 
   // Determine if player is disabled
@@ -45,7 +42,7 @@ export default function AlbumArt({
     if (usePlayerContext && playerContext && trackUri) {
       if (isCurrentlyPlaying) {
         await playerContext.pausePlayback();
-      } else if (playerContext.currentTrack?.id === trackId) {
+      } else if (playerContext.currentTrack?.id === trackInfo.trackId) {
         await playerContext.resumePlayback();
       } else {
         await playerContext.playTrack(trackUri);
@@ -64,8 +61,8 @@ export default function AlbumArt({
     >
       <div className="w-full h-full">
         <img
-          src={imageUrl}
-          alt={trackName}
+          src={trackInfo.albumImageUrl}
+          alt={trackInfo.title}
           className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
         />
       </div>
