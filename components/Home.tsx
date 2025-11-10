@@ -1,15 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import {
-  useEffect,
-  useState,
-  useRef,
-  createContext,
-  useContext,
-  useCallback,
-} from "react";
-import { SongSubmissionRef } from "./SongSubmission";
+import { useEffect, useState, useCallback } from "react";
 import Card from "./Card";
 import MusicPlayer from "./MusicPlayer";
 import Cookies from "js-cookie";
@@ -17,57 +9,14 @@ import { formatDate } from "@/lib/utils/formatDate";
 import { Round } from "./Round";
 import { PopulatedLeague } from "@/lib/types";
 
-interface SubmissionContextType {
-  setCurrentTrackAsSubmission: (_trackUrl: string) => void;
-}
-
-const SubmissionContext = createContext<SubmissionContextType | null>(null);
-
-export const useSubmission = () => {
-  const context = useContext(SubmissionContext);
-  if (!context) {
-    throw new Error("useSubmission must be used within SubmissionProvider");
-  }
-  return context;
-};
-
 export default function Home() {
   const { user, logout } = useAuth();
   const [leagues, setLeagues] = useState<PopulatedLeague[] | undefined>(
     undefined
   );
   const [hasSpotifyAccess, setHasSpotifyAccess] = useState(false);
-  const submissionRefs = useRef<Map<string, SongSubmissionRef>>(new Map());
-
-  const setCurrentTrackAsSubmission = (trackUrl: string) => {
-    if (!leagues) {
-      return;
-    }
-    // Find the first current round and open its submission form
-    for (const league of leagues) {
-      if (league.rounds?.current) {
-        const ref = submissionRefs.current.get(
-          league.rounds.current._id.toString()
-        );
-        if (ref) {
-          ref.openSubmissionWithTrack(trackUrl);
-          // Scroll to the submission form
-          setTimeout(() => {
-            const element = document.getElementById(
-              `submission-${league.rounds!.current!._id}`
-            );
-            if (element) {
-              element.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
-          }, 100);
-          break;
-        }
-      }
-    }
-  };
 
   const fetchData = useCallback(async () => {
-    debugger;
     if (!user) {
       return;
     }
@@ -246,42 +195,40 @@ export default function Home() {
   })();
 
   return (
-    <SubmissionContext.Provider value={{ setCurrentTrackAsSubmission }}>
-      <div className="min-h-screen bg-gray-100 py-12 px-4 pb-32">
-        <div className="max-w-4xl mx-auto">
-          {/* User Profile Section */}
-          <Card variant="elevated" className="p-6 mb-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {user.photoUrl && (
-                  <img
-                    src={user.photoUrl}
-                    alt="Profile"
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
-                )}
-                <div>
-                  <h1 className="text-2xl font-bold">
-                    {user.firstName} {user.lastName}
-                  </h1>
-                  <p className="text-gray-600">@{user.userName}</p>
-                </div>
+    <div className="min-h-screen bg-gray-100 py-12 px-4 pb-32">
+      <div className="max-w-4xl mx-auto">
+        {/* User Profile Section */}
+        <Card variant="elevated" className="p-6 mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {user.photoUrl && (
+                <img
+                  src={user.photoUrl}
+                  alt="Profile"
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+              )}
+              <div>
+                <h1 className="text-2xl font-bold">
+                  {user.firstName} {user.lastName}
+                </h1>
+                <p className="text-gray-600">@{user.userName}</p>
               </div>
-              <button
-                onClick={logout}
-                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
-              >
-                Logout
-              </button>
             </div>
-          </Card>
+            <button
+              onClick={logout}
+              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+        </Card>
 
-          {leagueMarkup}
-        </div>
-
-        {/* Music Player - shown when user has Spotify access */}
-        {hasSpotifyAccess && <MusicPlayer />}
+        {leagueMarkup}
       </div>
-    </SubmissionContext.Provider>
+
+      {/* Music Player - shown when user has Spotify access */}
+      {hasSpotifyAccess && <MusicPlayer />}
+    </div>
   );
 }

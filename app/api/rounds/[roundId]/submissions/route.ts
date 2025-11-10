@@ -3,7 +3,7 @@ import { verifySessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
 import { SongSubmission } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
-import { extractTrackId } from "@/lib/spotify";
+import { extractTrackIdFromUrl } from "@/lib/spotify";
 
 export async function POST(
   request: NextRequest,
@@ -107,7 +107,7 @@ export async function PUT(
     }
 
     // Extract track ID from URL
-    const trackId = extractTrackId(trackUrl);
+    const trackId = extractTrackIdFromUrl(trackUrl);
 
     if (!trackId) {
       return NextResponse.json(

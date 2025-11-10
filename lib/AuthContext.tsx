@@ -24,7 +24,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
 
   const refreshUser = useCallback(async () => {
-    debugger;
     setLoading(true);
     try {
       const response = await fetch("/api/auth/session");

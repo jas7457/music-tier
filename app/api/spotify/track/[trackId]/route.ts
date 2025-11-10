@@ -27,7 +27,7 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching track details:", error);
     return NextResponse.json(
-      { error: "Failed to fetch track details" },
+      { error: `Failed to fetch track details: ${error}` },
       { status: 500 }
     );
   }

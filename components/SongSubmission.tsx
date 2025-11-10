@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useRef, useImperativeHandle, forwardRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import AlbumArt from "./AlbumArt";
-import { PopulatedSubmission, PopulatedTrackInfo } from "@/lib/types";
+import { PopulatedSubmission } from "@/lib/types";
 import { getTrackDetails } from "@/lib/api";
+import { extractTrackIdFromUrl, getTrackUrlFromId } from "@/lib/spotify";
+import { useAuth } from "@/lib/AuthContext";
 
 interface SongSubmissionProps {
   roundId: string;
@@ -11,59 +13,54 @@ interface SongSubmissionProps {
   userSubmission: PopulatedSubmission | undefined;
   onDataSaved: () => void;
 }
-export interface SongSubmissionRef {
-  openSubmissionWithTrack: (trackUrl: string) => void;
-}
-
-export const SongSubmission = forwardRef<
-  SongSubmissionRef,
-  SongSubmissionProps
->(({ roundId, roundEndDate, userSubmission, onDataSaved }, ref) => {
-  const [submission, setSubmission] = useState(userSubmission ?? null);
-  const [trackInfo, setTrackInfo] = useState<PopulatedTrackInfo | null>(
-    submission?.trackInfo ?? null
+export function SongSubmission({
+  roundId,
+  roundEndDate,
+  userSubmission,
+  onDataSaved,
+}: SongSubmissionProps) {
+  const { user } = useAuth();
+  const [submission, _setSubmission] = useState(userSubmission ?? null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [trackUrl, setTrackUrl] = useState(
+    submission ? getTrackUrlFromId(submission.trackInfo.trackId) : ""
   );
-  const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [trackUrl, setTrackUrl] = useState("");
-  const [note, setNote] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [previewTrack, setPreviewTrack] = useState<PopulatedTrackInfo | null>(
-    null
-  );
   const [loadingPreview, setLoadingPreview] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Expose method to parent component
-  useImperativeHandle(ref, () => ({
-    openSubmissionWithTrack: (url: string) => {
-      setTrackUrl(url);
-      setIsEditing(true);
-      // Trigger preview fetch
-      fetchTrackPreview(url);
+  const isRealSubmission = submission ? submission._id !== "" : false;
+
+  const setSubmission = useCallback(
+    (update: Partial<PopulatedSubmission>) => {
+      _setSubmission((prev) => {
+        if (prev) {
+          return { ...prev, ...update };
+        }
+        return {
+          _id: "",
+          roundId,
+          userId: user?._id || "",
+          submissionDate: Date.now(),
+          note: "",
+          trackInfo: {
+            trackId: "",
+            title: "",
+            artists: [],
+            albumName: "",
+            albumImageUrl: "",
+          },
+          ...update,
+        };
+      });
     },
-  }));
+    [roundId, user?._id]
+  );
 
-  const extractTrackIdFromUrl = (url: string): string | null => {
-    const patterns = [
-      /spotify:track:([a-zA-Z0-9]+)/,
-      /open\.spotify\.com\/track\/([a-zA-Z0-9]+)/,
-    ];
-
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match) {
-        return match[1];
-      }
-    }
-    return null;
-  };
-
-  const fetchTrackPreview = async (url: string) => {
-    const trackId = extractTrackIdFromUrl(url);
+  const fetchTrackPreview = async (trackId: string | null) => {
     if (!trackId) {
-      setPreviewTrack(null);
+      setError("Invalid Spotify track URL");
       return;
     }
 
@@ -71,19 +68,19 @@ export const SongSubmission = forwardRef<
     try {
       const trackData = await getTrackDetails(trackId);
       if (trackData.track) {
-        setPreviewTrack(trackData.track);
+        setSubmission({ trackInfo: trackData.track });
+        setError(null);
       } else {
-        setPreviewTrack(null);
+        setError(`Track not found: ${trackData.error}`);
       }
     } catch (err) {
-      console.error("Error fetching track preview:", err);
-      setPreviewTrack(null);
+      setError(`Error fetching track preview: ${err}`);
     } finally {
       setLoadingPreview(false);
     }
   };
 
-  const debouncedFetchPreview = (url: string) => {
+  const debouncedFetchPreview = (trackId: string | null) => {
     // Clear existing timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
@@ -91,13 +88,8 @@ export const SongSubmission = forwardRef<
 
     // Set new timer
     debounceTimerRef.current = setTimeout(() => {
-      fetchTrackPreview(url);
+      fetchTrackPreview(trackId);
     }, 1000);
-  };
-
-  const handleTrackUrlChange = (value: string) => {
-    setTrackUrl(value);
-    debouncedFetchPreview(value);
   };
 
   const handleTrackUrlBlur = () => {
@@ -105,47 +97,28 @@ export const SongSubmission = forwardRef<
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
-    fetchTrackPreview(trackUrl);
-  };
-
-  const fetchSubmission = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/rounds/${roundId}/submissions/user`);
-      const data = await response.json();
-
-      if (data.submission) {
-        setSubmission(data.submission);
-        // Fetch track details
-        const trackData = await getTrackDetails(data.submission.trackId);
-        if (trackData.track) {
-          setTrackInfo(trackData.track);
-        } else {
-          setTrackInfo(null);
-        }
-      }
-    } catch (err) {
-      console.error("Error fetching submission:", err);
-    } finally {
-      setLoading(false);
-    }
+    fetchTrackPreview(extractTrackIdFromUrl(trackUrl));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!submission) {
+      setError("Please select a track to submit.");
+      return;
+    }
     setError(null);
-    setSubmitting(true);
+    setIsSubmitting(true);
 
     try {
-      const method = submission ? "PUT" : "POST";
+      const method = isRealSubmission ? "PUT" : "POST";
       const response = await fetch(`/api/rounds/${roundId}/submissions`, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          trackUrl,
-          note: note || undefined,
+          trackInfo: submission.trackInfo,
+          note: submission.note,
         }),
       });
 
@@ -153,60 +126,26 @@ export const SongSubmission = forwardRef<
 
       if (!response.ok) {
         setError(
-          data.error || `Failed to ${submission ? "update" : "submit"} song`
+          data.error ||
+            `Failed to ${isRealSubmission ? "update" : "submit"} song`
         );
-        setSubmitting(false);
+        setIsSubmitting(false);
         return;
       }
 
-      // Refresh submission data
-      await fetchSubmission();
-      setTrackUrl("");
-      setNote("");
       setIsEditing(false);
-      setSubmitting(false);
+      setIsSubmitting(false);
       onDataSaved();
     } catch (err) {
       console.error("Error submitting song:", err);
-      setError(`Failed to ${submission ? "update" : "submit"} song`);
-      setSubmitting(false);
-    }
-  };
-
-  const handleEdit = () => {
-    if (submission && trackInfo) {
-      // Pre-fill form with current submission
-      const url = `https://open.spotify.com/track/${submission.trackInfo.trackId}`;
-      setTrackUrl(url);
-      setNote(submission.note || "");
-      setIsEditing(true);
-      // Load the track preview immediately
-      setPreviewTrack(trackInfo);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setTrackUrl("");
-    setNote("");
-    setIsEditing(false);
-    setError(null);
-    setPreviewTrack(null);
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
+      setError(`Failed to ${isRealSubmission ? "update" : "submit"} song`);
+      setIsSubmitting(false);
     }
   };
 
   const isRoundEnded = roundEndDate ? roundEndDate <= Date.now() : false;
 
-  if (loading) {
-    return (
-      <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
-        <p className="text-gray-600 text-sm">Loading submission...</p>
-      </div>
-    );
-  }
-
-  if (submission && trackInfo && !isEditing) {
+  if (submission && isRealSubmission && !isEditing) {
     return (
       <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
         <div className="flex items-center justify-between mb-3">
@@ -215,7 +154,7 @@ export const SongSubmission = forwardRef<
           </h5>
           {!isRoundEnded && (
             <button
-              onClick={handleEdit}
+              onClick={() => setIsEditing(true)}
               className="text-xs text-blue-600 hover:text-blue-800 font-medium"
             >
               Change
@@ -223,13 +162,19 @@ export const SongSubmission = forwardRef<
           )}
         </div>
         <div className="flex items-center gap-3">
-          {trackInfo.albumImageUrl && (
-            <AlbumArt trackInfo={trackInfo} size={64} usePlayerContext={true} />
+          {submission.trackInfo.albumImageUrl && (
+            <AlbumArt
+              trackInfo={submission.trackInfo}
+              size={64}
+              usePlayerContext={true}
+            />
           )}
           <div className="flex-1">
-            <p className="font-semibold text-sm">{trackInfo.title}</p>
+            <p className="font-semibold text-sm">
+              {submission.trackInfo.title}
+            </p>
             <p className="text-xs text-gray-600">
-              {trackInfo.artists.join(", ")}
+              {submission.trackInfo.artists.join(", ")}
             </p>
             {submission.note && (
               <p className="text-xs text-gray-500 mt-1 italic">
@@ -247,7 +192,7 @@ export const SongSubmission = forwardRef<
     );
   }
 
-  if (isRoundEnded && !submission) {
+  if (isRoundEnded && !isRealSubmission) {
     return (
       <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
         <p className="text-sm text-gray-500 italic">
@@ -260,7 +205,7 @@ export const SongSubmission = forwardRef<
   return (
     <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
       <h5 className="font-semibold text-sm mb-3 text-gray-700">
-        {submission ? "Update Your Submission" : "Submit Your Song"}
+        {isRealSubmission ? "Update Your Submission" : "Submit Your Song"}
       </h5>
 
       {error && (
@@ -282,7 +227,11 @@ export const SongSubmission = forwardRef<
             type="text"
             required
             value={trackUrl}
-            onChange={(e) => handleTrackUrlChange(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setTrackUrl(value);
+              debouncedFetchPreview(extractTrackIdFromUrl(value));
+            }}
             onBlur={handleTrackUrlBlur}
             placeholder="https://open.spotify.com/track/..."
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -296,25 +245,25 @@ export const SongSubmission = forwardRef<
           </div>
         )}
 
-        {previewTrack && !loadingPreview && (
+        {submission?.trackInfo && !loadingPreview && (
           <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
             <div className="flex items-center gap-3">
-              {previewTrack.albumImageUrl && (
+              {submission.trackInfo.albumImageUrl && (
                 <AlbumArt
-                  trackInfo={previewTrack}
+                  trackInfo={submission.trackInfo}
                   size={56}
                   usePlayerContext={true}
                 />
               )}
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate">
-                  {previewTrack.title}
+                  {submission.trackInfo.title}
                 </p>
                 <p className="text-xs text-gray-600 truncate">
-                  {previewTrack.artists.join(", ")}
+                  {submission.trackInfo.artists.join(", ")}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
-                  {previewTrack.albumName}
+                  {submission.trackInfo.albumName}
                 </p>
               </div>
             </div>
@@ -330,8 +279,8 @@ export const SongSubmission = forwardRef<
           </label>
           <textarea
             id="note"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
+            value={submission?.note || ""}
+            onChange={(e) => setSubmission({ note: e.target.value })}
             placeholder="Why did you choose this song?"
             rows={2}
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -341,21 +290,26 @@ export const SongSubmission = forwardRef<
         <div className="flex gap-2">
           <button
             type="submit"
-            disabled={submitting}
+            disabled={
+              isSubmitting ||
+              !submission ||
+              !submission.trackInfo.trackId ||
+              loadingPreview
+            }
             className="flex-1 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors text-sm font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {submitting
-              ? submission
+            {isSubmitting
+              ? isRealSubmission
                 ? "Updating..."
                 : "Submitting..."
-              : submission
+              : isRealSubmission
               ? "Update Song"
               : "Submit Song"}
           </button>
           {isEditing && (
             <button
               type="button"
-              onClick={handleCancelEdit}
+              onClick={() => setIsEditing(false)}
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 font-medium"
             >
               Cancel
@@ -365,6 +319,4 @@ export const SongSubmission = forwardRef<
       </form>
     </div>
   );
-});
-
-SongSubmission.displayName = "SongSubmission";
+}

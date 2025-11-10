@@ -5,9 +5,8 @@ export async function getTrackDetails(
 ): Promise<GetTrackDetails> {
   const response = await fetch(`/api/spotify/track/${trackId}`);
   if (!response.ok) {
-    throw new Error(
-      `Error fetching track details: ${response.status} ${response.statusText}`
-    );
+    const errorData = await response.json();
+    throw new Error(errorData.error || response.statusText);
   }
   return response.json();
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
-import { useSubmission } from "./Home";
 import {
   PlayIcon,
   PauseIcon,
@@ -11,7 +10,6 @@ import {
 } from "./PlayerIcons";
 
 export default function MusicPlayer() {
-  const { setCurrentTrackAsSubmission } = useSubmission();
   const {
     currentTrack,
     isPlaying,
@@ -57,16 +55,6 @@ export default function MusicPlayer() {
                       .join(", ")}
                   </div>
                 </div>
-                <button
-                  onClick={() => {
-                    const trackUrl = `https://open.spotify.com/track/${currentTrack.id}`;
-                    setCurrentTrackAsSubmission(trackUrl);
-                  }}
-                  className="shrink-0 px-3 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
-                  title="Submit this track"
-                >
-                  Submit
-                </button>
               </>
             ) : (
               <div className="text-sm text-gray-400">

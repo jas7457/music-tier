@@ -1,5 +1,4 @@
 import { PopulatedTrackInfo } from "./types";
-import { spotifyTrackToSubmission } from "./utils/spotifyTrackToSubmission";
 
 export interface SpotifyTrack {
   id: string;
@@ -171,7 +170,7 @@ export const extractPlaylistId = (url: string): string | null => {
   return null;
 };
 
-export const extractTrackId = (url: string): string | null => {
+export function extractTrackIdFromUrl(url: string): string | null {
   const patterns = [
     /spotify:track:([a-zA-Z0-9]+)/,
     /open\.spotify\.com\/track\/([a-zA-Z0-9]+)/,
@@ -185,7 +184,14 @@ export const extractTrackId = (url: string): string | null => {
   }
 
   return null;
-};
+}
+
+export function getTrackUrlFromId(trackId: string): string {
+  if (!trackId) {
+    return "";
+  }
+  return `https://open.spotify.com/track/${trackId}`;
+}
 
 export const getTrackDetails = async (
   trackId: string,
@@ -204,3 +210,15 @@ export const getTrackDetails = async (
   const spotifyTrack: SpotifyTrack = await response.json();
   return spotifyTrackToSubmission(spotifyTrack);
 };
+
+export function spotifyTrackToSubmission(
+  track: SpotifyTrack
+): PopulatedTrackInfo {
+  return {
+    trackId: track.id,
+    title: track.name,
+    artists: track.artists.map((artist) => artist.name),
+    albumName: track.album.name,
+    albumImageUrl: track.album.images[0]?.url || "",
+  };
+}
