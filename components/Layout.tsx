@@ -4,11 +4,28 @@ import { useAuth } from "@/lib/AuthContext";
 import { Avatar } from "./Avatar";
 import Link from "next/link";
 import Image from "next/image";
+import Cookies from "js-cookie";
 
 import logo from "../app/images/logo.png";
+import MusicPlayer from "./MusicPlayer";
+import { useEffect, useState } from "react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
+  const [hasSpotifyAccess, setHasSpotifyAccess] = useState(false);
+
+  // Check for Spotify access token
+  useEffect(() => {
+    const checkSpotifyAccess = () => {
+      const token = Cookies.get("spotify_access_token");
+      setHasSpotifyAccess(!!token);
+    };
+
+    checkSpotifyAccess();
+    // Check periodically in case token is added/removed
+    const interval = setInterval(checkSpotifyAccess, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const userHeader = (() => {
     if (!user) {
@@ -49,6 +66,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-gray-100 pb-24">
       {userHeader}
       <div className="p-4">{children}</div>
+      {hasSpotifyAccess && <MusicPlayer />}
     </div>
   );
 }

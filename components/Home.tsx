@@ -1,39 +1,19 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback } from "react";
 import Card from "./Card";
-import MusicPlayer from "./MusicPlayer";
-import Cookies from "js-cookie";
 import { PopulatedLeague } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { League } from "./League";
 
 export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
   const { user } = useAuth();
-  const [hasSpotifyAccess, setHasSpotifyAccess] = useState(false);
   const router = useRouter();
 
   const fetchData = useCallback(async () => {
     router.refresh();
   }, [router]);
-
-  useEffect(() => {
-    // fetchData();
-  }, [fetchData]);
-
-  // Check for Spotify access token
-  useEffect(() => {
-    const checkSpotifyAccess = () => {
-      const token = Cookies.get("spotify_access_token");
-      setHasSpotifyAccess(!!token);
-    };
-
-    checkSpotifyAccess();
-    // Check periodically in case token is added/removed
-    const interval = setInterval(checkSpotifyAccess, 5000);
-    return () => clearInterval(interval);
-  }, []);
 
   if (!user) {
     return null;
@@ -66,9 +46,6 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
   return (
     <>
       <div className="max-w-4xl mx-auto">{leagueMarkup}</div>
-
-      {/* Music Player - shown when user has Spotify access */}
-      {hasSpotifyAccess && <MusicPlayer />}
     </>
   );
 }

@@ -166,7 +166,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                 {voters.map((voter) => (
                   <div
                     key={voter.user._id}
-                    className="flex items-start gap-3 py-2"
+                    className="flex items-center gap-3 py-2"
                   >
                     {/* User Avatar */}
                     <Avatar user={voter.user} size={10} />

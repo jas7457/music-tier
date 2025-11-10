@@ -186,6 +186,7 @@ export async function getUserLeagues(
             votingStartDate,
             votingEndDate,
             roundIndex: index,
+            creatorObject: usersById[round.creatorId],
           };
 
           return {

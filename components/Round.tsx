@@ -6,6 +6,7 @@ import VotingRound from "./VotingRound";
 import CompletedRound from "./CompletedRound";
 import { PopulatedLeague, PopulatedRound, PopulatedUser } from "@/lib/types";
 import { MaybeLink } from "./MaybeLink";
+import { Avatar } from "./Avatar";
 
 type FullLeague = Pick<
   PopulatedLeague,
@@ -68,14 +69,19 @@ export function Round({
   }, [currentUser, league, onDataSaved, round]);
 
   return (
-    <>
-      <MaybeLink
-        href={`/leagues/${league._id}/rounds/${round._id}`}
-        className="font-semibold text-lg mb-1"
-      >
-        Round {round.roundIndex + 1}: {round.title}
-      </MaybeLink>
-      <p className="text-gray-600 text-sm mb-2">{round.description}</p>
+    <div>
+      <div className="flex justify-between items-center">
+        <div>
+          <MaybeLink
+            href={`/leagues/${league._id}/rounds/${round._id}`}
+            className="font-semibold text-lg mb-1"
+          >
+            Round {round.roundIndex + 1}: {round.title}
+          </MaybeLink>
+          <p className="text-gray-600 text-sm mb-2">{round.description}</p>
+        </div>
+        <Avatar user={round.creatorObject} size={10} includeTooltip />
+      </div>
       <div className="flex gap-4 text-xs text-gray-500">
         <span>
           Submissions start date: {formatDate(round.submissionStartDate)}
@@ -104,6 +110,6 @@ export function Round({
 
       {/* Song Submission Section */}
       <div id={`submission-${round._id}`}>{bodyMarkup}</div>
-    </>
+    </div>
   );
 }

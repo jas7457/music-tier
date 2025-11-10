@@ -32,6 +32,7 @@ export type PopulatedRound = WithStringId<Round> & {
   votes: PopulatedVote[];
   submissions: PopulatedSubmission[];
   userSubmission: PopulatedSubmission | undefined;
+  creatorObject: PopulatedUser;
 };
 
 export type PopulatedLeague = WithStringId<Omit<League, "users">> & {
