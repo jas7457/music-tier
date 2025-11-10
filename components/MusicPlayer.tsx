@@ -18,6 +18,7 @@ export default function MusicPlayer() {
     volume,
     deviceId,
     isReady,
+    hasInitialized,
     pausePlayback,
     resumePlayback,
     nextTrack,
@@ -25,6 +26,8 @@ export default function MusicPlayer() {
     seekToPosition,
     setPlayerVolume,
   } = useSpotifyPlayer();
+
+  console.log({ hasInitialized });
 
   const formatTime = (ms: number) => {
     const minutes = Math.floor(ms / 1000 / 60);
@@ -130,7 +133,7 @@ export default function MusicPlayer() {
           </div>
 
           {/* Premium Required Message */}
-          {!deviceId && isReady === false && (
+          {!deviceId && !isReady && hasInitialized && (
             <div className="col-span-full text-center">
               <span className="text-red-400 text-xs">
                 Premium required for playback

@@ -13,6 +13,7 @@ interface SpotifyPlayerContextType {
   duration: number;
   volume: number;
   isReady: boolean;
+  hasInitialized: boolean;
   playTrack: (trackUri: string) => Promise<void>;
   pausePlayback: () => Promise<void>;
   resumePlayback: () => Promise<void>;
@@ -56,6 +57,7 @@ export function SpotifyPlayerProvider({
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
   const [isReady, setIsReady] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const tracksRef = useRef(tracks);
@@ -68,9 +70,15 @@ export function SpotifyPlayerProvider({
     const token = Cookies.get("spotify_access_token");
     if (!token) {
       setIsReady(false);
+      setHasInitialized(true);
       return;
     }
     let spotifyPlayer: Spotify.Player;
+
+    // after 3 seconds, assume it will not itialize
+    const initializedTimeout = setTimeout(() => {
+      setHasInitialized(true);
+    }, 3_000);
 
     window.onSpotifyWebPlaybackSDKReady = () => {
       spotifyPlayer = new window.Spotify.Player({
@@ -82,6 +90,8 @@ export function SpotifyPlayerProvider({
       // Ready event - device is ready
       spotifyPlayer.addListener("ready", async ({ device_id }: any) => {
         console.log("Spotify Player Ready with Device ID:", device_id);
+        clearTimeout(initializedTimeout);
+        setHasInitialized(true);
         setDeviceId(device_id);
         setIsReady(true);
 
@@ -130,6 +140,8 @@ export function SpotifyPlayerProvider({
       // Not Ready event - device has gone offline
       spotifyPlayer.addListener("not_ready", ({ device_id }: any) => {
         console.log("Spotify Player Not Ready with Device ID:", device_id);
+        setHasInitialized(true);
+        clearTimeout(initializedTimeout);
         setIsReady(false);
       });
 
@@ -160,6 +172,7 @@ export function SpotifyPlayerProvider({
     }
 
     return () => {
+      clearTimeout(initializedTimeout);
       if (spotifyPlayer) {
         spotifyPlayer.disconnect();
       }
@@ -389,6 +402,7 @@ export function SpotifyPlayerProvider({
     duration,
     volume,
     isReady,
+    hasInitialized,
     playTrack,
     pausePlayback,
     resumePlayback,
