@@ -3,7 +3,14 @@ import { League, Round, SongSubmission, User, Vote } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
 import { getTrackDetails, SpotifyTrack } from "./spotify";
 import { ONE_DAY_MS } from "./utils/time";
-import { PopulatedLeague, PopulatedRound, PopulatedRoundStage } from "./types";
+import {
+  PopulatedLeague,
+  PopulatedRound,
+  PopulatedRoundStage,
+  PopulatedSubmission,
+  PopulatedUser,
+  PopulatedVote,
+} from "./types";
 
 const dbPromise = (async () => {
   const [
@@ -43,12 +50,16 @@ export async function getUserLeagues(
   const spotifyTrackInfoById = {} as Record<string, Promise<SpotifyTrack>>;
 
   // Find leagues where user is a member
-  const leagues = await leaguesCollection
-    .find({
-      // find leagues where userId is in the users array
-      users: userId,
-    })
-    .toArray();
+  const leagues = (
+    await leaguesCollection
+      .find({
+        // find leagues where userId is in the users array
+        users: userId,
+      })
+      .toArray()
+  ).map((league) => {
+    return { ...league, _id: league._id.toString() };
+  });
 
   // get the current timestamp in the east coast of the usa
   const now = (() => {
@@ -62,40 +73,58 @@ export async function getUserLeagues(
     leagues.map(async (league) => {
       let currentStartDate = league.leagueStartDate;
 
-      const [rounds, users] = await Promise.all([
+      const [_rounds, _users] = await Promise.all([
         roundsCollection.find({ leagueId: league._id.toString() }).toArray(),
         usersCollection
           .find({
-            // @ts-ignore - this actually does work
             _id: { $in: league.users.map((id) => new ObjectId(id)) },
           })
           .toArray(),
       ]);
+      const rounds = _rounds.map((round) => ({
+        ...round,
+        _id: round._id.toString(),
+      }));
+      const users: PopulatedUser[] = _users.map((user, index) => ({
+        ...user,
+        _id: user._id.toString(),
+        index,
+      }));
 
       const populatedRounds = await Promise.all(
         rounds.map(async (round) => {
-          const [_submissions, votes] = await Promise.all([
+          const [_submissions, _votes] = await Promise.all([
             submissionsCollection
               .find({ roundId: round._id.toString() })
               .toArray(),
             votesCollection.find({ roundId: round._id.toString() }).toArray(),
           ]);
 
-          const submissions = await Promise.all(
-            _submissions.map(async (submission) => {
-              const trackInfoPromise =
-                spotifyTrackInfoById[submission.trackId] ??
-                getTrackDetails(submission.trackId, accessToken);
+          const submissions: PopulatedSubmission[] = (
+            await Promise.all(
+              _submissions.map(async (submission) => {
+                const trackInfoPromise =
+                  spotifyTrackInfoById[submission.trackId] ??
+                  getTrackDetails(submission.trackId, accessToken);
 
-              spotifyTrackInfoById[submission.trackId] = trackInfoPromise;
+                spotifyTrackInfoById[submission.trackId] = trackInfoPromise;
 
-              const trackInfo = await trackInfoPromise;
-              return { ...submission, trackInfo };
-            })
-          );
+                const trackInfo = await trackInfoPromise;
+                return { ...submission, trackInfo };
+              })
+            )
+          ).map((submission) => {
+            return { ...submission, _id: submission._id.toString() };
+          });
+
+          const votes: PopulatedVote[] = _votes.map((vote) => ({
+            ...vote,
+            _id: vote._id.toString(),
+          }));
 
           return {
             ...round,
+            _id: round._id.toString(),
             submissions,
             votes,
           };
@@ -103,21 +132,18 @@ export async function getUserLeagues(
       );
 
       const usersById = users.reduce((acc, user) => {
-        acc[user._id] = user;
+        acc[user._id.toString()] = user;
         return acc;
-      }, {} as Record<string, User>);
+      }, {} as Record<string, PopulatedUser>);
 
-      const roundsWithData: PopulatedRound[] = (
-        await Promise.all(
-          league.users.map(async (userId) => {
-            const user = usersById[userId];
-            if (!user) {
-              return undefined;
-            }
-            return populatedRounds.find((round) => round.creatorId === userId);
-          })
-        )
-      )
+      const roundsWithData: PopulatedRound[] = league.users
+        .map((userId) => {
+          const user = usersById[userId];
+          if (!user) {
+            return undefined;
+          }
+          return populatedRounds.find((round) => round.creatorId === userId);
+        })
         .filter((round): round is NonNullable<typeof round> => Boolean(round))
         .map((round, index) => {
           const userSubmission = round.submissions.find(
@@ -133,7 +159,7 @@ export async function getUserLeagues(
                 ? submission
                 : latest;
             },
-            undefined as SongSubmission | undefined
+            undefined as PopulatedSubmission | undefined
           );
 
           const lastVote = round.votes.reduce((latest, vote) => {
@@ -141,7 +167,7 @@ export async function getUserLeagues(
               return vote;
             }
             return vote.voteDate > latest.voteDate ? vote : latest;
-          }, undefined as Vote | undefined);
+          }, undefined as PopulatedVote | undefined);
 
           const submissionStartDate = currentStartDate;
           const submissionEndDate = (() => {
@@ -170,6 +196,7 @@ export async function getUserLeagues(
           currentStartDate = votingEndDate;
           const populatedRound = {
             ...round,
+            _id: round._id.toString(),
             userSubmission,
             submissionStartDate,
             submissionEndDate,
@@ -243,7 +270,7 @@ function getRoundStage({
 }: {
   currentUserId: string;
   round: Omit<PopulatedRound, "stage" | "roundIndex">;
-  league: League;
+  league: Pick<PopulatedLeague, "votesPerRound"> & { users: unknown[] };
 }): PopulatedRoundStage {
   const now = Date.now();
 

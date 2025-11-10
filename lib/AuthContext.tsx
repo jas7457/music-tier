@@ -8,10 +8,10 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { User } from "@/databaseTypes";
+import { PopulatedUser } from "./types";
 
 interface AuthContextType {
-  user: User | null;
+  user: PopulatedUser | null;
   loading: boolean;
   refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
@@ -20,22 +20,25 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<PopulatedUser | null>(null);
   const [loading, setLoading] = useState(false);
 
   const refreshUser = useCallback(async () => {
+    debugger;
     setLoading(true);
     try {
       const response = await fetch("/api/auth/session");
       const data = await response.json();
-      setUser(data.user);
+      if (!user || JSON.stringify(user) !== JSON.stringify(data.user)) {
+        setUser(data.user);
+      }
     } catch (error) {
       console.error("Error fetching session:", error);
       setUser(null);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   const providerData = useMemo(() => {
     return {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import type { User } from "../databaseTypes";
 import AlbumArt from "./AlbumArt";
 import Card from "./Card";
 import { PopulatedRound, PopulatedUser } from "@/lib/types";
@@ -17,7 +16,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
     return users.reduce((acc, user, index) => {
       acc[user._id] = { ...user, index };
       return acc;
-    }, {} as Record<string, User & { index: number }>);
+    }, {} as Record<string, PopulatedUser>);
   }, [users]);
 
   // Calculate total points for each submission and get voters

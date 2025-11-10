@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     // Create new user
     const userId = new ObjectId();
     const newUser: User = {
-      _id: userId.toString(),
+      _id: userId,
       firstName,
       lastName,
       userName,
@@ -55,11 +55,11 @@ export async function POST(request: NextRequest) {
       photoUrl,
     };
 
-    await usersCollection.insertOne({ ...newUser, _id: userId.toString() });
+    await usersCollection.insertOne(newUser);
     // add the user to all the existing leagues
     const existingLeagues = await leagueCollection.find({}).toArray();
     for (const league of existingLeagues) {
-      league.users.push(newUser._id);
+      league.users.push(newUser._id.toString());
       await leagueCollection.updateOne(
         { _id: league._id },
         { $set: { users: league.users } }

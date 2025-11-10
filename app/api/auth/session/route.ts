@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
 import { User } from "@/databaseTypes";
+import { ObjectId } from "mongodb";
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +20,9 @@ export async function GET(request: NextRequest) {
 
     // Fetch the full user from the database
     const usersCollection = await getCollection<User>("users");
-    const user = await usersCollection.findOne({ _id: payload.userId });
+    const user = await usersCollection.findOne({
+      _id: new ObjectId(payload.userId),
+    });
 
     if (!user) {
       return NextResponse.json({ user: null });

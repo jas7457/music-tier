@@ -67,7 +67,7 @@ export async function POST(
     // Create new submission
     const submissionId = new ObjectId();
     const newSubmission: SongSubmission = {
-      _id: submissionId.toString(),
+      _id: submissionId,
       roundId,
       userId: payload.userId,
       trackId,
@@ -75,10 +75,7 @@ export async function POST(
       submissionDate: Date.now(),
     };
 
-    await submissionsCollection.insertOne({
-      ...newSubmission,
-      _id: submissionId.toString(),
-    });
+    await submissionsCollection.insertOne(newSubmission);
 
     return NextResponse.json({ submission: newSubmission });
   } catch (error) {

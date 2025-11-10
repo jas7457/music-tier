@@ -7,9 +7,14 @@ import type {
 } from "../databaseTypes";
 import { SpotifyTrack } from "./spotify";
 
-type SongSubmissionWithTrack = SongSubmission & { trackInfo: SpotifyTrack };
-export type PopulatedUser = User;
-export type PopulatedSubmission = SongSubmissionWithTrack;
+type WithStringId<T> = Omit<T, "_id"> & { _id: string };
+
+type SongSubmissionWithTrack = WithStringId<SongSubmission> & {
+  trackInfo: SpotifyTrack;
+};
+export type PopulatedUser = WithStringId<User> & { index: number };
+export type PopulatedSubmission = WithStringId<SongSubmissionWithTrack>;
+export type PopulatedVote = WithStringId<Vote>;
 
 export type PopulatedRoundStage =
   | "upcoming"
@@ -19,7 +24,7 @@ export type PopulatedRoundStage =
   | "submission"
   | "unknown";
 
-export type PopulatedRound = Round & {
+export type PopulatedRound = WithStringId<Round> & {
   roundIndex: number;
   submissionStartDate: number;
   submissionEndDate: number;
@@ -27,12 +32,12 @@ export type PopulatedRound = Round & {
   votingEndDate: number;
   stage: PopulatedRoundStage;
 
-  votes: Vote[];
+  votes: PopulatedVote[];
   submissions: PopulatedSubmission[];
   userSubmission: PopulatedSubmission | undefined;
 };
 
-export type PopulatedLeague = Omit<League, "users"> & {
+export type PopulatedLeague = WithStringId<Omit<League, "users">> & {
   users: PopulatedUser[];
   rounds: {
     current: PopulatedRound | undefined;

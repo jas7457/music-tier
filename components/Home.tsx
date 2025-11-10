@@ -46,7 +46,9 @@ export default function Home() {
     // Find the first current round and open its submission form
     for (const league of leagues) {
       if (league.rounds?.current) {
-        const ref = submissionRefs.current.get(league.rounds.current._id);
+        const ref = submissionRefs.current.get(
+          league.rounds.current._id.toString()
+        );
         if (ref) {
           ref.openSubmissionWithTrack(trackUrl);
           // Scroll to the submission form
@@ -65,6 +67,7 @@ export default function Home() {
   };
 
   const fetchData = useCallback(async () => {
+    debugger;
     if (!user) {
       return;
     }
@@ -150,7 +153,11 @@ export default function Home() {
           })();
 
           return (
-            <Card key={league._id} variant="elevated" className="p-6">
+            <Card
+              key={league._id.toString()}
+              variant="elevated"
+              className="p-6"
+            >
               {/* League Header */}
               <div className="border-b pb-4 mb-6">
                 <h2 className="text-2xl font-bold mb-2">{league.title}</h2>
@@ -176,7 +183,7 @@ export default function Home() {
                   <div className="space-y-3">
                     {league.rounds.completed.map((round) => (
                       <Card
-                        key={round._id}
+                        key={round._id.toString()}
                         variant="outlined"
                         className="bg-gray-50 p-4"
                       >
@@ -204,7 +211,7 @@ export default function Home() {
                   <div className="space-y-3">
                     {league.rounds.upcoming.map((round) => (
                       <Card
-                        key={round._id}
+                        key={round._id.toString()}
                         className="border-blue-200 bg-blue-50 p-4"
                       >
                         <h4 className="font-semibold mb-1">

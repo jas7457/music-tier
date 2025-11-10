@@ -34,7 +34,7 @@ export async function POST(
     const data = Object.entries(body).map(([submissionId, entry]) => {
       const { points, note } = entry as { points: number; note?: string };
       return {
-        _id: new ObjectId().toString(),
+        _id: new ObjectId(),
         voteDate: now,
         submissionId,
         points,

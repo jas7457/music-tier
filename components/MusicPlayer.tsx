@@ -53,7 +53,7 @@ export default function MusicPlayer() {
                   </div>
                   <div className="text-xs text-gray-400 truncate">
                     {currentTrack.artists
-                      .map((artist: any) => artist.name)
+                      .map((artist) => artist.name)
                       .join(", ")}
                   </div>
                 </div>

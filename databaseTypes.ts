@@ -1,7 +1,9 @@
+import type { ObjectId } from "mongodb";
+
 /* "users" collection */
 export type User = {
   // a mongo ObjectId
-  _id: string;
+  _id: ObjectId;
   spotifyId?: string;
   firstName: string;
   lastName: string;
@@ -12,7 +14,7 @@ export type User = {
 /* "leagues" collection */
 export type League = {
   // a mongo ObjectId
-  _id: string;
+  _id: ObjectId;
   title: string;
   description: string;
   numberOfRounds: number;
@@ -31,7 +33,7 @@ export type League = {
 /* "rounds" collection */
 export type Round = {
   // a mongo ObjectId
-  _id: string;
+  _id: ObjectId;
   // maps to a league's _id - which is essentially just a collection of rounds
   leagueId: string;
   title: string;
@@ -42,7 +44,7 @@ export type Round = {
 // "songSubmissions" collection */
 export type SongSubmission = {
   // a mongo ObjectId
-  _id: string;
+  _id: ObjectId;
   // corresponds to the round's _id
   roundId: string;
   // corresponds to the user's _id
@@ -57,7 +59,7 @@ export type SongSubmission = {
 /* "votes" collection */
 export type Vote = {
   // a mongo ObjectId
-  _id: string;
+  _id: ObjectId;
   // corresponds to the user's _id
   userId: string;
   // corresponds to the RoundSubmission's _id

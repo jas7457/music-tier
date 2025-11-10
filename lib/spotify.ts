@@ -28,7 +28,7 @@ export interface SpotifyUserProfile {
 const CLIENT_ID = "3b4aa4f5d652435db1d08f41ea973c44";
 const REDIRECT_URI =
   process.env.NODE_ENV === "development"
-    ? "https://herbert-effortful-leigha.ngrok-free.app/callback"
+    ? "https://127.0.0.1:3000/callback"
     : "https://music-tier.vercel.app/callback";
 
 export const generateRandomString = (length: number): string => {

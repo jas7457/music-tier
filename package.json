@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --experimental-https",
     "dev:ngrok": "ngrok http --url=herbert-effortful-leigha.ngrok-free.app 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "lint": "next lint && pnpm type-check",
     "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {

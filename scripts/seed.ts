@@ -1,7 +1,7 @@
 import { MongoClient, ObjectId } from "mongodb";
 import * as dotenv from "dotenv";
 import * as path from "path";
-import { League, Round } from "@/databaseTypes";
+import { League, Round, User } from "@/databaseTypes";
 
 type WithRealId<T> = Omit<T, "_id"> & { _id: ObjectId };
 
@@ -10,9 +10,6 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 const MONGO_DB_URI = process.env.MONGO_DB_URI;
 const DB_NAME = "music-tier";
-
-// User ID that already exists
-const EXISTING_USER_ID = "6910bc2b15868f07eb6ab63a";
 
 async function seed() {
   if (!MONGO_DB_URI) {
@@ -33,7 +30,23 @@ async function seed() {
     const leaguesCollection = db.collection("leagues");
     const leagueCount = await leaguesCollection.countDocuments();
 
-    if (leagueCount === 0) {
+    const usersCollection = db.collection("users");
+    const userCount = await usersCollection.countDocuments();
+
+    if (leagueCount === 0 && userCount === 0) {
+      console.log("📝 Seeding user collection...");
+
+      const userId = new ObjectId();
+      const user: WithRealId<User> = {
+        _id: userId,
+        firstName: "Jason",
+        lastName: "Addleman",
+        userName: "jas7457",
+        spotifyId: "jas7457",
+      };
+      await usersCollection.insertOne(user);
+      console.log(`✅ Created user: ${user.userName}`);
+
       console.log("📝 Seeding leagues collection...");
 
       const leagueId = new ObjectId();
@@ -43,7 +56,7 @@ async function seed() {
         description:
           "A league dedicated to discovering the best indie rock tracks. Submit your favorite hidden gems and vote for the best tracks each round!",
         numberOfRounds: 6,
-        users: [EXISTING_USER_ID],
+        users: [userId.toString()],
         daysForSubmission: 5,
         daysForVoting: 3,
         votesPerRound: 7,
@@ -64,10 +77,10 @@ async function seed() {
         const round: WithRealId<Round> = {
           _id: roundId,
           leagueId: leagueId.toString(),
-          title: "Round 1: Best Guitar Riffs",
+          title: "Best Guitar Riffs",
           description:
             "Submit and vote for tracks with the most memorable and creative guitar riffs. Let's celebrate the art of the six-string!",
-          creatorId: EXISTING_USER_ID,
+          creatorId: userId.toString(),
         };
 
         await roundsCollection.insertOne(round);

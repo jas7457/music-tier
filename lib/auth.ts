@@ -12,7 +12,7 @@ export interface SessionPayload {
 
 export function createSessionToken(user: User): string {
   const payload: SessionPayload = {
-    userId: user._id,
+    userId: user._id.toString(),
     spotifyId: user.spotifyId,
     userName: user.userName,
   };

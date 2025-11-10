@@ -1,11 +1,10 @@
-import type { User } from "../databaseTypes";
 import { formatDate } from "@/lib/utils/formatDate";
 import { SongSubmission } from "./SongSubmission";
 import { SubmittedUsers, UnsubmittedUsers } from "./SubmittedUsers";
 import { useMemo } from "react";
 import VotingRound from "./VotingRound";
 import CompletedRound from "./CompletedRound";
-import { PopulatedLeague, PopulatedRound } from "@/lib/types";
+import { PopulatedLeague, PopulatedRound, PopulatedUser } from "@/lib/types";
 
 type FullLeague = Pick<
   PopulatedLeague,
@@ -18,7 +17,7 @@ export function Round({
   league,
   onDataSaved,
 }: {
-  currentUser: User;
+  currentUser: PopulatedUser;
   round: PopulatedRound;
   league: FullLeague;
   onDataSaved: () => void;

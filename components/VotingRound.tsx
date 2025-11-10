@@ -1,27 +1,22 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { SpotifyTrack } from "@/lib/spotify";
-import type {
-  SongSubmission as SongSubmissionType,
-  User,
-  Vote,
-} from "../databaseTypes";
 import AlbumArt from "./AlbumArt";
 import Card from "./Card";
 import { UsersList } from "./UsersList";
+import { PopulatedSubmission, PopulatedUser, PopulatedVote } from "@/lib/types";
 
 interface VotingRoundProps {
   round: {
     _id: string;
-    submissions: (SongSubmissionType & { trackInfo: SpotifyTrack })[];
-    votes: Vote[];
+    submissions: PopulatedSubmission[];
+    votes: PopulatedVote[];
   };
   league: {
     votesPerRound: number;
-    users: Array<User>;
+    users: Array<PopulatedUser>;
   };
-  currentUser: User;
+  currentUser: PopulatedUser;
   onDataSaved: () => void;
   isVotingEnabled: boolean;
 }
@@ -125,7 +120,7 @@ export default function VotingRound({
     const usersById = usersWithIndex.reduce((acc, user) => {
       acc[user._id] = user;
       return acc;
-    }, {} as Record<string, User & { index: number }>);
+    }, {} as Record<string, PopulatedUser & { index: number }>);
 
     const usersThatHaveVoted = round.votes
       .map((vote) => usersById[vote.userId])
