@@ -5,12 +5,8 @@ import { useEffect, useState, useCallback } from "react";
 import Card from "./Card";
 import MusicPlayer from "./MusicPlayer";
 import Cookies from "js-cookie";
-import { formatDate } from "@/lib/utils/formatDate";
-import { Round } from "./Round";
 import { PopulatedLeague } from "@/lib/types";
 import { useRouter } from "next/navigation";
-import { CreateRound } from "./CreateRound";
-import Link from "next/link";
 import { League } from "./League";
 
 export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
@@ -60,7 +56,7 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
       <div className="space-y-8">
         {leagues.map((league) => (
           <Card key={league._id.toString()} variant="elevated" className="p-6">
-            <League league={league} />
+            <League league={league} onDataSaved={fetchData} />
           </Card>
         ))}
       </div>

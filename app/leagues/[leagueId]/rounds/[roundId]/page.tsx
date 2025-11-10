@@ -6,11 +6,11 @@ import { RoundPageClient } from "./RoundPageClient";
 import Card from "@/components/Card";
 
 type PageProps = {
-  params: { roundId: string };
+  params: { roundId: string; leagueId: string };
 };
 
 export default async function RoundPage({ params }: PageProps) {
-  const { roundId } = params;
+  const { roundId, leagueId } = params;
 
   // Get session token from cookies
   const cookieStore = cookies();
@@ -32,19 +32,47 @@ export default async function RoundPage({ params }: PageProps) {
     getUser(payload.userId),
   ]);
   const { league, round } = (() => {
-    for (const league of leagues) {
-      const allRounds = [
-        league.rounds.current,
-        ...league.rounds.upcoming,
-        ...league.rounds.completed,
-      ];
-      for (const round of allRounds) {
-        if (round && round._id === roundId) {
-          return { league, round };
-        }
+    const empty = { league: null, round: null };
+
+    const league = leagues.find((league) => league._id === leagueId);
+    if (!league) {
+      return empty;
+    }
+
+    const allRounds = [
+      league.rounds.current,
+      ...league.rounds.upcoming,
+      ...league.rounds.completed,
+    ].filter((round) => round !== undefined);
+
+    if (roundId === "current") {
+      const currentRound = allRounds.find(
+        (round) => !["upcoming", "unknown", "completed"].includes(round.stage)
+      );
+      if (currentRound) {
+        return { league, round: currentRound };
+      }
+
+      const now = Date.now();
+      const closestRound = allRounds.sort((roundA, roundB) => {
+        const distA = Math.abs(now - roundA.submissionStartDate);
+        const distB = Math.abs(now - roundB.submissionStartDate);
+        return distA - distB;
+      })[0];
+
+      if (closestRound) {
+        return { league, round: closestRound };
+      }
+
+      return empty;
+    }
+
+    for (const round of allRounds) {
+      if (round._id === roundId) {
+        return { league, round };
       }
     }
-    return { league: null, round: null };
+    return empty;
   })();
 
   if (!league || !round || !user) {

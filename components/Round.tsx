@@ -5,11 +5,11 @@ import { useMemo } from "react";
 import VotingRound from "./VotingRound";
 import CompletedRound from "./CompletedRound";
 import { PopulatedLeague, PopulatedRound, PopulatedUser } from "@/lib/types";
-import Link from "next/link";
+import { MaybeLink } from "./MaybeLink";
 
 type FullLeague = Pick<
   PopulatedLeague,
-  "daysForSubmission" | "daysForVoting" | "users" | "votesPerRound"
+  "daysForSubmission" | "daysForVoting" | "users" | "votesPerRound" | "_id"
 >;
 
 export function Round({
@@ -69,12 +69,12 @@ export function Round({
 
   return (
     <>
-      <Link
-        href={`/rounds/${round._id}`}
+      <MaybeLink
+        href={`/leagues/${league._id}/rounds/${round._id}`}
         className="font-semibold text-lg mb-1"
       >
         Round {round.roundIndex + 1}: {round.title}
-      </Link>
+      </MaybeLink>
       <p className="text-gray-600 text-sm mb-2">{round.description}</p>
       <div className="flex gap-4 text-xs text-gray-500">
         <span>

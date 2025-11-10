@@ -7,8 +7,8 @@ import { formatDate } from "@/lib/utils/formatDate";
 import { Round } from "./Round";
 import { PopulatedLeague } from "@/lib/types";
 import { CreateRound } from "./CreateRound";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { MaybeLink } from "./MaybeLink";
 
 export function League({
   league,
@@ -115,9 +115,9 @@ export function League({
     <>
       {/* League Header */}
       <div className="border-b pb-4 mb-6">
-        <Link
+        <MaybeLink
           href={`/leagues/${league._id}`}
-          className="flex items-center text-2xl font-bold mb-2 hover:text-purple-500 transition-colors"
+          className="flex items-center text-2xl font-bold mb-2"
         >
           {league.title}
 
@@ -126,7 +126,7 @@ export function League({
           >
             {text}
           </span>
-        </Link>
+        </MaybeLink>
         <p className="text-gray-600 mb-3">{league.description}</p>
         <div className="flex gap-4 text-sm text-gray-500">
           <span>{league.numberOfRounds} rounds</span>
@@ -156,12 +156,12 @@ export function League({
                 variant="outlined"
                 className="bg-gray-50 p-4"
               >
-                <Link
-                  href={`/rounds/${round._id}`}
-                  className="font-semibold mb-1 hover:text-purple-500 transition-colors"
+                <MaybeLink
+                  href={`/leagues/${league._id}/rounds/${round._id}`}
+                  className="font-semibold mb-1"
                 >
                   Round {round.roundIndex + 1}: {round.title}
-                </Link>
+                </MaybeLink>
                 <p className="text-gray-600 text-sm mb-2">
                   {round.description}
                 </p>
@@ -186,12 +186,12 @@ export function League({
                 key={round._id.toString()}
                 className="border-blue-200 bg-blue-50 p-4"
               >
-                <Link
-                  href={`/rounds/${round._id}`}
-                  className="font-semibold mb-1 hover:text-purple-500 transition-colors"
+                <MaybeLink
+                  href={`/leagues/${league._id}/rounds/${round._id}`}
+                  className="font-semibold mb-1"
                 >
                   Round {round.roundIndex + 1}: {round.title}
-                </Link>
+                </MaybeLink>
                 <p className="text-gray-600 text-sm mb-2">
                   {round.description}
                 </p>

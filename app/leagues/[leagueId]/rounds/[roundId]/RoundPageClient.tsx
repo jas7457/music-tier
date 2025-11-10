@@ -9,7 +9,7 @@ type RoundPageClientProps = {
   round: PopulatedRound;
   league: Pick<
     PopulatedLeague,
-    "daysForSubmission" | "daysForVoting" | "users" | "votesPerRound"
+    "daysForSubmission" | "daysForVoting" | "users" | "votesPerRound" | "_id"
   >;
   currentUser: PopulatedUser;
 };
