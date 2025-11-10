@@ -237,6 +237,16 @@ export async function getUserLeagues(
   return leagueWithData;
 }
 
+export async function getUser(userId: string): Promise<User | null> {
+  const { usersCollection } = await dbPromise;
+
+  const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+  if (!user) {
+    return null;
+  }
+  return user;
+}
+
 function getRoundStage({
   currentUserId,
   league,

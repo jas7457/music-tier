@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
-import { User } from "@/databaseTypes";
+import { League, User } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
+import { PopulatedUser } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,19 +20,26 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch the full user from the database
-    const usersCollection = await getCollection<User>("users");
-    const user = await usersCollection.findOne({
-      _id: new ObjectId(payload.userId),
-    });
+    const [usersCollection, leaguesCollection] = await Promise.all([
+      getCollection<User>("users"),
+      getCollection<League>("leagues"),
+    ]);
+    const [user, league] = await Promise.all([
+      usersCollection.findOne({
+        _id: new ObjectId(payload.userId),
+      }),
+      leaguesCollection.findOne({ users: payload.userId }),
+    ]);
 
     if (!user) {
       return NextResponse.json({ user: null });
     }
 
     // Convert _id to string for the response
-    const userResponse = {
+    const userResponse: PopulatedUser = {
       ...user,
       _id: user._id.toString(),
+      index: league ? league.users.indexOf(payload.userId) : -1,
     };
 
     return NextResponse.json({ user: userResponse });

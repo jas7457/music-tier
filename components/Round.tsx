@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import VotingRound from "./VotingRound";
 import CompletedRound from "./CompletedRound";
 import { PopulatedLeague, PopulatedRound, PopulatedUser } from "@/lib/types";
+import Link from "next/link";
 
 type FullLeague = Pick<
   PopulatedLeague,
@@ -33,11 +34,6 @@ export function Round({
             <SongSubmission
               userSubmission={round.userSubmission}
               onDataSaved={onDataSaved}
-              // ref={(ref) => {
-              //   if (ref) {
-              //     submissionRefs.current.set(league.rounds!.current!._id, ref);
-              //   }
-              // }}
               roundId={round._id}
               roundEndDate={round.votingEndDate}
             />
@@ -73,9 +69,12 @@ export function Round({
 
   return (
     <>
-      <h4 className="font-semibold text-lg mb-1">
+      <Link
+        href={`/rounds/${round._id}`}
+        className="font-semibold text-lg mb-1"
+      >
         Round {round.roundIndex + 1}: {round.title}
-      </h4>
+      </Link>
       <p className="text-gray-600 text-sm mb-2">{round.description}</p>
       <div className="flex gap-4 text-xs text-gray-500">
         <span>

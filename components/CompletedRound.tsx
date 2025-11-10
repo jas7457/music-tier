@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import AlbumArt from "./AlbumArt";
 import Card from "./Card";
 import { PopulatedRound, PopulatedUser } from "@/lib/types";
-import { getUserGradient } from "@/lib/utils/getUserGradient";
+import { Avatar } from "./Avatar";
 
 interface CompletedRoundProps {
   round: PopulatedRound;
@@ -151,21 +151,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                     <span className="text-3xl">{emoji}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {submitter.photoUrl ? (
-                      <img
-                        src={submitter.photoUrl}
-                        alt={`${submitter.firstName} ${submitter.lastName}`}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div
-                        className={`w-10 h-10 rounded-full bg-linear-to-br ${getUserGradient(
-                          submitter.index
-                        )} flex items-center justify-center text-white font-semibold`}
-                      >
-                        {submitter.firstName[0]}
-                      </div>
-                    )}
+                    <Avatar user={submitter} size={10} />
                     <span className="font-semibold text-lg text-gray-800">
                       {submitter.firstName} {submitter.lastName}
                     </span>
@@ -183,21 +169,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                     className="flex items-start gap-3 py-2"
                   >
                     {/* User Avatar */}
-                    {voter.user.photoUrl ? (
-                      <img
-                        src={voter.user.photoUrl}
-                        alt={`${voter.user.firstName} ${voter.user.lastName}`}
-                        className="w-10 h-10 rounded-full object-cover shrink-0"
-                      />
-                    ) : (
-                      <div
-                        className={`w-10 h-10 rounded-full bg-linear-to-br ${getUserGradient(
-                          voter.user.index
-                        )} flex items-center justify-center text-white font-semibold shrink-0`}
-                      >
-                        {voter.user.firstName[0]}
-                      </div>
-                    )}
+                    <Avatar user={voter.user} size={10} />
 
                     {/* User Info */}
                     <div className="flex-1 min-w-0">

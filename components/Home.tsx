@@ -10,7 +10,7 @@ import { Round } from "./Round";
 import { PopulatedLeague } from "@/lib/types";
 
 export default function Home() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [leagues, setLeagues] = useState<PopulatedLeague[] | undefined>(
     undefined
   );
@@ -195,40 +195,11 @@ export default function Home() {
   })();
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 pb-32">
-      <div className="max-w-4xl mx-auto">
-        {/* User Profile Section */}
-        <Card variant="elevated" className="p-6 mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {user.photoUrl && (
-                <img
-                  src={user.photoUrl}
-                  alt="Profile"
-                  className="w-16 h-16 rounded-full object-cover"
-                />
-              )}
-              <div>
-                <h1 className="text-2xl font-bold">
-                  {user.firstName} {user.lastName}
-                </h1>
-                <p className="text-gray-600">@{user.userName}</p>
-              </div>
-            </div>
-            <button
-              onClick={logout}
-              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        </Card>
-
-        {leagueMarkup}
-      </div>
+    <>
+      <div className="max-w-4xl mx-auto">{leagueMarkup}</div>
 
       {/* Music Player - shown when user has Spotify access */}
       {hasSpotifyAccess && <MusicPlayer />}
-    </div>
+    </>
   );
 }
