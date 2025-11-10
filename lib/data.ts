@@ -1,7 +1,7 @@
 import { getCollection } from "@/lib/mongodb";
 import { League, Round, SongSubmission, User, Vote } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
-import { getTrackDetails } from "./spotify";
+import { getTrackDetails, SpotifyTrack } from "./spotify";
 
 export type GetUserLeagueReturnType = Awaited<
   ReturnType<typeof getUserLeagues>
@@ -94,6 +94,34 @@ export async function getUserLeagues(userId: string, accessToken: string) {
       );
 
       type RoundWithData = (typeof roundsWithData)[number];
+      type CurrentRound = Omit<RoundWithData, "submissions"> & {
+        submissions: (SongSubmission & { trackInfo: SpotifyTrack })[];
+      };
+
+      const currentRound: CurrentRound | undefined = await (async () => {
+        const currentRound = roundsWithData.find((round) => {
+          const submissionStart = round.submissionStartDate;
+          const submissionEnd =
+            submissionStart + league.daysForSubmission * 24 * 60 * 60 * 1000;
+          return now >= submissionStart && now < submissionEnd;
+        });
+
+        if (!currentRound) {
+          return undefined;
+        }
+
+        const submissions = await Promise.all(
+          currentRound.submissions.map(async (submission) => {
+            const trackInfo = await getTrackDetails(
+              submission.trackId,
+              accessToken
+            );
+            return { ...submission, trackInfo };
+          })
+        );
+        return { ...currentRound, submissions };
+      })();
+
       const roundsObject = roundsWithData.reduce(
         (acc, round) => {
           const submissionStart = round.submissionStartDate;
@@ -102,10 +130,7 @@ export async function getUserLeagues(userId: string, accessToken: string) {
           const votingEnd =
             submissionEnd + league.daysForVoting * 24 * 60 * 60 * 1000;
 
-          if (now >= submissionStart && now < submissionEnd) {
-            // Current round
-            acc.current = round;
-          } else if (now >= votingEnd) {
+          if (now >= votingEnd) {
             // Completed round
             acc.completed.push(round);
           } else if (now < submissionStart) {
@@ -116,7 +141,7 @@ export async function getUserLeagues(userId: string, accessToken: string) {
           return acc;
         },
         {
-          current: undefined as RoundWithData | undefined,
+          current: currentRound,
           completed: [] as RoundWithData[],
           upcoming: [] as RoundWithData[],
         }

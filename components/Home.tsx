@@ -146,6 +146,7 @@ export default function Home() {
                 </h3>
                 <Card className="border-green-200 bg-green-50 p-4">
                   <Round
+                    currentUser={user}
                     round={league.rounds.current}
                     league={league}
                     onSongSubmissionSubmit={fetchData}

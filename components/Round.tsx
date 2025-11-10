@@ -12,23 +12,26 @@ import { SubmittedUsers } from "./SubmittedUsers";
 import { GetUserLeagueReturnType } from "@/lib/data";
 import { decorateRound } from "@/lib/utils/decorateRound";
 import { useMemo } from "react";
+import VotingRound from "./VotingRound";
 
 type FullRound = RoundType & {
-  submissions: SongSubmissionType[];
+  submissions: (SongSubmissionType & { trackInfo: SpotifyTrack })[];
   votes: Vote[];
   userSubmission?: SongSubmissionType & { trackInfo: SpotifyTrack };
 };
 
 type FullLeague = Pick<
   GetUserLeagueReturnType[number],
-  "daysForSubmission" | "daysForVoting" | "users"
+  "daysForSubmission" | "daysForVoting" | "users" | "votesPerRound"
 >;
 
 export function Round({
+  currentUser,
   round: _round,
   league,
   onSongSubmissionSubmit,
 }: {
+  currentUser: User;
   round: FullRound;
   league: FullLeague;
   onSongSubmissionSubmit: () => void;
@@ -67,7 +70,13 @@ export function Round({
         );
       }
       case "voting": {
-        return <div>It is voting</div>;
+        return (
+          <VotingRound
+            round={_round}
+            league={league}
+            currentUser={currentUser}
+          />
+        );
       }
       default: {
         return null;
