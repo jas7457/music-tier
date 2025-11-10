@@ -93,18 +93,21 @@ export async function getUserLeagues(userId: string, accessToken: string) {
         })
       );
 
-      type RoundWithData = (typeof roundsWithData)[number];
+      type RoundWithData = (typeof roundsWithData)[number] & {
+        roundIndex: number;
+      };
       type CurrentRound = Omit<RoundWithData, "submissions"> & {
         submissions: (SongSubmission & { trackInfo: SpotifyTrack })[];
       };
 
       const currentRound: CurrentRound | undefined = await (async () => {
-        const currentRound = roundsWithData.find((round) => {
+        const currentRoundIndex = roundsWithData.findIndex((round) => {
           const submissionStart = round.submissionStartDate;
           const submissionEnd =
             submissionStart + league.daysForSubmission * 24 * 60 * 60 * 1000;
           return now >= submissionStart && now < submissionEnd;
         });
+        const currentRound = roundsWithData[currentRoundIndex];
 
         if (!currentRound) {
           return undefined;
@@ -119,11 +122,11 @@ export async function getUserLeagues(userId: string, accessToken: string) {
             return { ...submission, trackInfo };
           })
         );
-        return { ...currentRound, submissions };
+        return { ...currentRound, roundIndex: currentRoundIndex, submissions };
       })();
 
       const roundsObject = roundsWithData.reduce(
-        (acc, round) => {
+        (acc, round, index) => {
           const submissionStart = round.submissionStartDate;
           const submissionEnd =
             submissionStart + league.daysForSubmission * 24 * 60 * 60 * 1000;
@@ -132,10 +135,10 @@ export async function getUserLeagues(userId: string, accessToken: string) {
 
           if (now >= votingEnd) {
             // Completed round
-            acc.completed.push(round);
+            acc.completed.push({ ...round, roundIndex: index });
           } else if (now < submissionStart) {
             // Upcoming round
-            acc.upcoming.push(round);
+            acc.upcoming.push({ ...round, roundIndex: index });
           }
 
           return acc;

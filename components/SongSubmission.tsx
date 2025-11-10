@@ -13,7 +13,7 @@ interface SongSubmissionProps {
   roundId: string;
   roundEndDate: number | null;
   userSubmission: SongSubmissionType | undefined;
-  onSubmit: () => void;
+  onDataSaved: () => void;
 }
 export interface SongSubmissionRef {
   openSubmissionWithTrack: (trackUrl: string) => void;
@@ -22,7 +22,7 @@ export interface SongSubmissionRef {
 export const SongSubmission = forwardRef<
   SongSubmissionRef,
   SongSubmissionProps
->(({ roundId, roundEndDate, userSubmission, onSubmit }, ref) => {
+>(({ roundId, roundEndDate, userSubmission, onDataSaved }, ref) => {
   const [submission, setSubmission] = useState(userSubmission ?? null);
   const [trackDetails, setTrackDetails] = useState<SpotifyTrack | null>(
     submission?.trackInfo ?? null
@@ -169,7 +169,7 @@ export const SongSubmission = forwardRef<
       setNote("");
       setIsEditing(false);
       setSubmitting(false);
-      onSubmit();
+      onDataSaved();
     } catch (err) {
       console.error("Error submitting song:", err);
       setError(`Failed to ${submission ? "update" : "submit"} song`);

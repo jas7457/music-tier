@@ -1,6 +1,5 @@
 import { SpotifyTrack } from "@/lib/spotify";
 import type {
-  League,
   Round as RoundType,
   SongSubmission as SongSubmissionType,
   User,
@@ -15,6 +14,7 @@ import { useMemo } from "react";
 import VotingRound from "./VotingRound";
 
 type FullRound = RoundType & {
+  roundIndex: number;
   submissions: (SongSubmissionType & { trackInfo: SpotifyTrack })[];
   votes: Vote[];
   userSubmission?: SongSubmissionType & { trackInfo: SpotifyTrack };
@@ -29,14 +29,14 @@ export function Round({
   currentUser,
   round: _round,
   league,
-  onSongSubmissionSubmit,
+  onDataSaved,
 }: {
   currentUser: User;
   round: FullRound;
   league: FullLeague;
-  onSongSubmissionSubmit: () => void;
+  onDataSaved: () => void;
 }) {
-  const round = decorateRound(_round, league);
+  const round = decorateRound(currentUser._id, _round, league);
 
   const bodyMarkup = useMemo(() => {
     switch (round.stage) {
@@ -48,7 +48,7 @@ export function Round({
           <>
             <SongSubmission
               userSubmission={round.userSubmission}
-              onSubmit={onSongSubmissionSubmit}
+              onDataSaved={onDataSaved}
               // ref={(ref) => {
               //   if (ref) {
               //     submissionRefs.current.set(league.rounds!.current!._id, ref);
@@ -69,12 +69,16 @@ export function Round({
           </>
         );
       }
-      case "voting": {
+      case "voting":
+      case "votingCompleted": {
         return (
           <VotingRound
+            key={round.stage}
             round={_round}
             league={league}
             currentUser={currentUser}
+            onDataSaved={onDataSaved}
+            isVotingEnabled={round.stage === "voting"}
           />
         );
       }
@@ -82,15 +86,18 @@ export function Round({
         return null;
       }
     }
-
-    return null;
-  }, []);
+  }, [round]);
 
   return (
     <>
-      <h4 className="font-semibold text-lg mb-1">{round.title}</h4>
+      <h4 className="font-semibold text-lg mb-1">
+        Round {round.roundIndex + 1}: {round.title}
+      </h4>
       <p className="text-gray-600 text-sm mb-2">{round.description}</p>
       <div className="flex gap-4 text-xs text-gray-500">
+        <span>
+          Stage: {round.stage.charAt(0).toUpperCase() + round.stage.slice(1)}
+        </span>
         <span>
           Submissions start date: {formatDate(round.submissionStartDate)}
         </span>

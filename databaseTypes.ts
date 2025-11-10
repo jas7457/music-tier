@@ -62,6 +62,7 @@ export type Vote = {
   userId: string;
   // corresponds to the RoundSubmission's _id
   submissionId: string;
+  roundId: string;
   points: number;
   note?: string;
 };

@@ -13,10 +13,11 @@ type RoundWithSubmissions = RoundType & {
 };
 
 export function decorateRound<TRound extends RoundWithSubmissions>(
+  currentUserId: string,
   round: TRound,
   league: Pick<
     GetUserLeagueReturnType[number],
-    "daysForSubmission" | "daysForVoting" | "users"
+    "daysForSubmission" | "daysForVoting" | "users" | "votesPerRound"
   >
 ) {
   const now = Date.now();
@@ -24,9 +25,26 @@ export function decorateRound<TRound extends RoundWithSubmissions>(
     round.submissionStartDate + league.daysForSubmission * ONE_DAY_MS;
   const votingEndDate = submissionEndDate + league.daysForVoting * ONE_DAY_MS;
 
+  const allUsersSubmitted = round.submissions.length >= league.users.length;
+  const allUsersVoted =
+    round.votes.length >= league.users.length * league.votesPerRound;
+
+  const isVotingOpen = (() => {
+    if (now >= votingEndDate) {
+      return false;
+    }
+    if (allUsersVoted) {
+      return false;
+    }
+    if (allUsersSubmitted) {
+      return true;
+    }
+    return false;
+  })();
   const isSubmissionOpen =
-    now >= round.submissionStartDate && now < submissionEndDate;
-  const isVotingOpen = now >= submissionEndDate && now < votingEndDate;
+    !isVotingOpen &&
+    now >= round.submissionStartDate &&
+    now < submissionEndDate;
 
   const stage = (() => {
     if (now >= votingEndDate) {
@@ -36,15 +54,15 @@ export function decorateRound<TRound extends RoundWithSubmissions>(
       return "upcoming" as const;
     }
     if (isVotingOpen) {
-      if (round.votes.length >= league.users.length) {
-        return "completed" as const;
+      const yourVotedPoints = round.votes
+        .filter((v) => v.userId === currentUserId)
+        .reduce((sum, v) => sum + v.points, 0);
+      if (yourVotedPoints >= league.votesPerRound) {
+        return "votingCompleted" as const;
       }
       return "voting" as const;
     }
     if (isSubmissionOpen) {
-      if (round.submissions.length >= league.users.length) {
-        return "voting" as const;
-      }
       return "submission" as const;
     }
     return "unknown" as const;

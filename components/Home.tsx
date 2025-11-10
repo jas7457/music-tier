@@ -149,7 +149,7 @@ export default function Home() {
                     currentUser={user}
                     round={league.rounds.current}
                     league={league}
-                    onSongSubmissionSubmit={fetchData}
+                    onDataSaved={fetchData}
                   />
                 </Card>
               </div>
