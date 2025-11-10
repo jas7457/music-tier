@@ -138,7 +138,10 @@ export default function VotingRound({
   return (
     <div className="mt-4 space-y-4">
       {/* Voting Summary */}
-      <Card className="p-4 bg-blue-50 border-blue-200 flex flex-col gap-3">
+      <Card
+        className="p-4 bg-blue-50 border-blue-200 flex flex-col gap-3"
+        variant="outlined"
+      >
         <div className="flex items-center justify-between">
           <div>
             <h6 className="font-semibold text-sm text-gray-700">
@@ -278,7 +281,7 @@ export default function VotingRound({
 
         {/* Save All Button */}
         {isVotingEnabled && (
-          <div className="pt-3 border-t border-blue-200">
+          <div className="pt-3">
             <button
               onClick={handleSave}
               disabled={saving || remainingVotes !== 0}
