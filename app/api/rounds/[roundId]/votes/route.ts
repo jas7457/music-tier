@@ -29,10 +29,13 @@ export async function POST(
 
     await votesCollection.deleteMany({ userId: payload.userId, roundId });
 
+    const now = Date.now();
+
     const data = Object.entries(body).map(([submissionId, entry]) => {
       const { points, note } = entry as { points: number; note?: string };
       return {
         _id: new ObjectId().toString(),
+        voteDate: now,
         submissionId,
         points,
         note,

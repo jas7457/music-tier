@@ -185,7 +185,9 @@ export default function Home() {
                         variant="outlined"
                         className="bg-gray-50 p-4"
                       >
-                        <h4 className="font-semibold mb-1">{round.title}</h4>
+                        <h4 className="font-semibold mb-1">
+                          Round {round.roundIndex + 1}: {round.title}
+                        </h4>
                         <p className="text-gray-600 text-sm mb-2">
                           {round.description}
                         </p>
@@ -210,7 +212,9 @@ export default function Home() {
                         key={round._id}
                         className="border-blue-200 bg-blue-50 p-4"
                       >
-                        <h4 className="font-semibold mb-1">{round.title}</h4>
+                        <h4 className="font-semibold mb-1">
+                          Round {round.roundIndex + 1}: {round.title}
+                        </h4>
                         <p className="text-gray-600 text-sm mb-2">
                           {round.description}
                         </p>

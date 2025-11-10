@@ -50,7 +50,13 @@ export async function getUserLeagues(
     })
     .toArray();
 
-  const now = Date.now();
+  // get the current timestamp in the east coast of the usa
+  const now = (() => {
+    const now = new Date();
+    const options = { timeZone: "America/New_York" };
+    const local = new Date(now.toLocaleString("en-US", options));
+    return local.getTime();
+  })();
 
   const leagueWithData = await Promise.all(
     leagues.map(async (league) => {
@@ -118,13 +124,50 @@ export async function getUserLeagues(
             (submission) => submission.userId === userId
           );
 
+          const lastSubmission = round.submissions.reduce(
+            (latest, submission) => {
+              if (!latest) {
+                return submission;
+              }
+              return submission.submissionDate > latest.submissionDate
+                ? submission
+                : latest;
+            },
+            undefined as SongSubmission | undefined
+          );
+
+          const lastVote = round.votes.reduce((latest, vote) => {
+            if (!latest) {
+              return vote;
+            }
+            return vote.voteDate > latest.voteDate ? vote : latest;
+          }, undefined as Vote | undefined);
+
           const submissionStartDate = currentStartDate;
-          const submissionEndDate =
-            submissionStartDate + league.daysForSubmission * ONE_DAY_MS;
+          const submissionEndDate = (() => {
+            const allSubmitted =
+              round.submissions.length >= league.users.length;
+
+            if (allSubmitted && lastSubmission) {
+              return lastSubmission.submissionDate;
+            }
+            return submissionStartDate + league.daysForSubmission * ONE_DAY_MS;
+          })();
           const votingStartDate = submissionEndDate;
-          const votingEndDate =
-            votingStartDate + league.daysForVoting * ONE_DAY_MS;
-          currentStartDate = votingEndDate + ONE_DAY_MS;
+          const votingEndDate = (() => {
+            const roundPoints = round.votes.reduce(
+              (acc, vote) => acc + vote.points,
+              0
+            );
+            if (
+              roundPoints >= league.users.length * league.votesPerRound &&
+              lastVote
+            ) {
+              return lastVote.voteDate;
+            }
+            return votingStartDate + league.daysForVoting * ONE_DAY_MS;
+          })();
+          currentStartDate = votingEndDate;
           const populatedRound = {
             ...round,
             userSubmission,
@@ -147,10 +190,7 @@ export async function getUserLeagues(
 
       const currentRound: PopulatedRound | undefined = await (async () => {
         const currentRoundIndex = roundsWithData.findIndex((round) => {
-          const submissionStart = round.submissionStartDate;
-          const submissionEnd =
-            submissionStart + league.daysForSubmission * 24 * 60 * 60 * 1000;
-          return now >= submissionStart && now < submissionEnd;
+          return now >= round.submissionStartDate && now < round.votingEndDate;
         });
         const currentRound = roundsWithData[currentRoundIndex];
 
@@ -172,16 +212,10 @@ export async function getUserLeagues(
 
       const roundsObject = roundsWithData.reduce(
         (acc, round, index) => {
-          const submissionStart = round.submissionStartDate;
-          const submissionEnd =
-            submissionStart + league.daysForSubmission * 24 * 60 * 60 * 1000;
-          const votingEnd =
-            submissionEnd + league.daysForVoting * 24 * 60 * 60 * 1000;
-
-          if (now >= votingEnd) {
+          if (now >= round.votingEndDate) {
             // Completed round
             acc.completed.push({ ...round, roundIndex: index });
-          } else if (now < submissionStart) {
+          } else if (now < round.submissionStartDate) {
             // Upcoming round
             acc.upcoming.push({ ...round, roundIndex: index });
           }

@@ -20,13 +20,22 @@ export function createSessionToken(user: User): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
 }
 
+const userJen = {
+  userId: "69112e8d8741da077820df17",
+  userName: "jdivita",
+};
+
+const userDharam = {
+  userId: "69115bba8741da077820df30",
+  userName: "dharam66",
+};
+
 export function verifySessionToken(token: string): SessionPayload | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as SessionPayload;
     return {
       ...decoded,
-      // userId: "69112e8d8741da077820df17",
-      // userName: "jdivita",
+      // ...userJen,
     };
   } catch (error) {
     return null;

@@ -7,6 +7,7 @@ import { SongSubmission } from "./SongSubmission";
 import { SubmittedUsers, UnsubmittedUsers } from "./SubmittedUsers";
 import { useMemo } from "react";
 import VotingRound from "./VotingRound";
+import CompletedRound from "./CompletedRound";
 import { PopulatedLeague, PopulatedRound } from "@/lib/types";
 
 type FullLeague = Pick<
@@ -28,7 +29,7 @@ export function Round({
   const bodyMarkup = useMemo(() => {
     switch (round.stage) {
       case "completed": {
-        return <div>It is completed</div>;
+        return <CompletedRound round={round} users={league.users} />;
       }
       case "submission": {
         return (

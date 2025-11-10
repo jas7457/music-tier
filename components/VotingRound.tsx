@@ -122,7 +122,7 @@ export default function VotingRound({
       ...user,
       index,
     }));
-    const usersById = usersWithIndex.reduce((acc, user, index) => {
+    const usersById = usersWithIndex.reduce((acc, user) => {
       acc[user._id] = user;
       return acc;
     }, {} as Record<string, User & { index: number }>);

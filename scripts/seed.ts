@@ -47,6 +47,7 @@ async function seed() {
         daysForSubmission: 5,
         daysForVoting: 3,
         votesPerRound: 7,
+        leagueStartDate: Date.now(),
       };
 
       await leaguesCollection.insertOne(league);
@@ -59,10 +60,6 @@ async function seed() {
       if (roundCount === 0) {
         console.log("📝 Seeding rounds collection...");
 
-        const now = Date.now();
-        const submissionStartDate = now - 2 * 24 * 60 * 60 * 1000; // Started 2 days ago
-        const voteStartDate = now + 1 * 24 * 60 * 60 * 1000; // Voting starts in 1 day
-
         const roundId = new ObjectId();
         const round: WithRealId<Round> = {
           _id: roundId,
@@ -71,8 +68,6 @@ async function seed() {
           description:
             "Submit and vote for tracks with the most memorable and creative guitar riffs. Let's celebrate the art of the six-string!",
           creatorId: EXISTING_USER_ID,
-          submissionStartDate,
-          voteStartDate,
         };
 
         await roundsCollection.insertOne(round);

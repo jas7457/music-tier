@@ -1,6 +1,7 @@
 "use client";
 
 import { PopulatedUser } from "@/lib/types";
+import { getUserGradient } from "@/lib/utils/getUserGradient";
 
 interface UsersListProps {
   users: (PopulatedUser & { index: number })[];
@@ -9,20 +10,6 @@ interface UsersListProps {
     noun: string;
   };
 }
-
-// 10 different gradient combinations
-const gradients = [
-  "from-blue-500 to-purple-600",
-  "from-pink-500 to-rose-600",
-  "from-green-500 to-emerald-600",
-  "from-orange-500 to-red-600",
-  "from-cyan-500 to-blue-600",
-  "from-violet-500 to-purple-600",
-  "from-amber-500 to-orange-600",
-  "from-teal-500 to-cyan-600",
-  "from-indigo-500 to-blue-600",
-  "from-fuchsia-500 to-pink-600",
-];
 
 export function UsersList({ users, text }: UsersListProps) {
   const formattedVerb = text.verb.charAt(0).toUpperCase() + text.verb.slice(1);
@@ -47,7 +34,7 @@ export function UsersList({ users, text }: UsersListProps) {
         {users.map((user) => {
           const fullName = `${user.firstName} ${user.lastName}`;
           const initial = user.userName.charAt(0).toUpperCase();
-          const gradient = gradients[user.index % gradients.length];
+          const gradient = getUserGradient(user.index);
 
           return (
             <div key={user._id} className="relative group">
@@ -59,7 +46,7 @@ export function UsersList({ users, text }: UsersListProps) {
                 />
               ) : (
                 <div
-                  className={`w-8 h-8 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-300`}
+                  className={`w-8 h-8 rounded-full bg-linear-to-br ${gradient} flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-300`}
                 >
                   {initial}
                 </div>

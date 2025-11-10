@@ -1,12 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { verifySessionToken } from '@/lib/auth';
-import { getCollection } from '@/lib/mongodb';
-import { User } from '@/databaseTypes';
-import { ObjectId } from 'mongodb';
+import { NextRequest, NextResponse } from "next/server";
+import { verifySessionToken } from "@/lib/auth";
+import { getCollection } from "@/lib/mongodb";
+import { User } from "@/databaseTypes";
 
 export async function GET(request: NextRequest) {
   try {
-    const sessionToken = request.cookies.get('session_token')?.value;
+    const sessionToken = request.cookies.get("session_token")?.value;
 
     if (!sessionToken) {
       return NextResponse.json({ user: null });
@@ -19,8 +18,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch the full user from the database
-    const usersCollection = await getCollection<User>('users');
-    const user = await usersCollection.findOne({ _id: new ObjectId(payload.userId) } as any);
+    const usersCollection = await getCollection<User>("users");
+    const user = await usersCollection.findOne({ _id: payload.userId });
 
     if (!user) {
       return NextResponse.json({ user: null });
@@ -29,12 +28,12 @@ export async function GET(request: NextRequest) {
     // Convert _id to string for the response
     const userResponse = {
       ...user,
-      _id: user._id.toString()
+      _id: user._id.toString(),
     };
 
     return NextResponse.json({ user: userResponse });
   } catch (error) {
-    console.error('Error fetching session:', error);
+    console.error("Error fetching session:", error);
     return NextResponse.json({ user: null });
   }
 }

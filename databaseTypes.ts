@@ -64,5 +64,6 @@ export type Vote = {
   submissionId: string;
   roundId: string;
   points: number;
+  voteDate: number;
   note?: string;
 };
