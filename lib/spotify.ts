@@ -28,6 +28,7 @@ export interface SpotifyUserProfile {
 }
 
 const CLIENT_ID = "3b4aa4f5d652435db1d08f41ea973c44";
+const CLIENT_SECRET = process.env.CLIENT_SECRET || "";
 const REDIRECT_URI =
   process.env.NODE_ENV === "development"
     ? "https://127.0.0.1:3000/callback"
@@ -64,9 +65,6 @@ export const initiateSpotifyAuth = async (): Promise<void> => {
     throw new Error("Spotify Client ID not configured");
   }
 
-  const hashed = await sha256(codeVerifier);
-  const codeChallenge = base64encode(hashed);
-
   const scope =
     "user-read-email playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state";
   const authUrl = new URL("https://accounts.spotify.com/authorize");
@@ -77,14 +75,38 @@ export const initiateSpotifyAuth = async (): Promise<void> => {
     response_type: "code",
     client_id: CLIENT_ID,
     scope,
-    code_challenge_method: "S256",
-    code_challenge: codeChallenge,
     redirect_uri: REDIRECT_URI,
   };
 
   authUrl.search = new URLSearchParams(params).toString();
   window.location.href = authUrl.toString();
 };
+
+export async function callbackAuth(code: string): Promise<string> {
+  const response = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization:
+        "Basic " +
+        Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
+    },
+    body: new URLSearchParams({
+      client_id: CLIENT_ID,
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: REDIRECT_URI,
+      code_verifier: codeVerifier,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to exchange code for token");
+  }
+
+  const data = await response.json();
+  return data.access_token;
+}
 
 export const exchangeCodeForToken = async (code: string): Promise<string> => {
   if (!CLIENT_ID) {
@@ -100,6 +122,9 @@ export const exchangeCodeForToken = async (code: string): Promise<string> => {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
+      Authorization:
+        "Basic " +
+        Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
     },
     body: new URLSearchParams({
       client_id: CLIENT_ID,

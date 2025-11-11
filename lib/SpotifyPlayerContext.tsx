@@ -369,7 +369,6 @@ export function SpotifyPlayerProvider({
   };
 
   const nextTrack = async () => {
-    debugger;
     const nextTrack = playlist[currentTrackIndex + 1];
     if (nextTrack) {
       playTrack(`spotify:track:${nextTrack.trackId}`, "same");
@@ -378,7 +377,6 @@ export function SpotifyPlayerProvider({
   };
 
   const previousTrack = async () => {
-    debugger;
     const previousTrack = playlist[currentTrackIndex - 1];
     if (previousTrack) {
       playTrack(`spotify:track:${previousTrack.trackId}`, "same");
