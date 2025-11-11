@@ -51,7 +51,6 @@ export default function Landing() {
             const checkData = await checkResponse.json();
 
             if (checkData.exists) {
-              debugger;
               // User already exists, refresh auth context to log them in
               window.location.href = "/";
               return; // This will redirect to Home automatically

@@ -1,13 +1,12 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import Card from "./Card";
 import { formatDate } from "@/lib/utils/formatDate";
 import { Round } from "./Round";
 import { PopulatedLeague } from "@/lib/types";
 import { CreateRound } from "./CreateRound";
-import { useRouter } from "next/navigation";
 import { MaybeLink } from "./MaybeLink";
 import { Avatar } from "./Avatar";
 
@@ -19,11 +18,6 @@ export function League({
   onDataSaved: () => void;
 }) {
   const { user } = useAuth();
-  const router = useRouter();
-
-  const fetchData = useCallback(async () => {
-    router.refresh();
-  }, [router]);
 
   const userHasCreatedRound = useMemo(() => {
     if (!user) {
@@ -78,7 +72,7 @@ export function League({
             currentUser={user}
             round={league.rounds.current}
             league={league}
-            onDataSaved={fetchData}
+            onDataSaved={onDataSaved}
           />
         </Card>
       </div>
@@ -93,7 +87,7 @@ export function League({
 
     return (
       <div className="mb-6">
-        <CreateRound leagueId={league._id} onRoundCreated={fetchData} />
+        <CreateRound leagueId={league._id} onRoundCreated={onDataSaved} />
       </div>
     );
   })();

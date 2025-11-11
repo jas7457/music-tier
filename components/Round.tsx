@@ -45,7 +45,10 @@ export function Round({
       }
       case "submission": {
         return (
-          <div className="flex flex-col gap-4">
+          <div
+            className="flex flex-col gap-4"
+            key={round.userSubmission?.trackInfo.trackId ?? "no-submission"}
+          >
             <SongSubmission
               userSubmission={round.userSubmission}
               onDataSaved={onDataSaved}

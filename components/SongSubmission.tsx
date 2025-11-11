@@ -230,8 +230,13 @@ export function SongSubmission({
           <input
             id="trackUrl"
             type="text"
+            autoComplete="off"
             required
             value={trackUrl}
+            onPaste={(e) => {
+              const value = e.clipboardData.getData("text");
+              fetchTrackPreview(extractTrackIdFromUrl(value));
+            }}
             onChange={(e) => {
               const value = e.target.value;
               setTrackUrl(value);

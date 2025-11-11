@@ -58,6 +58,7 @@ export default function AlbumArt({
       </div>
 
       <button
+        type="button"
         onClick={handlePlayClick}
         disabled={isDisabled}
         className={`
