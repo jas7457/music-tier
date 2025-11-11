@@ -23,6 +23,7 @@ export default function Landing() {
     firstName: "",
     lastName: "",
     userName: "",
+    inviteCode: "",
   });
 
   useEffect(() => {
@@ -64,12 +65,14 @@ export default function Landing() {
                   firstName: nameParts[0],
                   lastName: "",
                   userName: profile.id || "",
+                  inviteCode: "",
                 });
               } else {
                 setFormData({
                   firstName: nameParts[0],
                   lastName: nameParts.slice(1).join(" "),
                   userName: profile.id || "",
+                  inviteCode: "",
                 });
               }
             }
@@ -111,6 +114,7 @@ export default function Landing() {
           userName: formData.userName,
           spotifyId: spotifyProfile?.id,
           photoUrl: spotifyProfile?.images?.[0]?.url,
+          inviteCode: formData.inviteCode,
         }),
       });
 
@@ -222,6 +226,26 @@ export default function Landing() {
               value={formData.userName}
               onChange={(e) =>
                 setFormData({ ...formData, userName: e.target.value })
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="inviteCode"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Invite code *
+            </label>
+            <input
+              id="inviteCode"
+              type="text"
+              placeholder="Enter your invite code that Jason gave you"
+              required
+              value={formData.inviteCode}
+              onChange={(e) =>
+                setFormData({ ...formData, inviteCode: e.target.value })
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />

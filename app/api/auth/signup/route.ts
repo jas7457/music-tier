@@ -5,16 +5,29 @@ import { League, User } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
 import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 
+const INVITE_CODE = "musicleaguenowcburg2025";
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { firstName, lastName, userName, spotifyId, photoUrl } = body;
+    const { firstName, lastName, userName, spotifyId, photoUrl, inviteCode } =
+      body;
 
     // Validate required fields
-    if (!firstName || !lastName || !userName) {
+    if (!firstName || !lastName || !userName || !inviteCode) {
       return NextResponse.json(
-        { error: "First name, last name, and username are required" },
+        {
+          error:
+            "First name, last name, username, and invite code are required",
+        },
         { status: 400 }
+      );
+    }
+
+    if (inviteCode !== INVITE_CODE) {
+      return NextResponse.json(
+        { error: "You are not authorized to sign up" },
+        { status: 403 }
       );
     }
 
