@@ -72,9 +72,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
 
     setLoadingPreview(true);
     try {
-      debugger;
       const trackData = await getTrackDetails(trackId);
-      debugger;
       if (trackData.track) {
         setSubmission({ trackInfo: trackData.track });
         setError(null);

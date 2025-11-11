@@ -69,8 +69,15 @@ export function SpotifyPlayerProvider({
   );
 
   const currentTrackIndex = useMemo(() => {
-    return playlist.findIndex((t) => t.trackId === currentTrack?.id);
+    return playlist.findIndex(
+      (t) =>
+        t.trackId === currentTrack?.id ||
+        t.trackId === currentTrack?.linked_from?.id
+    );
   }, [playlist, currentTrack]);
+
+  console.log({ currentTrackIndex, playlist, currentTrack });
+
   const hasNextTrack =
     playlist.length > 0 && currentTrackIndex < playlist.length - 1;
   const hasPreviousTrack = playlist.length > 0 && currentTrackIndex > 0;
@@ -260,8 +267,13 @@ export function SpotifyPlayerProvider({
           const retryResponse = await attemptPlay(id);
           if (retryResponse.ok) {
             idToSet = id;
-            const trackInfo = await retryResponse.json();
-            setCurrentTrack(trackInfo);
+            try {
+              const trackInfo = await retryResponse.json();
+              setCurrentTrack(trackInfo);
+            } catch {
+              // ignore json parse error
+            }
+
             break;
           }
         }
