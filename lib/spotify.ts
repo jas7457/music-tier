@@ -1,3 +1,5 @@
+import { PopulatedTrackInfo } from "./types";
+
 export interface SpotifyTrack {
   id: string;
   name: string;
@@ -18,10 +20,18 @@ export interface SpotifyPlaylistResponse {
   };
 }
 
+export interface SpotifyUserProfile {
+  id: string;
+  display_name: string;
+  email?: string;
+  images?: Array<{ url: string; height: number; width: number }>;
+}
+
 const CLIENT_ID = "3b4aa4f5d652435db1d08f41ea973c44";
+const CLIENT_SECRET = process.env.CLIENT_SECRET || "";
 const REDIRECT_URI =
   process.env.NODE_ENV === "development"
-    ? "https://herbert-effortful-leigha.ngrok-free.app/callback"
+    ? "https://127.0.0.1:3000/callback"
     : "https://music-tier.vercel.app/callback";
 
 export const generateRandomString = (length: number): string => {
@@ -48,18 +58,15 @@ export const base64encode = (input: ArrayBuffer): string => {
     .replace(/\+/g, "-")
     .replace(/\//g, "_");
 };
+const codeVerifier = generateRandomString(64);
 
 export const initiateSpotifyAuth = async (): Promise<void> => {
   if (!CLIENT_ID) {
     throw new Error("Spotify Client ID not configured");
   }
 
-  const codeVerifier = generateRandomString(64);
-  const hashed = await sha256(codeVerifier);
-  const codeChallenge = base64encode(hashed);
-
   const scope =
-    "playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state";
+    "user-read-email playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state";
   const authUrl = new URL("https://accounts.spotify.com/authorize");
 
   window.localStorage.setItem("code_verifier", codeVerifier);
@@ -68,14 +75,38 @@ export const initiateSpotifyAuth = async (): Promise<void> => {
     response_type: "code",
     client_id: CLIENT_ID,
     scope,
-    code_challenge_method: "S256",
-    code_challenge: codeChallenge,
     redirect_uri: REDIRECT_URI,
   };
 
   authUrl.search = new URLSearchParams(params).toString();
   window.location.href = authUrl.toString();
 };
+
+export async function callbackAuth(code: string): Promise<string> {
+  const response = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization:
+        "Basic " +
+        Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
+    },
+    body: new URLSearchParams({
+      client_id: CLIENT_ID,
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: REDIRECT_URI,
+      code_verifier: codeVerifier,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to exchange code for token");
+  }
+
+  const data = await response.json();
+  return data.access_token;
+}
 
 export const exchangeCodeForToken = async (code: string): Promise<string> => {
   if (!CLIENT_ID) {
@@ -91,6 +122,9 @@ export const exchangeCodeForToken = async (code: string): Promise<string> => {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
+      Authorization:
+        "Basic " +
+        Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
     },
     body: new URLSearchParams({
       client_id: CLIENT_ID,
@@ -129,6 +163,36 @@ export const fetchPlaylist = async (
   return response.json();
 };
 
+export const getSpotifyUserProfile = async (
+  accessToken: string
+): Promise<SpotifyUserProfile> => {
+  const response = await fetch("https://api.spotify.com/v1/me", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user profile: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
+export async function getSpotifyDevices(accessToken: string) {
+  const response = await fetch("https://api.spotify.com/v1/me/player/devices", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user profile: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
 export const extractPlaylistId = (url: string): string | null => {
   const patterns = [
     /spotify:playlist:([a-zA-Z0-9]+)/,
@@ -144,3 +208,56 @@ export const extractPlaylistId = (url: string): string | null => {
 
   return null;
 };
+
+export function extractTrackIdFromUrl(url: string): string | null {
+  const patterns = [
+    /spotify:track:([a-zA-Z0-9]+)/,
+    /open\.spotify\.com\/track\/([a-zA-Z0-9]+)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) {
+      return match[1];
+    }
+  }
+
+  return null;
+}
+
+export function getTrackUrlFromId(trackId: string): string {
+  if (!trackId) {
+    return "";
+  }
+  return `https://open.spotify.com/track/${trackId}`;
+}
+
+export const getTrackDetails = async (
+  trackId: string,
+  accessToken: string
+): Promise<PopulatedTrackInfo> => {
+  const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch track: ${response.statusText}`);
+  }
+
+  const spotifyTrack: SpotifyTrack = await response.json();
+  return spotifyTrackToSubmission(spotifyTrack);
+};
+
+export function spotifyTrackToSubmission(
+  track: SpotifyTrack
+): PopulatedTrackInfo {
+  return {
+    trackId: track.id,
+    title: track.name,
+    artists: track.artists.map((artist) => artist.name),
+    albumName: track.album.name,
+    albumImageUrl: track.album.images[0]?.url || "",
+  };
+}

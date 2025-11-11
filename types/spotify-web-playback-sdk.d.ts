@@ -1,12 +1,3 @@
-declare global {
-  interface Window {
-    onSpotifyWebPlaybackSDKReady: () => void;
-    Spotify: {
-      Player: new (options: Spotify.PlayerOptions) => Spotify.Player;
-    };
-  }
-}
-
 declare namespace Spotify {
   interface PlayerOptions {
     name: string;
@@ -78,4 +69,11 @@ declare namespace Spotify {
   }
 }
 
-export {};
+declare global {
+  interface Window {
+    onSpotifyWebPlaybackSDKReady: () => void;
+    Spotify: {
+      Player: new (options: Spotify.PlayerOptions) => Spotify.Player;
+    };
+  }
+}
