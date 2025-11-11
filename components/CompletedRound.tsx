@@ -220,5 +220,5 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
     });
   }, [round, submissionsWithScores, user?._id, usersById]);
 
-  return <div className="mt-4 space-y-6">{submissionMarkup}</div>;
+  return <div className="space-y-6">{submissionMarkup}</div>;
 }

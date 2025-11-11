@@ -177,7 +177,7 @@ export default function VotingRound({
   })();
 
   return (
-    <div className="mt-4 space-y-4">
+    <div className="space-y-4">
       {/* Voting Summary */}
       <Card
         className={twMerge(

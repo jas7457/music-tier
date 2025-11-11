@@ -159,7 +159,7 @@ export function Round({
 
       {/* Song Submission Section */}
       {round.stage === "completed" && (
-        <div className="flex justify-center gap-2 my-4">
+        <div className="flex justify-center gap-2">
           <ToggleButton
             onClick={() => setShowVotesView(false)}
             selected={!showVotesView}
