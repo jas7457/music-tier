@@ -6,6 +6,7 @@ import Card from "./Card";
 import { UsersList } from "./UsersList";
 import { PopulatedRound, PopulatedUser } from "@/lib/types";
 import { UserGuess } from "./UserGuess";
+import { BlockQuote } from "./BlockQuote";
 
 interface VotingRoundProps {
   round: PopulatedRound;
@@ -229,8 +230,8 @@ export default function VotingRound({
                     {submission.trackInfo.albumName}
                   </p>
                   {submission.note && (
-                    <p className="text-xs text-gray-600 mt-2 italic">
-                      &quot;{submission.note}&quot;
+                    <p className="text-xs text-gray-600 mt-1 italic">
+                      {submission.note}
                     </p>
                   )}
                 </div>
@@ -322,9 +323,9 @@ export default function VotingRound({
                       className="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     />
                   ) : votes[submission._id]?.note ? (
-                    <div className="text-xs text-gray-500">
-                      Note: {votes[submission._id].note}
-                    </div>
+                    <BlockQuote className="text-xs text-gray-500">
+                      {votes[submission._id].note}
+                    </BlockQuote>
                   ) : null}
                 </div>
               )}

@@ -5,6 +5,7 @@ import AlbumArt from "./AlbumArt";
 import Card from "./Card";
 import { PopulatedRound, PopulatedUser } from "@/lib/types";
 import { Avatar } from "./Avatar";
+import { MultiLine } from "./MultiLine";
 
 interface CompletedRoundProps {
   round: PopulatedRound;
@@ -121,7 +122,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
 
                   {submission.note && (
                     <p className="text-sm text-gray-700 italic">
-                      &quot;{submission.note}&quot;
+                      &quot;<MultiLine>{submission.note}</MultiLine>&quot;
                     </p>
                   )}
                 </div>
@@ -178,7 +179,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                       </div>
                       {voter.note && (
                         <div className="text-sm text-gray-600 mt-1">
-                          {voter.note}
+                          <MultiLine>{voter.note}</MultiLine>
                         </div>
                       )}
                     </div>

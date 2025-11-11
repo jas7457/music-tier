@@ -3,7 +3,6 @@ import { verifySessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
 import { Vote } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
-import { getNowInEasternTime } from "@/lib/utils/time";
 import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 
 export async function POST(
@@ -31,7 +30,7 @@ export async function POST(
 
     await votesCollection.deleteMany({ userId: payload.userId, roundId });
 
-    const now = getNowInEasternTime().getTime();
+    const now = Date.now();
 
     const data = Object.entries(body).map(([submissionId, entry]) => {
       const { points, note, userGuessId } = entry as {

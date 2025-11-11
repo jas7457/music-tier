@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { PopulatedUser } from "@/lib/types";
 import { Avatar } from "./Avatar";
-import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 
 type UserGuessProps = {
   isEditable?: boolean;
@@ -60,11 +60,9 @@ export function UserGuess({
 
     return (
       <div
-        className={clsx(
+        className={twMerge(
           "w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center transition-colors border-gray-300 overflow-hidden",
-          {
-            "bg-gray-200": !selectedUser,
-          }
+          selectedUser ? "" : "bg-gray-100"
         )}
         title={titleText}
       >

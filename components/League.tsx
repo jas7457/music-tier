@@ -9,6 +9,8 @@ import { PopulatedLeague } from "@/lib/types";
 import { CreateRound } from "./CreateRound";
 import { MaybeLink } from "./MaybeLink";
 import { Avatar } from "./Avatar";
+import { MultiLine } from "./MultiLine";
+import { Pill } from "./Pill";
 
 export function League({ league }: { league: PopulatedLeague }) {
   const { user } = useAuth();
@@ -55,11 +57,11 @@ export function League({ league }: { league: PopulatedLeague }) {
     }
 
     return (
-      <div className="mb-6">
+      <div>
         <h3 className="text-lg font-semibold mb-3 text-green-700">
           Current Round
         </h3>
-        <Card className="border-green-200 bg-green-50 p-4">
+        <Card className="border-green-200 bg-green-50 p-4" variant="outlined">
           <Round
             key={league.rounds.current.stage}
             currentUser={user}
@@ -71,43 +73,27 @@ export function League({ league }: { league: PopulatedLeague }) {
     );
   })();
 
-  const createRoundMarkup = (() => {
-    // Only show if user hasn't created their round yet
-    if (userHasCreatedRound) {
-      return null;
-    }
-
-    return (
-      <div className="mb-6">
-        <CreateRound leagueId={league._id} />
-      </div>
-    );
-  })();
-
-  const { text, color } = (() => {
+  const text = (() => {
     switch (league.status) {
       case "active":
-        return { text: "Active", color: "bg-green-100 text-green-800" };
+        return "Active";
       case "completed":
-        return {
-          text: "Completed",
-          color: "bg-gray-200 text-gray-700",
-        };
+        return "Completed";
       case "upcoming":
-        return { text: "Upcoming", color: "bg-blue-100 text-blue-800" };
+        return "Upcoming";
       case "pending":
-        return { text: "Pending", color: "bg-yellow-100 text-yellow-800" };
+        return "Pending";
       default:
-        return { text: "Unknown", color: "" };
+        return "Unexpected league status. If you see this, tell Jason";
     }
   })();
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
       {/* League Header */}
-      <div className="border-b pb-4 mb-6">
-        <div className="flex items-center">
-          <div className="flex items-center grow">
+      <div className="border-b pb-4">
+        <div className="flex flex-wrap items-center">
+          <div className="flex items-center gap-2 grow">
             <MaybeLink
               href={`/leagues/${league._id}`}
               className="text-2xl font-bold mb-2"
@@ -115,19 +101,18 @@ export function League({ league }: { league: PopulatedLeague }) {
               {league.title}
             </MaybeLink>
 
-            <span
-              className={`ml-3 inline-block rounded-full px-3 py-1 text-xs font-semibold ${color}`}
-            >
-              {text}
-            </span>
+            <Pill status={league.status}>{text}</Pill>
           </div>
           <div className="flex flex-wrap items-center gap-1">
             {league.users.map((user) => (
-              <Avatar key={user._id} user={user} />
+              <Avatar key={user._id} user={user} includeTooltip />
             ))}
           </div>
         </div>
-        <p className="text-gray-600 mb-3">{league.description}</p>
+        <p className="text-gray-600 mb-3">
+          <MultiLine>{league.description}</MultiLine>
+        </p>
+
         <div className="flex gap-4 text-sm text-gray-500">
           <span>{league.numberOfRounds} rounds</span>
           <span>•</span>
@@ -137,15 +122,54 @@ export function League({ league }: { league: PopulatedLeague }) {
         </div>
       </div>
 
+      {/* Create Round */}
+      {userHasCreatedRound ? null : <CreateRound leagueId={league._id} />}
+
       {/* Current Round */}
       {roundsMarkup}
 
-      {/* Create Round */}
-      {createRoundMarkup}
+      {/* Upcoming Rounds */}
+      {league.rounds.upcoming.length > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold mb-3 text-purple-700">
+            Upcoming Rounds
+          </h3>
+          <div className="space-y-3">
+            {league.rounds.upcoming.map((round) => (
+              <Card
+                key={round._id.toString()}
+                variant="outlined"
+                className="border-purple-200 bg-purple-50 p-4"
+              >
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <MaybeLink
+                    href={`/leagues/${league._id}/rounds/${round._id}`}
+                    className="font-semibold"
+                  >
+                    Round {round.roundIndex + 1}: {round.title}
+                  </MaybeLink>
+
+                  <Avatar
+                    user={round.creatorObject}
+                    tooltipText={`Created by ${round.creatorObject.firstName}`}
+                    includeTooltip
+                  />
+                </div>
+                <p className="text-gray-600 text-sm mb-2">
+                  <MultiLine>{round.description}</MultiLine>
+                </p>
+                <div className="text-xs text-gray-500">
+                  Submissions start: {formatDate(round.submissionStartDate)}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Completed Rounds */}
       {league.rounds.completed.length > 0 && league.status !== "completed" && (
-        <div className="mb-6">
+        <div>
           <h3 className="text-lg font-semibold mb-3 text-gray-700">
             Completed Rounds
           </h3>
@@ -156,47 +180,25 @@ export function League({ league }: { league: PopulatedLeague }) {
                 variant="outlined"
                 className="bg-gray-50 p-4"
               >
-                <MaybeLink
-                  href={`/leagues/${league._id}/rounds/${round._id}`}
-                  className="font-semibold mb-1"
-                >
-                  Round {round.roundIndex + 1}: {round.title}
-                </MaybeLink>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <MaybeLink
+                    href={`/leagues/${league._id}/rounds/${round._id}`}
+                    className="font-semibold"
+                  >
+                    Round {round.roundIndex + 1}: {round.title}
+                  </MaybeLink>
+                  <Avatar
+                    user={round.creatorObject}
+                    tooltipText={`Submitted by ${round.creatorObject.firstName}`}
+                    includeTooltip
+                  />
+                </div>
+
                 <p className="text-gray-600 text-sm mb-2">
                   {round.description}
                 </p>
                 <div className="text-xs text-gray-500">
                   Ended: {formatDate(round.votingEndDate)}
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Upcoming Rounds */}
-      {league.rounds.upcoming.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold mb-3 text-blue-700">
-            Upcoming Rounds
-          </h3>
-          <div className="space-y-3">
-            {league.rounds.upcoming.map((round) => (
-              <Card
-                key={round._id.toString()}
-                className="border-blue-200 bg-blue-50 p-4"
-              >
-                <MaybeLink
-                  href={`/leagues/${league._id}/rounds/${round._id}`}
-                  className="font-semibold mb-1"
-                >
-                  Round {round.roundIndex + 1}: {round.title}
-                </MaybeLink>
-                <p className="text-gray-600 text-sm mb-2">
-                  {round.description}
-                </p>
-                <div className="text-xs text-gray-500">
-                  Submissions start: {formatDate(round.submissionStartDate)}
                 </div>
               </Card>
             ))}
@@ -212,6 +214,6 @@ export function League({ league }: { league: PopulatedLeague }) {
             No rounds yet in this league.
           </p>
         )}
-    </>
+    </div>
   );
 }

@@ -7,6 +7,8 @@ import CompletedRound from "./CompletedRound";
 import { PopulatedLeague, PopulatedRound, PopulatedUser } from "@/lib/types";
 import { MaybeLink } from "./MaybeLink";
 import { Avatar } from "./Avatar";
+import { MultiLine } from "./MultiLine";
+import { Pill } from "./Pill";
 
 type FullLeague = Pick<
   PopulatedLeague,
@@ -24,57 +26,74 @@ export function Round({
 }) {
   const [showVotesView, setShowVotesView] = useState(false);
 
-  const bodyMarkup = useMemo(() => {
+  const { bodyMarkup, stageTitle } = useMemo(() => {
     switch (round.stage) {
       case "completed": {
         if (showVotesView) {
-          return (
+          return {
+            stageTitle: "Completed",
+            bodyMarkup: (
+              <VotingRound
+                key={round.stage}
+                round={round}
+                league={league}
+                currentUser={currentUser}
+              />
+            ),
+          };
+        } else {
+          return {
+            stageTitle: "Completed",
+            bodyMarkup: <CompletedRound round={round} users={league.users} />,
+          };
+        }
+      }
+      case "submission": {
+        return {
+          stageTitle: "Submission",
+          bodyMarkup: (
+            <div
+              className="flex flex-col gap-4"
+              key={round.userSubmission?.trackInfo.trackId ?? "no-submission"}
+            >
+              <SongSubmission
+                userSubmission={round.userSubmission}
+                round={round}
+                roundEndDate={round.votingEndDate}
+              />
+              <SubmittedUsers
+                submissions={round.submissions}
+                users={league.users}
+              />
+              <UnsubmittedUsers
+                submissions={round.submissions}
+                users={league.users}
+              />
+            </div>
+          ),
+        };
+      }
+      case "voting":
+      case "currentUserVotingCompleted": {
+        return {
+          stageTitle: round.stage === "voting" ? "Voting" : "Votes Pending",
+          bodyMarkup: (
             <VotingRound
               key={round.stage}
               round={round}
               league={league}
               currentUser={currentUser}
             />
-          );
-        } else {
-          return <CompletedRound round={round} users={league.users} />;
-        }
-      }
-      case "submission": {
-        return (
-          <div
-            className="flex flex-col gap-4"
-            key={round.userSubmission?.trackInfo.trackId ?? "no-submission"}
-          >
-            <SongSubmission
-              userSubmission={round.userSubmission}
-              round={round}
-              roundEndDate={round.votingEndDate}
-            />
-            <SubmittedUsers
-              submissions={round.submissions}
-              users={league.users}
-            />
-            <UnsubmittedUsers
-              submissions={round.submissions}
-              users={league.users}
-            />
-          </div>
-        );
-      }
-      case "voting":
-      case "currentUserVotingCompleted": {
-        return (
-          <VotingRound
-            key={round.stage}
-            round={round}
-            league={league}
-            currentUser={currentUser}
-          />
-        );
+          ),
+        };
       }
       default: {
-        return null;
+        return {
+          stageTitle: "Unknown",
+          bodyMarkup: (
+            <div>Invalid round stage. If you see this, tell Jason.</div>
+          ),
+        };
       }
     }
   }, [currentUser, league, round, showVotesView]);
@@ -82,17 +101,20 @@ export function Round({
   return (
     <div>
       <div className="flex justify-between items-center">
-        <div>
+        <div className="flex items-center gap-2">
           <MaybeLink
             href={`/leagues/${league._id}/rounds/${round._id}`}
             className="font-semibold text-lg mb-1"
           >
             Round {round.roundIndex + 1}: {round.title}
           </MaybeLink>
-          <p className="text-gray-600 text-sm mb-2">{round.description}</p>
+          <Pill status={round.stage}>{stageTitle}</Pill>
         </div>
         <Avatar user={round.creatorObject} size={10} includeTooltip />
       </div>
+      <p className="text-gray-600 text-sm mb-2">
+        <MultiLine>{round.description}</MultiLine>
+      </p>
       <div className="flex gap-4 text-xs text-gray-500">
         <span>Submissions start: {formatDate(round.submissionStartDate)}</span>
         <span>•</span>

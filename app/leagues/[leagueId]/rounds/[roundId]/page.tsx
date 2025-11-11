@@ -4,7 +4,6 @@ import { verifySessionToken } from "@/lib/auth";
 import { getLeagueById, getUser, getUserLeagues } from "@/lib/data";
 import { RoundPageClient } from "./RoundPageClient";
 import Card from "@/components/Card";
-import { getNowInEasternTime } from "@/lib/utils/time";
 
 type PageProps = {
   params: { roundId: string; leagueId: string };
@@ -55,7 +54,7 @@ export default async function RoundPage({ params }: PageProps) {
         return currentRound;
       }
 
-      const now = getNowInEasternTime().getTime();
+      const now = Date.now();
       const closestRound = allRounds.sort((roundA, roundB) => {
         const distA = Math.abs(now - roundA.submissionStartDate);
         const distB = Math.abs(now - roundB.submissionStartDate);

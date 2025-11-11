@@ -4,10 +4,12 @@ export function Avatar({
   user,
   size = 8,
   includeTooltip,
+  tooltipText = `${user.firstName} ${user.lastName}`,
 }: {
   user: PopulatedUser;
   size?: number;
   includeTooltip?: boolean;
+  tooltipText?: string;
 }) {
   const fullName = `${user.firstName} ${user.lastName}`;
   const initial = user.userName.charAt(0).toUpperCase();
@@ -47,7 +49,7 @@ export function Avatar({
 
       {includeTooltip && (
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-          {fullName}
+          {tooltipText}
         </div>
       )}
     </div>

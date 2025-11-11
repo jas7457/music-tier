@@ -6,7 +6,7 @@ import { PopulatedRound, PopulatedSubmission } from "@/lib/types";
 import { getTrackDetails } from "@/lib/api";
 import { extractTrackIdFromUrl, getTrackUrlFromId } from "@/lib/spotify";
 import { useAuth } from "@/lib/AuthContext";
-import { getNowInEasternTime } from "@/lib/utils/time";
+import { MultiLine } from "./MultiLine";
 
 interface SongSubmissionProps {
   round: PopulatedRound;
@@ -42,7 +42,7 @@ export function SongSubmission({
           _id: "",
           roundId,
           userId: user?._id || "",
-          submissionDate: getNowInEasternTime().getTime(),
+          submissionDate: Date.now(),
           note: "",
           trackInfo: {
             trackId: "",
@@ -146,9 +146,7 @@ export function SongSubmission({
     }
   };
 
-  const isRoundEnded = roundEndDate
-    ? roundEndDate <= getNowInEasternTime().getTime()
-    : false;
+  const isRoundEnded = roundEndDate ? roundEndDate <= Date.now() : false;
 
   if (submission && isRealSubmission && !isEditing) {
     return (
@@ -183,7 +181,7 @@ export function SongSubmission({
             </p>
             {submission.note && (
               <p className="text-xs text-gray-500 mt-1 italic">
-                {submission.note}
+                <MultiLine>{submission.note}</MultiLine>
               </p>
             )}
           </div>
