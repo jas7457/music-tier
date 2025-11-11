@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { PopulatedLeague } from "@/lib/types";
 import { CreateRound } from "./CreateRound";
 import { MaybeLink } from "./MaybeLink";
@@ -9,9 +9,13 @@ import { Avatar } from "./Avatar";
 import { MultiLine } from "./MultiLine";
 import { Pill } from "./Pill";
 import { LeagueRounds } from "./LeagueRounds";
+import { LeagueStandings } from "./LeagueStandings";
+import { ToggleButton } from "./ToggleButton";
+import { getAllRounds } from "@/lib/utils/getAllRounds";
 
 export function League({ league }: { league: PopulatedLeague }) {
   const { user } = useAuth();
+  const [showStandings, setShowStandings] = useState(false);
 
   const userHasCreatedRound = useMemo(() => {
     if (!user) {
@@ -19,14 +23,10 @@ export function League({ league }: { league: PopulatedLeague }) {
     }
 
     // Check if user has created their round for this league
-    const allRounds = [
-      league.rounds.current,
-      ...league.rounds.upcoming,
-      ...league.rounds.completed,
-    ].filter((r) => r !== undefined);
+    const allRounds = getAllRounds(league);
 
     return allRounds.some((round) => round.creatorId === user._id);
-  }, [league.rounds, user]);
+  }, [league, user]);
 
   if (!user) {
     return null;
@@ -84,7 +84,28 @@ export function League({ league }: { league: PopulatedLeague }) {
       {/* Create Round */}
       {userHasCreatedRound ? null : <CreateRound leagueId={league._id} />}
 
-      <LeagueRounds league={league} />
+      {/* Toggle between Rounds and Standings */}
+      <div className="flex justify-center gap-2">
+        <ToggleButton
+          onClick={() => setShowStandings(false)}
+          selected={!showStandings}
+        >
+          Rounds
+        </ToggleButton>
+        <ToggleButton
+          onClick={() => setShowStandings(true)}
+          selected={showStandings}
+        >
+          Standings
+        </ToggleButton>
+      </div>
+
+      {/* Content */}
+      {showStandings ? (
+        <LeagueStandings league={league} />
+      ) : (
+        <LeagueRounds league={league} />
+      )}
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { MaybeLink } from "./MaybeLink";
 import { Avatar } from "./Avatar";
 import { MultiLine } from "./MultiLine";
 import { Pill } from "./Pill";
+import { ToggleButton } from "./ToggleButton";
 
 type FullLeague = Pick<
   PopulatedLeague,
@@ -176,28 +177,5 @@ export function Round({
       )}
       {bodyMarkup}
     </div>
-  );
-}
-
-function ToggleButton({
-  children,
-  onClick,
-  selected,
-}: {
-  onClick: () => void;
-  children: React.ReactNode;
-  selected: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-        selected
-          ? "bg-blue-600 text-white"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }`}
-    >
-      {children}
-    </button>
   );
 }

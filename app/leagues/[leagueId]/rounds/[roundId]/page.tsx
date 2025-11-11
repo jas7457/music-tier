@@ -4,6 +4,7 @@ import { verifySessionToken } from "@/lib/auth";
 import { getLeagueById, getUser, getUserLeagues } from "@/lib/data";
 import { RoundPageClient } from "./RoundPageClient";
 import Card from "@/components/Card";
+import { getAllRounds } from "@/lib/utils/getAllRounds";
 
 type PageProps = {
   params: { roundId: string; leagueId: string };
@@ -40,12 +41,7 @@ export default async function RoundPage({ params }: PageProps) {
       return;
     }
 
-    const allRounds = [
-      league.rounds.current,
-      ...league.rounds.upcoming,
-      ...league.rounds.completed,
-    ].filter((round) => round !== undefined);
-
+    const allRounds = getAllRounds(league);
     if (roundId === "current") {
       const currentRound = allRounds.find(
         (round) => !["upcoming", "unknown", "completed"].includes(round.stage)

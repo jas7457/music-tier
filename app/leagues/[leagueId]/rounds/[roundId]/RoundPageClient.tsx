@@ -7,10 +7,7 @@ import { useRealTimeUpdates } from "@/lib/PusherContext";
 
 type RoundPageClientProps = {
   round: PopulatedRound;
-  league: Pick<
-    PopulatedLeague,
-    "daysForSubmission" | "daysForVoting" | "users" | "votesPerRound" | "_id"
-  >;
+  league: PopulatedLeague;
   currentUser: PopulatedUser;
 };
 

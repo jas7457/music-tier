@@ -63,25 +63,25 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
           currentHighScore = totalPoints;
         }
 
-        const isGold = currentPlace === 1;
-        const isSilver = currentPlace === 2;
-        const isBronze = currentPlace === 3;
+        const isFirst = currentPlace === 1;
+        const isSecond = currentPlace === 2;
+        const isThird = currentPlace === 3;
 
-        if (isGold) {
+        if (isFirst) {
           return {
             position: "1st",
-            emoji: "🏆",
+            emoji: "🥇",
             cardClassName: "border-2 border-yellow-400 bg-yellow-50",
             innerClassName: "border-yellow-400",
           };
-        } else if (isSilver) {
+        } else if (isSecond) {
           return {
             position: "2nd",
             emoji: "🥈",
             cardClassName: "border-2 border-gray-400 bg-gray-50",
             innerClassName: "border-gray-400",
           };
-        } else if (isBronze) {
+        } else if (isThird) {
           return {
             position: "3rd",
             emoji: "🥉",
