@@ -6,8 +6,10 @@ export async function POST() {
   // Clear session token
   response.cookies.delete('session_token');
 
-  // Also clear Spotify token
+  // Clear all Spotify tokens
   response.cookies.delete('spotify_access_token');
+  response.cookies.delete('spotify_refresh_token');
+  response.cookies.delete('spotify_token_expires_at');
 
   return response;
 }

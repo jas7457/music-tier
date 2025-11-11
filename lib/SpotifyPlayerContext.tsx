@@ -74,6 +74,43 @@ export function SpotifyPlayerProvider({
     playlist.length > 0 && currentTrackIndex < playlist.length - 1;
   const hasPreviousTrack = playlist.length > 0 && currentTrackIndex > 0;
 
+  // Auto-refresh Spotify token before expiration
+  useEffect(() => {
+    const checkAndRefreshToken = async () => {
+      const expiresAt = Cookies.get("spotify_token_expires_at");
+      if (!expiresAt) return;
+
+      const expiresAtTime = parseInt(expiresAt, 10);
+      const timeUntilExpiry = expiresAtTime - Date.now();
+      const fiveMinutes = 5 * 60 * 1000;
+
+      const doRefresh = async () => {
+        try {
+          await fetch("/api/spotify/refresh", { method: "POST" });
+        } catch (error) {
+          setError(`Failed to refresh Spotify token, ${error}`);
+          console.error("Failed to refresh Spotify token:", error);
+        }
+        checkAndRefreshToken();
+      };
+
+      // If token expires in less than 5 minutes, refresh it now
+      if (timeUntilExpiry < fiveMinutes) {
+        await doRefresh();
+      } else {
+        // Schedule refresh for 5 minutes before expiration
+        const refreshTime = timeUntilExpiry - fiveMinutes;
+        const timeoutId = setTimeout(async () => {
+          await doRefresh();
+        }, refreshTime);
+
+        return () => clearTimeout(timeoutId);
+      }
+    };
+
+    checkAndRefreshToken();
+  }, []);
+
   // Initialize Spotify Web Playback SDK
   useEffect(() => {
     const token = Cookies.get("spotify_access_token");
@@ -94,7 +131,10 @@ export function SpotifyPlayerProvider({
     window.onSpotifyWebPlaybackSDKReady = () => {
       spotifyPlayer = new window.Spotify.Player({
         name: "Music Tier Player",
-        getOAuthToken: (cb) => cb(token),
+        getOAuthToken: (cb) => {
+          const currentToken = Cookies.get("spotify_access_token");
+          cb(currentToken || token);
+        },
         volume: volume,
       });
 

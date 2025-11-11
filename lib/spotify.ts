@@ -82,7 +82,16 @@ export const initiateSpotifyAuth = async (): Promise<void> => {
   window.location.href = authUrl.toString();
 };
 
-export async function callbackAuth(code: string): Promise<string> {
+export interface SpotifyTokenResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  token_type: string;
+}
+
+export async function callbackAuth(
+  code: string
+): Promise<SpotifyTokenResponse> {
   const response = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
@@ -105,7 +114,43 @@ export async function callbackAuth(code: string): Promise<string> {
   }
 
   const data = await response.json();
-  return data.access_token;
+  return {
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+    expires_in: data.expires_in,
+    token_type: data.token_type,
+  };
+}
+
+export async function refreshAccessToken(
+  refreshToken: string
+): Promise<SpotifyTokenResponse> {
+  const response = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization:
+        "Basic " +
+        Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
+    },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+      client_id: CLIENT_ID,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to refresh access token");
+  }
+
+  const data = await response.json();
+  return {
+    access_token: data.access_token,
+    refresh_token: data.refresh_token || refreshToken, // Use old refresh_token if new one not provided
+    expires_in: data.expires_in,
+    token_type: data.token_type,
+  };
 }
 
 export const fetchPlaylist = async (

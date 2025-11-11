@@ -88,7 +88,6 @@ export async function POST(request: NextRequest) {
     // Set cookie
     const response = NextResponse.json({ user: newUser });
     response.cookies.set("session_token", sessionToken, {
-      httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 7 days
