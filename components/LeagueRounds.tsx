@@ -182,7 +182,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
         league.rounds.completed.length === 0 &&
         league.rounds.upcoming.length === 0 && (
           <p className="text-gray-500 text-center py-4">
-            No rounds yet in this league.
+            No rounds submitted in this league.
           </p>
         )}
     </div>
