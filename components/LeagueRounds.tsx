@@ -99,6 +99,45 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
         </div>
       )}
 
+      {/* Pending Rounds */}
+      {league.rounds.pending.length > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold mb-3 text-gray-700">
+            Pending Rounds
+          </h3>
+          <div className="space-y-3">
+            {league.rounds.pending.map((round) => (
+              <Card
+                key={round._id.toString()}
+                variant="outlined"
+                className="border-gray-200 bg-gray-50 p-4"
+              >
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <div>
+                    <div className="font-semibold">
+                      Round {round.roundIndex + 1}
+                      {round.title ? `: ${round.title}` : ""}
+                    </div>
+
+                    {round.description && (
+                      <p className="text-gray-600 text-sm">
+                        <MultiLine>{round.description}</MultiLine>
+                      </p>
+                    )}
+                  </div>
+
+                  <Avatar
+                    user={round.creatorObject}
+                    tooltipText={`Created by ${round.creatorObject.firstName}`}
+                    includeTooltip
+                  />
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Completed Rounds */}
       {league.rounds.completed.length > 0 && league.status !== "completed" && (
         <div>

@@ -23,7 +23,10 @@ export function League({ league }: { league: PopulatedLeague }) {
     }
 
     // Check if user has created their round for this league
-    const allRounds = getAllRounds(league);
+    const allRounds = [
+      ...getAllRounds(league),
+      ...league.rounds.pending.filter((round) => round._id),
+    ];
 
     return allRounds.some((round) => round.creatorId === user._id);
   }, [league, user]);

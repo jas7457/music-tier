@@ -40,7 +40,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
           points: vote.points,
           note: vote.note,
         }))
-        .filter((voter) => voter.user && voter.user._id !== submission.userId)
+        .filter((voter) => voter.user)
         .sort((a, b) => b.points - a.points);
 
       return {
@@ -55,164 +55,166 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
   }, [round.submissions, round.votes, usersById]);
 
   const submissionMarkup = useMemo(() => {
-    let currentHighScore = -1;
-    let currentPlace = 0;
+    let currentHighScore = submissionsWithScores[0]?.totalPoints || 0;
+    let currentPlace = 1;
 
-    return submissionsWithScores.map(({ submission, totalPoints, voters }) => {
-      const { position, emoji, cardClassName, innerClassName } = (() => {
-        if (totalPoints > currentHighScore) {
-          currentPlace += 1;
-          currentHighScore = totalPoints;
-        }
+    return submissionsWithScores.map(
+      ({ submission, totalPoints, voters }, index) => {
+        const { emoji, cardClassName, innerClassName } = (() => {
+          const thisPlace =
+            totalPoints === currentHighScore ? currentPlace : index + 1;
+          if (totalPoints < currentHighScore) {
+            currentPlace = thisPlace;
+            currentHighScore = totalPoints;
+          }
 
-        const isFirst = currentPlace === 1;
-        const isSecond = currentPlace === 2;
-        const isThird = currentPlace === 3;
+          const isFirst = currentPlace === 1;
+          const isSecond = currentPlace === 2;
+          const isThird = currentPlace === 3;
 
-        if (isFirst) {
-          return {
-            position: "1st",
-            emoji: "🥇",
-            cardClassName: "border-2 border-yellow-400 bg-yellow-50",
-            innerClassName: "border-yellow-400",
-          };
-        } else if (isSecond) {
-          return {
-            position: "2nd",
-            emoji: "🥈",
-            cardClassName: "border-2 border-gray-400 bg-gray-50",
-            innerClassName: "border-gray-400",
-          };
-        } else if (isThird) {
-          return {
-            position: "3rd",
-            emoji: "🥉",
-            cardClassName: "border-2 border-[#cd7f32] bg-[#f9f2ec]",
-            innerClassName: "border-[#cd7f32]",
-          };
-        } else {
-          return {
-            position: "",
-            emoji: "",
-            cardClassName: "",
-            innerClassName: "",
-          };
-        }
-      })();
+          if (isFirst) {
+            return {
+              emoji: "🥇",
+              cardClassName: "border-2 border-yellow-400 bg-yellow-50",
+              innerClassName: "border-yellow-400",
+            };
+          } else if (isSecond) {
+            return {
+              emoji: "🥈",
+              cardClassName: "border-2 border-gray-400 bg-gray-50",
+              innerClassName: "border-gray-400",
+            };
+          } else if (isThird) {
+            return {
+              emoji: "🥉",
+              cardClassName: "border-2 border-[#cd7f32] bg-[#f9f2ec]",
+              innerClassName: "border-[#cd7f32]",
+            };
+          } else {
+            return {
+              emoji: "",
+              cardClassName: "",
+              innerClassName: "",
+            };
+          }
+        })();
 
-      const submitter = usersById[submission.userId];
-      const yourVote = round.votes.find(
-        (vote) => vote.userGuessId === user?._id
-      );
+        const submitter = usersById[submission.userId];
+        const yourVote = round.votes.find(
+          (vote) => vote.userGuessId === user?._id
+        );
 
-      return (
-        <Card
-          key={submission._id}
-          className={twMerge("relative", cardClassName)}
-        >
-          {/* Submission Header */}
-          <div className="flex gap-4 p-6">
-            <div className="flex grow gap-4 items-center">
-              {/* Album Art */}
-              <AlbumArt
-                trackInfo={submission.trackInfo}
-                size={120}
-                round={round}
-              />
+        return (
+          <Card
+            key={submission._id}
+            className={twMerge("relative", cardClassName)}
+          >
+            {/* Submission Header */}
+            <div className="flex gap-4 p-6">
+              <div className="flex grow gap-4 items-center">
+                {/* Album Art */}
+                <AlbumArt
+                  trackInfo={submission.trackInfo}
+                  size={120}
+                  round={round}
+                />
 
-              {/* Track Info */}
-              <div className="flex-1 min-w-0 flex flex-col gap-1">
-                <h5 className="font-semibold text-xl">
-                  {submission.trackInfo.title}
-                </h5>
-                <div>
-                  <p className="text-base text-gray-700">
-                    {submission.trackInfo.artists.join(", ")}
-                  </p>
+                {/* Track Info */}
+                <div className="flex-1 min-w-0 flex flex-col gap-1">
+                  <h5 className="font-semibold text-xl">
+                    {submission.trackInfo.title}
+                  </h5>
+                  <div>
+                    <p className="text-base text-gray-700">
+                      {submission.trackInfo.artists.join(", ")}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {submission.trackInfo.albumName}
+                    </p>
+                  </div>
                   <p className="text-sm text-gray-600">
-                    {submission.trackInfo.albumName}
+                    Submitted by {usersById[submission.userId].userName}
                   </p>
-                </div>
-                <p className="text-sm text-gray-600">
-                  Submitted by {usersById[submission.userId].userName}
-                </p>
 
-                {submission.note && (
-                  <p className="text-sm text-gray-700 italic">
-                    &quot;<MultiLine>{submission.note}</MultiLine>&quot;
-                  </p>
+                  {submission.note && (
+                    <p className="text-sm text-gray-700 italic">
+                      &quot;<MultiLine>{submission.note}</MultiLine>&quot;
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Score */}
+              <div className="flex flex-col gap-2 items-end">
+                <div className="text-right">
+                  <div className="text-4xl font-bold text-yellow-600">
+                    {totalPoints}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {voters.length} {voters.length === 1 ? "voter" : "voters"}
+                  </div>
+                </div>
+
+                {yourVote?.userGuessObject && (
+                  <Avatar
+                    user={yourVote.userGuessObject}
+                    size={6}
+                    tooltipText={`Your guess: ${yourVote.userGuessObject.firstName} ${yourVote.userGuessObject.lastName}`}
+                    includeTooltip
+                  />
                 )}
               </div>
             </div>
 
-            {/* Score */}
-            <div className="flex flex-col gap-2 items-end">
-              <div className="text-right">
-                <div className="text-4xl font-bold text-yellow-600">
-                  {totalPoints}
-                </div>
-                <div className="text-sm text-gray-600">
-                  {voters.length} {voters.length === 1 ? "voter" : "voters"}
-                </div>
+            {/* Winner Badge */}
+            {submitter && emoji && (
+              <div
+                className={twMerge(
+                  "absolute -top-4 -left-4 bg-white rounded-full border-2 text-3xl w-12 h-12 grid items-center justify-items-center",
+                  innerClassName
+                )}
+              >
+                {emoji}
               </div>
+            )}
 
-              {yourVote?.userGuessObject && (
-                <Avatar
-                  user={yourVote.userGuessObject}
-                  size={6}
-                  tooltipText={`Your guess: ${yourVote.userGuessObject.firstName} ${yourVote.userGuessObject.lastName}`}
-                  includeTooltip
-                />
-              )}
-            </div>
-          </div>
+            {/* Voters List */}
+            {voters.length > 0 && (
+              <div className="space-y-3 border-t p-6 border-gray-200 pt-4">
+                {voters
+                  .filter((voter) => voter.points > 0 || voter.note)
+                  .map((voter) => (
+                    <div
+                      key={voter.user._id}
+                      className="flex items-center gap-3 py-2"
+                    >
+                      {/* User Avatar */}
+                      <Avatar user={voter.user} size={10} />
 
-          {/* Winner Badge */}
-          {submitter && position && (
-            <div
-              className={twMerge(
-                "absolute -top-4 -left-4 bg-white rounded-full border-2 text-3xl w-12 h-12 grid items-center justify-items-center",
-                innerClassName
-              )}
-            >
-              {emoji}
-            </div>
-          )}
-
-          {/* Voters List */}
-          {voters.length > 0 && (
-            <div className="space-y-3 border-t p-6 border-gray-200 pt-4">
-              {voters.map((voter) => (
-                <div
-                  key={voter.user._id}
-                  className="flex items-center gap-3 py-2"
-                >
-                  {/* User Avatar */}
-                  <Avatar user={voter.user} size={10} />
-
-                  {/* User Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-800">
-                      {voter.user.firstName} {voter.user.lastName}
-                    </div>
-                    {voter.note && (
-                      <div className="text-sm text-gray-600 mt-1">
-                        <BlockQuote>{voter.note}</BlockQuote>
+                      {/* User Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-gray-800">
+                          {voter.user.firstName} {voter.user.lastName}
+                        </div>
+                        {voter.note && (
+                          <div className="text-sm text-gray-600 mt-1">
+                            <BlockQuote>{voter.note}</BlockQuote>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  {/* Points */}
-                  <div className="text-xl font-bold text-gray-700 shrink-0">
-                    {voter.points}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-      );
-    });
+                      {/* Points */}
+                      <div className="text-xl font-bold text-gray-700 shrink-0">
+                        {voter.points}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </Card>
+        );
+      }
+    );
   }, [round, submissionsWithScores, user?._id, usersById]);
 
   return <div className="space-y-6">{submissionMarkup}</div>;

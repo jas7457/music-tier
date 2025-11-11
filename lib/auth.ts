@@ -32,12 +32,18 @@ const userDharam = {
   userName: "dharam66",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const userKelsey = {
+  userId: "69137dbf8741da077820dfa7",
+  userName: "khaps",
+};
+
 export function verifySessionToken(token: string): SessionPayload | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as SessionPayload;
     return {
       ...decoded,
-      ...userDharam,
+      // ...userDharam,
     };
   } catch {
     return null;

@@ -55,6 +55,15 @@ export function Round({
         }
       }
       case "submission": {
+        if (round.roundIndex !== league.rounds.completed.length) {
+          return {
+            stageTitle: "Pending",
+            bodyMarkup: (
+              <div>You cannot submit until the rounds before you do.</div>
+            ),
+          };
+        }
+
         return {
           stageTitle: "Submission",
           bodyMarkup: (
