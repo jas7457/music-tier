@@ -12,6 +12,34 @@ import {
 } from "./types";
 import { verifySessionToken } from "./auth";
 
+// Seeded random number generator
+function seededRandom(seed: string) {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    const char = seed.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+
+  return function () {
+    hash = (hash * 9301 + 49297) % 233280;
+    return hash / 233280;
+  };
+}
+
+// Fisher-Yates shuffle with seeded random
+function seededShuffle<T>(array: T[], seed: string): T[] {
+  const shuffled = [...array];
+  const random = seededRandom(seed);
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
+}
+
 const dbPromise = (async () => {
   const [
     usersCollection,
@@ -188,13 +216,29 @@ export async function getUserLeagues(
             creatorObject: usersById[round.creatorId],
           };
 
+          const roundStage = getRoundStage({
+            currentUserId: userId,
+            league,
+            round: populatedRound,
+          });
+
+          const submissionsSorted = (() => {
+            switch (roundStage) {
+              case "completed": {
+                // Return in original order for completed rounds
+                return populatedRound.submissions;
+              }
+              default: {
+                // Shuffle with round ID as seed for reproducible randomization
+                return seededShuffle(populatedRound.submissions, round._id);
+              }
+            }
+          })();
+
           return {
             ...populatedRound,
-            stage: getRoundStage({
-              currentUserId: userId,
-              league,
-              round: populatedRound,
-            }),
+            submissions: submissionsSorted,
+            stage: roundStage,
           };
         });
 
