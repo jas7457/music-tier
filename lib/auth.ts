@@ -37,7 +37,7 @@ export function verifySessionToken(token: string): SessionPayload | null {
     const decoded = jwt.verify(token, JWT_SECRET) as SessionPayload;
     return {
       ...decoded,
-      // ...userDharam,
+      ...userDharam,
     };
   } catch {
     return null;

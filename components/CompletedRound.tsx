@@ -7,6 +7,8 @@ import { PopulatedRound, PopulatedUser } from "@/lib/types";
 import { Avatar } from "./Avatar";
 import { MultiLine } from "./MultiLine";
 import { useAuth } from "@/lib/AuthContext";
+import { BlockQuote } from "./BlockQuote";
+import { twMerge } from "tailwind-merge";
 
 interface CompletedRoundProps {
   round: PopulatedRound;
@@ -104,7 +106,10 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
       );
 
       return (
-        <Card key={submission._id} className={cardClassName}>
+        <Card
+          key={submission._id}
+          className={twMerge("relative", cardClassName)}
+        >
           {/* Submission Header */}
           <div className="flex gap-4 p-6">
             <div className="flex grow gap-4 items-center">
@@ -165,22 +170,12 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
           {/* Winner Badge */}
           {submitter && position && (
             <div
-              className={`ml-4 mr-4 p-4 bg-white rounded-lg border-2 ${innerClassName}`}
+              className={twMerge(
+                "absolute -top-4 -left-4 bg-white rounded-full border-2 text-3xl w-12 h-12 grid items-center justify-items-center",
+                innerClassName
+              )}
             >
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold text-yellow-600">
-                    {position}
-                  </span>
-                  <span className="text-3xl">{emoji}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Avatar user={submitter} size={10} />
-                  <span className="font-semibold text-lg text-gray-800">
-                    {submitter.firstName} {submitter.lastName}
-                  </span>
-                </div>
-              </div>
+              {emoji}
             </div>
           )}
 
@@ -202,7 +197,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                     </div>
                     {voter.note && (
                       <div className="text-sm text-gray-600 mt-1">
-                        <MultiLine>{voter.note}</MultiLine>
+                        <BlockQuote>{voter.note}</BlockQuote>
                       </div>
                     )}
                   </div>
