@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifySessionToken } from "@/lib/auth";
-import { getLeagueById, getUser, getUserLeagues } from "@/lib/data";
+import { getLeagueById, getUser } from "@/lib/data";
 import { RoundPageClient } from "./RoundPageClient";
 import Card from "@/components/Card";
 import { getAllRounds } from "@/lib/utils/getAllRounds";
@@ -28,15 +28,12 @@ export default async function RoundPage({ params }: PageProps) {
     redirect("/");
   }
 
-  const [leagues, user] = await Promise.all([
-    getUserLeagues(payload.userId),
+  const [user, league] = await Promise.all([
     getUser(payload.userId),
+    getLeagueById(leagueId, payload.userId),
   ]);
 
-  const league = await getLeagueById(leagueId, payload.userId);
-
   const round = (() => {
-    const league = leagues.find((league) => league._id === leagueId);
     if (!league) {
       return;
     }
