@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import Landing from "@/components/Landing";
 import Home from "@/components/Home";
-import { getUserLeagues } from "@/lib/data";
+import { getUser, getUserLeagues } from "@/lib/data";
 import { verifySessionToken } from "@/lib/auth";
 
 export default async function Page() {
@@ -18,6 +18,11 @@ export default async function Page() {
   const payload = verifySessionToken(sessionToken);
 
   if (!payload) {
+    return <Landing />;
+  }
+
+  const user = await getUser(payload.userId);
+  if (!user) {
     return <Landing />;
   }
 

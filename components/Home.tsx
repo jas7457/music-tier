@@ -43,9 +43,5 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
     );
   })();
 
-  return (
-    <>
-      <div className="max-w-4xl mx-auto">{leagueMarkup}</div>
-    </>
-  );
+  return <div className="max-w-4xl mx-auto">{leagueMarkup}</div>;
 }
