@@ -324,7 +324,7 @@ function getRoundStage({
   round: Omit<PopulatedRound, "stage" | "roundIndex">;
   league: Pick<PopulatedLeague, "votesPerRound"> & { users: unknown[] };
 }): PopulatedRoundStage {
-  const now = getNowInEasternTime().getTime();
+  const now = Date.now();
 
   const allUsersSubmitted = round.submissions.length >= league.users.length;
   const roundPoints = round.votes.reduce((acc, vote) => acc + vote.points, 0);
