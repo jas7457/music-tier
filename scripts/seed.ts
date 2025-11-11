@@ -2,6 +2,7 @@ import { MongoClient, ObjectId } from "mongodb";
 import * as dotenv from "dotenv";
 import * as path from "path";
 import { League, Round, User } from "@/databaseTypes";
+import { getNowInEasternTime } from "@/lib/utils/time";
 
 type WithRealId<T> = Omit<T, "_id"> & { _id: ObjectId };
 
@@ -59,7 +60,7 @@ async function seed() {
         daysForSubmission: 5,
         daysForVoting: 3,
         votesPerRound: 7,
-        leagueStartDate: Date.now(),
+        leagueStartDate: getNowInEasternTime().getTime(),
       };
 
       await leaguesCollection.insertOne(league);

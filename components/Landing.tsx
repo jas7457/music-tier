@@ -26,6 +26,7 @@ export default function Landing() {
   });
 
   useEffect(() => {
+    debugger;
     const checkSpotifyToken = async () => {
       const token = Cookies.get("spotify_access_token");
 

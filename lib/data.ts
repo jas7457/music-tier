@@ -1,7 +1,7 @@
 import { getCollection } from "@/lib/mongodb";
 import { League, Round, SongSubmission, User, Vote } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
-import { ONE_DAY_MS } from "./utils/time";
+import { getNowInEasternTime, ONE_DAY_MS } from "./utils/time";
 import {
   PopulatedLeague,
   PopulatedRound,
@@ -59,12 +59,7 @@ export async function getUserLeagues(
   });
 
   // get the current timestamp in the east coast of the usa
-  const now = (() => {
-    const now = new Date();
-    const options = { timeZone: "America/New_York" };
-    const local = new Date(now.toLocaleString("en-US", options));
-    return local.getTime();
-  })();
+  const now = getNowInEasternTime().getTime();
 
   const leagueWithData = await Promise.all(
     leagues.map(async (league) => {
@@ -285,7 +280,7 @@ function getRoundStage({
   round: Omit<PopulatedRound, "stage" | "roundIndex">;
   league: Pick<PopulatedLeague, "votesPerRound"> & { users: unknown[] };
 }): PopulatedRoundStage {
-  const now = Date.now();
+  const now = getNowInEasternTime().getTime();
 
   const allUsersSubmitted = round.submissions.length >= league.users.length;
   const roundPoints = round.votes.reduce((acc, vote) => acc + vote.points, 0);
@@ -343,7 +338,7 @@ export async function getLeagueById(
       return current;
     }
 
-    const now = Date.now();
+    const now = getNowInEasternTime().getTime();
     const other = leagues
       .filter((league) => league.status !== "active")
       .sort((leagueA, leagueB) => {

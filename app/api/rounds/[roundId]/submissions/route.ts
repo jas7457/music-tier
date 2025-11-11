@@ -3,6 +3,7 @@ import { verifySessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
 import { SongSubmission } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
+import { getNowInEasternTime } from "@/lib/utils/time";
 
 export async function POST(
   request: NextRequest,
@@ -61,7 +62,7 @@ export async function POST(
       userId: payload.userId,
       trackInfo,
       note,
-      submissionDate: Date.now(),
+      submissionDate: getNowInEasternTime().getTime(),
     };
 
     await submissionsCollection.insertOne(newSubmission);
@@ -129,7 +130,7 @@ export async function PUT(
         $set: {
           trackInfo,
           note,
-          submissionDate: Date.now(),
+          submissionDate: getNowInEasternTime().getTime(),
         },
       },
       { returnDocument: "after" }
