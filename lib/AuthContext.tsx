@@ -1,13 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import { PopulatedUser } from "./types";
 
 interface AuthContextType {

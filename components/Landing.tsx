@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { initiateSpotifyAuth } from "@/lib/spotify";
-import { useAuth } from "@/lib/AuthContext";
 import Cookies from "js-cookie";
 
 interface SpotifyProfile {
