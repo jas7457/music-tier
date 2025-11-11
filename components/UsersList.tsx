@@ -18,9 +18,7 @@ export function UsersList({ users, text, className }: UsersListProps) {
   if (users.length === 0) {
     return (
       <div className={className}>
-        <h6 className="text-xs font-semibold text-gray-600 mb-2">
-          {formattedVerb}
-        </h6>
+        <h6 className="text-xs font-semibold text-gray-600">{formattedVerb}</h6>
         <p className="text-xs text-gray-500">No {text.noun} yet</p>
       </div>
     );
@@ -28,7 +26,7 @@ export function UsersList({ users, text, className }: UsersListProps) {
 
   return (
     <div className={className}>
-      <h6 className="text-xs font-semibold text-gray-600 mb-2">
+      <h6 className="text-xs font-semibold text-gray-600">
         {formattedVerb} ({users.length})
       </h6>
       <div className="flex flex-wrap gap-2">

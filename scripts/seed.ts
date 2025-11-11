@@ -55,7 +55,6 @@ async function seed() {
         title: "Indie Rock Showdown",
         description:
           "A league dedicated to discovering the best indie rock tracks. Submit your favorite hidden gems and vote for the best tracks each round!",
-        numberOfRounds: 6,
         users: [userId.toString()],
         daysForSubmission: 5,
         daysForVoting: 3,

@@ -45,7 +45,7 @@ export function Round({
       }
       case "submission": {
         return (
-          <>
+          <div className="flex flex-col gap-4">
             <SongSubmission
               userSubmission={round.userSubmission}
               onDataSaved={onDataSaved}
@@ -60,7 +60,7 @@ export function Round({
               submissions={round.submissions}
               users={league.users}
             />
-          </>
+          </div>
         );
       }
       case "voting":

@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifySessionToken } from "@/lib/auth";
-import { getUserLeagues } from "@/lib/data";
+import { getLeagueById } from "@/lib/data";
 import { LeaguePageClient } from "./LeaguePageClient";
 import Card from "@/components/Card";
 
@@ -27,27 +27,7 @@ export default async function LeaguePage({ params }: PageProps) {
     redirect("/");
   }
 
-  const leagues = await getUserLeagues(payload.userId);
-  const league = (() => {
-    if (leagueId === "current") {
-      const current = leagues.find((league) => league.status === "active");
-      if (current) {
-        return current;
-      }
-
-      const now = Date.now();
-      const other = leagues
-        .filter((league) => league.status !== "active")
-        .sort((leagueA, leagueB) => {
-          const distanceFromA = Math.abs(now - leagueA.leagueStartDate);
-          const distanceFromB = Math.abs(now - leagueB.leagueStartDate);
-          return distanceFromA - distanceFromB;
-        });
-
-      return other[0];
-    }
-    return leagues.find((league) => league._id.toString() === leagueId);
-  })();
+  const league = await getLeagueById(leagueId, payload.userId);
 
   if (!league) {
     return (

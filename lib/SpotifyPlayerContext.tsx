@@ -3,7 +3,6 @@
 import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
 import { PopulatedRound, PopulatedSubmission } from "./types";
-import { getSpotifyDevices } from "./spotify";
 
 // working url:     https://api.spotify.com/v1/me/player/play?device_id=84ba12cbec6088ef868f60f97ca1b1f6a4c9a140
 // not working url: https://api.spotify.com/v1/me/player/play?device_id=baa7bbf1c2c8f54c444a1c917e6f1d00229d8e49
@@ -177,11 +176,6 @@ export function SpotifyPlayerProvider({
           setPlayer(spotifyPlayer);
         }
       });
-
-      setTimeout(async () => {
-        const devices = await getSpotifyDevices(token);
-        console.log(devices);
-      }, 1000);
 
       const poll = async () => {
         clearTimeout(stateTimeout);

@@ -87,13 +87,10 @@ export async function getUserLeagues(
         index,
       }));
 
-      const usersById = users.reduce(
-        (acc, user) => {
-          acc[user._id.toString()] = user;
-          return acc;
-        },
-        {} as Record<string, PopulatedUser>
-      );
+      const usersById = users.reduce((acc, user) => {
+        acc[user._id.toString()] = user;
+        return acc;
+      }, {} as Record<string, PopulatedUser>);
 
       const populatedRounds = await Promise.all(
         rounds.map(async (round) => {
@@ -237,17 +234,31 @@ export async function getUserLeagues(
         }
       );
 
+      const numberOfRounds = users.length;
+
       const status = (() => {
-        if (roundsObject.completed.length === roundsWithData.length) {
+        if (roundsObject.completed.length === numberOfRounds) {
           return "completed" as const;
         }
+
+        const hasStarted = league.leagueStartDate <= now;
+        if (!hasStarted) {
+          return "upcoming" as const;
+        }
+
         if (roundsObject.current) {
           return "active" as const;
         }
-        return "upcoming" as const;
+        return "pending" as const;
       })();
 
-      return { ...league, users, status, rounds: roundsObject };
+      return {
+        ...league,
+        numberOfRounds,
+        users,
+        status,
+        rounds: roundsObject,
+      };
     })
   );
 
@@ -318,4 +329,29 @@ function getRoundStage({
     return "submission";
   }
   return "unknown";
+}
+
+export async function getLeagueById(
+  leagueId: string,
+  userId: string
+): Promise<PopulatedLeague | undefined> {
+  const leagues = await getUserLeagues(userId);
+  if (leagueId === "current") {
+    const current = leagues.find((league) => league.status === "active");
+    if (current) {
+      return current;
+    }
+
+    const now = Date.now();
+    const other = leagues
+      .filter((league) => league.status !== "active")
+      .sort((leagueA, leagueB) => {
+        const distanceFromA = Math.abs(now - leagueA.leagueStartDate);
+        const distanceFromB = Math.abs(now - leagueB.leagueStartDate);
+        return distanceFromA - distanceFromB;
+      });
+
+    return other[0];
+  }
+  return leagues.find((league) => league._id.toString() === leagueId);
 }

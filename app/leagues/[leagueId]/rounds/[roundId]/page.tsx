@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifySessionToken } from "@/lib/auth";
-import { getUser, getUserLeagues } from "@/lib/data";
+import { getLeagueById, getUser, getUserLeagues } from "@/lib/data";
 import { RoundPageClient } from "./RoundPageClient";
 import Card from "@/components/Card";
 
@@ -31,12 +31,13 @@ export default async function RoundPage({ params }: PageProps) {
     getUserLeagues(payload.userId),
     getUser(payload.userId),
   ]);
-  const { league, round } = (() => {
-    const empty = { league: null, round: null };
 
+  const league = await getLeagueById(leagueId, payload.userId);
+
+  const round = (() => {
     const league = leagues.find((league) => league._id === leagueId);
     if (!league) {
-      return empty;
+      return;
     }
 
     const allRounds = [
@@ -50,7 +51,7 @@ export default async function RoundPage({ params }: PageProps) {
         (round) => !["upcoming", "unknown", "completed"].includes(round.stage)
       );
       if (currentRound) {
-        return { league, round: currentRound };
+        return currentRound;
       }
 
       const now = Date.now();
@@ -61,18 +62,18 @@ export default async function RoundPage({ params }: PageProps) {
       })[0];
 
       if (closestRound) {
-        return { league, round: closestRound };
+        return closestRound;
       }
 
-      return empty;
+      return;
     }
 
     for (const round of allRounds) {
       if (round._id === roundId) {
-        return { league, round };
+        return round;
       }
     }
-    return empty;
+    return undefined;
   })();
 
   if (!league || !round || !user) {

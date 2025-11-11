@@ -9,6 +9,7 @@ import { PopulatedLeague } from "@/lib/types";
 import { CreateRound } from "./CreateRound";
 import { useRouter } from "next/navigation";
 import { MaybeLink } from "./MaybeLink";
+import { Avatar } from "./Avatar";
 
 export function League({
   league,
@@ -108,6 +109,8 @@ export function League({
         };
       case "upcoming":
         return { text: "Upcoming", color: "bg-blue-100 text-blue-800" };
+      case "pending":
+        return { text: "Pending", color: "bg-yellow-100 text-yellow-800" };
       default:
         return { text: "Unknown", color: "" };
     }
@@ -117,18 +120,27 @@ export function League({
     <>
       {/* League Header */}
       <div className="border-b pb-4 mb-6">
-        <MaybeLink
-          href={`/leagues/${league._id}`}
-          className="flex items-center text-2xl font-bold mb-2"
-        >
-          {league.title}
+        <div className="flex items-center">
+          <div className="flex items-center grow">
+            <MaybeLink
+              href={`/leagues/${league._id}`}
+              className="text-2xl font-bold mb-2"
+            >
+              {league.title}
+            </MaybeLink>
 
-          <span
-            className={`ml-3 inline-block rounded-full px-3 py-1 text-xs font-semibold ${color}`}
-          >
-            {text}
-          </span>
-        </MaybeLink>
+            <span
+              className={`ml-3 inline-block rounded-full px-3 py-1 text-xs font-semibold ${color}`}
+            >
+              {text}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-1">
+            {league.users.map((user) => (
+              <Avatar key={user._id} user={user} />
+            ))}
+          </div>
+        </div>
         <p className="text-gray-600 mb-3">{league.description}</p>
         <div className="flex gap-4 text-sm text-gray-500">
           <span>{league.numberOfRounds} rounds</span>

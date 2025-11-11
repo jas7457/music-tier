@@ -3,7 +3,6 @@ import { verifySessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
 import { SongSubmission } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
-import { extractTrackIdFromUrl } from "@/lib/spotify";
 
 export async function POST(
   request: NextRequest,
@@ -97,9 +96,9 @@ export async function PUT(
     const { roundId } = params;
 
     const body = await request.json();
-    const { trackUrl, note } = body;
+    const { trackInfo, note } = body;
 
-    if (!trackUrl) {
+    if (!trackInfo) {
       return NextResponse.json(
         { error: "Track URL is required" },
         { status: 400 }
@@ -107,7 +106,7 @@ export async function PUT(
     }
 
     // Extract track ID from URL
-    const trackId = extractTrackIdFromUrl(trackUrl);
+    const trackId = trackInfo.trackId;
 
     if (!trackId) {
       return NextResponse.json(
@@ -128,7 +127,7 @@ export async function PUT(
       },
       {
         $set: {
-          trackId,
+          trackInfo,
           note,
           submissionDate: Date.now(),
         },
