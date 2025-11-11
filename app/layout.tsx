@@ -33,8 +33,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <script src="https://sdk.scdn.co/spotify-player.js"></script>
+        <script src="https://sdk.scdn.co/spotify-player.js" async></script>
       </head>
       <body>
         <AuthProvider initialUser={initialUser}>

@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import Cookies from "js-cookie";
 import { PopulatedRound, PopulatedSubmission } from "./types";
+import { getSpotifyDevices } from "./spotify";
 
 // working url:     https://api.spotify.com/v1/me/player/play?device_id=84ba12cbec6088ef868f60f97ca1b1f6a4c9a140
 // not working url: https://api.spotify.com/v1/me/player/play?device_id=baa7bbf1c2c8f54c444a1c917e6f1d00229d8e49
@@ -207,75 +208,6 @@ export function SpotifyPlayerProvider({
     };
   }, [volume]);
 
-  // Poll currently playing track to sync with other devices
-  useEffect(() => {
-    const token = Cookies.get("spotify_access_token");
-    if (!token) return;
-
-    const pollCurrentlyPlaying = async () => {
-      return;
-      try {
-        const response = await fetch(
-          "https://api.spotify.com/v1/me/player/currently-playing",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.ok && response.status !== 204) {
-          const data = await response.json();
-          if (data && data.item) {
-            // Convert Spotify API track to WebPlaybackTrack format
-            const track = {
-              id: data.item.id,
-              uri: data.item.uri,
-              name: data.item.name,
-              album: {
-                uri: data.item.album.uri,
-                name: data.item.album.name,
-                images: data.item.album.images,
-              },
-              artists: data.item.artists.map((artist: any) => ({
-                uri: artist.uri,
-                name: artist.name,
-              })),
-              duration_ms: data.item.duration_ms,
-            };
-
-            // Only update if track changed
-            if (currentTrack?.id !== track.id) {
-              setCurrentTrack(track);
-            }
-
-            setIsPlaying(data.is_playing);
-            setIsPaused(!data.is_playing);
-            setDuration(data.item.duration_ms);
-            setCurrentTime(data.progress_ms || 0);
-          } else {
-            // Nothing playing
-            if (currentTrack) {
-              setCurrentTrack(null);
-              setIsPlaying(false);
-              setIsPaused(true);
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Error polling currently playing:", error);
-      }
-    };
-
-    // Poll every 1 second
-    const interval = setInterval(pollCurrentlyPlaying, 1000);
-
-    // Poll immediately on mount
-    pollCurrentlyPlaying();
-
-    return () => clearInterval(interval);
-  }, [currentTrack]);
-
   const playTrack = async (
     trackUri: string,
     round?: PopulatedRound | "same"
@@ -291,9 +223,11 @@ export function SpotifyPlayerProvider({
       return;
     }
 
-    try {
-      const response = await fetch(
-        `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+    const attemptPlay = async (
+      deviceAttemptId = deviceId
+    ): Promise<Response> => {
+      return await fetch(
+        `https://api.spotify.com/v1/me/player/play?device_id=${deviceAttemptId}`,
         {
           method: "PUT",
           headers: {
@@ -305,9 +239,38 @@ export function SpotifyPlayerProvider({
           }),
         }
       );
+    };
 
+    try {
+      const response = await attemptPlay();
       if (!response.ok) {
-        throw new Error(`Failed to start playback: ${response.statusText}`);
+        const deviceResponse = await getSpotifyDevices(accessToken);
+        const thisDevice = deviceResponse.devices.find(
+          (device: any) => deviceId === device.id
+        );
+        const musicTierPlayer = deviceResponse.devices.find(
+          (device: any) => device.name === "Music Tier Player"
+        );
+
+        const order = [thisDevice?.id, musicTierPlayer?.id, deviceId].filter(
+          Boolean
+        );
+        let idToSet: string | undefined = undefined;
+        for (const id of order) {
+          const retryResponse = await attemptPlay(id);
+          if (retryResponse.ok) {
+            idToSet = id;
+            break;
+          }
+        }
+
+        if (idToSet) {
+          setDeviceId(idToSet);
+        } else {
+          throw new Error(
+            `Failed to play track after retries: ${response.statusText}`
+          );
+        }
       }
 
       setIsPlaying(true);
