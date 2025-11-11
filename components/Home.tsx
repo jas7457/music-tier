@@ -6,6 +6,7 @@ import Card from "./Card";
 import { PopulatedLeague } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { League } from "./League";
+import { useRealTimeUpdates } from "@/lib/PusherContext";
 
 export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
   const { user } = useAuth();
@@ -14,6 +15,8 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
   const fetchData = useCallback(async () => {
     router.refresh();
   }, [router]);
+
+  useRealTimeUpdates(fetchData);
 
   if (!user) {
     return <div>No user data...</div>;

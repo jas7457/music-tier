@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/lib/AuthContext";
 import { SpotifyPlayerProvider } from "@/lib/SpotifyPlayerContext";
+import { PusherProvider } from "@/lib/PusherContext";
 import { Layout } from "@/components/Layout";
 import { PopulatedUser } from "@/lib/types";
 import { getUserBySessionToken } from "@/lib/data";
@@ -37,9 +38,11 @@ export default async function RootLayout({
       </head>
       <body>
         <AuthProvider initialUser={initialUser}>
-          <SpotifyPlayerProvider>
-            <Layout>{children}</Layout>
-          </SpotifyPlayerProvider>
+          <PusherProvider>
+            <SpotifyPlayerProvider>
+              <Layout>{children}</Layout>
+            </SpotifyPlayerProvider>
+          </PusherProvider>
         </AuthProvider>
       </body>
     </html>

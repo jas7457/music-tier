@@ -4,6 +4,7 @@ import { getCollection } from "@/lib/mongodb";
 import { Vote } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
 import { getNowInEasternTime } from "@/lib/utils/time";
+import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 
 export async function POST(
   request: NextRequest,
@@ -51,6 +52,9 @@ export async function POST(
     });
 
     await votesCollection.insertMany(data);
+
+    triggerRealTimeUpdate();
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error saving vote:", error);

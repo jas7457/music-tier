@@ -4,6 +4,7 @@ import { getCollection } from "@/lib/mongodb";
 import { SongSubmission } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
 import { getNowInEasternTime } from "@/lib/utils/time";
+import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 
 export async function POST(
   request: NextRequest,
@@ -66,6 +67,7 @@ export async function POST(
     };
 
     await submissionsCollection.insertOne(newSubmission);
+    triggerRealTimeUpdate();
 
     return NextResponse.json({ submission: newSubmission });
   } catch (error) {
@@ -147,6 +149,8 @@ export async function PUT(
       ...result,
       _id: result._id.toString(),
     };
+
+    triggerRealTimeUpdate();
 
     return NextResponse.json({ submission: updatedSubmission });
   } catch (error) {

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Round } from "@/components/Round";
 import Card from "@/components/Card";
 import { PopulatedRound, PopulatedUser, PopulatedLeague } from "@/lib/types";
+import { useRealTimeUpdates } from "@/lib/PusherContext";
 
 type RoundPageClientProps = {
   round: PopulatedRound;
@@ -25,6 +26,8 @@ export function RoundPageClient({
     // Refresh the page to get updated data from the server
     router.refresh();
   };
+
+  useRealTimeUpdates(handleDataSaved);
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">

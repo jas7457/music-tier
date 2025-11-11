@@ -3,6 +3,7 @@ import { createSessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
 import { League, User } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
+import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,6 +66,8 @@ export async function POST(request: NextRequest) {
         { $set: { users: league.users } }
       );
     }
+
+    triggerRealTimeUpdate();
 
     // Create session token
     const sessionToken = createSessionToken(newUser);

@@ -5,6 +5,7 @@ import { League } from "@/components/League";
 import Card from "@/components/Card";
 import { PopulatedLeague } from "@/lib/types";
 import { useCallback } from "react";
+import { useRealTimeUpdates } from "@/lib/PusherContext";
 
 type LeaguePageClientProps = {
   league: PopulatedLeague;
@@ -16,6 +17,8 @@ export function LeaguePageClient({ league }: LeaguePageClientProps) {
   const handleDataSaved = useCallback(() => {
     router.refresh();
   }, [router]);
+
+  useRealTimeUpdates(handleDataSaved);
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">

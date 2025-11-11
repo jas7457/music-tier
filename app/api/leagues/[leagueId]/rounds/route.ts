@@ -3,6 +3,7 @@ import { verifySessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
 import { League, Round } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
+import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 
 export async function POST(
   request: NextRequest,
@@ -68,14 +69,16 @@ export async function POST(
     }
 
     // Create the round
-    const newRound: Omit<Round, "_id"> = {
+    const newRound: Round = {
+      _id: new ObjectId(),
       leagueId: leagueId,
       title: title.trim(),
       description: description.trim(),
       creatorId: payload.userId,
     };
 
-    const result = await roundsCollection.insertOne(newRound as Round);
+    const result = await roundsCollection.insertOne(newRound);
+    triggerRealTimeUpdate();
 
     return NextResponse.json({
       success: true,
