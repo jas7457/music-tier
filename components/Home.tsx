@@ -1,22 +1,15 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import { useCallback } from "react";
 import Card from "./Card";
 import { PopulatedLeague } from "@/lib/types";
-import { useRouter } from "next/navigation";
 import { League } from "./League";
 import { useRealTimeUpdates } from "@/lib/PusherContext";
 
 export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
   const { user } = useAuth();
-  const router = useRouter();
 
-  const fetchData = useCallback(async () => {
-    router.refresh();
-  }, [router]);
-
-  useRealTimeUpdates(fetchData);
+  useRealTimeUpdates();
 
   if (!user) {
     return <div>No user data...</div>;
@@ -39,7 +32,7 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
       <div className="space-y-8">
         {leagues.map((league) => (
           <Card key={league._id.toString()} variant="elevated" className="p-6">
-            <League league={league} onDataSaved={fetchData} />
+            <League league={league} />
           </Card>
         ))}
       </div>

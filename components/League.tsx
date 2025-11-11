@@ -10,13 +10,7 @@ import { CreateRound } from "./CreateRound";
 import { MaybeLink } from "./MaybeLink";
 import { Avatar } from "./Avatar";
 
-export function League({
-  league,
-  onDataSaved,
-}: {
-  league: PopulatedLeague;
-  onDataSaved: () => void;
-}) {
+export function League({ league }: { league: PopulatedLeague }) {
   const { user } = useAuth();
 
   const userHasCreatedRound = useMemo(() => {
@@ -48,7 +42,6 @@ export function League({
                 key={round.stage}
                 round={round}
                 league={league}
-                onDataSaved={onDataSaved}
                 currentUser={user}
               />
             </Card>
@@ -72,7 +65,6 @@ export function League({
             currentUser={user}
             round={league.rounds.current}
             league={league}
-            onDataSaved={onDataSaved}
           />
         </Card>
       </div>
@@ -87,7 +79,7 @@ export function League({
 
     return (
       <div className="mb-6">
-        <CreateRound leagueId={league._id} onRoundCreated={onDataSaved} />
+        <CreateRound leagueId={league._id} />
       </div>
     );
   })();

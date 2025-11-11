@@ -17,12 +17,10 @@ export function Round({
   currentUser,
   round,
   league,
-  onDataSaved,
 }: {
   currentUser: PopulatedUser;
   round: PopulatedRound;
   league: FullLeague;
-  onDataSaved: () => void;
 }) {
   const [showVotesView, setShowVotesView] = useState(false);
 
@@ -36,7 +34,6 @@ export function Round({
               round={round}
               league={league}
               currentUser={currentUser}
-              onDataSaved={onDataSaved}
             />
           );
         } else {
@@ -51,7 +48,6 @@ export function Round({
           >
             <SongSubmission
               userSubmission={round.userSubmission}
-              onDataSaved={onDataSaved}
               round={round}
               roundEndDate={round.votingEndDate}
             />
@@ -74,7 +70,6 @@ export function Round({
             round={round}
             league={league}
             currentUser={currentUser}
-            onDataSaved={onDataSaved}
           />
         );
       }
@@ -82,7 +77,7 @@ export function Round({
         return null;
       }
     }
-  }, [currentUser, league, onDataSaved, round, showVotesView]);
+  }, [currentUser, league, round, showVotesView]);
 
   return (
     <div>

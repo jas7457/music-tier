@@ -5,10 +5,9 @@ import Card from "./Card";
 
 type CreateRoundProps = {
   leagueId: string;
-  onRoundCreated: () => void;
 };
 
-export function CreateRound({ leagueId, onRoundCreated }: CreateRoundProps) {
+export function CreateRound({ leagueId }: CreateRoundProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -38,7 +37,6 @@ export function CreateRound({ leagueId, onRoundCreated }: CreateRoundProps) {
       setTitle("");
       setDescription("");
       setIsOpen(false);
-      onRoundCreated();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create round");
     } finally {

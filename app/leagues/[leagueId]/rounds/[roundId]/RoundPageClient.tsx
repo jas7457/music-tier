@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Round } from "@/components/Round";
 import Card from "@/components/Card";
 import { PopulatedRound, PopulatedUser, PopulatedLeague } from "@/lib/types";
@@ -20,14 +19,7 @@ export function RoundPageClient({
   league,
   currentUser,
 }: RoundPageClientProps) {
-  const router = useRouter();
-
-  const handleDataSaved = () => {
-    // Refresh the page to get updated data from the server
-    router.refresh();
-  };
-
-  useRealTimeUpdates(handleDataSaved);
+  useRealTimeUpdates();
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -38,7 +30,6 @@ export function RoundPageClient({
             currentUser={currentUser}
             round={round}
             league={league}
-            onDataSaved={handleDataSaved}
           />
         </Card>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useContext,
@@ -69,10 +70,12 @@ export function usePusher() {
 }
 
 // Hook for subscribing to updates
-export function useRealTimeUpdates(onUpdate: () => void) {
+export function useRealTimeUpdates() {
+  const router = useRouter();
+
   const { subscribe, unsubscribe } = usePusher();
-  const updateRef = useRef(onUpdate);
-  updateRef.current = onUpdate;
+  const updateRef = useRef(() => router.refresh());
+  updateRef.current = () => router.refresh();
 
   useEffect(() => {
     const channel = subscribe(PUSHER_CHANNEL_NAME);

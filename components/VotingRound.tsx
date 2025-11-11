@@ -14,14 +14,12 @@ interface VotingRoundProps {
     users: Array<PopulatedUser>;
   };
   currentUser: PopulatedUser;
-  onDataSaved: () => void;
 }
 
 export default function VotingRound({
   round,
   league,
   currentUser,
-  onDataSaved,
 }: VotingRoundProps) {
   const [votes, setVotes] = useState(() =>
     round.submissions.reduce((acc, submission) => {
@@ -112,7 +110,6 @@ export default function VotingRound({
       if (!response.ok) {
         throw new Error(`Failed to save vote for ${round._id}`);
       }
-      onDataSaved();
     } catch (error) {
       console.error("Error saving votes:", error);
       alert("Failed to save some votes. Please try again.");

@@ -12,13 +12,11 @@ interface SongSubmissionProps {
   round: PopulatedRound;
   roundEndDate: number | null;
   userSubmission: PopulatedSubmission | undefined;
-  onDataSaved: () => void;
 }
 export function SongSubmission({
   round,
   roundEndDate,
   userSubmission,
-  onDataSaved,
 }: SongSubmissionProps) {
   const { user } = useAuth();
   const roundId = round._id;
@@ -141,7 +139,6 @@ export function SongSubmission({
 
       setIsEditing(false);
       setIsSubmitting(false);
-      onDataSaved();
     } catch (err) {
       console.error("Error submitting song:", err);
       setError(`Failed to ${isRealSubmission ? "update" : "submit"} song`);
