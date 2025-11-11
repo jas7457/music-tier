@@ -16,7 +16,7 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
   }, [router]);
 
   if (!user) {
-    return null;
+    return <div>No user data...</div>;
   }
 
   const leagueMarkup = (() => {

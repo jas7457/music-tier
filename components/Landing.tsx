@@ -12,7 +12,6 @@ interface SpotifyProfile {
 }
 
 export default function Landing() {
-  const { refreshUser } = useAuth();
   const [hasSpotifyToken, setHasSpotifyToken] = useState(false);
   const [spotifyProfile, setSpotifyProfile] = useState<SpotifyProfile | null>(
     null
@@ -53,8 +52,9 @@ export default function Landing() {
             const checkData = await checkResponse.json();
 
             if (checkData.exists) {
+              debugger;
               // User already exists, refresh auth context to log them in
-              await refreshUser();
+              window.location.href = "/";
               return; // This will redirect to Home automatically
             }
 
@@ -85,7 +85,7 @@ export default function Landing() {
     };
 
     checkSpotifyToken();
-  }, [refreshUser]);
+  }, []);
 
   const handleSpotifyLogin = async () => {
     try {
@@ -124,8 +124,7 @@ export default function Landing() {
         return;
       }
 
-      // Refresh user context to load the new user
-      await refreshUser();
+      window.location.href = "/";
     } catch (err) {
       console.error("Error signing up:", err);
       setError("Failed to create account");

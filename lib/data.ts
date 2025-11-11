@@ -10,6 +10,7 @@ import {
   PopulatedUser,
   PopulatedVote,
 } from "./types";
+import { verifySessionToken } from "./auth";
 
 const dbPromise = (async () => {
   const [
@@ -354,4 +355,48 @@ export async function getLeagueById(
     return other[0];
   }
   return leagues.find((league) => league._id.toString() === leagueId);
+}
+
+export async function getUserBySessionToken(
+  sessionToken: string
+): Promise<PopulatedUser | null> {
+  try {
+    if (!sessionToken) {
+      return null;
+    }
+
+    const payload = verifySessionToken(sessionToken);
+
+    if (!payload) {
+      return null;
+    }
+
+    // Fetch the full user from the database
+    const [usersCollection, leaguesCollection] = await Promise.all([
+      getCollection<User>("users"),
+      getCollection<League>("leagues"),
+    ]);
+    const [user, league] = await Promise.all([
+      usersCollection.findOne({
+        _id: new ObjectId(payload.userId),
+      }),
+      leaguesCollection.findOne({ users: payload.userId }),
+    ]);
+
+    if (!user) {
+      return null;
+    }
+
+    // Convert _id to string for the response
+    const userResponse: PopulatedUser = {
+      ...user,
+      _id: user._id.toString(),
+      index: league ? league.users.indexOf(payload.userId) : -1,
+    };
+
+    return userResponse;
+  } catch (error) {
+    console.error("Error fetching session:", error);
+    return null;
+  }
 }

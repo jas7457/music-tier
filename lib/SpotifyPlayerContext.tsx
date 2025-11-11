@@ -105,47 +105,6 @@ export function SpotifyPlayerProvider({
         setHasInitialized(true);
         setDeviceId(device_id);
         setIsReady(true);
-
-        // Fetch currently playing track
-        try {
-          const response = await fetch(
-            "https://api.spotify.com/v1/me/player/currently-playing",
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          if (response.ok && response.status !== 204) {
-            const data = await response.json();
-            if (data && data.item) {
-              // Convert Spotify API track to WebPlaybackTrack format
-              const track = {
-                id: data.item.id,
-                uri: data.item.uri,
-                name: data.item.name,
-                album: {
-                  uri: data.item.album.uri,
-                  name: data.item.album.name,
-                  images: data.item.album.images,
-                },
-                artists: data.item.artists.map((artist: any) => ({
-                  uri: artist.uri,
-                  name: artist.name,
-                })),
-                duration_ms: data.item.duration_ms,
-              };
-              setCurrentTrack(track);
-              setIsPlaying(data.is_playing);
-              setIsPaused(!data.is_playing);
-              setDuration(data.item.duration_ms);
-              setCurrentTime(data.progress_ms || 0);
-            }
-          }
-        } catch (error) {
-          console.error("Error fetching currently playing track:", error);
-        }
       });
 
       // Not Ready event - device has gone offline
