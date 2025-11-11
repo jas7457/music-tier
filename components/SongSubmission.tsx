@@ -26,6 +26,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastFetchedTrackIdRef = useRef<string | null>(null);
 
   const isRealSubmission = submission ? submission._id !== "" : false;
 
@@ -61,13 +62,19 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
       return;
     }
 
-    if (trackId === submission?.trackInfo.trackId) {
+    if (
+      trackId === submission?.trackInfo.trackId ||
+      trackId === lastFetchedTrackIdRef.current
+    ) {
       return;
     }
+    lastFetchedTrackIdRef.current = trackId;
 
     setLoadingPreview(true);
     try {
+      debugger;
       const trackData = await getTrackDetails(trackId);
+      debugger;
       if (trackData.track) {
         setSubmission({ trackInfo: trackData.track });
         setError(null);

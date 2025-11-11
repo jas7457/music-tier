@@ -58,6 +58,11 @@ declare namespace Spotify {
     };
     artists: Array<{ uri: string; name: string }>;
     duration_ms: number;
+
+    linked_from?: {
+      uri: string;
+      id: string;
+    };
   }
 
   interface WebPlaybackError {

@@ -260,6 +260,8 @@ export function SpotifyPlayerProvider({
           const retryResponse = await attemptPlay(id);
           if (retryResponse.ok) {
             idToSet = id;
+            const trackInfo = await retryResponse.json();
+            setCurrentTrack(trackInfo);
             break;
           }
         }
@@ -271,6 +273,10 @@ export function SpotifyPlayerProvider({
             `Failed to play track after retries: ${response.statusText}`
           );
         }
+      } else {
+        const trackInfo = await response.json();
+        console.log("Track started playing:", trackInfo);
+        setCurrentTrack(trackInfo);
       }
 
       setIsPlaying(true);

@@ -20,10 +20,22 @@ export default function AlbumArt({
   const trackUri = `spotify:track:${trackInfo.trackId}`;
   const playerContext = useSpotifyPlayer();
 
+  const isEffectivelyTheCurrentTrack = (() => {
+    if (!playerContext.currentTrack) {
+      return false;
+    }
+    if (playerContext.currentTrack.id === trackInfo.trackId) {
+      return true;
+    }
+    if (playerContext.currentTrack.linked_from?.id === trackInfo.trackId) {
+      return true;
+    }
+    return false;
+  })();
+
   // Determine if this track is currently playing
   const isCurrentlyPlaying =
-    playerContext.currentTrack?.id === trackInfo.trackId &&
-    playerContext.isPlaying;
+    playerContext.isPlaying && isEffectivelyTheCurrentTrack;
 
   // Determine if player is disabled
   const isDisabled = !playerContext.deviceId;
@@ -36,7 +48,7 @@ export default function AlbumArt({
     if (trackUri) {
       if (isCurrentlyPlaying) {
         await playerContext.pausePlayback();
-      } else if (playerContext.currentTrack?.id === trackInfo.trackId) {
+      } else if (isEffectivelyTheCurrentTrack) {
         await playerContext.resumePlayback();
       } else {
         await playerContext.playTrack(trackUri, round);
