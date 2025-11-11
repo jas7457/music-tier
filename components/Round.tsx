@@ -1,7 +1,7 @@
 import { formatDate } from "@/lib/utils/formatDate";
 import { SongSubmission } from "./SongSubmission";
 import { SubmittedUsers, UnsubmittedUsers } from "./SubmittedUsers";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import VotingRound from "./VotingRound";
 import CompletedRound from "./CompletedRound";
 import { PopulatedLeague, PopulatedRound, PopulatedUser } from "@/lib/types";
@@ -12,7 +12,12 @@ import { Pill } from "./Pill";
 
 type FullLeague = Pick<
   PopulatedLeague,
-  "daysForSubmission" | "daysForVoting" | "users" | "votesPerRound" | "_id"
+  | "daysForSubmission"
+  | "daysForVoting"
+  | "users"
+  | "votesPerRound"
+  | "_id"
+  | "rounds"
 >;
 
 export function Round({
@@ -52,15 +57,10 @@ export function Round({
         return {
           stageTitle: "Submission",
           bodyMarkup: (
-            <div
-              className="flex flex-col gap-4"
+            <Fragment
               key={round.userSubmission?.trackInfo.trackId ?? "no-submission"}
             >
-              <SongSubmission
-                userSubmission={round.userSubmission}
-                round={round}
-                roundEndDate={round.votingEndDate}
-              />
+              <SongSubmission round={round} />
               <SubmittedUsers
                 submissions={round.submissions}
                 users={league.users}
@@ -69,7 +69,7 @@ export function Round({
                 submissions={round.submissions}
                 users={league.users}
               />
-            </div>
+            </Fragment>
           ),
         };
       }
@@ -87,11 +87,20 @@ export function Round({
           ),
         };
       }
+      case "upcoming": {
+        return {
+          stageTitle: "Upcoming",
+          bodyMarkup: null,
+        };
+      }
       default: {
         return {
           stageTitle: "Unknown",
           bodyMarkup: (
-            <div>Invalid round stage. If you see this, tell Jason.</div>
+            <div>
+              Invalid round stage &quot;{round.stage}&quot;. If you see this,
+              tell Jason.
+            </div>
           ),
         };
       }
@@ -99,66 +108,73 @@ export function Round({
   }, [currentUser, league, round, showVotesView]);
 
   return (
-    <div>
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <MaybeLink
-            href={`/leagues/${league._id}/rounds/${round._id}`}
-            className="font-semibold text-lg mb-1"
-          >
-            Round {round.roundIndex + 1}: {round.title}
-          </MaybeLink>
-          <Pill status={round.stage}>{stageTitle}</Pill>
+    <div className="flex flex-col gap-4">
+      <div>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <MaybeLink
+              href={`/leagues/${league._id}/rounds/${round._id}`}
+              className="font-semibold text-lg"
+            >
+              Round {round.roundIndex + 1}: {round.title}
+            </MaybeLink>
+            <Pill status={round.stage}>{stageTitle}</Pill>
+          </div>
+          <Avatar
+            user={round.creatorObject}
+            size={6}
+            tooltipText={`Submitted by ${round.creatorObject.firstName}`}
+            includeTooltip
+          />
         </div>
-        <Avatar user={round.creatorObject} size={10} includeTooltip />
-      </div>
-      <p className="text-gray-600 text-sm mb-2">
-        <MultiLine>{round.description}</MultiLine>
-      </p>
-      <div className="flex gap-4 text-xs text-gray-500">
-        <span>Submissions start: {formatDate(round.submissionStartDate)}</span>
-        <span>•</span>
-        <span>
-          Submissions end:{" "}
-          {formatDate(
-            round.submissionStartDate! +
-              league.daysForSubmission * 24 * 60 * 60 * 1000
-          )}
-        </span>
-        <span>•</span>
-        <span>
-          Round ends:{" "}
-          {formatDate(
-            round.submissionStartDate! +
-              (league.daysForSubmission + league.daysForVoting) *
-                24 *
-                60 *
-                60 *
-                1000
-          )}
-        </span>
+        <p className="text-gray-600 text-sm">
+          <MultiLine>{round.description}</MultiLine>
+        </p>
+        <div className="flex gap-4 text-xs text-gray-500">
+          <span>
+            Submissions start: {formatDate(round.submissionStartDate)}
+          </span>
+          <span>•</span>
+          <span>
+            Submissions end:{" "}
+            {formatDate(
+              round.submissionStartDate! +
+                league.daysForSubmission * 24 * 60 * 60 * 1000
+            )}
+          </span>
+          <span>•</span>
+          <span>
+            Round ends:{" "}
+            {formatDate(
+              round.submissionStartDate! +
+                (league.daysForSubmission + league.daysForVoting) *
+                  24 *
+                  60 *
+                  60 *
+                  1000
+            )}
+          </span>
+        </div>
       </div>
 
       {/* Song Submission Section */}
-      <div>
-        {round.stage === "completed" && (
-          <div className="flex justify-center gap-2 my-4">
-            <ToggleButton
-              onClick={() => setShowVotesView(false)}
-              selected={!showVotesView}
-            >
-              Results
-            </ToggleButton>
-            <ToggleButton
-              onClick={() => setShowVotesView(true)}
-              selected={showVotesView}
-            >
-              Votes & Guesses
-            </ToggleButton>
-          </div>
-        )}
-        {bodyMarkup}
-      </div>
+      {round.stage === "completed" && (
+        <div className="flex justify-center gap-2 my-4">
+          <ToggleButton
+            onClick={() => setShowVotesView(false)}
+            selected={!showVotesView}
+          >
+            Results
+          </ToggleButton>
+          <ToggleButton
+            onClick={() => setShowVotesView(true)}
+            selected={showVotesView}
+          >
+            Votes & Guesses
+          </ToggleButton>
+        </div>
+      )}
+      {bodyMarkup}
     </div>
   );
 }

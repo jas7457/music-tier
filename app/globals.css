@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source inline("w-{{1..50}}");
+@source inline("h-{{1..50}}");
 
 @layer base {
   * {

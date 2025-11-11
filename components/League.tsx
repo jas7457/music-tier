@@ -61,7 +61,7 @@ export function League({ league }: { league: PopulatedLeague }) {
         <h3 className="text-lg font-semibold mb-3 text-green-700">
           Current Round
         </h3>
-        <Card className="border-green-200 bg-green-50 p-4" variant="outlined">
+        <Card className="p-4" variant="outlined">
           <Round
             key={league.rounds.current.stage}
             currentUser={user}

@@ -7,6 +7,8 @@ import { UsersList } from "./UsersList";
 import { PopulatedRound, PopulatedUser } from "@/lib/types";
 import { UserGuess } from "./UserGuess";
 import { BlockQuote } from "./BlockQuote";
+import { twMerge } from "tailwind-merge";
+import { getStatusColor } from "@/lib/utils/colors";
 
 interface VotingRoundProps {
   round: PopulatedRound;
@@ -178,7 +180,11 @@ export default function VotingRound({
     <div className="mt-4 space-y-4">
       {/* Voting Summary */}
       <Card
-        className="py-4 bg-blue-50 border-blue-200 flex flex-col gap-3"
+        className={twMerge(
+          "py-4 flex flex-col gap-3",
+          getStatusColor(round.stage),
+          "text-black"
+        )}
         variant="outlined"
       >
         <div className="px-4 flex items-center justify-between">
@@ -189,7 +195,7 @@ export default function VotingRound({
 
           {round.stage === "voting" && (
             <div className="text-right">
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-yellow-600">
                 {remainingVotes}
               </div>
               <div className="text-xs text-gray-600">votes left</div>
@@ -206,7 +212,7 @@ export default function VotingRound({
           return (
             <div
               key={submission._id}
-              className="px-4 space-y-2 border-b pb-1 border-gray-100"
+              className="px-4 space-y-2 border-b pb-1 border-gray-300"
             >
               <div className="flex items-center gap-4">
                 {/* Album Art */}
@@ -238,7 +244,14 @@ export default function VotingRound({
 
                 {/* Voting Controls */}
                 {!isYourSubmission && (
-                  <div className="flex items-center gap-1">
+                  <div
+                    className={twMerge(
+                      "flex items-center gap-1",
+                      round.stage === "currentUserVotingCompleted"
+                        ? "self-start"
+                        : ""
+                    )}
+                  >
                     <div className="flex flex-col items-center min-w-[60px]">
                       {round.stage === "voting" && (
                         <button
@@ -314,13 +327,13 @@ export default function VotingRound({
                 <div className="pl-24">
                   {round.stage === "voting" ? (
                     <textarea
+                      className="w-full px-3 py-2 text-xs border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
                       value={votes[submission._id]?.note || ""}
                       onChange={(e) =>
                         handleNoteChange(submission._id, e.target.value)
                       }
                       placeholder="Add a note about why you voted for this track (optional)..."
                       rows={2}
-                      className="w-full px-3 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     />
                   ) : votes[submission._id]?.note ? (
                     <BlockQuote className="text-xs text-gray-500">
@@ -335,11 +348,11 @@ export default function VotingRound({
 
         {/* Save All Button */}
         {round.stage === "voting" && (
-          <div className="ps-4 pt-3">
+          <div className="px-4 pt-3">
             <button
               onClick={handleSave}
               disabled={saving || remainingVotes !== 0}
-              className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {saving ? "Saving..." : "Save Votes"}
             </button>

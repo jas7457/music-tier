@@ -28,7 +28,7 @@ function seededRandom(seed: string) {
 }
 
 // Fisher-Yates shuffle with seeded random
-function seededShuffle<T>(array: T[], seed: string): T[] {
+export function seededShuffle<T>(array: T[], seed: string): T[] {
   const shuffled = [...array];
   const random = seededRandom(seed);
 
@@ -229,8 +229,9 @@ export async function getUserLeagues(
                 return populatedRound.submissions;
               }
               default: {
+                return populatedRound.submissions;
                 // Shuffle with round ID as seed for reproducible randomization
-                return seededShuffle(populatedRound.submissions, round._id);
+                // return seededShuffle(populatedRound.submissions, round._id);
               }
             }
           })();

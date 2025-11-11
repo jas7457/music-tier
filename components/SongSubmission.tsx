@@ -7,20 +7,17 @@ import { getTrackDetails } from "@/lib/api";
 import { extractTrackIdFromUrl, getTrackUrlFromId } from "@/lib/spotify";
 import { useAuth } from "@/lib/AuthContext";
 import { MultiLine } from "./MultiLine";
+import Card from "./Card";
+import { twMerge } from "tailwind-merge";
+import { getStatusColor } from "@/lib/utils/colors";
 
 interface SongSubmissionProps {
   round: PopulatedRound;
-  roundEndDate: number | null;
-  userSubmission: PopulatedSubmission | undefined;
+  className?: string;
 }
-export function SongSubmission({
-  round,
-  roundEndDate,
-  userSubmission,
-}: SongSubmissionProps) {
+export function SongSubmission({ round, className }: SongSubmissionProps) {
   const { user } = useAuth();
-  const roundId = round._id;
-  const [submission, _setSubmission] = useState(userSubmission ?? null);
+  const [submission, _setSubmission] = useState(round.userSubmission ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [trackUrl, setTrackUrl] = useState(
     submission ? getTrackUrlFromId(submission.trackInfo.trackId) : ""
@@ -40,7 +37,7 @@ export function SongSubmission({
         }
         return {
           _id: "",
-          roundId,
+          roundId: round._id,
           userId: user?._id || "",
           submissionDate: Date.now(),
           note: "",
@@ -55,7 +52,7 @@ export function SongSubmission({
         };
       });
     },
-    [roundId, user?._id]
+    [round._id, user?._id]
   );
 
   const fetchTrackPreview = async (trackId: string | null) => {
@@ -115,7 +112,7 @@ export function SongSubmission({
 
     try {
       const method = isRealSubmission ? "PUT" : "POST";
-      const response = await fetch(`/api/rounds/${roundId}/submissions`, {
+      const response = await fetch(`/api/rounds/${round._id}/submissions`, {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -146,11 +143,18 @@ export function SongSubmission({
     }
   };
 
-  const isRoundEnded = roundEndDate ? roundEndDate <= Date.now() : false;
+  const isRoundEnded = round.votingEndDate <= Date.now();
+
+  const fullClassName = twMerge(
+    "p-3",
+    className,
+    getStatusColor(round.stage),
+    "text-black"
+  );
 
   if (submission && isRealSubmission && !isEditing) {
     return (
-      <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
+      <Card variant="outlined" className={fullClassName}>
         <div className="flex items-center justify-between mb-3">
           <h5 className="font-semibold text-sm text-gray-700">
             Your Submission
@@ -158,7 +162,7 @@ export function SongSubmission({
           {!isRoundEnded && (
             <button
               onClick={() => setIsEditing(true)}
-              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+              className="text-xs text-purple-600 hover:text-purple-800 font-medium"
             >
               Change
             </button>
@@ -191,30 +195,34 @@ export function SongSubmission({
             Round has ended - submissions are locked
           </p>
         )}
-      </div>
+      </Card>
     );
   }
 
   if (isRoundEnded && !isRealSubmission) {
     return (
-      <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
+      <Card variant="outlined" className={fullClassName}>
         <p className="text-sm text-gray-500 italic">
           Round has ended - submissions are no longer accepted
         </p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
+    <Card variant="outlined" className={fullClassName}>
       <h5 className="font-semibold text-sm mb-3 text-gray-700">
         {isRealSubmission ? "Update Your Submission" : "Submit Your Song"}
       </h5>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm mb-3">
+        <Card
+          className={
+            "bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm mb-3"
+          }
+        >
           {error}
-        </div>
+        </Card>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -242,19 +250,19 @@ export function SongSubmission({
             }}
             onBlur={handleTrackUrlBlur}
             placeholder="https://open.spotify.com/track/..."
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
 
         {/* Track Preview */}
         {loadingPreview && (
-          <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
+          <div className="p-3 bg-purple-50 border border-purple-400 rounded-md">
             <p className="text-xs text-gray-500">Loading track preview...</p>
           </div>
         )}
 
         {submission?.trackInfo && !loadingPreview && (
-          <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
+          <div className="p-3 bg-purple-50 border border-purple-400 rounded-md">
             <div className="flex items-center gap-3">
               {submission.trackInfo.albumImageUrl && (
                 <AlbumArt
@@ -291,7 +299,7 @@ export function SongSubmission({
             onChange={(e) => setSubmission({ note: e.target.value })}
             placeholder="Why did you choose this song?"
             rows={2}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
 
@@ -304,7 +312,7 @@ export function SongSubmission({
               !submission.trackInfo.trackId ||
               loadingPreview
             }
-            className="flex-1 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors text-sm font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="flex-1 bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600 transition-colors text-sm font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isSubmitting
               ? isRealSubmission
@@ -325,6 +333,6 @@ export function SongSubmission({
           )}
         </div>
       </form>
-    </div>
+    </Card>
   );
 }
