@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 import logo from "../app/images/logo.png";
 import MusicPlayer from "./MusicPlayer";
 import { useEffect, useState, useRef } from "react";
+import { MaybeLink } from "./MaybeLink";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -64,7 +65,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           />
         </Link>
 
-        <h1 className="text-2xl font-bold text-center">Music League Now!</h1>
+        <MaybeLink href="/" className="hover:text-white">
+          <h1 className="text-2xl font-bold text-center">Music League Now!</h1>
+        </MaybeLink>
 
         <div className="relative" ref={dropdownRef}>
           <button

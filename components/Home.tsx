@@ -5,15 +5,31 @@ import Card from "./Card";
 import { PopulatedLeague } from "@/lib/types";
 import { League } from "./League";
 import { useRealTimeUpdates } from "@/lib/PusherContext";
+import { useState } from "react";
 
 export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
   const { user } = useAuth();
+  const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(
+    new Set(leagues.length > 0 ? [leagues[0]._id] : [])
+  );
 
   useRealTimeUpdates();
 
   if (!user) {
     return <div>No user data...</div>;
   }
+
+  const toggleLeague = (leagueId: string) => {
+    setExpandedLeagues((prev) => {
+      const next = new Set(prev);
+      if (next.has(leagueId)) {
+        next.delete(leagueId);
+      } else {
+        next.add(leagueId);
+      }
+      return next;
+    });
+  };
 
   const leagueMarkup = (() => {
     if (leagues.length === 0) {
@@ -30,11 +46,74 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
 
     return (
       <div className="space-y-8">
-        {leagues.map((league) => (
-          <Card key={league._id.toString()} variant="elevated" className="p-6">
-            <League league={league} />
-          </Card>
-        ))}
+        {/* Current League */}
+        {leagues.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">
+              Current League
+            </h2>
+            <Card variant="elevated" className="overflow-hidden">
+              <div className="p-6">
+                <League league={leagues[0]} />
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Previous Leagues */}
+        {leagues.length > 1 && (
+          <div>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">
+              Previous Leagues
+            </h2>
+            <div className="space-y-4">
+              {leagues.slice(1).map((league) => {
+                const isExpanded = expandedLeagues.has(league._id);
+
+                return (
+                  <Card
+                    key={league._id.toString()}
+                    variant="elevated"
+                    className="overflow-hidden"
+                  >
+                    <button
+                      onClick={() => toggleLeague(league._id)}
+                      className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-xl font-bold">{league.title}</h3>
+                        <span className="text-sm text-gray-500">
+                          ({league.users.length} members)
+                        </span>
+                      </div>
+                      <svg
+                        className={`w-6 h-6 text-gray-400 transition-transform ${
+                          isExpanded ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="p-4">
+                        <League league={league} />
+                      </div>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     );
   })();
