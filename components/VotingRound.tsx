@@ -300,10 +300,15 @@ export default function VotingRound({
                         </button>
                       )}
                     </div>
-
                     {/* User Guess */}
                     <div>
                       <UserGuess
+                        isCorrect={
+                          round.stage === "completed" &&
+                          savedSubmission.userGuessId
+                            ? savedSubmission.userGuessId === submission.userId
+                            : undefined
+                        }
                         isEditable={round.stage === "voting"}
                         users={league.users.filter(
                           (u) => u._id !== currentUser._id
@@ -324,7 +329,6 @@ export default function VotingRound({
                   </div>
                 )}
               </div>
-
               {/* Note Input */}
               {!isYourSubmission && (
                 <div className="pl-24">

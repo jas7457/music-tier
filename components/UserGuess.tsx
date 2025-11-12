@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { PopulatedUser } from "@/lib/types";
 import { Avatar } from "./Avatar";
 import { twMerge } from "tailwind-merge";
+import { GuessFeedback } from "./GuessFeedback";
 
 type UserGuessProps = {
   isEditable?: boolean;
@@ -11,6 +12,7 @@ type UserGuessProps = {
   selectedUser: PopulatedUser | undefined;
   onSelectUser: (user: PopulatedUser | undefined) => void;
   disabled?: boolean;
+  isCorrect: boolean | undefined;
 };
 
 export function UserGuess({
@@ -19,6 +21,7 @@ export function UserGuess({
   selectedUser,
   onSelectUser,
   disabled = false,
+  isCorrect,
 }: UserGuessProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -61,11 +64,17 @@ export function UserGuess({
     return (
       <div
         className={twMerge(
-          "w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center transition-colors border-gray-300 overflow-hidden",
+          "relative w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center transition-colors border-gray-300",
           selectedUser ? "" : "bg-gray-100"
         )}
         title={titleText}
       >
+        {typeof isCorrect === "boolean" && (
+          <GuessFeedback
+            className="absolute -top-0.5 -right-0.5 z-10"
+            isCorrect={isCorrect}
+          />
+        )}
         {selectedUser ? (
           <Avatar user={selectedUser} />
         ) : (

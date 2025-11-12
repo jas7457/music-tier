@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { BlockQuote } from "./BlockQuote";
 import { twMerge } from "tailwind-merge";
 import { getPlaces } from "@/lib/utils/getPlaces";
+import { GuessFeedback } from "./GuessFeedback";
 
 interface CompletedRoundProps {
   round: PopulatedRound;
@@ -95,9 +96,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
         })();
 
         const submitter = usersById[submission.userId];
-        const yourVote = round.votes.find(
-          (vote) => vote.userGuessId === user?._id
-        );
+        const yourVote = round.votes.find((vote) => vote.userId === user?._id);
 
         return (
           <Card
@@ -154,12 +153,20 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                 </div>
 
                 {yourVote?.userGuessObject && (
-                  <Avatar
-                    user={yourVote.userGuessObject}
-                    size={6}
-                    tooltipText={`Your guess: ${yourVote.userGuessObject.firstName} ${yourVote.userGuessObject.lastName}`}
-                    includeTooltip
-                  />
+                  <div className="relative">
+                    <Avatar
+                      user={yourVote.userGuessObject}
+                      size={6}
+                      tooltipText={`Your guess: ${yourVote.userGuessObject.firstName} ${yourVote.userGuessObject.lastName}`}
+                      includeTooltip
+                    />
+                    <GuessFeedback
+                      className="absolute -top-1 -right-1"
+                      isCorrect={
+                        yourVote.userGuessObject._id === submission.userId
+                      }
+                    />
+                  </div>
                 )}
               </div>
             </div>
