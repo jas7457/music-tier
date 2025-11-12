@@ -117,6 +117,10 @@ export function Round({
     }
   }, [currentUser, league, round, showVotesView]);
 
+  const lastVote = useMemo(() => {
+    return [...round.votes].sort((a, b) => b.voteDate - a.voteDate)[0];
+  }, [round]);
+
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -141,29 +145,39 @@ export function Round({
           <MultiLine>{round.description}</MultiLine>
         </p>
         <div className="flex gap-4 text-xs text-gray-500">
-          <span>
-            Submissions start: {formatDate(round.submissionStartDate)}
-          </span>
-          <span>•</span>
-          <span>
-            Submissions end:{" "}
-            {formatDate(
-              round.submissionStartDate! +
-                league.daysForSubmission * 24 * 60 * 60 * 1000
-            )}
-          </span>
-          <span>•</span>
-          <span>
-            Round ends:{" "}
-            {formatDate(
-              round.submissionStartDate! +
-                (league.daysForSubmission + league.daysForVoting) *
-                  24 *
-                  60 *
-                  60 *
-                  1000
-            )}
-          </span>
+          {round.stage === "completed" ? (
+            <div>
+              {lastVote && (
+                <span>Round ended: {formatDate(lastVote.voteDate)}</span>
+              )}
+            </div>
+          ) : (
+            <>
+              <span>
+                Submissions start: {formatDate(round.submissionStartDate)}
+              </span>
+              <span>•</span>
+              <span>
+                Submissions end:{" "}
+                {formatDate(
+                  round.submissionStartDate! +
+                    league.daysForSubmission * 24 * 60 * 60 * 1000
+                )}
+              </span>
+              <span>•</span>
+              <span>
+                Round ends:{" "}
+                {formatDate(
+                  round.submissionStartDate! +
+                    (league.daysForSubmission + league.daysForVoting) *
+                      24 *
+                      60 *
+                      60 *
+                      1000
+                )}
+              </span>
+            </>
+          )}
         </div>
       </div>
 

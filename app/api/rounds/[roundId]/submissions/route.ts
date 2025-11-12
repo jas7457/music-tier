@@ -39,16 +39,32 @@ export async function POST(
     );
 
     // Check if user has already submitted for this round
-    const existingSubmission = await submissionsCollection.findOne({
-      roundId,
-      userId: payload.userId,
-    });
+    const [existingSubmission, existingSong] = await Promise.all([
+      submissionsCollection.findOne({
+        roundId,
+        userId: payload.userId,
+      }),
+      submissionsCollection.findOne({
+        roundId,
+        "trackInfo.trackId": trackInfo.trackId,
+      }),
+    ]);
 
     if (existingSubmission) {
       return NextResponse.json(
         {
           error:
             "You have already submitted a song for this round. Use PUT to update it.",
+        },
+        { status: 409 }
+      );
+    }
+
+    if (existingSong) {
+      return NextResponse.json(
+        {
+          error:
+            "You have great taste! This song has already been submitted by another user in this round.",
         },
         { status: 409 }
       );
@@ -120,6 +136,21 @@ export async function PUT(
     const submissionsCollection = await getCollection<SongSubmission>(
       "songSubmissions"
     );
+
+    const existingSong = await submissionsCollection.findOne({
+      roundId,
+      "trackInfo.trackId": trackInfo.trackId,
+    });
+
+    if (existingSong && existingSong.userId !== payload.userId) {
+      return NextResponse.json(
+        {
+          error:
+            "You have great taste! This song has already been submitted by another user in this round.",
+        },
+        { status: 409 }
+      );
+    }
 
     // Update existing submission
     const result = await submissionsCollection.findOneAndUpdate(

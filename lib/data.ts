@@ -81,6 +81,7 @@ export async function getUserLeagues(
         // find leagues where userId is in the users array
         users: userId,
       })
+      .sort({ _id: -1 }) // Sort by newest first
       .toArray()
   ).map((league) => {
     return { ...league, _id: league._id.toString() };
