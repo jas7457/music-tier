@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/AuthContext";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PopulatedLeague } from "@/lib/types";
 import { CreateRound } from "./CreateRound";
 import { MaybeLink } from "./MaybeLink";
@@ -14,8 +14,33 @@ import { ToggleButton } from "./ToggleButton";
 import { getAllRounds } from "@/lib/utils/getAllRounds";
 
 export function League({ league }: { league: PopulatedLeague }) {
+  const previousLeagueRef = useRef<PopulatedLeague>(league);
   const { user } = useAuth();
   const [showStandings, setShowStandings] = useState(false);
+
+  useEffect(() => {
+    const previousLeague = previousLeagueRef.current;
+
+    const notificationToSend = (() => {
+      // different leagues, let's not worry about showing ids
+      if (previousLeague._id !== league._id) {
+        return null;
+      }
+
+      if (
+        previousLeague.status !== "completed" &&
+        league.status === "completed"
+      ) {
+        return `League "${previousLeague.title}" has completed! Check out the final standings.`;
+      }
+
+      if (previousLeague.status !== "active" && league.status === "active") {
+        return `League "${previousLeague.title}" is now active! Start submitting your rounds.`;
+      }
+
+      return null;
+    })();
+  }, [league]);
 
   const userHasCreatedRound = useMemo(() => {
     if (!user) {

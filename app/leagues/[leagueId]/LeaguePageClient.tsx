@@ -10,7 +10,7 @@ type LeaguePageClientProps = {
 };
 
 export function LeaguePageClient({ league }: LeaguePageClientProps) {
-  useRealTimeUpdates();
+  useRealTimeUpdates(league);
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">

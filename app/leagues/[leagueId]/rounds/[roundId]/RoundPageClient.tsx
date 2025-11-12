@@ -16,7 +16,7 @@ export function RoundPageClient({
   league,
   currentUser,
 }: RoundPageClientProps) {
-  useRealTimeUpdates();
+  useRealTimeUpdates(round);
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">

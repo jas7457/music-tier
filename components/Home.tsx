@@ -5,7 +5,7 @@ import Card from "./Card";
 import { PopulatedLeague } from "@/lib/types";
 import { League } from "./League";
 import { useRealTimeUpdates } from "@/lib/PusherContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
   const { user } = useAuth();
@@ -13,7 +13,29 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
     new Set(leagues.length > 0 ? [leagues[0]._id] : [])
   );
 
-  useRealTimeUpdates();
+  useRealTimeUpdates(leagues);
+
+  useEffect(() => {
+    if (!("Notification" in window)) {
+      return;
+    }
+
+    if (
+      Notification.permission === "denied" ||
+      Notification.permission === "granted"
+    ) {
+      return;
+    }
+
+    const requestPermission = () => {
+      Notification.requestPermission();
+    };
+
+    document.addEventListener("click", requestPermission, { once: true });
+    return () => {
+      document.removeEventListener("click", requestPermission);
+    };
+  }, []);
 
   if (!user) {
     return <div>No user data...</div>;
