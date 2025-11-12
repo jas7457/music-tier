@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import Cookies from "js-cookie";
 import { PopulatedRound, PopulatedSubmission } from "./types";
 import { getSpotifyDevices } from "./spotify";
@@ -66,17 +66,12 @@ export function SpotifyPlayerProvider({
   const [isReady, setIsReady] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [playlist, setPlaylist] = useState<PopulatedSubmission["trackInfo"][]>(
-    []
-  );
-
-  const currentTrackIndex = useMemo(() => {
-    return playlist.findIndex(
-      (t) =>
-        t.trackId === currentTrack?.id ||
-        t.trackId === currentTrack?.linked_from?.id
-    );
-  }, [playlist, currentTrack]);
+  const [{ playlist, currentTrackIndex }, setPlaylist] = useState<{
+    playlist: PopulatedSubmission["trackInfo"][];
+    currentTrackIndex: number;
+  }>({ playlist: [], currentTrackIndex: -1 });
+  const lastPlaybackStateRef = useRef<Spotify.WebPlaybackState | null>(null);
+  const nextTrackRef = useRef<() => void>(() => {});
 
   const hasNextTrack =
     playlist.length > 0 && currentTrackIndex < playlist.length - 1;
@@ -164,7 +159,36 @@ export function SpotifyPlayerProvider({
       });
 
       const updateWithNewState = (state: Spotify.WebPlaybackState | null) => {
-        if (!state) return;
+        const currentCallbackState = lastPlaybackStateRef.current;
+        lastPlaybackStateRef.current = state;
+        if (!state) {
+          return;
+        }
+        const shouldPlayNextTrack = (() => {
+          if (!currentCallbackState) {
+            return false;
+          }
+          if (currentCallbackState.paused) {
+            return false;
+          }
+          if (!state.paused) {
+            return false;
+          }
+          const currentTrack = currentCallbackState.track_window.current_track;
+          const timeLeft =
+            currentTrack.duration_ms - currentCallbackState.position;
+          console.log(timeLeft);
+          if (timeLeft < 2000) {
+            return true;
+          }
+          return false;
+        })();
+
+        if (shouldPlayNextTrack) {
+          nextTrackRef.current();
+          return;
+        }
+
         const newTrack = state.track_window.current_track;
         setCurrentTrack(newTrack);
         setIsPaused(state.paused);
@@ -286,21 +310,30 @@ export function SpotifyPlayerProvider({
           );
         }
       } else {
-        const trackInfo = await response.json();
-        console.log("Track started playing:", trackInfo);
-        setCurrentTrack(trackInfo);
+        try {
+          const trackInfo = await response.json();
+          console.log("Track started playing:", trackInfo);
+          setCurrentTrack(trackInfo);
+        } catch {
+          // ignore json parse error
+        }
       }
 
       setIsPlaying(true);
       setError(null);
       if (round) {
-        if (round !== "same") {
-          setPlaylist(
-            round.submissions.map((submission) => submission.trackInfo)
-          );
-        }
+        const tracks =
+          round === "same"
+            ? playlist
+            : round.submissions.map((submission) => submission.trackInfo);
+
+        const trackIndex = tracks.findIndex(
+          (t) => t.trackId === trackUri.replace("spotify:track:", "")
+        );
+
+        setPlaylist({ playlist: tracks, currentTrackIndex: trackIndex });
       } else {
-        setPlaylist([]);
+        setPlaylist({ playlist: [], currentTrackIndex: -1 });
       }
     } catch (error) {
       console.error("Error playing track:", error);
@@ -349,6 +382,7 @@ export function SpotifyPlayerProvider({
       return;
     }
   };
+  nextTrackRef.current = nextTrack;
 
   const previousTrack = async () => {
     const previousTrack = playlist[currentTrackIndex - 1];
