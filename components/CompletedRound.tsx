@@ -127,9 +127,12 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                       {submission.trackInfo.albumName}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Submitted by {usersById[submission.userId].userName}
-                  </p>
+                  <div className="flex items-center gap-1">
+                    <Avatar user={usersById[submission.userId]} size={6} />
+                    <p className="text-sm text-gray-600">
+                      Submitted by {usersById[submission.userId].userName}
+                    </p>
+                  </div>
 
                   {submission.note && (
                     <p className="text-sm text-gray-700 italic">
@@ -143,7 +146,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
               <div className="flex flex-col gap-2 items-end">
                 <div className="text-right">
                   <div className="text-4xl font-bold text-yellow-600">
-                    {totalPoints}
+                    {totalPoints} pts
                   </div>
                   <div className="text-sm text-gray-600">
                     {voters.length} {voters.length === 1 ? "voter" : "voters"}

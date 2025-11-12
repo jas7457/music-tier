@@ -113,7 +113,11 @@ export async function getUserLeagues(
       }));
 
       const usersById = users.reduce((acc, user, index) => {
-        acc[user._id.toString()] = { user, index };
+        const userIndex = league.users.indexOf(user._id);
+        acc[user._id.toString()] = {
+          user,
+          index: userIndex === -1 ? index : userIndex,
+        };
         return acc;
       }, {} as Record<string, { user: PopulatedUser; index: number }>);
 

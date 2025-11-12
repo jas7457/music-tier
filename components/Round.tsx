@@ -194,7 +194,7 @@ export function Round({
             onClick={() => setShowVotesView(true)}
             selected={showVotesView}
           >
-            Votes & Guesses
+            Your Votes
           </ToggleButton>
         </div>
       )}
