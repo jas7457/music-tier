@@ -9,6 +9,7 @@ import {
 import Card from "./Card";
 import { Avatar } from "./Avatar";
 import { twMerge } from "tailwind-merge";
+import { getPlaces } from "@/lib/utils/getPlaces";
 
 export function LeagueStandings({ league }: { league: PopulatedLeague }) {
   const standings = useMemo(() => {
@@ -84,14 +85,10 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
   }
 
   const standingsMarkup = (() => {
-    let currentHighScore = -1;
-    let currentPlace = 0;
+    const places = getPlaces(standings.map((s) => s.points));
 
     return standings.map((standing, index) => {
-      if (standing.points > currentHighScore) {
-        currentPlace += 1;
-        currentHighScore = standing.points;
-      }
+      const currentPlace = places[index];
       const isFirst = currentPlace === 1;
       const isSecond = currentPlace === 2;
       const isThird = currentPlace === 3;

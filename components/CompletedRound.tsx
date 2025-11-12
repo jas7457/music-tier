@@ -9,6 +9,7 @@ import { MultiLine } from "./MultiLine";
 import { useAuth } from "@/lib/AuthContext";
 import { BlockQuote } from "./BlockQuote";
 import { twMerge } from "tailwind-merge";
+import { getPlaces } from "@/lib/utils/getPlaces";
 
 interface CompletedRoundProps {
   round: PopulatedRound;
@@ -55,18 +56,12 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
   }, [round.submissions, round.votes, usersById]);
 
   const submissionMarkup = useMemo(() => {
-    let currentHighScore = submissionsWithScores[0]?.totalPoints || 0;
-    let currentPlace = 1;
+    const places = getPlaces(submissionsWithScores.map((s) => s.totalPoints));
 
     return submissionsWithScores.map(
       ({ submission, totalPoints, voters }, index) => {
         const { emoji, cardClassName, innerClassName } = (() => {
-          const thisPlace =
-            totalPoints === currentHighScore ? currentPlace : index + 1;
-          if (totalPoints < currentHighScore) {
-            currentPlace = thisPlace;
-            currentHighScore = totalPoints;
-          }
+          const currentPlace = places[index];
 
           const isFirst = currentPlace === 1;
           const isSecond = currentPlace === 2;
