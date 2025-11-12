@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Card from "./Card";
+import { useData } from "@/lib/DataContext";
 
 type CreateRoundProps = {
   leagueId: string;
@@ -13,6 +14,7 @@ export function CreateRound({ leagueId }: CreateRoundProps) {
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { refreshData } = useData();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +43,7 @@ export function CreateRound({ leagueId }: CreateRoundProps) {
       setError(err instanceof Error ? err.message : "Failed to create round");
     } finally {
       setIsSubmitting(false);
+      refreshData();
     }
   };
 

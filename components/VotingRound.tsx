@@ -9,6 +9,7 @@ import { UserGuess } from "./UserGuess";
 import { BlockQuote } from "./BlockQuote";
 import { twMerge } from "tailwind-merge";
 import { getStatusColor } from "@/lib/utils/colors";
+import { useData } from "@/lib/DataContext";
 
 interface VotingRoundProps {
   round: PopulatedRound;
@@ -24,6 +25,7 @@ export default function VotingRound({
   league,
   currentUser,
 }: VotingRoundProps) {
+  const { refreshData } = useData();
   const [votes, setVotes] = useState(() =>
     round.submissions.reduce((acc, submission) => {
       const currentVote = round.votes.find(
@@ -118,6 +120,7 @@ export default function VotingRound({
       alert("Failed to save some votes. Please try again.");
     } finally {
       setSaving(false);
+      refreshData();
     }
   };
 

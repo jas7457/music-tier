@@ -10,6 +10,7 @@ import { MultiLine } from "./MultiLine";
 import Card from "./Card";
 import { twMerge } from "tailwind-merge";
 import { getStatusColor } from "@/lib/utils/colors";
+import { useData } from "@/lib/DataContext";
 
 interface SongSubmissionProps {
   round: PopulatedRound;
@@ -17,6 +18,7 @@ interface SongSubmissionProps {
 }
 export function SongSubmission({ round, className }: SongSubmissionProps) {
   const { user } = useAuth();
+  const { refreshData } = useData();
   const [submission, _setSubmission] = useState(round.userSubmission ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [trackUrl, setTrackUrl] = useState(
@@ -145,6 +147,8 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
       console.error("Error submitting song:", err);
       setError(`Failed to ${isRealSubmission ? "update" : "submit"} song`);
       setIsSubmitting(false);
+    } finally {
+      refreshData();
     }
   };
 

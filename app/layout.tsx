@@ -7,6 +7,7 @@ import { Layout } from "@/components/Layout";
 import { PopulatedUser } from "@/lib/types";
 import { getUserBySessionToken } from "@/lib/data";
 import { cookies } from "next/headers";
+import { DataProvider } from "@/lib/DataContext";
 
 export const metadata: Metadata = {
   title: "Music League Now!",
@@ -39,7 +40,9 @@ export default async function RootLayout({
         <AuthProvider initialUser={initialUser}>
           <PusherProvider>
             <SpotifyPlayerProvider>
-              <Layout>{children}</Layout>
+              <DataProvider>
+                <Layout>{children}</Layout>
+              </DataProvider>
             </SpotifyPlayerProvider>
           </PusherProvider>
         </AuthProvider>
