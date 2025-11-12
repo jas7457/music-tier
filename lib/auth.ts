@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { User } from "@/databaseTypes";
+import { cookies } from "next/headers";
 
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-secret-key-change-this-in-production";
@@ -38,13 +39,15 @@ const userKelsey = {
   userName: "khaps",
 };
 
-export function verifySessionToken(token: string): SessionPayload | null {
+export function verifySessionToken(): SessionPayload | null {
+  const cookieStore = cookies();
+  const sessionToken = cookieStore.get("session_token")?.value;
+  if (!sessionToken) {
+    return null;
+  }
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as SessionPayload;
-    return {
-      ...decoded,
-      // ...userKelsey,
-    };
+    const decoded = jwt.verify(sessionToken, JWT_SECRET) as SessionPayload;
+    return decoded;
   } catch {
     return null;
   }

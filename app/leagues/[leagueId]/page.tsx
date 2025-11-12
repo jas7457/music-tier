@@ -1,9 +1,8 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { verifySessionToken } from "@/lib/auth";
 import { getLeagueById } from "@/lib/data";
 import { LeaguePageClient } from "./LeaguePageClient";
 import Card from "@/components/Card";
+import { verifySessionToken } from "@/lib/auth";
 
 type PageProps = {
   params: { leagueId: string };
@@ -12,17 +11,8 @@ type PageProps = {
 export default async function LeaguePage({ params }: PageProps) {
   const { leagueId } = params;
 
-  // Get session token from cookies
-  const cookieStore = cookies();
-  const sessionToken = cookieStore.get("session_token")?.value;
-
-  if (!sessionToken) {
-    redirect("/");
-  }
-
   // Verify the session
-  const payload = verifySessionToken(sessionToken);
-
+  const payload = verifySessionToken();
   if (!payload) {
     redirect("/");
   }

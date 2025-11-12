@@ -10,14 +10,7 @@ export async function POST(
   { params }: { params: { leagueId: string } }
 ) {
   try {
-    const sessionToken = request.cookies.get("session_token")?.value;
-
-    if (!sessionToken) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const payload = verifySessionToken(sessionToken);
-
+    const payload = verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }

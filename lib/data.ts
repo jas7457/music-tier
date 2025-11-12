@@ -456,15 +456,9 @@ export async function getLeagueById(
   return leagues.find((league) => league._id.toString() === leagueId);
 }
 
-export async function getUserBySessionToken(
-  sessionToken: string
-): Promise<PopulatedUser | null> {
+export async function getUserByCookies() {
   try {
-    if (!sessionToken) {
-      return null;
-    }
-
-    const payload = verifySessionToken(sessionToken);
+    const payload = verifySessionToken();
 
     if (!payload) {
       return null;

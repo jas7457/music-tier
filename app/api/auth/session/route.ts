@@ -1,13 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getUserBySessionToken } from "@/lib/data";
+import { NextResponse } from "next/server";
+import { getUserByCookies } from "@/lib/data";
 
-export async function GET(request: NextRequest) {
-  const sessionToken = request.cookies.get("session_token")?.value;
-
-  if (!sessionToken) {
-    return NextResponse.json({ user: null });
-  }
-
-  const user = await getUserBySessionToken(sessionToken);
+export async function GET() {
+  const user = await getUserByCookies();
   return NextResponse.json({ user });
 }

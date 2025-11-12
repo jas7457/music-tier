@@ -5,7 +5,7 @@ import { SpotifyPlayerProvider } from "@/lib/SpotifyPlayerContext";
 import { PusherProvider } from "@/lib/PusherContext";
 import { Layout } from "@/components/Layout";
 import { PopulatedUser } from "@/lib/types";
-import { getUserBySessionToken } from "@/lib/data";
+import { getUserByCookies } from "@/lib/data";
 import { cookies } from "next/headers";
 import { DataProvider } from "@/lib/DataContext";
 
@@ -24,7 +24,7 @@ export default async function RootLayout({
     const cookieStore = cookies();
     const sessionToken = cookieStore.get("session_token")?.value;
     if (sessionToken) {
-      const user = await getUserBySessionToken(sessionToken);
+      const user = await getUserByCookies();
       initialUser = user || null;
     }
   } catch (err) {

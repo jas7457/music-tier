@@ -1,10 +1,9 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { verifySessionToken } from "@/lib/auth";
 import { getLeagueById, getUser } from "@/lib/data";
 import { RoundPageClient } from "./RoundPageClient";
 import Card from "@/components/Card";
 import { getAllRounds } from "@/lib/utils/getAllRounds";
+import { verifySessionToken } from "@/lib/auth";
 
 type PageProps = {
   params: { roundId: string; leagueId: string };
@@ -13,17 +12,8 @@ type PageProps = {
 export default async function RoundPage({ params }: PageProps) {
   const { roundId, leagueId } = params;
 
-  // Get session token from cookies
-  const cookieStore = cookies();
-  const sessionToken = cookieStore.get("session_token")?.value;
-
-  if (!sessionToken) {
-    redirect("/");
-  }
-
   // Verify the session
-  const payload = verifySessionToken(sessionToken);
-
+  const payload = verifySessionToken();
   if (!payload) {
     redirect("/");
   }

@@ -1,38 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { verifySessionToken } from '@/lib/auth';
-import { getCollection } from '@/lib/mongodb';
-import { SongSubmission } from '@/databaseTypes';
+import { NextRequest, NextResponse } from "next/server";
+import { verifySessionToken } from "@/lib/auth";
+import { getCollection } from "@/lib/mongodb";
+import { SongSubmission } from "@/databaseTypes";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { roundId: string } }
 ) {
   try {
-    const sessionToken = request.cookies.get('session_token')?.value;
-
-    if (!sessionToken) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const payload = verifySessionToken(sessionToken);
-
+    const payload = verifySessionToken();
     if (!payload) {
-      return NextResponse.json(
-        { error: 'Invalid session' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { roundId } = params;
-    const submissionsCollection = await getCollection<SongSubmission>('songSubmissions');
+    const submissionsCollection = await getCollection<SongSubmission>(
+      "songSubmissions"
+    );
 
     // Find user's submission for this round
     const submission = await submissionsCollection.findOne({
       roundId,
-      userId: payload.userId
+      userId: payload.userId,
     });
 
     if (!submission) {
@@ -42,14 +31,14 @@ export async function GET(
     // Convert _id to string
     const submissionResponse = {
       ...submission,
-      _id: submission._id.toString()
+      _id: submission._id.toString(),
     };
 
     return NextResponse.json({ submission: submissionResponse });
   } catch (error) {
-    console.error('Error fetching user submission:', error);
+    console.error("Error fetching user submission:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch submission' },
+      { error: "Failed to fetch submission" },
       { status: 500 }
     );
   }
