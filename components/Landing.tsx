@@ -38,7 +38,6 @@ export default function Landing() {
         try {
           const response = await fetch("/api/spotify/profile");
           if (response.ok) {
-            debugger;
             const profile = await response.json();
             setSpotifyProfile(profile);
 

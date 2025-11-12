@@ -120,7 +120,7 @@ export default function VotingRound({
       alert("Failed to save some votes. Please try again.");
     } finally {
       setSaving(false);
-      refreshData();
+      refreshData("manual");
     }
   };
 

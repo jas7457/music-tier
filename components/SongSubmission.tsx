@@ -148,7 +148,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
       setError(`Failed to ${isRealSubmission ? "update" : "submit"} song`);
       setIsSubmitting(false);
     } finally {
-      refreshData();
+      refreshData("manual");
     }
   };
 

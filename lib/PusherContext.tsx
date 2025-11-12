@@ -1,14 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import PusherClient from "pusher-js";
 import type { Channel } from "pusher-js";
 import {
@@ -16,6 +8,7 @@ import {
   PUSHER_CLUSTER,
   PUSHER_PUBLIC_KEY,
 } from "./utils/constants";
+import { useData } from "./DataContext";
 
 type PusherContextType = {
   pusher: PusherClient | null;
@@ -71,27 +64,22 @@ export function usePusher() {
 
 // Hook for subscribing to updates
 export function useRealTimeUpdates() {
-  const router = useRouter();
-
+  const { refreshData } = useData();
   const { subscribe, unsubscribe } = usePusher();
-  const updateRef = useRef(() => router.refresh());
-  updateRef.current = () => router.refresh();
 
   useEffect(() => {
     const channel = subscribe(PUSHER_CHANNEL_NAME);
     if (!channel) {
       return;
     }
-
-    const updateCb = () => {
-      updateRef.current();
+    const updateHandler = () => {
+      refreshData("pusherUpdate");
     };
-
-    channel.bind("update", updateCb);
+    channel.bind("update", updateHandler);
 
     return () => {
-      channel.unbind("update", updateCb);
+      channel.unbind("update", updateHandler);
       unsubscribe(PUSHER_CHANNEL_NAME);
     };
-  }, [subscribe, unsubscribe]);
+  }, [refreshData, subscribe, unsubscribe]);
 }

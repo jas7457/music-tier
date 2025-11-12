@@ -43,7 +43,7 @@ export function CreateRound({ leagueId }: CreateRoundProps) {
       setError(err instanceof Error ? err.message : "Failed to create round");
     } finally {
       setIsSubmitting(false);
-      refreshData();
+      refreshData("manual");
     }
   };
 

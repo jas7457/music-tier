@@ -76,8 +76,6 @@ export function SpotifyPlayerProvider({
     );
   }, [playlist, currentTrack]);
 
-  console.log({ currentTrackIndex, playlist, currentTrack });
-
   const hasNextTrack =
     playlist.length > 0 && currentTrackIndex < playlist.length - 1;
   const hasPreviousTrack = playlist.length > 0 && currentTrackIndex > 0;

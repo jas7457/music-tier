@@ -21,7 +21,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
       return (
         <div className="flex flex-col gap-6">
           {league.rounds.completed.map((round) => (
-            <Card key={round._id.toString()} className="p-4" variant="outlined">
+            <Card key={round._id} className="p-4" variant="outlined">
               <Round
                 key={round.stage}
                 round={round}
@@ -69,7 +69,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
           <div className="space-y-3">
             {league.rounds.upcoming.map((round) => (
               <Card
-                key={round._id.toString()}
+                key={round._id}
                 variant="outlined"
                 className="border-purple-200 bg-purple-50 p-4"
               >
@@ -106,9 +106,9 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
             Pending Rounds
           </h3>
           <div className="space-y-3">
-            {league.rounds.pending.map((round) => (
+            {league.rounds.pending.map((round, index) => (
               <Card
-                key={round._id.toString()}
+                key={round._id || index}
                 variant="outlined"
                 className="border-gray-200 bg-gray-50 p-4"
               >
@@ -147,7 +147,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
           <div className="space-y-3">
             {league.rounds.completed.map((round) => (
               <Card
-                key={round._id.toString()}
+                key={round._id}
                 variant="outlined"
                 className="bg-gray-50 p-4"
               >
