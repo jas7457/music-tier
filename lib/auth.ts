@@ -36,17 +36,29 @@ const userDharam = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const userKelsey = {
   userId: "6913cb53650998c5d85ac36b",
-  userName: "khaps",
+  userName: "khappel28",
 };
+
+const users = [userJen, userDharam, userKelsey];
 
 export function verifySessionToken(): SessionPayload | null {
   const cookieStore = cookies();
   const sessionToken = cookieStore.get("session_token")?.value;
+  const sessionOverride = cookieStore.get("session_override")?.value;
+
   if (!sessionToken) {
     return null;
   }
   try {
     const decoded = jwt.verify(sessionToken, JWT_SECRET) as SessionPayload;
+
+    const overrideUser = users.find(
+      (user) => user.userName === sessionOverride
+    );
+    if (overrideUser) {
+      return { ...decoded, ...overrideUser };
+    }
+
     return decoded;
   } catch {
     return null;

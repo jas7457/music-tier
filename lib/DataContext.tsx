@@ -22,6 +22,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const contextValue: DataContextType = useMemo(() => {
     return {
       refreshData: (reason) => {
+        console.log("DataContext: refreshData called", reason);
         const forceUpdate = (() => {
           switch (reason) {
             case "manual":
@@ -39,8 +40,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           !forceUpdate &&
           now - lastUpdateTimeRef.current < TIME_BETWEEN_REFRESH_MS
         ) {
+          console.log("DataContext: skipping refresh to avoid spamming");
           return;
         }
+        console.log("DataContext: performing refresh");
 
         lastUpdateTimeRef.current = now;
         routerRef.current.refresh();
