@@ -24,9 +24,11 @@ interface SpotifyPlayerContextType {
   hasInitialized: boolean;
   hasNextTrack: boolean;
   hasPreviousTrack: boolean;
+  playlist: PopulatedSubmission[];
+  currentTrackIndex: number;
   playTrack: (
     submission: PopulatedSubmission,
-    round?: PopulatedRound
+    round: PopulatedRound | "same"
   ) => Promise<void>;
   pausePlayback: () => Promise<void>;
   resumePlayback: () => Promise<void>;
@@ -496,6 +498,8 @@ export function SpotifyPlayerProvider({
     hasNextTrack,
     hasPreviousTrack,
     error,
+    playlist,
+    currentTrackIndex,
   };
 
   return (
