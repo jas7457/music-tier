@@ -77,33 +77,35 @@ export function League({ league }: { league: PopulatedLeague }) {
           <MultiLine>{league.description}</MultiLine>
         </p>
 
-        <div className="flex gap-4 text-sm text-gray-500">
-          <span>{league.numberOfRounds} rounds</span>
-          <span>•</span>
-          <span>{league.daysForSubmission} days for submissions</span>
-          <span>•</span>
-          <span>{league.daysForVoting} days for voting</span>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex gap-4 text-sm text-gray-500">
+            <span>{league.numberOfRounds} rounds</span>
+            <span>•</span>
+            <span>{league.daysForSubmission} days for submissions</span>
+            <span>•</span>
+            <span>{league.daysForVoting} days for voting</span>
+          </div>
+
+          {/* Toggle between Rounds and Standings */}
+          <div className="flex gap-2">
+            <ToggleButton
+              onClick={() => setShowStandings(false)}
+              selected={!showStandings}
+            >
+              Rounds
+            </ToggleButton>
+            <ToggleButton
+              onClick={() => setShowStandings(true)}
+              selected={showStandings}
+            >
+              Standings
+            </ToggleButton>
+          </div>
         </div>
       </div>
 
       {/* Create Round */}
       {userHasCreatedRound ? null : <CreateRound leagueId={league._id} />}
-
-      {/* Toggle between Rounds and Standings */}
-      <div className="flex justify-center gap-2">
-        <ToggleButton
-          onClick={() => setShowStandings(false)}
-          selected={!showStandings}
-        >
-          Rounds
-        </ToggleButton>
-        <ToggleButton
-          onClick={() => setShowStandings(true)}
-          selected={showStandings}
-        >
-          Standings
-        </ToggleButton>
-      </div>
 
       {/* Content */}
       {showStandings ? (

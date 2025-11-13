@@ -43,14 +43,12 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
         <h3 className="text-lg font-semibold mb-3 text-green-700">
           Current Round
         </h3>
-        <Card className="p-4" variant="outlined">
-          <Round
-            key={league.rounds.current.stage}
-            currentUser={user}
-            round={league.rounds.current}
-            league={league}
-          />
-        </Card>
+        <Round
+          key={league.rounds.current.stage}
+          currentUser={user}
+          round={league.rounds.current}
+          league={league}
+        />
       </div>
     );
   })();

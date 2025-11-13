@@ -16,7 +16,7 @@ export function ToggleButton({
       className={twMerge(
         "px-4 py-2 rounded-lg font-medium transition-colors",
         selected
-          ? "bg-blue-600 text-white"
+          ? "bg-purple-600 text-white"
           : "bg-gray-200 text-gray-700 hover:bg-gray-300"
       )}
     >

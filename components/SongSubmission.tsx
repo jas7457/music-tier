@@ -154,16 +154,14 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
 
   const isRoundEnded = round.votingEndDate <= Date.now();
 
-  const fullClassName = twMerge(
-    "p-3",
-    className,
-    getStatusColor(round.stage),
-    "text-black"
-  );
+  const fullClassName = twMerge("p-3", className);
 
   if (submission && isRealSubmission && !isEditing) {
     return (
-      <Card variant="outlined" className={fullClassName}>
+      <Card
+        variant="outlined"
+        className={twMerge(fullClassName, "bg-purple-50 border-purple-300")}
+      >
         <div className="flex items-center justify-between mb-3">
           <h5 className="font-semibold text-sm text-gray-700">
             Your Submission
