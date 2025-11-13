@@ -1,11 +1,11 @@
 "use client";
 
-import { PopulatedRound, PopulatedTrackInfo } from "@/lib/types";
+import { PopulatedRound, PopulatedSubmission } from "@/lib/types";
 import { PlayIcon, PauseIcon } from "./PlayerIcons";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 
 interface AlbumArtProps {
-  trackInfo: PopulatedTrackInfo;
+  submission: PopulatedSubmission;
   size?: number;
   className?: string;
   round: PopulatedRound;
@@ -13,21 +13,23 @@ interface AlbumArtProps {
 
 export default function AlbumArt({
   round,
-  trackInfo,
+  submission,
   size = 64,
   className = "",
 }: AlbumArtProps) {
-  const trackUri = `spotify:track:${trackInfo.trackId}`;
   const playerContext = useSpotifyPlayer();
 
   const isEffectivelyTheCurrentTrack = (() => {
     if (!playerContext.currentTrack) {
       return false;
     }
-    if (playerContext.currentTrack.id === trackInfo.trackId) {
+    if (playerContext.currentTrack.id === submission.trackInfo.trackId) {
       return true;
     }
-    if (playerContext.currentTrack.linked_from?.id === trackInfo.trackId) {
+    if (
+      playerContext.currentTrack.linked_from?.id ===
+      submission.trackInfo.trackId
+    ) {
       return true;
     }
     return false;
@@ -42,17 +44,15 @@ export default function AlbumArt({
 
   // Handle play click
   const handlePlayClick = async () => {
-    if (isDisabled) {
+    if (isDisabled || !submission) {
       return;
     }
-    if (trackUri) {
-      if (isCurrentlyPlaying) {
-        await playerContext.pausePlayback();
-      } else if (isEffectivelyTheCurrentTrack) {
-        await playerContext.resumePlayback();
-      } else {
-        await playerContext.playTrack(trackUri, round);
-      }
+    if (isCurrentlyPlaying) {
+      await playerContext.pausePlayback();
+    } else if (isEffectivelyTheCurrentTrack) {
+      await playerContext.resumePlayback();
+    } else {
+      await playerContext.playTrack(submission, round);
     }
   };
 
@@ -63,8 +63,8 @@ export default function AlbumArt({
     >
       <div className="w-full h-full">
         <img
-          src={trackInfo.albumImageUrl}
-          alt={trackInfo.title}
+          src={submission.trackInfo.albumImageUrl}
+          alt={submission.trackInfo.title}
           className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
         />
       </div>

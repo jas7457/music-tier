@@ -18,31 +18,6 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
   const { user } = useAuth();
 
-  const pointsForYou = useMemo(() => {
-    const userPointsById = league.users.reduce((acc, user) => {
-      acc[user._id] = { user, points: 0 };
-      return acc;
-    }, {} as Record<string, { user: PopulatedUser; points: number }>);
-
-    league.rounds.completed.forEach((round) => {
-      const submissionsById = round.submissions.reduce((acc, submission) => {
-        acc[submission._id] = submission;
-        return acc;
-      }, {} as Record<string, PopulatedSubmission>);
-      round.votes.forEach((vote) => {
-        const submission = submissionsById[vote.submissionId];
-        if (!submission || submission.userId !== user?._id) {
-          return;
-        }
-        userPointsById[vote.userId].points += vote.points;
-      });
-    });
-
-    return Object.values(userPointsById)
-      .sort((a, b) => b.points - a.points)
-      .filter((item) => item.user._id !== user?._id);
-  }, [league, user?._id]);
-
   const standings = useMemo(() => {
     // Calculate total points for each user across all completed rounds
     const userPointsById = league.users.reduce((acc, user) => {
@@ -331,7 +306,6 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
     league.status,
     league.users,
     league.title,
-    pointsForYou,
     standings,
     user?._id,
   ]);
@@ -556,7 +530,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                             <div className="flex items-start gap-3">
                               {/* Album Art */}
                               <AlbumArt
-                                trackInfo={guess.submission.trackInfo}
+                                submission={guess.submission}
                                 round={guess.round}
                                 size={60}
                               />

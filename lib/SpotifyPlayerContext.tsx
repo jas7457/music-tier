@@ -24,7 +24,10 @@ interface SpotifyPlayerContextType {
   hasInitialized: boolean;
   hasNextTrack: boolean;
   hasPreviousTrack: boolean;
-  playTrack: (trackUri: string, round?: PopulatedRound) => Promise<void>;
+  playTrack: (
+    submission: PopulatedSubmission,
+    round?: PopulatedRound
+  ) => Promise<void>;
   pausePlayback: () => Promise<void>;
   resumePlayback: () => Promise<void>;
   nextTrack: () => Promise<void>;
@@ -68,7 +71,7 @@ export function SpotifyPlayerProvider({
   const [hasInitialized, setHasInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [{ playlist, currentTrackIndex }, setPlaylist] = useState<{
-    playlist: PopulatedSubmission["trackInfo"][];
+    playlist: PopulatedSubmission[];
     currentTrackIndex: number;
   }>({ playlist: [], currentTrackIndex: -1 });
   const lastPlaybackStateRef = useRef<Spotify.WebPlaybackState | null>(null);
@@ -121,7 +124,7 @@ export function SpotifyPlayerProvider({
     };
 
     checkAndRefreshToken();
-  }, []);
+  }, [toast]);
 
   // Initialize Spotify Web Playback SDK
   useEffect(() => {
@@ -249,7 +252,7 @@ export function SpotifyPlayerProvider({
   }, [volume]);
 
   const playTrack = async (
-    trackUri: string,
+    submission: PopulatedSubmission,
     round?: PopulatedRound | "same"
   ) => {
     if (!deviceId) {
@@ -263,6 +266,8 @@ export function SpotifyPlayerProvider({
       });
       return;
     }
+
+    const trackUri = `spotify:track:${submission.trackInfo.trackId}`;
 
     const accessToken = Cookies.get("spotify_access_token");
     if (!accessToken) {
@@ -345,16 +350,19 @@ export function SpotifyPlayerProvider({
       setIsPlaying(true);
       setError(null);
       if (round) {
-        const tracks =
-          round === "same"
-            ? playlist
-            : round.submissions.map((submission) => submission.trackInfo);
+        const submissionTracks =
+          round === "same" ? playlist : round.submissions;
 
-        const trackIndex = tracks.findIndex(
-          (t) => t.trackId === trackUri.replace("spotify:track:", "")
+        const trackIndex = submissionTracks.findIndex(
+          (submission) =>
+            submission.trackInfo.trackId ===
+            trackUri.replace("spotify:track:", "")
         );
 
-        setPlaylist({ playlist: tracks, currentTrackIndex: trackIndex });
+        setPlaylist({
+          playlist: submissionTracks,
+          currentTrackIndex: trackIndex,
+        });
       } else {
         setPlaylist({ playlist: [], currentTrackIndex: -1 });
       }
@@ -409,7 +417,7 @@ export function SpotifyPlayerProvider({
   const nextTrack = async () => {
     const nextTrack = playlist[currentTrackIndex + 1];
     if (nextTrack) {
-      playTrack(`spotify:track:${nextTrack.trackId}`, "same");
+      playTrack(nextTrack, "same");
       return;
     }
   };
@@ -418,7 +426,7 @@ export function SpotifyPlayerProvider({
   const previousTrack = async () => {
     const previousTrack = playlist[currentTrackIndex - 1];
     if (previousTrack) {
-      playTrack(`spotify:track:${previousTrack.trackId}`, "same");
+      playTrack(previousTrack, "same");
       return;
     }
   };

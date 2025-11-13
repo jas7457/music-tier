@@ -38,7 +38,7 @@ export default function MusicPlayer() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
       {/* Liquid glass background with gradient */}
-      <div className="relative backdrop-blur-3xl bg-gradient-to-br from-purple-600/40 via-pink-600/40 to-blue-600/40 border-t-2 border-white/30 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+      <div className="relative backdrop-blur-3xl bg-linear-to-br from-purple-600/40 via-pink-600/40 to-blue-600/40 border-t-2 border-white/30 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         {/* Additional glass layer for depth - darker for contrast */}
         <div className="absolute inset-0 bg-black/30"></div>
 
@@ -55,7 +55,7 @@ export default function MusicPlayer() {
                       className="w-15 h-15 rounded-2xl object-cover shrink-0 shadow-xl border-2 border-white/30"
                     />
                     {/* Glassy overlay on album art */}
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-white/10 to-transparent"></div>
+                    <div className="absolute inset-0 rounded-2xl bg-linear-to-tr from-white/10 to-transparent"></div>
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-bold text-sm text-white truncate drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
@@ -95,7 +95,7 @@ export default function MusicPlayer() {
                     }
                   }}
                   disabled={!deviceId || !currentTrack}
-                  className="w-14 h-14 rounded-full backdrop-blur-xl bg-gradient-to-br from-green-400 to-emerald-500 border-2 border-white/60 text-white flex items-center justify-center transition-all hover:from-green-300 hover:to-emerald-400 hover:scale-110 hover:shadow-[0_0_35px_rgba(16,185,129,0.8)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
+                  className="w-14 h-14 rounded-full backdrop-blur-xl bg-linear-to-br from-green-400 to-emerald-500 border-2 border-white/60 text-white flex items-center justify-center transition-all hover:from-green-300 hover:to-emerald-400 hover:scale-110 hover:shadow-[0_0_35px_rgba(16,185,129,0.8)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
                   title={isPlaying ? "Pause" : "Play"}
                 >
                   {isPlaying ? (
@@ -132,7 +132,7 @@ export default function MusicPlayer() {
                 <div className="flex-1 relative">
                   <input
                     type="range"
-                    className="w-full h-2.5 bg-white/30 backdrop-blur-sm rounded-full appearance-none cursor-pointer border-2 border-white/40 shadow-inner [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-linear-to-br [&::-webkit-slider-thumb]:from-white [&::-webkit-slider-thumb]:to-white [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-3 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7),0_2px_6px_rgba(0,0,0,0.35)] [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-125 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-gradient-to-br [&::-moz-range-thumb]:from-white [&::-moz-range-thumb]:to-green-300 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-3 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
+                    className="w-full h-2.5 bg-white/30 backdrop-blur-sm rounded-full appearance-none cursor-pointer border-2 border-white/40 shadow-inner [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-linear-to-br [&::-webkit-slider-thumb]:from-white [&::-webkit-slider-thumb]:to-white [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-3 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7),0_2px_6px_rgba(0,0,0,0.35)] [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-125 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-linear-to-br [&::-moz-range-thumb]:from-white [&::-moz-range-thumb]:to-green-300 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-3 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
                     min="0"
                     max={duration || 0}
                     value={currentTime}
@@ -155,7 +155,7 @@ export default function MusicPlayer() {
               <div className="relative flex-1">
                 <input
                   type="range"
-                  className="w-full h-2.5 bg-white/30 backdrop-blur-sm rounded-full appearance-none cursor-pointer border-2 border-white/40 shadow-inner [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gradient-to-br [&::-webkit-slider-thumb]:from-white [&::-webkit-slider-thumb]:to-white [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-3 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7),0_2px_6px_rgba(0,0,0,0.35)] [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-125 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-gradient-to-br [&::-moz-range-thumb]:from-white [&::-moz-range-thumb]:to-purple-300 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-3 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
+                  className="w-full h-2.5 bg-white/30 backdrop-blur-sm rounded-full appearance-none cursor-pointer border-2 border-white/40 shadow-inner [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-linear-to-br [&::-webkit-slider-thumb]:from-white [&::-webkit-slider-thumb]:to-white [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-3 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7),0_2px_6px_rgba(0,0,0,0.35)] [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-125 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-linear-to-br [&::-moz-range-thumb]:from-white [&::-moz-range-thumb]:to-purple-300 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-3 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
                   min="0"
                   max="1"
                   step="0.1"

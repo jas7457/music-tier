@@ -179,11 +179,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
         </div>
         <div className="flex items-center gap-3">
           {submission.trackInfo.albumImageUrl && (
-            <AlbumArt
-              trackInfo={submission.trackInfo}
-              size={64}
-              round={round}
-            />
+            <AlbumArt submission={submission} size={64} round={round} />
           )}
           <div className="flex-1">
             <p className="font-semibold text-sm">
@@ -274,11 +270,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
           <div className="p-3 bg-purple-50 border border-purple-400 rounded-md">
             <div className="flex items-center gap-3">
               {submission.trackInfo.albumImageUrl && (
-                <AlbumArt
-                  trackInfo={submission.trackInfo}
-                  size={56}
-                  round={round}
-                />
+                <AlbumArt submission={submission} size={56} round={round} />
               )}
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate">

@@ -107,11 +107,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
             <div className="flex gap-4 p-6">
               <div className="flex grow gap-4 items-center">
                 {/* Album Art */}
-                <AlbumArt
-                  trackInfo={submission.trackInfo}
-                  size={120}
-                  round={round}
-                />
+                <AlbumArt submission={submission} size={120} round={round} />
 
                 {/* Track Info */}
                 <div className="flex-1 min-w-0 flex flex-col gap-1">
