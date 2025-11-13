@@ -12,6 +12,7 @@ import { LeagueRounds } from "./LeagueRounds";
 import { LeagueStandings } from "./LeagueStandings";
 import { ToggleButton } from "./ToggleButton";
 import { getAllRounds } from "@/lib/utils/getAllRounds";
+import { formatDate } from "@/lib/utils/formatDate";
 
 export function League({ league }: { league: PopulatedLeague }) {
   const { user } = useAuth();
@@ -32,6 +33,14 @@ export function League({ league }: { league: PopulatedLeague }) {
 
     return allRounds.some((round) => round.creatorId === user._id);
   }, [league, user]);
+
+  const finalVoteTimestamp = useMemo(() => {
+    const allVotes = league.rounds.completed.flatMap((round) => round.votes);
+    return allVotes.reduce(
+      (latest, vote) => Math.max(latest, vote.voteDate),
+      0
+    );
+  }, [league]);
 
   if (!user) {
     return null;
@@ -78,7 +87,13 @@ export function League({ league }: { league: PopulatedLeague }) {
         </p>
 
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex gap-4 text-sm text-gray-500">
+          <div className="flex gap-2 text-sm text-gray-500">
+            {league.status === "completed" && finalVoteTimestamp > 0 && (
+              <>
+                <span>League ended: {formatDate(finalVoteTimestamp)}</span>
+                <span>•</span>
+              </>
+            )}
             <span>{league.numberOfRounds} rounds</span>
             <span>•</span>
             <span>{league.daysForSubmission} days for submissions</span>

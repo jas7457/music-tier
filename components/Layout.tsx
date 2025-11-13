@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Cookies from "js-cookie";
 
-import logo from "../app/images/logo.png";
+import logo from "../app/images/5.png";
 import MusicPlayer from "./MusicPlayer";
 import { useEffect, useState, useRef } from "react";
 import { MaybeLink } from "./MaybeLink";

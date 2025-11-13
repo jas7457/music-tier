@@ -9,7 +9,7 @@ import { useToast } from "./ToastContext";
 // working url:     https://api.spotify.com/v1/me/player/play?device_id=84ba12cbec6088ef868f60f97ca1b1f6a4c9a140
 // not working url: https://api.spotify.com/v1/me/player/play?device_id=baa7bbf1c2c8f54c444a1c917e6f1d00229d8e49
 
-const SPOTIFY_PLAYER_NAME = "Music Tier Player";
+const SPOTIFY_PLAYER_NAME = "Music League Now!";
 
 interface SpotifyPlayerContextType {
   player: Spotify.Player | null;

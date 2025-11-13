@@ -47,7 +47,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       message: options.message,
       variant: options.variant || "default",
       dismissible: options.dismissible ?? true,
-      timeout: options.timeout,
+      timeout: options.timeout || 5000,
     };
 
     setToasts((prev) => [...prev, toast]);
@@ -62,10 +62,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts([]);
   }, []);
 
-  const value = useMemo(
-    () => ({ show, hide, hideAll }),
-    [show, hide, hideAll]
-  );
+  const value = useMemo(() => ({ show, hide, hideAll }), [show, hide, hideAll]);
 
   return (
     <ToastContext.Provider value={value}>

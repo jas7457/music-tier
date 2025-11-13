@@ -104,8 +104,8 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
             className={twMerge("relative", cardClassName)}
           >
             {/* Submission Header */}
-            <div className="flex gap-4 p-6">
-              <div className="flex grow gap-4 items-center">
+            <div className="flex flex-wrap gap-4 p-6">
+              <div className="flex flex-wrap grow gap-4 items-center">
                 {/* Album Art */}
                 <AlbumArt submission={submission} size={120} round={round} />
 
