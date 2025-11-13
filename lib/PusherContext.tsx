@@ -114,10 +114,6 @@ function useNotifications(updatesFor: UpdatesFor) {
   const toast = useToast();
 
   useEffect(() => {
-    if (!("Notification" in window) || Notification.permission !== "granted") {
-      return;
-    }
-
     const previousData = updatesForRef.current;
     updatesForRef.current = updatesFor;
 
@@ -235,14 +231,19 @@ function useNotifications(updatesFor: UpdatesFor) {
       return null;
     })();
 
-    if (notificationToSend) {
-      new Notification(notificationToSend.title, notificationToSend.options);
-      toast.show({
-        message: notificationToSend.options?.body || notificationToSend.title,
-        variant: "info",
-        dismissible: true,
-        timeout: 5000,
-      });
+    if (!notificationToSend) {
+      return;
     }
+
+    toast.show({
+      title: notificationToSend.title,
+      message: notificationToSend.options?.body || "",
+      variant: "info",
+    });
+
+    if (!("Notification" in window) || Notification.permission !== "granted") {
+      return;
+    }
+    new Notification(notificationToSend.title, notificationToSend.options);
   }, [updatesFor, toast]);
 }

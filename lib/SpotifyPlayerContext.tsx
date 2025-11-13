@@ -110,8 +110,6 @@ export function SpotifyPlayerProvider({
           toast.show({
             message: errorMessage,
             variant: "error",
-            dismissible: true,
-            timeout: 5000,
           });
           console.error("Failed to refresh Spotify token:", error);
         }
@@ -284,8 +282,6 @@ export function SpotifyPlayerProvider({
       toast.show({
         message: errorMessage,
         variant: "error",
-        dismissible: true,
-        timeout: 5000,
       });
       return;
     }
@@ -299,8 +295,6 @@ export function SpotifyPlayerProvider({
       toast.show({
         message: errorMessage,
         variant: "error",
-        dismissible: true,
-        timeout: 5000,
       });
       return;
     }
@@ -399,8 +393,6 @@ export function SpotifyPlayerProvider({
       toast.show({
         message: errorMessage,
         variant: "error",
-        dismissible: true,
-        timeout: 5000,
       });
     }
   };

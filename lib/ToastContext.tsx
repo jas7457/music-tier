@@ -8,22 +8,10 @@ import {
   useCallback,
   ReactNode,
 } from "react";
-import { Toast } from "@/components/Toast";
+import { Toast, ToastProps } from "@/components/Toast";
 
-type ToastVariant = "default" | "error" | "warning" | "info";
-
-export interface ToastOptions {
-  message: string;
-  variant?: ToastVariant;
-  dismissible?: boolean;
-  timeout?: number;
-}
-
-interface ToastItem extends ToastOptions {
-  id: string;
-  variant: ToastVariant;
-  dismissible: boolean;
-}
+export type ToastOptions = Omit<ToastProps, "id" | "onDismiss">;
+type ToastItem = Omit<ToastProps, "onDismiss">;
 
 interface ToastContextValue {
   show: (options: ToastOptions) => string;
@@ -44,10 +32,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     const id = Math.random().toString(36).substring(2, 9);
     const toast: ToastItem = {
       id,
-      message: options.message,
-      variant: options.variant || "default",
-      dismissible: options.dismissible ?? true,
-      timeout: options.timeout || 5000,
+      ...options,
     };
 
     setToasts((prev) => [...prev, toast]);
@@ -69,15 +54,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
         {toasts.map((toast) => (
-          <Toast
-            key={toast.id}
-            id={toast.id}
-            message={toast.message}
-            variant={toast.variant}
-            dismissible={toast.dismissible}
-            timeout={toast.timeout}
-            onDismiss={hide}
-          />
+          <Toast key={toast.id} {...toast} onDismiss={hide} />
         ))}
       </div>
     </ToastContext.Provider>
