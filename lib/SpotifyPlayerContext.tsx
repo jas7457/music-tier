@@ -90,16 +90,20 @@ export function SpotifyPlayerProvider({
   // Auto-refresh Spotify token before expiration
   useEffect(() => {
     const checkAndRefreshToken = async () => {
-      const expiresAt = Cookies.get("spotify_token_expires_at");
-      if (!expiresAt) return;
-
-      const expiresAtTime = parseInt(expiresAt, 10);
-      const timeUntilExpiry = expiresAtTime - Date.now();
-      const fiveMinutes = 5 * 60 * 1000;
-
       const doRefresh = async () => {
         try {
-          await fetch("/api/spotify/refresh", { method: "POST" });
+          const response = await fetch("/api/spotify/refresh", {
+            method: "POST",
+          });
+          if (!response.ok) {
+            throw new Error(`${response.status} error: ${response.statusText}`);
+          }
+          try {
+            const data = await response.json();
+            if (data.success) {
+              setHasInitialized(true);
+            }
+          } catch {}
         } catch (error) {
           const errorMessage = `Failed to refresh Spotify token, ${error}`;
           setError(errorMessage);
@@ -113,6 +117,20 @@ export function SpotifyPlayerProvider({
         }
         checkAndRefreshToken();
       };
+
+      const expiresAt = Cookies.get("spotify_token_expires_at");
+      const currentToken = Cookies.get("spotify_access_token");
+      if (!expiresAt || !currentToken) {
+        debugger;
+        try {
+          await doRefresh();
+        } catch {}
+        return;
+      }
+
+      const expiresAtTime = parseInt(expiresAt, 10);
+      const timeUntilExpiry = expiresAtTime - Date.now();
+      const fiveMinutes = 5 * 60 * 1000;
 
       // If token expires in less than 5 minutes, refresh it now
       if (timeUntilExpiry < fiveMinutes) {
