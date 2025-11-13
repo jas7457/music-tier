@@ -8,6 +8,7 @@ import { PopulatedUser } from "@/lib/types";
 import { getUserByCookies } from "@/lib/data";
 import { cookies } from "next/headers";
 import { DataProvider } from "@/lib/DataContext";
+import { ToastProvider } from "@/lib/ToastContext";
 
 export const metadata: Metadata = {
   title: "Music League Now!",
@@ -38,13 +39,15 @@ export default async function RootLayout({
       </head>
       <body>
         <AuthProvider initialUser={initialUser}>
-          <PusherProvider>
-            <SpotifyPlayerProvider>
-              <DataProvider>
-                <Layout>{children}</Layout>
-              </DataProvider>
-            </SpotifyPlayerProvider>
-          </PusherProvider>
+          <ToastProvider>
+            <PusherProvider>
+              <SpotifyPlayerProvider>
+                <DataProvider>
+                  <Layout>{children}</Layout>
+                </DataProvider>
+              </SpotifyPlayerProvider>
+            </PusherProvider>
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

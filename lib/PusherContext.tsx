@@ -18,6 +18,7 @@ import {
 import { useData } from "./DataContext";
 import { PopulatedLeague, PopulatedRound } from "./types";
 import { getAllRounds } from "./utils/getAllRounds";
+import { useToast } from "./ToastContext";
 
 type PusherContextType = {
   pusher: PusherClient | null;
@@ -110,6 +111,7 @@ type NotificationPayload = {
 
 function useNotifications(updatesFor: UpdatesFor) {
   const updatesForRef = useRef<UpdatesFor>(updatesFor);
+  const toast = useToast();
 
   useEffect(() => {
     if (!("Notification" in window) || Notification.permission !== "granted") {
@@ -235,6 +237,12 @@ function useNotifications(updatesFor: UpdatesFor) {
 
     if (notificationToSend) {
       new Notification(notificationToSend.title, notificationToSend.options);
+      toast.show({
+        message: notificationToSend.options?.body || notificationToSend.title,
+        variant: "info",
+        dismissible: true,
+        timeout: 5000,
+      });
     }
-  }, [updatesFor]);
+  }, [updatesFor, toast]);
 }

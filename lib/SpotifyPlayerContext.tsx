@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useRef } from "react";
 import Cookies from "js-cookie";
 import { PopulatedRound, PopulatedSubmission } from "./types";
 import { getSpotifyDevices } from "./spotify";
+import { useToast } from "./ToastContext";
 
 // working url:     https://api.spotify.com/v1/me/player/play?device_id=84ba12cbec6088ef868f60f97ca1b1f6a4c9a140
 // not working url: https://api.spotify.com/v1/me/player/play?device_id=baa7bbf1c2c8f54c444a1c917e6f1d00229d8e49
@@ -72,6 +73,7 @@ export function SpotifyPlayerProvider({
   }>({ playlist: [], currentTrackIndex: -1 });
   const lastPlaybackStateRef = useRef<Spotify.WebPlaybackState | null>(null);
   const nextTrackRef = useRef<() => void>(() => {});
+  const toast = useToast();
 
   const hasNextTrack =
     playlist.length > 0 && currentTrackIndex < playlist.length - 1;
@@ -91,7 +93,14 @@ export function SpotifyPlayerProvider({
         try {
           await fetch("/api/spotify/refresh", { method: "POST" });
         } catch (error) {
-          setError(`Failed to refresh Spotify token, ${error}`);
+          const errorMessage = `Failed to refresh Spotify token, ${error}`;
+          setError(errorMessage);
+          toast.show({
+            message: errorMessage,
+            variant: "error",
+            dismissible: true,
+            timeout: 5000,
+          });
           console.error("Failed to refresh Spotify token:", error);
         }
         checkAndRefreshToken();
@@ -244,13 +253,27 @@ export function SpotifyPlayerProvider({
     round?: PopulatedRound | "same"
   ) => {
     if (!deviceId) {
-      setError("No Spotify device available");
+      const errorMessage = "No Spotify device available";
+      setError(errorMessage);
+      toast.show({
+        message: errorMessage,
+        variant: "error",
+        dismissible: true,
+        timeout: 5000,
+      });
       return;
     }
 
     const accessToken = Cookies.get("spotify_access_token");
     if (!accessToken) {
-      setError("No Spotify access token");
+      const errorMessage = "No Spotify access token";
+      setError(errorMessage);
+      toast.show({
+        message: errorMessage,
+        variant: "error",
+        dismissible: true,
+        timeout: 5000,
+      });
       return;
     }
 
@@ -337,7 +360,15 @@ export function SpotifyPlayerProvider({
       }
     } catch (error) {
       console.error("Error playing track:", error);
-      setError("Failed to play track. Make sure you have Spotify Premium.");
+      const errorMessage =
+        "Failed to play track. Make sure you have Spotify Premium.";
+      setError(errorMessage);
+      toast.show({
+        message: errorMessage,
+        variant: "error",
+        dismissible: true,
+        timeout: 5000,
+      });
     }
   };
 
