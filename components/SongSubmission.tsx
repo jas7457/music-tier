@@ -9,7 +9,6 @@ import { useAuth } from "@/lib/AuthContext";
 import { MultiLine } from "./MultiLine";
 import Card from "./Card";
 import { twMerge } from "tailwind-merge";
-import { getStatusColor } from "@/lib/utils/colors";
 import { useData } from "@/lib/DataContext";
 
 interface SongSubmissionProps {
