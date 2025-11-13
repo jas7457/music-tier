@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 import { PlayIcon, PauseIcon, NextIcon, PreviousIcon } from "./PlayerIcons";
+import Link from "next/link";
 
 export default function MusicPlayer() {
   const {
@@ -23,6 +24,7 @@ export default function MusicPlayer() {
     hasPreviousTrack,
     playlist,
     currentTrackIndex,
+    playlistRound,
   } = useSpotifyPlayer();
 
   const [showPlaylist, setShowPlaylist] = useState(false);
@@ -71,17 +73,26 @@ export default function MusicPlayer() {
         <div className="relative px-5 py-3">
           <div className="flex gap-5 items-center">
             {/* Track Display */}
-            <div className="flex items-center gap-3 min-w-0 w-52 max-w-[35%]">
+            <div className="flex grow items-center gap-3 min-w-0 w-52 max-w-[35%]">
               {currentTrack && (
                 <>
                   <div className="relative">
+                    {/* Animated border when playing */}
+                    {isPlaying && (
+                      <div className="absolute inset-0 rounded-2xl animate-spin-slow">
+                        <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-purple-400/80 via-pink-400/80 to-blue-400/80 blur-sm"></div>
+                      </div>
+                    )}
+
                     <img
                       src={currentTrack.album.images[0]?.url}
                       alt="Current track"
-                      className="w-15 h-15 rounded-2xl object-cover shrink-0 shadow-xl border-2 border-white/30"
+                      className={`relative w-15 h-15 rounded-2xl object-cover shrink-0 shadow-xl border-2 ${
+                        isPlaying ? "border-white/60" : "border-white/30"
+                      }`}
                     />
                     {/* Glassy overlay on album art */}
-                    <div className="absolute inset-0 rounded-2xl bg-linear-to-tr from-white/10 to-transparent"></div>
+                    <div className="absolute inset-0 rounded-2xl bg-linear-to-tr from-white/10 to-transparent pointer-events-none"></div>
                   </div>
                   <div className="min-w-0 flex-1 flex items-center gap-2">
                     <div className="min-w-0 flex-1">
@@ -99,7 +110,7 @@ export default function MusicPlayer() {
               )}
             </div>
 
-            <div className="max-w-3xl grid grid-rows-1 gap-1 mx-auto w-full grow shrink">
+            <div className="max-w-3xl grid grid-rows-1 gap-1 mx-auto grow shrink">
               {/* Player Controls */}
               <div className="flex items-center justify-center gap-4">
                 <button
@@ -176,7 +187,7 @@ export default function MusicPlayer() {
 
             {/* Playlist Button */}
             <div
-              className="flex items-center justify-end w-52 max-w-[35%] relative"
+              className="flex grow items-center justify-end w-52 max-w-[35%] relative"
               ref={playlistRef}
             >
               <button
@@ -211,7 +222,34 @@ export default function MusicPlayer() {
                     {/* Additional glass layer for depth - darker for contrast */}
                     <div className="absolute inset-0 bg-black/40"></div>
 
-                    <div className="relative divide-y divide-white/10">
+                    <div className="relative">
+                      {/* View Round Link */}
+                      {playlistRound && (
+                        <div className="px-4 py-3 border-b border-white/10">
+                          <Link
+                            href={`/leagues/${playlistRound.leagueId}/rounds/${playlistRound._id}`}
+                            className="text-sm font-semibold text-white hover:text-white/80 transition-colors drop-shadow-lg flex items-center gap-2"
+                            onClick={() => setShowPlaylist(false)}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </svg>
+                            View Round
+                          </Link>
+                        </div>
+                      )}
+
+                      <div className="divide-y divide-white/10">
                       {playlist.map((submission, index) => {
                         const isCurrentTrack = index === currentTrackIndex;
                         return (
@@ -244,6 +282,7 @@ export default function MusicPlayer() {
                           </button>
                         );
                       })}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -26,6 +26,7 @@ interface SpotifyPlayerContextType {
   hasPreviousTrack: boolean;
   playlist: PopulatedSubmission[];
   currentTrackIndex: number;
+  playlistRound: PopulatedRound | null;
   playTrack: (
     submission: PopulatedSubmission,
     round: PopulatedRound | "same"
@@ -72,10 +73,12 @@ export function SpotifyPlayerProvider({
   const [isReady, setIsReady] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [{ playlist, currentTrackIndex }, setPlaylist] = useState<{
-    playlist: PopulatedSubmission[];
-    currentTrackIndex: number;
-  }>({ playlist: [], currentTrackIndex: -1 });
+  const [{ playlist, currentTrackIndex, round: playlistRound }, setPlaylist] =
+    useState<{
+      round: PopulatedRound | null;
+      playlist: PopulatedSubmission[];
+      currentTrackIndex: number;
+    }>({ playlist: [], currentTrackIndex: -1, round: null });
   const lastPlaybackStateRef = useRef<Spotify.WebPlaybackState | null>(null);
   const nextTrackRef = useRef<() => void>(() => {});
   const toast = useToast();
@@ -352,21 +355,23 @@ export function SpotifyPlayerProvider({
       setIsPlaying(true);
       setError(null);
       if (round) {
-        const submissionTracks =
-          round === "same" ? playlist : round.submissions;
+        const info =
+          round === "same"
+            ? { playlist, round: playlistRound }
+            : { playlist: round.submissions, round };
 
-        const trackIndex = submissionTracks.findIndex(
+        const trackIndex = info.playlist.findIndex(
           (submission) =>
             submission.trackInfo.trackId ===
             trackUri.replace("spotify:track:", "")
         );
 
         setPlaylist({
-          playlist: submissionTracks,
+          ...info,
           currentTrackIndex: trackIndex,
         });
       } else {
-        setPlaylist({ playlist: [], currentTrackIndex: -1 });
+        setPlaylist({ playlist: [], currentTrackIndex: -1, round: null });
       }
     } catch (error) {
       console.error("Error playing track:", error);
@@ -500,6 +505,7 @@ export function SpotifyPlayerProvider({
     error,
     playlist,
     currentTrackIndex,
+    playlistRound,
   };
 
   return (

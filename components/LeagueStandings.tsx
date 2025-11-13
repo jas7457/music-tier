@@ -336,10 +336,12 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
           key={standing.user._id}
           className={twMerge(
             "p-4 flex items-center gap-4",
-            isFirst && "bg-amber-100",
-            isSecond && "bg-gray-100",
-            isThird && "bg-orange-100",
-            isOther && "bg-white"
+            isFirst && "border border-yellow-400 bg-yellow-50",
+            isSecond && "border border-gray-400 bg-gray-50",
+            isThird && "border border-[#cd7f32] bg-[#f9f2ec]",
+            isOther && "border border-gray-400 bg-white",
+            index === 0 && "rounded-t-lg",
+            index === standings.length - 1 && "rounded-b-lg"
           )}
         >
           {/* Rank */}
@@ -388,8 +390,8 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
           League Standings
         </h3>
 
-        <Card variant="outlined">
-          <div className="divide-y divide-gray-200">{standingsMarkup}</div>
+        <Card variant="outlined" className="overflow-clip">
+          {standingsMarkup}
         </Card>
       </div>
 
