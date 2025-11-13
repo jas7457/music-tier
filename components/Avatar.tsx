@@ -1,6 +1,8 @@
 import { PopulatedUser } from "@/lib/types";
+import { twMerge } from "tailwind-merge";
 
 export function Avatar({
+  className,
   user,
   size = 8,
   includeTooltip,
@@ -10,6 +12,7 @@ export function Avatar({
   size?: number;
   includeTooltip?: boolean;
   tooltipText?: string;
+  className?: string;
 }) {
   const fullName = `${user.firstName} ${user.lastName}`;
   const initial = user.userName.charAt(0).toUpperCase();
@@ -41,7 +44,12 @@ export function Avatar({
         />
       ) : (
         <div
-          className={`${sizeStr} rounded-full bg-linear-to-br ${gradient} flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-300`}
+          className={twMerge(
+            sizeStr,
+            gradient,
+            "rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-300",
+            className
+          )}
         >
           {initial}
         </div>

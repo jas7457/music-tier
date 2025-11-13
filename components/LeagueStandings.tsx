@@ -12,9 +12,36 @@ import { twMerge } from "tailwind-merge";
 import { getPlaces } from "@/lib/utils/getPlaces";
 import AlbumArt from "./AlbumArt";
 import { BlockQuote } from "./BlockQuote";
+import { useAuth } from "@/lib/AuthContext";
 
 export function LeagueStandings({ league }: { league: PopulatedLeague }) {
-  const [expandedUser, setExpandedUser] = useState<string | null>(null);
+  const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
+  const { user } = useAuth();
+
+  const pointsForYou = useMemo(() => {
+    const userPointsById = league.users.reduce((acc, user) => {
+      acc[user._id] = { user, points: 0 };
+      return acc;
+    }, {} as Record<string, { user: PopulatedUser; points: number }>);
+
+    league.rounds.completed.forEach((round) => {
+      const submissionsById = round.submissions.reduce((acc, submission) => {
+        acc[submission._id] = submission;
+        return acc;
+      }, {} as Record<string, PopulatedSubmission>);
+      round.votes.forEach((vote) => {
+        const submission = submissionsById[vote.submissionId];
+        if (!submission || submission.userId !== user?._id) {
+          return;
+        }
+        userPointsById[vote.userId].points += vote.points;
+      });
+    });
+
+    return Object.values(userPointsById)
+      .sort((a, b) => b.points - a.points)
+      .filter((item) => item.user._id !== user?._id);
+  }, [league, user?._id]);
 
   const standings = useMemo(() => {
     // Calculate total points for each user across all completed rounds
@@ -153,6 +180,162 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
     });
   }, [league]);
 
+  const completedMarkup = useMemo(() => {
+    if (league.status !== "completed") {
+      return null;
+    }
+
+    const userPointsById = league.users.reduce((acc, user) => {
+      acc[user._id] = { user, points: 0 };
+      return acc;
+    }, {} as Record<string, { user: PopulatedUser; points: number }>);
+
+    league.rounds.completed.forEach((round) => {
+      const submissionsById = round.submissions.reduce((acc, submission) => {
+        acc[submission._id] = submission;
+        return acc;
+      }, {} as Record<string, PopulatedSubmission>);
+      round.votes.forEach((vote) => {
+        const submission = submissionsById[vote.submissionId];
+        if (!submission || submission.userId !== user?._id) {
+          return;
+        }
+        userPointsById[vote.userId].points += vote.points;
+      });
+    });
+
+    const sortedUsers = Object.values(userPointsById)
+      .sort((a, b) => b.points - a.points)
+      .filter((item) => item.user._id !== user?._id);
+
+    const biggestFan = sortedUsers[0];
+    const biggestCritic = sortedUsers[sortedUsers.length - 1];
+
+    const yourStandingIndex = standings.findIndex(
+      (standing) => standing.user._id === user?._id
+    );
+    const yourStanding = standings[yourStandingIndex];
+    const yourPlace = yourStandingIndex + 1;
+
+    const suffix = (() => {
+      const lastDigit = yourPlace % 10;
+      switch (lastDigit) {
+        case 1:
+          return yourPlace === 11 ? "th" : "st";
+        case 2:
+          return yourPlace === 12 ? "th" : "nd";
+        case 3:
+          return yourPlace === 13 ? "th" : "rd";
+        default:
+          return "th";
+      }
+    })();
+    const placeText = `${yourPlace}${suffix}`;
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center space-y-3">
+          <h3 className="text-3xl font-bold text-gray-900">
+            That&apos;s a wrap!
+          </h3>
+          <p className="text-gray-600">The competition was fierce!</p>
+          <p className="text-base text-gray-800">
+            You finished the{" "}
+            <span className="font-semibold">{league.title}</span> league in{" "}
+            <span className="font-semibold">{placeText} place</span> with{" "}
+            <span className="font-semibold">
+              {yourStanding?.points || 0} points
+            </span>
+          </p>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 justify-center">
+          {biggestFan && (
+            <div className="flex flex-col items-center space-y-3">
+              {/* Ribbon Banner */}
+              <div className="relative inline-block mx-10">
+                <div className="bg-purple-200 border-2 border-purple-400 px-8 py-2 text-center">
+                  <div className="text-sm font-bold text-purple-700 uppercase tracking-wide">
+                    Your Biggest Fan
+                  </div>
+                </div>
+                {/* Left ribbon tail */}
+                <div className="absolute left-0 top-0 -translate-x-full h-full w-6">
+                  <div className="absolute inset-0 bg-purple-200 border-y-2 border-l-2 border-purple-400 origin-right transform -skew-y-12"></div>
+                </div>
+                {/* Right ribbon tail */}
+                <div className="absolute right-0 top-0 translate-x-full h-full w-6">
+                  <div className="absolute inset-0 bg-purple-200 border-y-2 border-r-2 border-purple-400 origin-left transform skew-y-12"></div>
+                </div>
+              </div>
+
+              {/* Avatar */}
+              <Avatar className="text-3xl" user={biggestFan.user} size={24} />
+
+              {/* Username */}
+              <div className="text-2xl font-bold text-gray-900">
+                {biggestFan.user.userName}
+              </div>
+
+              {/* Points */}
+              <div className="text-gray-600">
+                {biggestFan.points} upvote{biggestFan.points !== 1 ? "s" : ""}{" "}
+                for you
+              </div>
+            </div>
+          )}
+
+          {biggestCritic && (
+            <div className="flex flex-col items-center space-y-3">
+              {/* Ribbon Banner */}
+              <div className="relative inline-block mx-10">
+                <div className="bg-gray-200 border-2 border-gray-400 px-8 py-2 text-center">
+                  <div className="text-sm font-bold text-gray-600 uppercase tracking-wide">
+                    Your Biggest Critic
+                  </div>
+                </div>
+                {/* Left ribbon tail */}
+                <div className="absolute left-0 top-0 -translate-x-full h-full w-6">
+                  <div className="absolute inset-0 bg-gray-200 border-y-2 border-l-2 border-gray-400 origin-right transform -skew-y-12"></div>
+                </div>
+                {/* Right ribbon tail */}
+                <div className="absolute right-0 top-0 translate-x-full h-full w-6">
+                  <div className="absolute inset-0 bg-gray-200 border-y-2 border-r-2 border-gray-400 origin-left transform skew-y-12"></div>
+                </div>
+              </div>
+
+              {/* Avatar */}
+              <Avatar
+                className="text-3xl"
+                user={biggestCritic.user}
+                size={24}
+              />
+
+              {/* Username */}
+              <div className="text-2xl font-bold text-gray-900">
+                {biggestCritic.user.userName}
+              </div>
+
+              {/* Points */}
+              <div className="text-gray-600">
+                {biggestCritic.points} upvote
+                {biggestCritic.points !== 1 ? "s" : ""} for you
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }, [
+    league.rounds.completed,
+    league.status,
+    league.users,
+    league.title,
+    pointsForYou,
+    standings,
+    user?._id,
+  ]);
+
   if (league.rounds.completed.length === 0) {
     return (
       <div className="text-center py-8">
@@ -179,17 +362,17 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
           key={standing.user._id}
           className={twMerge(
             "p-4 flex items-center gap-4",
-            isFirst && "bg-yellow-50",
+            isFirst && "bg-amber-100",
             isSecond && "bg-gray-100",
-            isThird && "bg-orange-50",
+            isThird && "bg-orange-100",
             isOther && "bg-white"
           )}
         >
           {/* Rank */}
           <div className="flex items-center justify-center min-w-10">
-            {isFirst && <span className="text-2xl">🥇</span>}
-            {isSecond && <span className="text-2xl">🥈</span>}
-            {isThird && <span className="text-2xl">🥉</span>}
+            {isFirst && <span className="text-4xl">🥇</span>}
+            {isSecond && <span className="text-4xl">🥈</span>}
+            {isThird && <span className="text-4xl">🥉</span>}
             {isOther && (
               <span className="text-xl font-bold text-gray-500">
                 {index + 1}
@@ -224,6 +407,8 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
 
   return (
     <div className="space-y-6">
+      {completedMarkup}
+
       <div>
         <h3 className="text-lg font-semibold mb-3 text-gray-700">
           League Standings
@@ -245,14 +430,22 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
             {guessStats
               .filter((stat) => stat.totalGuesses > 0)
               .map((stat, index) => {
-                const isExpanded = expandedUser === stat.user._id;
+                const isExpanded = expandedUsers.has(stat.user._id);
 
                 return (
                   <div key={stat.user._id}>
                     {/* Summary Row */}
                     <button
                       onClick={() =>
-                        setExpandedUser(isExpanded ? null : stat.user._id)
+                        setExpandedUsers((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(stat.user._id)) {
+                            next.delete(stat.user._id);
+                          } else {
+                            next.add(stat.user._id);
+                          }
+                          return next;
+                        })
                       }
                       className="w-full flex items-center gap-4 hover:bg-gray-50 p-4 rounded transition-colors"
                     >
