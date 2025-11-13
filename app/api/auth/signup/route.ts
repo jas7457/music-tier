@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
       userName,
       spotifyId,
       photoUrl,
+      signupDate: Date.now(),
     };
 
     await usersCollection.insertOne(newUser);

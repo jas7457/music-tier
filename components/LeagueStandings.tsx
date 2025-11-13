@@ -146,12 +146,15 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
       };
     });
 
-    // Sort by correct count descending, then by accuracy
+    // Sort by accuracy then correct count then fewest incorrect
     return userGuessStats.sort((a, b) => {
+      if (b.accuracy !== a.accuracy) {
+        return b.accuracy - a.accuracy;
+      }
       if (b.correctCount !== a.correctCount) {
         return b.correctCount - a.correctCount;
       }
-      return b.accuracy - a.accuracy;
+      return a.incorrectCount - b.incorrectCount;
     });
   }, [league]);
 

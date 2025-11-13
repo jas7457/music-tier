@@ -43,6 +43,7 @@ async function seed() {
         lastName: "Addleman",
         userName: "jas7457",
         spotifyId: "jas7457",
+        signupDate: Date.now(),
       };
       await usersCollection.insertOne(user);
       console.log(`✅ Created user: ${user.userName}`);
