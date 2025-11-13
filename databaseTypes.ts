@@ -39,6 +39,8 @@ export type Round = {
   title: string;
   description: string;
   creatorId: string;
+  // whether there is a spotify playlist for this round
+  spotifyPlaylistId?: string;
 };
 
 // "songSubmissions" collection */

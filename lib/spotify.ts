@@ -65,8 +65,16 @@ export const initiateSpotifyAuth = async (): Promise<void> => {
     throw new Error("Spotify Client ID not configured");
   }
 
-  const scope =
-    "user-read-email playlist-read-private playlist-read-collaborative streaming user-read-playback-state user-modify-playback-state";
+  const scope = [
+    "user-read-email",
+    "playlist-read-private",
+    "playlist-read-collaborative",
+    "streaming",
+    "user-read-playback-state",
+    "user-modify-playback-state",
+    "playlist-modify-private",
+    "playlist-modify-public",
+  ].join(" ");
   const authUrl = new URL("https://accounts.spotify.com/authorize");
 
   window.localStorage.setItem("code_verifier", codeVerifier);

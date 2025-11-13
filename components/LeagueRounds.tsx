@@ -169,6 +169,58 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
                 <div className="text-xs text-gray-500">
                   Ended: {formatDate(round.votingEndDate)}
                 </div>
+
+                <div>
+                  {round.spotifyPlaylistId ? (
+                    <a
+                      href={`https://open.spotify.com/playlist/${round.spotifyPlaylistId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View Spotify playlist
+                    </a>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const response = await fetch(
+                            "/api/spotify/playlist",
+                            {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                              },
+                              body: JSON.stringify({
+                                name: round.title,
+                                roundId: round._id,
+                                description: `A plylst prty playlist`,
+                                songs: round.submissions.map(
+                                  (submission) =>
+                                    `spotify:track:${submission.trackInfo.trackId}`
+                                ),
+                              }),
+                            }
+                          );
+
+                          const data = await response.json();
+                          if (!data.success) {
+                            throw new Error(
+                              data.error || "Failed to create playlist"
+                            );
+                          }
+                          if (!data.playlistId) {
+                            throw new Error("No playlist ID returned");
+                          }
+                        } catch (err) {
+                          console.log(err);
+                          debugger;
+                        }
+                      }}
+                    >
+                      Create Spotify playlist
+                    </button>
+                  )}
+                </div>
               </Card>
             ))}
           </div>

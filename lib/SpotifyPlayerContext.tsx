@@ -118,11 +118,15 @@ export function SpotifyPlayerProvider({
 
       const expiresAt = Cookies.get("spotify_token_expires_at");
       const currentToken = Cookies.get("spotify_access_token");
-      if (!expiresAt || !currentToken) {
+      if (expiresAt && !currentToken) {
         debugger;
         try {
           await doRefresh();
         } catch {}
+        return;
+      }
+
+      if (!expiresAt) {
         return;
       }
 
