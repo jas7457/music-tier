@@ -4,6 +4,12 @@ import { Round } from "@/components/Round";
 import Card from "@/components/Card";
 import { PopulatedRound, PopulatedUser, PopulatedLeague } from "@/lib/types";
 import { useRealTimeUpdates } from "@/lib/PusherContext";
+import {
+  Breadcrumb,
+  HomeIcon,
+  LeagueIcon,
+  RoundIcon,
+} from "@/components/Breadcrumb";
 
 type RoundPageClientProps = {
   round: PopulatedRound;
@@ -19,8 +25,22 @@ export function RoundPageClient({
   useRealTimeUpdates(round);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="min-h-screen bg-gray-100">
       <div className="max-w-4xl mx-auto px-4">
+        <Breadcrumb
+          items={[
+            { label: "", icon: <HomeIcon />, href: "/" },
+            {
+              label: league.title,
+              icon: <LeagueIcon />,
+              href: `/leagues/${league._id}`,
+            },
+            {
+              label: `Round ${round.roundIndex + 1}: ${round.title}`,
+              icon: <RoundIcon />,
+            },
+          ]}
+        />
         <Card className="p-6">
           <Round
             key={round.stage}
