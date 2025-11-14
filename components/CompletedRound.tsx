@@ -96,7 +96,10 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
         })();
 
         const submitter = usersById[submission.userId];
-        const yourVote = round.votes.find((vote) => vote.userId === user?._id);
+        const yourVote = round.votes.find(
+          (vote) =>
+            vote.userId === user?._id && vote.submissionId === submission._id
+        );
 
         return (
           <Card
