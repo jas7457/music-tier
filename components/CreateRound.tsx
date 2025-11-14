@@ -54,7 +54,7 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
         <p className="text-gray-700 mb-3">
           {isBonusRound
             ? "Congrats! You have a bonus round."
-            : "You haven&apos;t created your round yet."}
+            : "You haven't created your round yet."}
         </p>
         <button
           onClick={() => setIsOpen(true)}

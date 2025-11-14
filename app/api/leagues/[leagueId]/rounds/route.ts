@@ -53,6 +53,7 @@ export async function POST(
     const existingRound = await roundsCollection.findOne({
       leagueId: leagueId,
       creatorId: payload.userId,
+      isBonusRound: false,
     });
 
     if (existingRound) {
