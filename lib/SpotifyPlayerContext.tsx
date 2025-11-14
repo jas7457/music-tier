@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import Cookies from "js-cookie";
 import { PopulatedRound, PopulatedSubmission } from "./types";
 import { getSpotifyDevices } from "./spotify";
@@ -88,69 +95,76 @@ export function SpotifyPlayerProvider({
     playlist.length > 0 && currentTrackIndex < playlist.length - 1;
   const hasPreviousTrack = playlist.length > 0 && currentTrackIndex > 0;
 
+  const refreshToken = useCallback(async (): Promise<{ success: boolean }> => {
+    const refreshToken = Cookies.get("spotify_refresh_token");
+    if (!refreshToken) {
+      return { success: false };
+    }
+    try {
+      const response = await fetch("/api/spotify/refresh", {
+        method: "POST",
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status} error: ${response.statusText}`);
+      }
+      try {
+        const data = await response.json();
+        if (data.success) {
+          setHasInitialized(true);
+        }
+        return data;
+      } catch {
+      } finally {
+        return { success: true };
+      }
+    } catch (error) {
+      const errorMessage = `Failed to refresh Spotify token, ${error}`;
+      setError(errorMessage);
+      toast.show({
+        message: errorMessage,
+        variant: "error",
+      });
+      return { success: false };
+    }
+  }, [toast]);
+
   // Auto-refresh Spotify token before expiration
   useEffect(() => {
-    const checkAndRefreshToken = async () => {
-      const doRefresh = async () => {
-        try {
-          const response = await fetch("/api/spotify/refresh", {
-            method: "POST",
-          });
-          if (!response.ok) {
-            throw new Error(`${response.status} error: ${response.statusText}`);
-          }
-          try {
-            const data = await response.json();
-            if (data.success) {
-              setHasInitialized(true);
-            }
-          } catch {}
-        } catch (error) {
-          const errorMessage = `Failed to refresh Spotify token, ${error}`;
-          setError(errorMessage);
-          toast.show({
-            message: errorMessage,
-            variant: "error",
-          });
-          console.error("Failed to refresh Spotify token:", error);
+    let timeoutId: NodeJS.Timeout;
+    async function setup() {
+      const checkAndRefreshToken = async () => {
+        const expiresAt = Cookies.get("spotify_token_expires_at");
+        if (!expiresAt) {
+          return;
         }
-        checkAndRefreshToken();
+
+        const expiresAtTime = parseInt(expiresAt, 10);
+        const timeUntilExpiry = expiresAtTime - Date.now();
+        const fiveMinutes = 5 * 60 * 1000;
+
+        // If token expires in less than 5 minutes, refresh it now
+        if (timeUntilExpiry < fiveMinutes) {
+          await refreshToken();
+          checkAndRefreshToken();
+        } else {
+          // Schedule refresh for 5 minutes before expiration
+          const refreshTime = timeUntilExpiry - fiveMinutes;
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(async () => {
+            await refreshToken();
+            checkAndRefreshToken();
+          }, refreshTime);
+        }
       };
 
-      const expiresAt = Cookies.get("spotify_token_expires_at");
-      const currentToken = Cookies.get("spotify_access_token");
-      if (expiresAt && !currentToken) {
-        debugger;
-        try {
-          await doRefresh();
-        } catch {}
-        return;
-      }
+      checkAndRefreshToken();
+    }
+    setup();
 
-      if (!expiresAt) {
-        return;
-      }
-
-      const expiresAtTime = parseInt(expiresAt, 10);
-      const timeUntilExpiry = expiresAtTime - Date.now();
-      const fiveMinutes = 5 * 60 * 1000;
-
-      // If token expires in less than 5 minutes, refresh it now
-      if (timeUntilExpiry < fiveMinutes) {
-        await doRefresh();
-      } else {
-        // Schedule refresh for 5 minutes before expiration
-        const refreshTime = timeUntilExpiry - fiveMinutes;
-        const timeoutId = setTimeout(async () => {
-          await doRefresh();
-        }, refreshTime);
-
-        return () => clearTimeout(timeoutId);
-      }
+    return () => {
+      clearTimeout(timeoutId);
     };
-
-    checkAndRefreshToken();
-  }, [toast]);
+  }, [refreshToken]);
 
   // Initialize Spotify Web Playback SDK
   useEffect(() => {
@@ -194,6 +208,18 @@ export function SpotifyPlayerProvider({
         setHasInitialized(true);
         clearTimeout(initializedTimeout);
         setIsReady(false);
+      });
+
+      spotifyPlayer.addListener("initialization_error", ({ message }) => {
+        setError(message);
+      });
+
+      spotifyPlayer.addListener("authentication_error", ({ message }) => {
+        setError(message);
+      });
+
+      spotifyPlayer.addListener("account_error", ({ message }) => {
+        setError(message);
       });
 
       const updateWithNewState = (state: Spotify.WebPlaybackState | null) => {

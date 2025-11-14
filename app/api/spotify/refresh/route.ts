@@ -22,9 +22,11 @@ export async function POST(request: NextRequest) {
       sameSite: "lax",
     });
 
+    const ONE_YEAR = 60 * 60 * 24 * 365;
+
     // Update refresh token if a new one was provided
     response.cookies.set("spotify_refresh_token", tokenData.refresh_token, {
-      maxAge: 60 * 60 * 24 * 365, // 1 year
+      maxAge: ONE_YEAR, // 1 year
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
     // Update expiration timestamp
     const expiresAt = Date.now() + tokenData.expires_in * 1000;
     response.cookies.set("spotify_token_expires_at", expiresAt.toString(), {
-      maxAge: tokenData.expires_in,
+      maxAge: ONE_YEAR,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
