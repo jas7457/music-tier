@@ -17,7 +17,8 @@ export async function POST(
 
     const { leagueId } = params;
     const body = await request.json();
-    const { title, description } = body;
+    const { title, description, isBonusRound: _isBonusRound } = body;
+    const isBonusRound = Boolean(_isBonusRound);
 
     if (!title || !description) {
       return NextResponse.json(
@@ -55,10 +56,24 @@ export async function POST(
     });
 
     if (existingRound) {
-      return NextResponse.json(
-        { error: "You have already created a round for this league" },
-        { status: 400 }
-      );
+      if (isBonusRound) {
+        const existingBonusRound = await roundsCollection.findOne({
+          leagueId: leagueId,
+          creatorId: payload.userId,
+          isBonusRound: true,
+        });
+        if (existingBonusRound) {
+          return NextResponse.json(
+            { error: "You have already created a bonus round for this league" },
+            { status: 400 }
+          );
+        }
+      } else {
+        return NextResponse.json(
+          { error: "You have already created a round for this league" },
+          { status: 400 }
+        );
+      }
     }
 
     // Create the round
@@ -68,6 +83,7 @@ export async function POST(
       title: title.trim(),
       description: description.trim(),
       creatorId: payload.userId,
+      isBonusRound: Boolean(isBonusRound),
     };
 
     const result = await roundsCollection.insertOne(newRound);

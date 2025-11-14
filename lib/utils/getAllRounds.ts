@@ -5,5 +5,6 @@ export function getAllRounds(league: PopulatedLeague): PopulatedRound[] {
     ...(league.rounds.current ? [league.rounds.current] : []),
     ...league.rounds.upcoming,
     ...league.rounds.completed,
+    ...league.rounds.bonus,
   ];
 }

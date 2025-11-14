@@ -106,11 +106,15 @@ export async function getUserLeagues(
         ...round,
         _id: round._id.toString(),
       }));
-      const users: PopulatedUser[] = _users.map((user, index) => ({
-        ...user,
-        _id: user._id.toString(),
-        index,
-      }));
+      const users: PopulatedUser[] = league.users
+        .map((userId) => _users.find((u) => u._id.toString() === userId))
+        .filter((user) => user !== undefined)
+        .map((user, index) => ({
+          ...user,
+          _id: user._id.toString(),
+          index,
+          canCreateBonusRound: league.bonusRoundUserIds.includes(userId),
+        }));
 
       const usersById = users.reduce((acc, user, index) => {
         const userIndex = league.users.indexOf(user._id);
@@ -151,102 +155,119 @@ export async function getUserLeagues(
         })
       );
 
-      const roundsWithData: PopulatedRound[] = league.users
+      const normalUserRounds: typeof populatedRounds = league.users
         .map((userId) => {
           const user = usersById[userId]?.user;
           if (!user) {
             return undefined;
           }
-          return populatedRounds.find((round) => round.creatorId === userId);
+          return populatedRounds.find(
+            (round) => round.creatorId === userId && !round.isBonusRound
+          );
         })
-        .filter((round): round is NonNullable<typeof round> => Boolean(round))
-        .map((round, index) => {
-          const userSubmission = round.submissions.find(
-            (submission) => submission.userId === userId
-          );
+        .filter((round) => round !== undefined);
 
-          const lastSubmission = round.submissions.reduce(
-            (latest, submission) => {
-              if (!latest) {
-                return submission;
-              }
-              return submission.submissionDate > latest.submissionDate
-                ? submission
-                : latest;
-            },
-            undefined as PopulatedSubmission | undefined
+      const bonusRounds: typeof populatedRounds = league.bonusRoundUserIds
+        .map((userId) => {
+          const user = usersById[userId]?.user;
+          if (!user) {
+            return undefined;
+          }
+          return populatedRounds.find(
+            (round) => round.creatorId === userId && round.isBonusRound
           );
+        })
+        .filter((round) => round !== undefined);
 
-          const lastVote = round.votes.reduce((latest, vote) => {
+      const roundsWithData: PopulatedRound[] = [
+        ...normalUserRounds,
+        ...bonusRounds,
+      ].map((round, index) => {
+        const userSubmission = round.submissions.find(
+          (submission) => submission.userId === userId
+        );
+
+        const lastSubmission = round.submissions.reduce(
+          (latest, submission) => {
             if (!latest) {
-              return vote;
+              return submission;
             }
-            return vote.voteDate > latest.voteDate ? vote : latest;
-          }, undefined as PopulatedVote | undefined);
+            return submission.submissionDate > latest.submissionDate
+              ? submission
+              : latest;
+          },
+          undefined as PopulatedSubmission | undefined
+        );
 
-          const submissionStartDate = currentStartDate;
-          const submissionEndDate = (() => {
-            const allSubmitted =
-              round.submissions.length >= league.users.length;
+        const lastVote = round.votes.reduce((latest, vote) => {
+          if (!latest) {
+            return vote;
+          }
+          return vote.voteDate > latest.voteDate ? vote : latest;
+        }, undefined as PopulatedVote | undefined);
 
-            if (allSubmitted && lastSubmission) {
-              return lastSubmission.submissionDate;
-            }
-            return submissionStartDate + league.daysForSubmission * ONE_DAY_MS;
-          })();
-          const votingStartDate = submissionEndDate;
-          const votingEndDate = (() => {
-            const roundPoints = round.votes.reduce(
-              (acc, vote) => acc + vote.points,
-              0
-            );
-            if (
-              roundPoints >= league.users.length * league.votesPerRound &&
-              lastVote
-            ) {
-              return lastVote.voteDate;
-            }
-            return votingStartDate + league.daysForVoting * ONE_DAY_MS;
-          })();
-          currentStartDate = votingEndDate;
-          const populatedRound = {
-            ...round,
-            _id: round._id.toString(),
-            userSubmission,
-            submissionStartDate,
-            submissionEndDate,
-            votingStartDate,
-            votingEndDate,
-            roundIndex: index,
-            creatorObject: usersById[round.creatorId]?.user,
-          };
+        const submissionStartDate = currentStartDate;
+        const submissionEndDate = (() => {
+          const allSubmitted = round.submissions.length >= league.users.length;
 
-          const roundStage = getRoundStage({
-            currentUserId: userId,
-            league,
-            round: populatedRound,
-          });
+          if (allSubmitted && lastSubmission) {
+            return lastSubmission.submissionDate;
+          }
+          return submissionStartDate + league.daysForSubmission * ONE_DAY_MS;
+        })();
+        const votingStartDate = submissionEndDate;
+        const votingEndDate = (() => {
+          const roundPoints = round.votes.reduce(
+            (acc, vote) => acc + vote.points,
+            0
+          );
+          if (
+            roundPoints >= league.users.length * league.votesPerRound &&
+            lastVote
+          ) {
+            return lastVote.voteDate;
+          }
+          return votingStartDate + league.daysForVoting * ONE_DAY_MS;
+        })();
+        currentStartDate = votingEndDate;
+        const populatedRound: Omit<PopulatedRound, "stage"> = {
+          ...round,
+          _id: round._id.toString(),
+          userSubmission,
+          submissionStartDate,
+          submissionEndDate,
+          votingStartDate,
+          votingEndDate,
+          roundIndex: index,
+          creatorObject: usersById[round.creatorId]?.user,
+        };
 
-          const submissionsSorted = (() => {
-            switch (roundStage) {
-              case "completed": {
-                // Return in original order for completed rounds
-                return populatedRound.submissions;
-              }
-              default: {
-                return populatedRound.submissions;
-                // Shuffle with round ID as seed for reproducible randomization
-                // return seededShuffle(populatedRound.submissions, round._id);
-              }
-            }
-          })();
-
-          return {
-            ...populatedRound,
-            submissions: submissionsSorted,
-            stage: roundStage,
-          };
+        const roundStage = getRoundStage({
+          currentUserId: userId,
+          league,
+          round: populatedRound,
         });
+
+        const submissionsSorted = (() => {
+          switch (roundStage) {
+            case "completed": {
+              // Return in original order for completed rounds
+              return populatedRound.submissions;
+            }
+            default: {
+              return populatedRound.submissions;
+              // Shuffle with round ID as seed for reproducible randomization
+              // return seededShuffle(populatedRound.submissions, round._id);
+            }
+          }
+        })();
+
+        return {
+          ...populatedRound,
+          submissions: submissionsSorted,
+          stage: roundStage,
+        };
+      });
 
       const currentRound: PopulatedRound | undefined = await (async () => {
         const currentRound = roundsWithData.find((round) => {
@@ -257,10 +278,7 @@ export async function getUserLeagues(
           return undefined;
         }
 
-        const user = usersById[currentRound.creatorId];
-        const currentRoundIndex = user ? user.index : -1;
-
-        return { ...currentRound, roundIndex: currentRoundIndex };
+        return currentRound;
       })();
 
       const usersWithoutRound = league.users.filter((user) => {
@@ -288,16 +306,18 @@ export async function getUserLeagues(
             creatorObject: usersById[userId]?.user,
             stage: "upcoming" as const,
             userSubmission: undefined,
+            isBonusRound: false,
           };
         }
       );
 
       const roundsObject = roundsWithData.reduce(
-        (acc, round, index) => {
-          const userIndex = usersById[round.creatorId]?.index ?? index;
+        (acc, round) => {
           if (now >= round.votingEndDate) {
-            // Completed round
-            acc.completed.push({ ...round, roundIndex: userIndex });
+            acc.completed.push(round);
+          }
+          if (round.isBonusRound) {
+            acc.bonus.push(round);
           }
 
           return acc;
@@ -306,6 +326,7 @@ export async function getUserLeagues(
           current: currentRound,
           completed: [] as PopulatedRound[],
           upcoming: [] as PopulatedRound[],
+          bonus: [] as PopulatedRound[],
           pending: pendingRounds,
         }
       );
@@ -322,15 +343,14 @@ export async function getUserLeagues(
           (round) => round.roundIndex < userIndex
         );
         if (hasPendingBefore) {
-          roundsObject.pending.push({ ...round, roundIndex: userIndex });
+          roundsObject.pending.push(round);
           if (round._id === roundsObject.current?._id) {
             roundsObject.current = undefined;
           }
           return;
         }
         if (now < round.submissionStartDate) {
-          // Upcoming round
-          roundsObject.upcoming.push({ ...round, roundIndex: userIndex });
+          roundsObject.upcoming.push(round);
         }
       });
 
@@ -369,14 +389,35 @@ export async function getUserLeagues(
   return leagueWithData;
 }
 
-export async function getUser(userId: string): Promise<User | null> {
-  const { usersCollection } = await dbPromise;
+export async function getUser(
+  userId: string,
+  leagueId: string
+): Promise<(User & { canCreateBonusRound: boolean }) | null> {
+  const { usersCollection, leaguesCollection } = await dbPromise;
 
   const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
   if (!user) {
     return null;
   }
-  return user;
+
+  if (leagueId === "any") {
+    return {
+      ...user,
+      canCreateBonusRound: false,
+    };
+  }
+
+  const league = await leaguesCollection.findOne({
+    _id: new ObjectId(leagueId),
+  });
+  if (!league) {
+    return null;
+  }
+
+  return {
+    ...user,
+    canCreateBonusRound: league.bonusRoundUserIds.includes(user._id.toString()),
+  };
 }
 
 function getRoundStage({
@@ -460,7 +501,7 @@ export async function getLeagueById(
   return leagues.find((league) => league._id.toString() === leagueId);
 }
 
-export async function getUserByCookies() {
+export async function getUserByCookies(leagueId: string) {
   try {
     const payload = verifySessionToken();
 
@@ -477,7 +518,10 @@ export async function getUserByCookies() {
       usersCollection.findOne({
         _id: new ObjectId(payload.userId),
       }),
-      leaguesCollection.findOne({ users: payload.userId }),
+      leaguesCollection.findOne({
+        users: payload.userId,
+        ...(leagueId ? { _id: new ObjectId(leagueId) } : {}),
+      }),
     ]);
 
     if (!user) {
@@ -489,6 +533,9 @@ export async function getUserByCookies() {
       ...user,
       _id: user._id.toString(),
       index: league ? league.users.indexOf(payload.userId) : -1,
+      canCreateBonusRound: league
+        ? league.bonusRoundUserIds.includes(payload.userId)
+        : false,
     };
 
     return userResponse;

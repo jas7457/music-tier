@@ -19,7 +19,7 @@ export default async function RoundPage({ params }: PageProps) {
   }
 
   const [user, league] = await Promise.all([
-    getUser(payload.userId),
+    getUser(payload.userId, leagueId),
     getLeagueById(leagueId, payload.userId),
   ]);
 

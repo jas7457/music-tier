@@ -1,14 +1,18 @@
 "use client";
 
-import { useAuth } from "@/lib/AuthContext";
 import Card from "./Card";
-import { PopulatedLeague } from "@/lib/types";
+import { PopulatedLeague, PopulatedUser } from "@/lib/types";
 import { League } from "./League";
 import { useRealTimeUpdates } from "@/lib/PusherContext";
 import { useEffect, useState } from "react";
 
-export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
-  const { user } = useAuth();
+export default function Home({
+  leagues,
+  user,
+}: {
+  leagues: PopulatedLeague[];
+  user: PopulatedUser;
+}) {
   const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(
     new Set(leagues.length > 0 ? [leagues[0]._id] : [])
   );
@@ -76,7 +80,7 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
             </h2>
             <Card variant="elevated">
               <div className="p-6">
-                <League league={leagues[0]} />
+                <League league={leagues[0]} user={user} />
               </div>
             </Card>
           </div>
@@ -127,7 +131,7 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
 
                     {isExpanded && (
                       <div className="p-4">
-                        <League league={league} />
+                        <League league={league} user={user} />
                       </div>
                     )}
                   </Card>

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getLeagueById } from "@/lib/data";
+import { getLeagueById, getUserByCookies } from "@/lib/data";
 import { LeaguePageClient } from "./LeaguePageClient";
 import Card from "@/components/Card";
 import { verifySessionToken } from "@/lib/auth";
@@ -18,8 +18,9 @@ export default async function LeaguePage({ params }: PageProps) {
   }
 
   const league = await getLeagueById(leagueId, payload.userId);
+  const user = await getUserByCookies(leagueId);
 
-  if (!league) {
+  if (!league || !user) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <Card className="p-8 text-center">
@@ -32,5 +33,5 @@ export default async function LeaguePage({ params }: PageProps) {
     );
   }
 
-  return <LeaguePageClient league={league} />;
+  return <LeaguePageClient league={league} user={user} />;
 }

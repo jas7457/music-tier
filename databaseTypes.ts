@@ -28,6 +28,8 @@ export type League = {
   daysForSubmission: number;
   // how many days after voting starts for votes to come in
   daysForVoting: number;
+  // array of user IDs who are allowed to create a bonus round
+  bonusRoundUserIds: string[];
 };
 
 /* "rounds" collection */
@@ -41,6 +43,8 @@ export type Round = {
   creatorId: string;
   // whether there is a spotify playlist for this round
   spotifyPlaylistId?: string;
+  // whether this round is a bonus round
+  isBonusRound: boolean;
 };
 
 // "songSubmissions" collection */

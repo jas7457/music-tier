@@ -61,6 +61,7 @@ async function seed() {
         daysForVoting: 3,
         votesPerRound: 7,
         leagueStartDate: Date.now(),
+        bonusRoundUserIds: [],
       };
 
       await leaguesCollection.insertOne(league);
@@ -81,6 +82,7 @@ async function seed() {
           description:
             "Submit and vote for tracks with the most memorable and creative guitar riffs. Let's celebrate the art of the six-string!",
           creatorId: userId.toString(),
+          isBonusRound: false,
         };
 
         await roundsCollection.insertOne(round);

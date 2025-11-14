@@ -2,15 +2,16 @@
 
 import { League } from "@/components/League";
 import Card from "@/components/Card";
-import { PopulatedLeague } from "@/lib/types";
+import { PopulatedLeague, PopulatedUser } from "@/lib/types";
 import { useRealTimeUpdates } from "@/lib/PusherContext";
 import { Breadcrumb, HomeIcon, LeagueIcon } from "@/components/Breadcrumb";
 
 type LeaguePageClientProps = {
   league: PopulatedLeague;
+  user: PopulatedUser;
 };
 
-export function LeaguePageClient({ league }: LeaguePageClientProps) {
+export function LeaguePageClient({ league, user }: LeaguePageClientProps) {
   useRealTimeUpdates(league);
 
   return (
@@ -23,7 +24,7 @@ export function LeaguePageClient({ league }: LeaguePageClientProps) {
           ]}
         />
         <Card className="p-6">
-          <League league={league} />
+          <League league={league} user={user} />
         </Card>
       </div>
     </div>

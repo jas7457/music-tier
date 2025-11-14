@@ -6,9 +6,10 @@ import { useData } from "@/lib/DataContext";
 
 type CreateRoundProps = {
   leagueId: string;
+  isBonusRound: boolean;
 };
 
-export function CreateRound({ leagueId }: CreateRoundProps) {
+export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -27,7 +28,7 @@ export function CreateRound({ leagueId }: CreateRoundProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, description }),
+        body: JSON.stringify({ title, description, isBonusRound }),
       });
 
       if (!response.ok) {
@@ -51,13 +52,15 @@ export function CreateRound({ leagueId }: CreateRoundProps) {
     return (
       <Card className="p-6 text-center border-2 border-dashed border-purple-300 bg-purple-50">
         <p className="text-gray-700 mb-3">
-          You haven&apos;t created your round yet.
+          {isBonusRound
+            ? "Congrats! You have a bonus round."
+            : "You haven&apos;t created your round yet."}
         </p>
         <button
           onClick={() => setIsOpen(true)}
           className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
         >
-          Create Your Round
+          {isBonusRound ? "Create Your Bonus Round" : "Create Your Round"}
         </button>
       </Card>
     );
@@ -66,7 +69,7 @@ export function CreateRound({ leagueId }: CreateRoundProps) {
   return (
     <Card className="p-6 border-2 border-purple-300 bg-purple-50">
       <h3 className="text-xl font-bold mb-4 text-purple-900">
-        Create Your Round
+        {isBonusRound ? "Create Your Bonus Round" : "Create Your Round"}
       </h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

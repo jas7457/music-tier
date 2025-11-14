@@ -8,7 +8,10 @@ import type {
 
 type WithStringId<T> = Omit<T, "_id"> & { _id: string };
 
-export type PopulatedUser = WithStringId<User> & { index: number };
+export type PopulatedUser = WithStringId<User> & {
+  index: number;
+  canCreateBonusRound: boolean;
+};
 export type PopulatedSubmission = WithStringId<SongSubmission>;
 export type PopulatedVote = WithStringId<Vote> & {
   userGuessObject: PopulatedUser | undefined;
@@ -46,5 +49,6 @@ export type PopulatedLeague = WithStringId<Omit<League, "users">> & {
     completed: PopulatedRound[];
     upcoming: PopulatedRound[];
     pending: PopulatedRound[];
+    bonus: PopulatedRound[];
   };
 };

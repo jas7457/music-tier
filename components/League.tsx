@@ -1,8 +1,7 @@
 "use client";
 
-import { useAuth } from "@/lib/AuthContext";
 import { useMemo, useState } from "react";
-import { PopulatedLeague } from "@/lib/types";
+import { PopulatedLeague, PopulatedUser } from "@/lib/types";
 import { CreateRound } from "./CreateRound";
 import { MaybeLink } from "./MaybeLink";
 import { Avatar } from "./Avatar";
@@ -14,15 +13,20 @@ import { ToggleButton } from "./ToggleButton";
 import { getAllRounds } from "@/lib/utils/getAllRounds";
 import { formatDate } from "@/lib/utils/formatDate";
 
-export function League({ league }: { league: PopulatedLeague }) {
-  const { user } = useAuth();
+export function League({
+  league,
+  user,
+}: {
+  league: PopulatedLeague;
+  user: PopulatedUser;
+}) {
   const [showStandings, setShowStandings] = useState(
     league.status === "completed"
   );
 
-  const userHasCreatedRound = useMemo(() => {
+  const { userHasCreatedRound, userHasCreatedBonusRound } = useMemo(() => {
     if (!user) {
-      return false;
+      return { userHasCreatedRound: false, userHasCreatedBonusRound: false };
     }
 
     // Check if user has created their round for this league
@@ -31,7 +35,20 @@ export function League({ league }: { league: PopulatedLeague }) {
       ...league.rounds.pending.filter((round) => round._id),
     ];
 
-    return allRounds.some((round) => round.creatorId === user._id);
+    return allRounds.reduce(
+      (acc, round) => {
+        if (round.creatorId !== user._id) {
+          return acc;
+        }
+        if (round.isBonusRound) {
+          acc.userHasCreatedBonusRound = true;
+        } else {
+          acc.userHasCreatedRound = true;
+        }
+        return acc;
+      },
+      { userHasCreatedRound: false, userHasCreatedBonusRound: false }
+    );
   }, [league, user]);
 
   const finalVoteTimestamp = useMemo(() => {
@@ -120,7 +137,14 @@ export function League({ league }: { league: PopulatedLeague }) {
       </div>
 
       {/* Create Round */}
-      {userHasCreatedRound ? null : <CreateRound leagueId={league._id} />}
+      {userHasCreatedRound ? null : (
+        <CreateRound leagueId={league._id} isBonusRound={false} />
+      )}
+
+      {/* Create Bonus Round */}
+      {user.canCreateBonusRound && !userHasCreatedBonusRound && (
+        <CreateRound leagueId={league._id} isBonusRound={true} />
+      )}
 
       {/* Content */}
       {showStandings ? (

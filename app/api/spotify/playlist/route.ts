@@ -7,7 +7,7 @@ import { ObjectId } from "mongodb";
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getUserByCookies();
+    const user = await getUserByCookies("");
 
     if (!user) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
