@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     const newestLeague = existingLeagues[0];
     if (newestLeague) {
       await leagueCollection.updateOne(
-        { _id: newestLeague._id },
+        { _id: new ObjectId(newestLeague._id) },
         { $set: { users: newestLeague.users } }
       );
     }
