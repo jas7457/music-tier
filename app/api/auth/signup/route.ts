@@ -79,8 +79,8 @@ export async function POST(request: NextRequest) {
     const newestLeague = existingLeagues[0];
     if (newestLeague) {
       await leagueCollection.updateOne(
-        { _id: new ObjectId(newestLeague._id) },
-        { $set: { users: newestLeague.users } }
+        { _id: newestLeague._id },
+        { $set: { users: [...newestLeague.users, newUser._id.toString()] } }
       );
     }
 
