@@ -136,7 +136,7 @@ export function Round({
     if (round.spotifyPlaylistId) {
       return (
         <a
-          href={`https://open.spotify.com/playlist/${round.spotifyPlaylistId}`}
+          href={`spotify:playlist:${round.spotifyPlaylistId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex gap-1 items-center hover:underline"

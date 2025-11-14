@@ -26,7 +26,7 @@ export function ListenResultsDuo({
     <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
       {round.spotifyPlaylistId ? (
         <a
-          href={`https://open.spotify.com/playlist/${round.spotifyPlaylistId}`}
+          href={`spotify:playlist:${round.spotifyPlaylistId}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex flex-col items-center justify-center gap-2 p-4 hover:bg-gray-100 rounded-lg transition-colors"
