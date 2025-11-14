@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { initiateSpotifyAuth } from "@/lib/spotify";
 import Cookies from "js-cookie";
+import { APP_NAME } from "@/lib/utils/constants";
 
 interface SpotifyProfile {
   id: string;
@@ -138,7 +139,7 @@ export default function Landing() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
-          <h1 className="text-3xl font-bold mb-4">Welcome to Music League</h1>
+          <h1 className="text-3xl font-bold mb-4">Welcome to {APP_NAME}</h1>
           <p className="text-gray-600 mb-6">
             Connect your Spotify account to get started
           </p>

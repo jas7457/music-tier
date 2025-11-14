@@ -10,6 +10,9 @@ import { Avatar } from "./Avatar";
 import { MultiLine } from "./MultiLine";
 import { Pill } from "./Pill";
 import { ToggleButton } from "./ToggleButton";
+import spotifyLogo from "../app/images/spotify.svg";
+import { useToast } from "@/lib/ToastContext";
+import { createSpotifyPlaylist } from "@/lib/utils/createSpotifyPlaylist";
 
 type FullLeague = Pick<
   PopulatedLeague,
@@ -31,6 +34,8 @@ export function Round({
   league: FullLeague;
 }) {
   const [showVotesView, setShowVotesView] = useState(false);
+  const toast = useToast();
+  const [creatingPlaylist, setCreatingPlaylist] = useState(false);
 
   const { bodyMarkup, stageTitle } = useMemo(() => {
     switch (round.stage) {
@@ -123,6 +128,68 @@ export function Round({
     return [...round.votes].sort((a, b) => b.voteDate - a.voteDate)[0];
   }, [round]);
 
+  const spotifyMarkup = (() => {
+    if (round.submissions.length < league.users.length) {
+      return null;
+    }
+
+    if (round.spotifyPlaylistId) {
+      return (
+        <a
+          href={`https://open.spotify.com/playlist/${round.spotifyPlaylistId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex gap-1 items-center hover:underline"
+        >
+          <img
+            alt=""
+            src={spotifyLogo.src}
+            width={20}
+            title="Listen on Spotify"
+          />
+        </a>
+      );
+    }
+
+    return (
+      <button
+        disabled={creatingPlaylist}
+        className="disabled:opacity-30"
+        title="Create playlist"
+        onClick={async () => {
+          try {
+            setCreatingPlaylist(true);
+            await createSpotifyPlaylist({ round });
+          } catch (err) {
+            const errorMessage = (() => {
+              if (typeof err === "string") {
+                return err;
+              }
+              if (err instanceof Error) {
+                return err.message;
+              }
+              return "An unknown error occurred";
+            })();
+            toast.show({
+              title: "Error creating playlist",
+              variant: "error",
+              message: errorMessage,
+            });
+          } finally {
+            setCreatingPlaylist(false);
+          }
+        }}
+      >
+        <img
+          alt=""
+          src={spotifyLogo.src}
+          width={20}
+          title="Listen on Spotify"
+        />
+      </button>
+    );
+  })();
+
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -134,6 +201,9 @@ export function Round({
             >
               Round {round.roundIndex + 1}: {round.title}
             </MaybeLink>
+
+            {spotifyMarkup}
+
             <Pill status={round.stage}>{stageTitle}</Pill>
           </div>
           <Avatar
@@ -148,7 +218,7 @@ export function Round({
         </p>
         <div className="flex gap-4 text-xs text-gray-500">
           {round.stage === "completed" ? (
-            <div>
+            <div className="flex flex-col gap-1">
               {lastVote && (
                 <span>Round ended: {formatDate(lastVote.voteDate)}</span>
               )}

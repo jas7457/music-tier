@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
           name,
           description,
           public: true,
-          collaborative: true,
         }),
       }
     );

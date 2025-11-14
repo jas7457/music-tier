@@ -10,6 +10,7 @@ import logo from "../app/images/5.png";
 import MusicPlayer from "./MusicPlayer";
 import { useEffect, useState, useRef } from "react";
 import { MaybeLink } from "./MaybeLink";
+import { APP_NAME } from "@/lib/utils/constants";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -66,7 +67,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </Link>
 
         <MaybeLink href="/" className="hover:text-white">
-          <h1 className="text-2xl font-bold text-center">Music League Now!</h1>
+          <h1 className="text-2xl font-bold text-center">{APP_NAME}</h1>
         </MaybeLink>
 
         <div className="relative" ref={dropdownRef}>

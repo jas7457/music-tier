@@ -4,3 +4,5 @@ export const PUSHER_CLUSTER = "us2";
 export const PUSHER_APP_ID = "2076001";
 
 export const PUSHER_CHANNEL_NAME = "real-time-updates";
+
+export const APP_NAME = "Plylst Prty";

@@ -9,9 +9,10 @@ import { getUserByCookies } from "@/lib/data";
 import { cookies } from "next/headers";
 import { DataProvider } from "@/lib/DataContext";
 import { ToastProvider } from "@/lib/ToastContext";
+import { APP_NAME } from "@/lib/utils/constants";
 
 export const metadata: Metadata = {
-  title: "Music League Now!",
+  title: APP_NAME,
   description: "Compete with friends in music discovery leagues",
 };
 

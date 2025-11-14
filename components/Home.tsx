@@ -74,7 +74,7 @@ export default function Home({ leagues }: { leagues: PopulatedLeague[] }) {
             <h2 className="text-2xl font-bold mb-4 text-gray-800">
               Current League
             </h2>
-            <Card variant="elevated" className="overflow-hidden">
+            <Card variant="elevated">
               <div className="p-6">
                 <League league={leagues[0]} />
               </div>
