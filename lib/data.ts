@@ -92,6 +92,15 @@ export async function getUserLeagues(
 
   const leagueWithData = await Promise.all(
     leagues.map(async (league) => {
+      // Normalize league start date to midnight in America/New_York timezone
+      const reformattedDate = new Date(
+        new Date(league.leagueStartDate).toLocaleString("en-US", {
+          timeZone: "America/New_York",
+        })
+      ).setHours(0, 0, 0, 0);
+
+      league.leagueStartDate = reformattedDate;
+
       let currentStartDate = league.leagueStartDate;
 
       const [_rounds, _users] = await Promise.all([
@@ -377,7 +386,7 @@ export async function getUserLeagues(
         }
       });
 
-      const numberOfRounds = users.length & roundsObject.bonus.length;
+      const numberOfRounds = users.length + roundsObject.bonus.length;
 
       const status = (() => {
         if (roundsObject.completed.length === numberOfRounds) {

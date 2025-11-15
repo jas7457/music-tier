@@ -401,7 +401,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
       </div>
 
       {/* Guess Accuracy Section */}
-      {filteredGuesses.length > 6 && (
+      {filteredGuesses.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold mb-3 text-gray-700">
             Guess Accuracy
