@@ -386,7 +386,9 @@ export async function getUserLeagues(
         }
       });
 
-      const numberOfRounds = users.length + roundsObject.bonus.length;
+      const numberOfRounds =
+        users.length +
+        roundsWithData.filter((round) => round.isBonusRound).length;
 
       const status = (() => {
         if (roundsObject.completed.length === numberOfRounds) {
