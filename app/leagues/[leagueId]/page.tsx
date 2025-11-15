@@ -18,7 +18,7 @@ export default async function LeaguePage({ params }: PageProps) {
   }
 
   const league = await getLeagueById(leagueId, payload.userId);
-  const user = await getUserByCookies(leagueId);
+  const user = await getUserByCookies(league ? league._id : leagueId);
 
   if (!league || !user) {
     return (

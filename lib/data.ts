@@ -416,7 +416,7 @@ export async function getUser(
   userId: string,
   leagueId: string
 ): Promise<(User & { canCreateBonusRound: boolean }) | null> {
-  const { usersCollection, leaguesCollection } = await dbPromise;
+  const { usersCollection } = await dbPromise;
 
   const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
   if (!user) {
@@ -430,9 +430,7 @@ export async function getUser(
     };
   }
 
-  const league = await leaguesCollection.findOne({
-    _id: new ObjectId(leagueId),
-  });
+  const league = await getLeagueById(leagueId, userId);
   if (!league) {
     return null;
   }
