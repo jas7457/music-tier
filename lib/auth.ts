@@ -22,12 +22,6 @@ export function createSessionToken(user: User): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const userJen = {
-  userId: "69112e8d8741da077820df17",
-  userName: "jdivita",
-};
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const userDharam = {
   userId: "691673fc22a34f0ccca322ae",
   userName: "dharam66",
@@ -35,9 +29,18 @@ const userDharam = {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const userKelsey = {
-  userId: "69165b47e6a0480e21051d27",
+  userId: "69165b47e6a0480e21051d27333",
   userName: "khappel28",
 };
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const userJen = {
+  userId: "6917ece827ed2929c03cb220",
+  userName: "stickyrice",
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const oldKeleyId = "69165b47e6a0480e21051d27";
 
 const users = [userJen, userDharam, userKelsey];
 
