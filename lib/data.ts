@@ -314,6 +314,9 @@ export async function getUserLeagues(
 
         if (currentRound.isBonusRound) {
           const hasIncompleteBefore = roundsWithData.some((round) => {
+            if (round._id === currentRound._id) {
+              return false;
+            }
             if (round.roundIndex >= currentRound.roundIndex) {
               return true;
             }
@@ -330,7 +333,7 @@ export async function getUserLeagues(
         (acc, round) => {
           if (now >= round.votingEndDate) {
             acc.completed.push(round);
-          } else if (round.isBonusRound) {
+          } else if (round.isBonusRound && round._id !== currentRound?._id) {
             acc.bonus.push(round);
           } else if (round.isPending) {
             acc.pending.push(round);
@@ -374,7 +377,7 @@ export async function getUserLeagues(
         }
       });
 
-      const numberOfRounds = users.length;
+      const numberOfRounds = users.length & roundsObject.bonus.length;
 
       const status = (() => {
         if (roundsObject.completed.length === numberOfRounds) {
