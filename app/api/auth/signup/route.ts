@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const [usersCollection, leagueCollection] = await Promise.all([
+    const [usersCollection] = await Promise.all([
       getCollection<User>("users"),
       getCollection<League>("leagues"),
     ]);
@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
     };
 
     await usersCollection.insertOne(newUser);
+    /*
     // add the user to all the existing leagues
     const existingLeagues = await leagueCollection
       .find({})
@@ -83,6 +84,7 @@ export async function POST(request: NextRequest) {
         { $set: { users: [...newestLeague.users, newUser._id.toString()] } }
       );
     }
+    */
 
     triggerRealTimeUpdate();
 
