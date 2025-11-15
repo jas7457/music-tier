@@ -3,6 +3,7 @@
 import { PopulatedRound, PopulatedSubmission } from "@/lib/types";
 import { PlayIcon, PauseIcon } from "./PlayerIcons";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
+import { useEffect } from "react";
 
 interface AlbumArtProps {
   submission: PopulatedSubmission;
@@ -17,30 +18,38 @@ export default function AlbumArt({
   size = 64,
   className = "",
 }: AlbumArtProps) {
-  const playerContext = useSpotifyPlayer();
+  const {
+    initializePlaylist,
+    currentTrack,
+    isPlaying,
+    deviceId,
+    pausePlayback,
+    resumePlayback,
+    playTrack,
+  } = useSpotifyPlayer();
+
+  useEffect(() => {
+    initializePlaylist(round);
+  }, [initializePlaylist, round]);
 
   const isEffectivelyTheCurrentTrack = (() => {
-    if (!playerContext.currentTrack) {
+    if (!currentTrack) {
       return false;
     }
-    if (playerContext.currentTrack.id === submission.trackInfo.trackId) {
+    if (currentTrack.id === submission.trackInfo.trackId) {
       return true;
     }
-    if (
-      playerContext.currentTrack.linked_from?.id ===
-      submission.trackInfo.trackId
-    ) {
+    if (currentTrack.linked_from?.id === submission.trackInfo.trackId) {
       return true;
     }
     return false;
   })();
 
   // Determine if this track is currently playing
-  const isCurrentlyPlaying =
-    playerContext.isPlaying && isEffectivelyTheCurrentTrack;
+  const isCurrentlyPlaying = isPlaying && isEffectivelyTheCurrentTrack;
 
   // Determine if player is disabled
-  const isDisabled = !playerContext.deviceId;
+  const isDisabled = !deviceId;
 
   // Handle play click
   const handlePlayClick = async () => {
@@ -48,11 +57,11 @@ export default function AlbumArt({
       return;
     }
     if (isCurrentlyPlaying) {
-      await playerContext.pausePlayback();
+      await pausePlayback();
     } else if (isEffectivelyTheCurrentTrack) {
-      await playerContext.resumePlayback();
+      await resumePlayback();
     } else {
-      await playerContext.playTrack(submission, round);
+      await playTrack(submission, round);
     }
   };
 

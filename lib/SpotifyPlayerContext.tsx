@@ -45,6 +45,7 @@ interface SpotifyPlayerContextType {
   previousTrack: () => Promise<void>;
   seekToPosition: (position: number) => Promise<void>;
   setPlayerVolume: (volume: number) => Promise<void>;
+  initializePlaylist: (round: PopulatedRound) => void;
   error: string | null;
 }
 
@@ -89,6 +90,8 @@ export function SpotifyPlayerProvider({
     }>({ playlist: [], currentTrackIndex: -1, round: null });
   const lastPlaybackStateRef = useRef<Spotify.WebPlaybackState | null>(null);
   const nextTrackRef = useRef<() => void>(() => {});
+  const hasInitializedRef = useRef(false);
+  const hasPreviouslyPlayedRef = useRef(false);
   const toast = useToast();
 
   const hasNextTrack =
@@ -308,10 +311,54 @@ export function SpotifyPlayerProvider({
     };
   }, [volume]);
 
+  const initializePlaylist = useCallback(async (round: PopulatedRound) => {
+    if (hasInitializedRef.current) {
+      return;
+    }
+    hasInitializedRef.current = true;
+    setPlaylist((current) => {
+      if (current.round) {
+        return current;
+      }
+      return { currentTrackIndex: 0, round, playlist: round.submissions };
+    });
+    const track = round.submissions[0]?.trackInfo;
+    if (!track) {
+      return;
+    }
+
+    const token = Cookies.get("spotify_access_token");
+    if (!token) {
+      return;
+    }
+    try {
+      const response = await fetch(
+        `https://api.spotify.com/v1/tracks/${track.trackId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      setCurrentTrack(data);
+      setIsPaused(true);
+      setIsPlaying(false);
+      setCurrentTime(0);
+      setDuration(data.duration_ms);
+    } catch {}
+  }, []);
+
   const playTrack = async (
     submission: PopulatedSubmission,
     round?: PopulatedRound | "same"
   ) => {
+    hasPreviouslyPlayedRef.current = true;
+    if (!submission) {
+      return;
+    }
     if (!deviceId) {
       const errorMessage = "No Spotify device available";
       setError(errorMessage);
@@ -451,6 +498,9 @@ export function SpotifyPlayerProvider({
   };
 
   const resumePlayback = async () => {
+    if (!hasPreviouslyPlayedRef.current) {
+      return playTrack(playlist[currentTrackIndex], "same");
+    }
     const accessToken = Cookies.get("spotify_access_token");
     if (!accessToken) return;
 
@@ -546,6 +596,7 @@ export function SpotifyPlayerProvider({
     previousTrack,
     seekToPosition,
     setPlayerVolume,
+    initializePlaylist,
     hasNextTrack,
     hasPreviousTrack,
     error,
