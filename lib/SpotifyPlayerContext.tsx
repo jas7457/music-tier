@@ -134,7 +134,12 @@ export function SpotifyPlayerProvider({
     async function setup() {
       const checkAndRefreshToken = async () => {
         const expiresAt = Cookies.get("spotify_token_expires_at");
+        const currentRefreshToken = Cookies.get("spotify_refresh_token");
         if (!expiresAt) {
+          if (currentRefreshToken) {
+            await refreshToken();
+            return checkAndRefreshToken();
+          }
           return;
         }
 
