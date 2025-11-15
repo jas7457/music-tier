@@ -16,7 +16,7 @@ export function LeaguePageClient({ league, user }: LeaguePageClientProps) {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-4xl mx-auto">
         <Breadcrumb
           items={[
             { label: "", icon: <HomeIcon />, href: "/" },
