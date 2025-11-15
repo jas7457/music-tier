@@ -190,6 +190,8 @@ export function Round({
     );
   })();
 
+  const now = Date.now();
+
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -226,27 +228,19 @@ export function Round({
           ) : (
             <>
               <span>
-                Submissions start: {formatDate(round.submissionStartDate)}
+                Submissions{" "}
+                {now > round.submissionStartDate ? "started" : "start"}:{" "}
+                {formatDate(round.submissionStartDate)}
               </span>
               <span>•</span>
               <span>
-                Submissions end:{" "}
-                {formatDate(
-                  round.submissionStartDate! +
-                    league.daysForSubmission * 24 * 60 * 60 * 1000
-                )}
+                Submissions {now > round.submissionEndDate ? "ended" : "end"}:{" "}
+                {formatDate(round.submissionEndDate)}
               </span>
               <span>•</span>
               <span>
-                Round ends:{" "}
-                {formatDate(
-                  round.submissionStartDate! +
-                    (league.daysForSubmission + league.daysForVoting) *
-                      24 *
-                      60 *
-                      60 *
-                      1000
-                )}
+                Round {now > round.votingEndDate ? "ended" : "ends"}:{" "}
+                {formatDate(round.votingEndDate)}
               </span>
             </>
           )}

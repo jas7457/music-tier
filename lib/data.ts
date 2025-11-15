@@ -158,14 +158,40 @@ export async function getUserLeagues(
       const normalUserRounds: Array<
         (typeof populatedRounds)[number] & { roundIndex: number }
       > = league.users
-        .map((userId) => {
+        .map((userId, index) => {
           const user = usersById[userId]?.user;
           if (!user) {
             return undefined;
           }
-          return populatedRounds.find(
+          const populatedRound = populatedRounds.find(
             (round) => round.creatorId === userId && !round.isBonusRound
           );
+          if (populatedRound) {
+            return { ...populatedRound, roundIndex: index };
+          } else {
+            const inAWeek = now + 7 * ONE_DAY_MS;
+            const roundIndex = usersById[userId]?.index ?? index;
+
+            return {
+              _id: "",
+              isPending: true,
+              leagueId: league._id.toString(),
+              creatorId: userId,
+              title: "",
+              description: "",
+              submissions: [],
+              votes: [],
+              submissionStartDate: inAWeek,
+              submissionEndDate: inAWeek,
+              votingStartDate: inAWeek,
+              votingEndDate: inAWeek,
+              roundIndex,
+              creatorObject: usersById[userId]?.user,
+              stage: "upcoming" as const,
+              userSubmission: undefined,
+              isBonusRound: false,
+            };
+          }
         })
         .filter((round) => round !== undefined)
         .map((round, index) => ({ ...round, roundIndex: index }));
@@ -300,43 +326,14 @@ export async function getUserLeagues(
         return currentRound;
       })();
 
-      const usersWithoutRound = league.users.filter((user) => {
-        return !roundsWithData.some((round) => round.creatorId === user);
-      });
-
-      const pendingRounds: PopulatedRound[] = usersWithoutRound.map(
-        (userId, index) => {
-          const inAWeek = now + 7 * ONE_DAY_MS;
-          const roundIndex = usersById[userId]?.index ?? index;
-
-          return {
-            _id: "",
-            leagueId: league._id.toString(),
-            creatorId: userId,
-            title: "",
-            description: "",
-            submissions: [],
-            votes: [],
-            submissionStartDate: inAWeek,
-            submissionEndDate: inAWeek,
-            votingStartDate: inAWeek,
-            votingEndDate: inAWeek,
-            roundIndex,
-            creatorObject: usersById[userId]?.user,
-            stage: "upcoming" as const,
-            userSubmission: undefined,
-            isBonusRound: false,
-          };
-        }
-      );
-
       const roundsObject = roundsWithData.reduce(
         (acc, round) => {
           if (now >= round.votingEndDate) {
             acc.completed.push(round);
-          }
-          if (round.isBonusRound) {
+          } else if (round.isBonusRound) {
             acc.bonus.push(round);
+          } else if (round.isPending) {
+            acc.pending.push(round);
           }
 
           return acc;
@@ -346,7 +343,7 @@ export async function getUserLeagues(
           completed: [] as PopulatedRound[],
           upcoming: [] as PopulatedRound[],
           bonus: [] as PopulatedRound[],
-          pending: pendingRounds,
+          pending: [] as PopulatedRound[],
         }
       );
       roundsWithData.forEach((round) => {
@@ -368,7 +365,11 @@ export async function getUserLeagues(
           }
           return;
         }
-        if (now < round.submissionStartDate && !round.isBonusRound) {
+        if (
+          now < round.submissionStartDate &&
+          !round.isBonusRound &&
+          !round.isPending
+        ) {
           roundsObject.upcoming.push(round);
         }
       });

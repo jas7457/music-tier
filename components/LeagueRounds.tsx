@@ -55,28 +55,54 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
   })();
 
   const nonCurrentRoundsMarkup = (() => {
+    const footerHelper = (round: PopulatedRound) => {
+      const now = Date.now();
+      return (
+        <div className="flex gap-2">
+          <span>
+            Submissions {now > round.submissionStartDate ? "started" : "start"}:{" "}
+            {formatDate(round.submissionStartDate)}
+          </span>
+          <span>•</span>
+          <span>
+            Submissions {now > round.submissionEndDate ? "ended" : "end"}:{" "}
+            {formatDate(round.submissionEndDate)}
+          </span>
+          <span>•</span>
+          <span>
+            Round {now > round.votingEndDate ? "ended" : "ends"}:{" "}
+            {formatDate(round.votingEndDate)}
+          </span>
+        </div>
+      );
+    };
+
     const groups: Array<{
       rounds: PopulatedRound[];
       title: string;
-      footer: string | ((round: PopulatedRound) => string);
+      footer: string | ((round: PopulatedRound) => React.ReactNode);
     }> = [
       {
         rounds: league.rounds.upcoming,
         title: "Upcoming Rounds",
-        footer: (round) =>
-          `Submissions start: ${formatDate(round.submissionStartDate)}`,
+        footer: footerHelper,
       },
       {
         rounds: league.rounds.pending,
         title: "Pending Rounds",
-        footer: (round) =>
-          `Waiting for ${round.creatorObject.firstName} to create this round.`,
+        footer: (round) => (
+          <div>
+            <div>
+              Waiting for {round.creatorObject.firstName} to create this round.
+            </div>
+            {footerHelper(round)}
+          </div>
+        ),
       },
       {
         rounds: league.rounds.bonus,
         title: "Bonus Rounds",
-        footer: (round) =>
-          `Submissions start: ${formatDate(round.submissionStartDate)}`,
+        footer: footerHelper,
       },
       {
         rounds: league.status === "completed" ? [] : league.rounds.completed,
