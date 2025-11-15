@@ -101,6 +101,8 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
             vote.userId === user?._id && vote.submissionId === submission._id
         );
 
+        const votersWithPoints = voters.filter((voter) => voter.points > 0);
+
         return (
           <Card
             key={submission._id}
@@ -147,7 +149,8 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                     {totalPoints} pts
                   </div>
                   <div className="text-sm text-gray-600">
-                    {voters.length} {voters.length === 1 ? "voter" : "voters"}
+                    {votersWithPoints.length}{" "}
+                    {votersWithPoints.length === 1 ? "voter" : "voters"}
                   </div>
                 </div>
 
