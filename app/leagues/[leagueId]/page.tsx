@@ -5,14 +5,14 @@ import Card from "@/components/Card";
 import { verifySessionToken } from "@/lib/auth";
 
 type PageProps = {
-  params: { leagueId: string };
+  params: Promise<{ leagueId: string }>;
 };
 
 export default async function LeaguePage({ params }: PageProps) {
-  const { leagueId } = params;
+  const { leagueId } = await params;
 
   // Verify the session
-  const payload = verifySessionToken();
+  const payload = await verifySessionToken();
   if (!payload) {
     redirect("/");
   }

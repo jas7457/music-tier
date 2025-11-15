@@ -23,7 +23,7 @@ export default async function RootLayout({
 }) {
   let initialUser: PopulatedUser | null = null;
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const sessionToken = cookieStore.get("session_token")?.value;
     if (sessionToken) {
       const user = await getUserByCookies("");

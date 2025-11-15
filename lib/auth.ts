@@ -44,8 +44,8 @@ const oldKeleyId = "69165b47e6a0480e21051d27";
 
 const users = [userJen, userDharam, userKelsey];
 
-export function verifySessionToken(): SessionPayload | null {
-  const cookieStore = cookies();
+export async function verifySessionToken(): Promise<SessionPayload | null> {
+  const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session_token")?.value;
   const sessionOverride = cookieStore.get("session_override")?.value;
 

@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 
 export default async function Page() {
   // Verify the session token
-  const payload = verifySessionToken();
+  const payload = await verifySessionToken();
 
   if (!payload) {
     return <Landing />;
@@ -17,7 +17,7 @@ export default async function Page() {
     return <Landing />;
   }
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const accessToken = cookieStore.get("spotify_access_token");
   const refreshToken = cookieStore.get("spotify_refresh_token");
   if (!accessToken && !refreshToken) {

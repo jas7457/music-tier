@@ -7,15 +7,15 @@ import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { roundId: string } }
+  { params }: { params: Promise<{ roundId: string }> }
 ) {
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
 
-    const { roundId } = params;
+    const { roundId } = await params;
 
     const body = await request.json();
     const { trackInfo, note } = body;
@@ -89,16 +89,16 @@ export async function POST(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { roundId: string } }
+  { params }: { params: Promise<{ roundId: string }> }
 ) {
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
 
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
 
-    const { roundId } = params;
+    const { roundId } = await params;
 
     const body = await request.json();
     const { trackInfo, note } = body;

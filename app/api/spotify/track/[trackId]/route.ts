@@ -8,7 +8,7 @@ export type GETReponse =
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { trackId: string } }
+  { params }: { params: Promise<{ trackId: string }> }
 ): Promise<NextResponse<GETReponse>> {
   try {
     const accessToken = request.cookies.get("spotify_access_token")?.value;
@@ -20,7 +20,7 @@ export async function GET(
       );
     }
 
-    const { trackId } = params;
+    const { trackId } = await params;
     const track = await getTrackDetails(trackId, accessToken);
 
     return NextResponse.json({ track });

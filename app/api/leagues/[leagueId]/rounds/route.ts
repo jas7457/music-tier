@@ -7,15 +7,15 @@ import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { leagueId: string } }
+  { params }: { params: Promise<{ leagueId: string }> }
 ) {
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
 
-    const { leagueId } = params;
+    const { leagueId } = await params;
     const body = await request.json();
     const { title, description, isBonusRound: _isBonusRound } = body;
     const isBonusRound = Boolean(_isBonusRound);

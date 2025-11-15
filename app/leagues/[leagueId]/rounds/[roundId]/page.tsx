@@ -6,14 +6,14 @@ import { getAllRounds } from "@/lib/utils/getAllRounds";
 import { verifySessionToken } from "@/lib/auth";
 
 type PageProps = {
-  params: { roundId: string; leagueId: string };
+  params: Promise<{ roundId: string; leagueId: string }>;
 };
 
 export default async function RoundPage({ params }: PageProps) {
-  const { roundId, leagueId } = params;
+  const { roundId, leagueId } = await params;
 
   // Verify the session
-  const payload = verifySessionToken();
+  const payload = await verifySessionToken();
   if (!payload) {
     redirect("/");
   }
