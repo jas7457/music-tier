@@ -384,6 +384,8 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
     });
   })();
 
+  const filteredGuesses = guessStats.filter((stat) => stat.totalGuesses > 0);
+
   return (
     <div className="space-y-6">
       {completedMarkup}
@@ -399,16 +401,15 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
       </div>
 
       {/* Guess Accuracy Section */}
-      <div>
-        <h3 className="text-lg font-semibold mb-3 text-gray-700">
-          Guess Accuracy
-        </h3>
+      {filteredGuesses.length > 6 && (
+        <div>
+          <h3 className="text-lg font-semibold mb-3 text-gray-700">
+            Guess Accuracy
+          </h3>
 
-        <Card variant="outlined">
-          <div className="divide-y divide-gray-200">
-            {guessStats
-              .filter((stat) => stat.totalGuesses > 0)
-              .map((stat, index) => {
+          <Card variant="outlined">
+            <div className="divide-y divide-gray-200">
+              {filteredGuesses.map((stat, index) => {
                 const isExpanded = expandedUsers.has(stat.user._id);
 
                 return (
@@ -585,9 +586,10 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                   </div>
                 );
               })}
-          </div>
-        </Card>
-      </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
