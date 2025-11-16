@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  ViewTransition,
+  startTransition,
+} from "react";
 import AlbumArt from "./AlbumArt";
 import { PopulatedRound, PopulatedSubmission } from "@/lib/types";
 import { getTrackDetails } from "@/lib/api";
@@ -167,7 +173,11 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
           </h5>
           {!isRoundEnded && (
             <button
-              onClick={() => setIsEditing(true)}
+              onClick={() => [
+                startTransition(() => {
+                  setIsEditing(true);
+                }),
+              ]}
               className="text-xs text-purple-600 hover:text-purple-800 font-medium"
             >
               Change
@@ -176,19 +186,27 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
         </div>
         <div className="flex items-center gap-3">
           {submission.trackInfo.albumImageUrl && (
-            <AlbumArt submission={submission} size={64} round={round} />
+            <ViewTransition name={`submission-${round._id}.albumArt`}>
+              <AlbumArt submission={submission} size={64} round={round} />
+            </ViewTransition>
           )}
           <div className="flex-1">
-            <p className="font-semibold text-sm">
-              {submission.trackInfo.title}
-            </p>
-            <p className="text-xs text-gray-600">
-              {submission.trackInfo.artists.join(", ")}
-            </p>
-            {submission.note && (
-              <p className="text-xs text-gray-500 mt-1 italic">
-                <MultiLine>{submission.note}</MultiLine>
+            <ViewTransition name={`submission-${round._id}.title`}>
+              <p className="font-semibold text-sm">
+                {submission.trackInfo.title}
               </p>
+            </ViewTransition>
+            <ViewTransition name={`submission-${round._id}.artists`}>
+              <p className="text-xs text-gray-600">
+                {submission.trackInfo.artists.join(", ")}
+              </p>
+            </ViewTransition>
+            {submission.note && (
+              <ViewTransition name={`submission-${round._id}.note`}>
+                <p className="text-xs text-gray-500 mt-1 italic">
+                  <MultiLine>{submission.note}</MultiLine>
+                </p>
+              </ViewTransition>
             )}
           </div>
         </div>
@@ -267,18 +285,26 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
           <div className="p-3 bg-purple-50 border border-purple-400 rounded-md">
             <div className="flex items-center gap-3">
               {submission.trackInfo.albumImageUrl && (
-                <AlbumArt submission={submission} size={56} round={round} />
+                <ViewTransition name={`submission-${round._id}.albumArt`}>
+                  <AlbumArt submission={submission} size={56} round={round} />
+                </ViewTransition>
               )}
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm truncate">
-                  {submission.trackInfo.title}
-                </p>
-                <p className="text-xs text-gray-600 truncate">
-                  {submission.trackInfo.artists.join(", ")}
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {submission.trackInfo.albumName}
-                </p>
+                <ViewTransition name={`submission-${round._id}.title`}>
+                  <p className="font-semibold text-sm truncate">
+                    {submission.trackInfo.title}
+                  </p>
+                </ViewTransition>
+                <ViewTransition name={`submission-${round._id}.artists`}>
+                  <p className="text-xs text-gray-600 truncate">
+                    {submission.trackInfo.artists.join(", ")}
+                  </p>
+                </ViewTransition>
+                <ViewTransition name={`submission-${round._id}.albumName`}>
+                  <p className="text-xs text-gray-500 truncate">
+                    {submission.trackInfo.albumName}
+                  </p>
+                </ViewTransition>
               </div>
             </div>
           </div>
@@ -323,7 +349,11 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
           {isEditing && (
             <button
               type="button"
-              onClick={() => setIsEditing(false)}
+              onClick={() => [
+                startTransition(() => {
+                  setIsEditing(false);
+                }),
+              ]}
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 font-medium"
             >
               Cancel

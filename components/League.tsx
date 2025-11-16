@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, ViewTransition } from "react";
 import { PopulatedLeague, PopulatedUser } from "@/lib/types";
 import { CreateRound } from "./CreateRound";
 import { MaybeLink } from "./MaybeLink";
@@ -81,59 +81,73 @@ export function League({
   return (
     <div className="flex flex-col gap-6">
       {/* League Header */}
-      <div className="border-b border-gray-300 pb-4">
+      <div>
         <div className="flex flex-wrap items-center">
           <div className="flex items-center gap-2 grow">
-            <MaybeLink
-              href={`/leagues/${league._id}`}
-              className="text-2xl font-bold mb-2"
-            >
-              {league.title}
-            </MaybeLink>
+            <ViewTransition name={`league-${league._id}.title`}>
+              <MaybeLink
+                href={`/leagues/${league._id}`}
+                className="text-2xl font-bold mb-2"
+              >
+                {league.title}
+              </MaybeLink>
+            </ViewTransition>
 
-            <Pill status={league.status}>{text}</Pill>
+            <ViewTransition name={`league-${league._id}.status`}>
+              <Pill status={league.status}>{text}</Pill>
+            </ViewTransition>
           </div>
-          <div className="flex flex-wrap items-center gap-1">
-            {league.users.map((user) => (
-              <Avatar key={user._id} user={user} includeTooltip />
-            ))}
-          </div>
+          <ViewTransition name={`league-${league._id}.users`}>
+            <div className="flex flex-wrap items-center gap-1">
+              {league.users.map((user) => (
+                <Avatar key={user._id} user={user} includeTooltip />
+              ))}
+            </div>
+          </ViewTransition>
         </div>
-        <p className="text-gray-600 mb-3">
-          <MultiLine>{league.description}</MultiLine>
-        </p>
+        <ViewTransition name={`league-${league._id}.description`}>
+          <p className="text-gray-600 mb-3">
+            <MultiLine>{league.description}</MultiLine>
+          </p>
+        </ViewTransition>
 
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex gap-2 text-sm text-gray-500">
-            {league.status === "completed" && finalVoteTimestamp > 0 && (
-              <>
-                <span>League ended: {formatDate(finalVoteTimestamp)}</span>
-                <span>•</span>
-              </>
-            )}
-            <span>{league.numberOfRounds} rounds</span>
-            <span>•</span>
-            <span>{league.daysForSubmission} days for submissions</span>
-            <span>•</span>
-            <span>{league.daysForVoting} days for voting</span>
-          </div>
+        <ViewTransition name={`league-${league._id}.details`}>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex gap-2 text-sm text-gray-500">
+              {league.status === "completed" && finalVoteTimestamp > 0 && (
+                <>
+                  <span>League ended: {formatDate(finalVoteTimestamp)}</span>
+                  <span>•</span>
+                </>
+              )}
+              <span>{league.numberOfRounds} rounds</span>
+              <span>•</span>
+              <span>{league.daysForSubmission} days for submissions</span>
+              <span>•</span>
+              <span>{league.daysForVoting} days for voting</span>
+            </div>
 
-          {/* Toggle between Rounds and Standings */}
-          <div className="flex gap-2">
-            <ToggleButton
-              onClick={() => setShowStandings(false)}
-              selected={!showStandings}
-            >
-              Rounds
-            </ToggleButton>
-            <ToggleButton
-              onClick={() => setShowStandings(true)}
-              selected={showStandings}
-            >
-              Standings
-            </ToggleButton>
+            {/* Toggle between Rounds and Standings */}
+            <div className="flex gap-2">
+              <ToggleButton
+                onClick={() => setShowStandings(false)}
+                selected={!showStandings}
+              >
+                Rounds
+              </ToggleButton>
+              <ToggleButton
+                onClick={() => setShowStandings(true)}
+                selected={showStandings}
+              >
+                Standings
+              </ToggleButton>
+            </div>
           </div>
-        </div>
+        </ViewTransition>
+
+        <ViewTransition name={`league-${league._id}.divider`}>
+          <div className="pt-4 border-b border-gray-300" />
+        </ViewTransition>
       </div>
 
       {/* Create Round */}

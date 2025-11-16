@@ -1,7 +1,7 @@
 import { formatDate } from "@/lib/utils/formatDate";
 import { SongSubmission } from "./SongSubmission";
 import { SubmittedUsers, UnsubmittedUsers } from "./SubmittedUsers";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useState, ViewTransition } from "react";
 import VotingRound from "./VotingRound";
 import CompletedRound from "./CompletedRound";
 import { PopulatedLeague, PopulatedRound, PopulatedUser } from "@/lib/types";
@@ -44,18 +44,24 @@ export function Round({
           return {
             stageTitle: "Completed",
             bodyMarkup: (
-              <VotingRound
-                key={round.stage}
-                round={round}
-                league={league}
-                currentUser={currentUser}
-              />
+              <ViewTransition name={`round-${round._id}.votingRoundView`}>
+                <VotingRound
+                  key={round.stage}
+                  round={round}
+                  league={league}
+                  currentUser={currentUser}
+                />
+              </ViewTransition>
             ),
           };
         } else {
           return {
             stageTitle: "Completed",
-            bodyMarkup: <CompletedRound round={round} users={league.users} />,
+            bodyMarkup: (
+              <ViewTransition name={`round-${round._id}.completedRoundView`}>
+                <CompletedRound round={round} users={league.users} />
+              </ViewTransition>
+            ),
           };
         }
       }
@@ -74,7 +80,8 @@ export function Round({
         return {
           stageTitle: "Submission",
           bodyMarkup: (
-            <Fragment
+            <ViewTransition
+              name={`round-${round._id}.submissionView`}
               key={round.userSubmission?.trackInfo.trackId ?? "no-submission"}
             >
               <SongSubmission round={round} />
@@ -86,7 +93,7 @@ export function Round({
                 submissions={round.submissions}
                 users={league.users}
               />
-            </Fragment>
+            </ViewTransition>
           ),
         };
       }
@@ -95,12 +102,14 @@ export function Round({
         return {
           stageTitle: round.stage === "voting" ? "Voting" : "Votes Pending",
           bodyMarkup: (
-            <VotingRound
-              key={round.stage}
-              round={round}
-              league={league}
-              currentUser={currentUser}
-            />
+            <ViewTransition name={`round-${round._id}.votingRoundView`}>
+              <VotingRound
+                key={round.stage}
+                round={round}
+                league={league}
+                currentUser={currentUser}
+              />
+            </ViewTransition>
           ),
         };
       }
@@ -197,72 +206,87 @@ export function Round({
       <div>
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <MaybeLink
-              href={`/leagues/${league._id}/rounds/${round._id}`}
-              className="font-semibold text-lg"
-            >
-              Round {round.roundIndex + 1}: {round.title}
-            </MaybeLink>
+            <ViewTransition name={`round-${round._id}.title`}>
+              <MaybeLink
+                href={`/leagues/${league._id}/rounds/${round._id}`}
+                className="font-semibold text-lg"
+              >
+                Round {round.roundIndex + 1}: {round.title}
+              </MaybeLink>
+            </ViewTransition>
 
             {spotifyMarkup}
 
-            <Pill status={round.stage}>{stageTitle}</Pill>
+            <ViewTransition name={`round-${round._id}.status`}>
+              <Pill status={round.stage}>{stageTitle}</Pill>
+            </ViewTransition>
           </div>
-          <Avatar
-            user={round.creatorObject}
-            size={6}
-            tooltipText={`Submitted by ${round.creatorObject.firstName}`}
-            includeTooltip
-          />
+
+          <ViewTransition name={`round-${round._id}.creator`}>
+            <Avatar
+              user={round.creatorObject}
+              size={6}
+              tooltipText={`Submitted by ${round.creatorObject.firstName}`}
+              includeTooltip
+            />
+          </ViewTransition>
         </div>
-        <p className="text-gray-600 text-sm">
-          <MultiLine>{round.description}</MultiLine>
-        </p>
-        <div className="flex gap-4 text-xs text-gray-500">
-          {round.stage === "completed" ? (
-            <div className="flex flex-col gap-1">
-              {lastVote && (
-                <span>Round ended: {formatDate(lastVote.voteDate)}</span>
-              )}
-            </div>
-          ) : (
-            <>
-              <span>
-                Submissions{" "}
-                {now > round.submissionStartDate ? "started" : "start"}:{" "}
-                {formatDate(round.submissionStartDate)}
-              </span>
-              <span>•</span>
-              <span>
-                Submissions {now > round.submissionEndDate ? "ended" : "end"}:{" "}
-                {formatDate(round.submissionEndDate)}
-              </span>
-              <span>•</span>
-              <span>
-                Round {now > round.votingEndDate ? "ended" : "ends"}:{" "}
-                {formatDate(round.votingEndDate)}
-              </span>
-            </>
-          )}
-        </div>
+
+        <ViewTransition name={`round-${round._id}.description`}>
+          <p className="text-gray-600 text-sm">
+            <MultiLine>{round.description}</MultiLine>
+          </p>
+        </ViewTransition>
+
+        <ViewTransition name={`round-${round._id}.details`}>
+          <div className="flex gap-4 text-xs text-gray-500">
+            {round.stage === "completed" ? (
+              <div className="flex flex-col gap-1">
+                {lastVote && (
+                  <span>Round ended: {formatDate(lastVote.voteDate)}</span>
+                )}
+              </div>
+            ) : (
+              <>
+                <span>
+                  Submissions{" "}
+                  {now > round.submissionStartDate ? "started" : "start"}:{" "}
+                  {formatDate(round.submissionStartDate)}
+                </span>
+                <span>•</span>
+                <span>
+                  Submissions {now > round.submissionEndDate ? "ended" : "end"}:{" "}
+                  {formatDate(round.submissionEndDate)}
+                </span>
+                <span>•</span>
+                <span>
+                  Round {now > round.votingEndDate ? "ended" : "ends"}:{" "}
+                  {formatDate(round.votingEndDate)}
+                </span>
+              </>
+            )}
+          </div>
+        </ViewTransition>
       </div>
 
       {/* Song Submission Section */}
       {round.stage === "completed" && (
-        <div className="flex justify-center gap-2">
-          <ToggleButton
-            onClick={() => setShowVotesView(false)}
-            selected={!showVotesView}
-          >
-            Results
-          </ToggleButton>
-          <ToggleButton
-            onClick={() => setShowVotesView(true)}
-            selected={showVotesView}
-          >
-            Your Votes
-          </ToggleButton>
-        </div>
+        <ViewTransition name={`round-${round._id}.toggleVotes`}>
+          <div className="flex justify-center gap-2">
+            <ToggleButton
+              onClick={() => setShowVotesView(false)}
+              selected={!showVotesView}
+            >
+              Results
+            </ToggleButton>
+            <ToggleButton
+              onClick={() => setShowVotesView(true)}
+              selected={showVotesView}
+            >
+              Your Votes
+            </ToggleButton>
+          </div>
+        </ViewTransition>
       )}
       {bodyMarkup}
     </div>

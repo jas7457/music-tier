@@ -1,5 +1,6 @@
 "use client";
 
+import { ViewTransition } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import Card from "./Card";
 import { formatDate } from "@/lib/utils/formatDate";
@@ -41,9 +42,11 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
 
     return (
       <div>
-        <h3 className="text-lg font-semibold mb-3 text-green-700">
-          Current Round
-        </h3>
+        <ViewTransition name={`league-${league._id}.current-round-header`}>
+          <h3 className="text-lg font-semibold mb-3 text-green-700">
+            Current Round
+          </h3>
+        </ViewTransition>
         <Round
           key={league.rounds.current.stage}
           currentUser={user}
@@ -117,7 +120,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
       }
 
       return (
-        <div key={title}>
+        <ViewTransition key={title} name={`non-completed-league-${league._id}`}>
           <h3 className="text-lg font-semibold mb-3 text-gray-700">{title}</h3>
           <div className="space-y-3">
             {rounds.map((round, index) => {
@@ -177,7 +180,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
               );
             })}
           </div>
-        </div>
+        </ViewTransition>
       );
     });
   })();
