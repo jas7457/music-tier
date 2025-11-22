@@ -19,8 +19,8 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
   }
 
   return (
-    <nav className="mb-4" aria-label="Breadcrumb">
-      <ol className="flex items-center space-x-2 text-sm">
+    <nav className="mb-4 overflow-x-auto max-w-full" aria-label="Breadcrumb">
+      <ol className="flex items-center space-x-2 text-sm flex-nowrap whitespace-nowrap">
         {items.map((item, index) => {
           return (
             <li key={index} className="flex items-center">
