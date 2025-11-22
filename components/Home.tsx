@@ -79,7 +79,7 @@ export default function Home({
               Current League
             </h2>
             <Card variant="elevated">
-              <div className="p-6">
+              <div className="p-3 md:p-6">
                 <League league={leagues[0]} user={user} />
               </div>
             </Card>

@@ -4,6 +4,7 @@ import { PopulatedRound, PopulatedSubmission } from "@/lib/types";
 import { PlayIcon, PauseIcon } from "./PlayerIcons";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 import { useEffect } from "react";
+import { twMerge } from "tailwind-merge";
 
 interface AlbumArtProps {
   submission: PopulatedSubmission;
@@ -67,7 +68,10 @@ export default function AlbumArt({
 
   return (
     <div
-      className={`relative shrink-0 overflow-hidden rounded group ${className}`}
+      className={twMerge(
+        "relative shrink-0 overflow-hidden rounded group",
+        className
+      )}
       style={{ width: `${size}px`, height: `${size}px` }}
     >
       <div className="w-full h-full">

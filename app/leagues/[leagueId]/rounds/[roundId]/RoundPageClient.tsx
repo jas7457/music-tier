@@ -26,7 +26,7 @@ export function RoundPageClient({
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-4xl mx-auto">
         <Breadcrumb
           items={[
             { label: "", icon: <HomeIcon />, href: "/" },
@@ -41,7 +41,7 @@ export function RoundPageClient({
             },
           ]}
         />
-        <Card className="p-6">
+        <Card className="p-2 md:p-6">
           <Round
             key={round.stage}
             currentUser={currentUser}

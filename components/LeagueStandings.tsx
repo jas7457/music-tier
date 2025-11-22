@@ -338,7 +338,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
         <div
           key={standing.user._id}
           className={twMerge(
-            "p-4 flex items-center gap-4",
+            "p-2 md:p-4 flex items-center gap-2 md:gap-4",
             isFirst && "border border-yellow-400 bg-yellow-50",
             isSecond && "border border-gray-400 bg-gray-50",
             isThird && "border border-[#cd7f32] bg-[#f9f2ec]",
@@ -427,7 +427,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                           return next;
                         })
                       }
-                      className="w-full flex items-center gap-4 hover:bg-gray-50 p-4 rounded transition-colors"
+                      className="w-full flex items-center gap-2 md:gap-4 hover:bg-gray-50 p-2 md:p-4 rounded transition-colors"
                     >
                       {/* Rank */}
                       <div className="flex items-center justify-center min-w-10">
@@ -485,7 +485,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                           <div
                             key={guessIdx}
                             className={twMerge(
-                              "p-3 rounded-lg border flex flex-col gap-1",
+                              "p-2 md:p-3 rounded-lg border flex flex-col gap-1",
                               guess.isCorrect
                                 ? "bg-green-50 border-green-200"
                                 : "bg-red-50 border-red-200"

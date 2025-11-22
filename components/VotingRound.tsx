@@ -184,13 +184,13 @@ export default function VotingRound({
       {/* Voting Summary */}
       <Card
         className={twMerge(
-          "py-4 flex flex-col gap-3",
+          "py-2 md:py-4 flex flex-col gap-3",
           getStatusColor(round.stage),
           "text-black"
         )}
         variant="outlined"
       >
-        <div className="px-4 flex items-center justify-between">
+        <div className="px-2 md:px-4 flex items-center justify-between">
           <div>
             <h6 className="font-semibold text-sm text-gray-700">{title}</h6>
             <p className="text-xs text-gray-600">{subtitle}</p>
@@ -215,7 +215,7 @@ export default function VotingRound({
           return (
             <div
               key={submission._id}
-              className="px-4 space-y-2 border-b pb-1 border-gray-300"
+              className="px-2 md:px-4 space-y-2 border-b pb-1 border-gray-300"
             >
               <div className="flex items-center gap-4">
                 {/* Album Art */}
@@ -351,11 +351,11 @@ export default function VotingRound({
 
         {/* Save All Button */}
         {round.stage === "voting" && (
-          <div className="px-4 pt-3">
+          <div className="px-2 md:px-4 pt-3">
             <button
               onClick={handleSave}
               disabled={saving || remainingVotes !== 0}
-              className="w-full px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {saving ? "Saving..." : "Save Votes"}
             </button>
@@ -364,7 +364,7 @@ export default function VotingRound({
 
         {usersThatHaveVoted.length > 0 && (
           <UsersList
-            className="px-4"
+            className="px-2 md:px-4"
             users={usersThatHaveVoted}
             text={{ noun: "votes", verb: "voted" }}
           />
@@ -372,7 +372,7 @@ export default function VotingRound({
 
         {usersThatHaveNotVoted.length > 0 && (
           <UsersList
-            className="px-4"
+            className="px-2 md:px-4"
             users={usersThatHaveNotVoted}
             text={{ noun: "votes", verb: "not voted" }}
           />

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 import { PlayIcon, PauseIcon, NextIcon, PreviousIcon } from "./PlayerIcons";
 import Link from "next/link";
+import { twMerge } from "tailwind-merge";
 
 export default function MusicPlayer() {
   const {
@@ -64,14 +65,14 @@ export default function MusicPlayer() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50">
+    <div className="fixed bottom-0 left-0 right-0 z-50 w-screen">
       {/* Liquid glass background with gradient */}
       <div className="relative backdrop-blur-3xl bg-linear-to-br from-purple-600/40 via-pink-600/40 to-blue-600/40 border-t-2 border-white/30 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         {/* Additional glass layer for depth - darker for contrast */}
         <div className="absolute inset-0 bg-black/30"></div>
 
-        <div className="relative px-5 py-3">
-          <div className="flex gap-5 items-center">
+        <div className="relative px-3 py-2 md:px-5 md:py-3">
+          <div className="flex gap-2 md:gap-5 items-center">
             {/* Track Display */}
             <div className="flex grow items-center gap-3 min-w-0 w-52 max-w-[35%]">
               {currentTrack && (
@@ -87,9 +88,10 @@ export default function MusicPlayer() {
                     <img
                       src={currentTrack.album.images[0]?.url}
                       alt="Current track"
-                      className={`relative w-15 h-15 rounded-2xl object-cover shrink-0 shadow-xl border-2 ${
+                      className={twMerge(
+                        "relative w-13 md:w-15 h-13 md:h-15 rounded-2xl object-cover shrink-0 shadow-xl border-2",
                         isPlaying ? "border-white/60" : "border-white/30"
-                      }`}
+                      )}
                     />
                     {/* Glassy overlay on album art */}
                     <div className="absolute inset-0 rounded-2xl bg-linear-to-tr from-white/10 to-transparent pointer-events-none"></div>
@@ -112,11 +114,11 @@ export default function MusicPlayer() {
 
             <div className="max-w-3xl grid grid-rows-1 gap-1 mx-auto grow shrink">
               {/* Player Controls */}
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-2 md:gap-4">
                 <button
                   onClick={previousTrack}
                   disabled={!deviceId || !currentTrack || !hasPreviousTrack}
-                  className="w-12 h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-8 h-8 md:w-12 md:h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
                   title="Previous track"
                 >
                   <PreviousIcon
@@ -134,7 +136,7 @@ export default function MusicPlayer() {
                     }
                   }}
                   disabled={!deviceId || !currentTrack}
-                  className="w-14 h-14 rounded-full backdrop-blur-xl bg-linear-to-br from-green-400 to-emerald-500 border-2 border-white/60 text-white flex items-center justify-center transition-all hover:from-green-300 hover:to-emerald-400 hover:scale-110 hover:shadow-[0_0_35px_rgba(16,185,129,0.8)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
+                  className="w-10 h-10 md:w-14 md:h-14 rounded-full backdrop-blur-xl bg-linear-to-br from-green-400 to-emerald-500 border-2 border-white/60 text-white flex items-center justify-center transition-all hover:from-green-300 hover:to-emerald-400 hover:scale-110 hover:shadow-[0_0_35px_rgba(16,185,129,0.8)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
                   title={isPlaying ? "Pause" : "Play"}
                 >
                   {isPlaying ? (
@@ -153,7 +155,7 @@ export default function MusicPlayer() {
                 <button
                   onClick={nextTrack}
                   disabled={!deviceId || !currentTrack || !hasNextTrack}
-                  className="w-12 h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-8 h-8 md:w-12 md:h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
                   title="Next track"
                 >
                   <NextIcon
@@ -164,7 +166,7 @@ export default function MusicPlayer() {
               </div>
 
               {/* Progress Bar */}
-              <div className="flex items-center gap-3 text-white grow">
+              <div className="hidden md:flex items-center gap-3 text-white grow">
                 <span className="text-xs text-white min-w-[35px] text-center font-bold">
                   {formatTime(currentTime)}
                 </span>
@@ -193,7 +195,7 @@ export default function MusicPlayer() {
               <button
                 onClick={() => setShowPlaylist(!showPlaylist)}
                 disabled={playlist.length === 0}
-                className="flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white transition-all hover:bg-white/40 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed"
+                className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white transition-all hover:bg-white/40 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed"
                 title="Show playlist"
               >
                 <svg
@@ -250,38 +252,38 @@ export default function MusicPlayer() {
                       )}
 
                       <div className="divide-y divide-white/10">
-                      {playlist.map((submission, index) => {
-                        const isCurrentTrack = index === currentTrackIndex;
-                        return (
-                          <button
-                            key={submission._id}
-                            onClick={() => playTrack(submission, "same")}
-                            disabled={!deviceId}
-                            className={`w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed ${
-                              isCurrentTrack ? "bg-white/20" : ""
-                            }`}
-                          >
-                            {/* Album Art */}
-                            <div className="relative shrink-0">
-                              <img
-                                src={submission.trackInfo.albumImageUrl}
-                                alt={submission.trackInfo.title}
-                                className="w-12 h-12 rounded-lg object-cover shadow-lg border border-white/30"
-                              />
-                            </div>
+                        {playlist.map((submission, index) => {
+                          const isCurrentTrack = index === currentTrackIndex;
+                          return (
+                            <button
+                              key={submission._id}
+                              onClick={() => playTrack(submission, "same")}
+                              disabled={!deviceId}
+                              className={`w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed ${
+                                isCurrentTrack ? "bg-white/20" : ""
+                              }`}
+                            >
+                              {/* Album Art */}
+                              <div className="relative shrink-0">
+                                <img
+                                  src={submission.trackInfo.albumImageUrl}
+                                  alt={submission.trackInfo.title}
+                                  className="w-8 h-8 md:w-12 md:h-12 rounded-lg object-cover shadow-lg border border-white/30"
+                                />
+                              </div>
 
-                            {/* Track Info */}
-                            <div className="flex-1 min-w-0 text-left">
-                              <div className="font-semibold text-sm text-white truncate drop-shadow-lg">
-                                {submission.trackInfo.title}
+                              {/* Track Info */}
+                              <div className="flex-1 min-w-0 text-left">
+                                <div className="font-semibold text-sm text-white truncate drop-shadow-lg">
+                                  {submission.trackInfo.title}
+                                </div>
+                                <div className="text-xs text-white/80 truncate drop-shadow-md">
+                                  {submission.trackInfo.artists.join(", ")}
+                                </div>
                               </div>
-                              <div className="text-xs text-white/80 truncate drop-shadow-md">
-                                {submission.trackInfo.artists.join(", ")}
-                              </div>
-                            </div>
-                          </button>
-                        );
-                      })}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>

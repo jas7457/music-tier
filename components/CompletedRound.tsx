@@ -109,37 +109,37 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
             className={twMerge("relative", cardClassName)}
           >
             {/* Submission Header */}
-            <div className="flex flex-wrap gap-4 p-6">
-              <div className="flex flex-wrap grow gap-4 items-center">
-                {/* Album Art */}
+            <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[auto_1fr_auto] gap-4 p-4 sm:p-6">
+              {/* Album Art */}
+              <div className="col-span-2 sm:col-span-1 flex justify-center sm:justify-start">
                 <AlbumArt submission={submission} size={120} round={round} />
+              </div>
 
-                {/* Track Info */}
-                <div className="flex-1 min-w-0 flex flex-col gap-1">
-                  <h5 className="font-semibold text-xl">
-                    {submission.trackInfo.title}
-                  </h5>
-                  <div>
-                    <p className="text-base text-gray-700">
-                      {submission.trackInfo.artists.join(", ")}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {submission.trackInfo.albumName}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Avatar user={usersById[submission.userId]} size={6} />
-                    <p className="text-sm text-gray-600">
-                      Submitted by {usersById[submission.userId].userName}
-                    </p>
-                  </div>
-
-                  {submission.note && (
-                    <p className="text-sm text-gray-700 italic">
-                      &quot;<MultiLine>{submission.note}</MultiLine>&quot;
-                    </p>
-                  )}
+              {/* Track Info */}
+              <div className="flex-1 min-w-0 flex flex-col gap-1">
+                <h5 className="font-semibold text-xl">
+                  {submission.trackInfo.title}
+                </h5>
+                <div>
+                  <p className="text-base text-gray-700">
+                    {submission.trackInfo.artists.join(", ")}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {submission.trackInfo.albumName}
+                  </p>
                 </div>
+                <div className="flex items-center gap-1">
+                  <Avatar user={usersById[submission.userId]} size={6} />
+                  <p className="text-sm text-gray-600">
+                    Submitted by {usersById[submission.userId].userName}
+                  </p>
+                </div>
+
+                {submission.note && (
+                  <p className="text-sm text-gray-700 italic">
+                    &quot;<MultiLine>{submission.note}</MultiLine>&quot;
+                  </p>
+                )}
               </div>
 
               {/* Score */}

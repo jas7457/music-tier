@@ -218,7 +218,7 @@ export function Round({
         <p className="text-gray-600 text-sm">
           <MultiLine>{round.description}</MultiLine>
         </p>
-        <div className="flex gap-4 text-xs text-gray-500">
+        <div className="flex flex-wrap gap-2 md:gap-4 text-xs text-gray-500">
           {round.stage === "completed" ? (
             <div className="flex flex-col gap-1">
               {lastVote && (

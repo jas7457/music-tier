@@ -139,7 +139,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
                 <Card
                   key={round._id || index}
                   variant="outlined"
-                  className="border-gray-200 bg-gray-50 p-4"
+                  className="border-gray-200 bg-gray-50 p-2 md:p-4"
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <div>

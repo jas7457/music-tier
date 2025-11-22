@@ -161,7 +161,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-100 pb-28">
       {userHeader}
-      <div className="p-4">{children}</div>
+      <div className="p-2 md:p-4">{children}</div>
       {hasSpotifyAccess && <MusicPlayer />}
     </div>
   );

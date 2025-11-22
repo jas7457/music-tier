@@ -29,7 +29,7 @@ export function ListenResultsDuo({
           href={`https://open.spotify.com/playlist/${round.spotifyPlaylistId}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center justify-center gap-2 p-4 hover:bg-gray-100 rounded-lg transition-colors"
+          className="flex flex-col items-center justify-center gap-1 md:gap-2 p-2 md:p-4 hover:bg-gray-100 rounded-lg transition-colors"
         >
           <svg
             width={30}
@@ -70,7 +70,7 @@ export function ListenResultsDuo({
               setCreatingPlaylist(false);
             }
           }}
-          className="flex flex-col items-center justify-center gap-2 p-4 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex flex-col items-center justify-center gap-1 md:gap-2 p-2 md:p-4 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg
             width={30}
@@ -90,7 +90,7 @@ export function ListenResultsDuo({
       {/* Results link */}
       <MaybeLink
         href={`/leagues/${league._id}/rounds/${round._id}`}
-        className="flex flex-col items-center justify-center gap-2 p-4 hover:bg-gray-100 rounded-lg transition-colors"
+        className="flex flex-col items-center justify-center gap-1 md:gap-2 p-2 md:p-4 hover:bg-gray-100 rounded-lg transition-colors"
       >
         <svg
           width={30}
