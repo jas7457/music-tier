@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useMemo,
-  useCallback,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useState, useMemo, ReactNode } from "react";
 import { Toast, ToastProps } from "@/components/Toast";
 
 export type ToastOptions = Omit<ToastProps, "id" | "onDismiss">;
@@ -28,33 +21,33 @@ const ToastContext = createContext<ToastContextValue>({
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
-  const show = useCallback((options: ToastOptions): string => {
-    const id = Math.random().toString(36).substring(2, 9);
-    const toast: ToastItem = {
-      id,
-      ...options,
+  const value = useMemo(() => {
+    return {
+      show: (options: ToastOptions): string => {
+        const id = Math.random().toString(36).substring(2, 9);
+        const toast: ToastItem = {
+          id,
+          ...options,
+        };
+
+        setToasts((prev) => [...prev, toast]);
+        return id;
+      },
+      hide: (id: string) => {
+        setToasts((prev) => prev.filter((toast) => toast.id !== id));
+      },
+      hideAll: () => {
+        setToasts([]);
+      },
     };
-
-    setToasts((prev) => [...prev, toast]);
-    return id;
   }, []);
-
-  const hide = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  }, []);
-
-  const hideAll = useCallback(() => {
-    setToasts([]);
-  }, []);
-
-  const value = useMemo(() => ({ show, hide, hideAll }), [show, hide, hideAll]);
 
   return (
     <ToastContext.Provider value={value}>
       {children}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
         {toasts.map((toast) => (
-          <Toast key={toast.id} {...toast} onDismiss={hide} />
+          <Toast key={toast.id} {...toast} onDismiss={value.hide} />
         ))}
       </div>
     </ToastContext.Provider>

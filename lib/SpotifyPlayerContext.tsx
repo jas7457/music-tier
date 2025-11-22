@@ -251,6 +251,7 @@ export function SpotifyPlayerProvider({
           setHasInitialized(true);
           setDeviceId(device_id);
           setIsReady(true);
+          resolve(device_id);
         });
 
         // Not Ready event - device has gone offline
@@ -305,7 +306,7 @@ export function SpotifyPlayerProvider({
         window.onSpotifyWebPlaybackSDKReady();
       }
     });
-  }, [deviceId]);
+  }, [deviceId, updateWithNewState]);
 
   const initializePlaylist = useCallback(async (round: PopulatedRound) => {
     if (hasInitializedRef.current) {
