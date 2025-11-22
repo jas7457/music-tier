@@ -10,7 +10,6 @@ import {
 } from "react";
 import Cookies from "js-cookie";
 import { PopulatedRound, PopulatedSubmission } from "./types";
-import { getSpotifyDevices } from "./spotify";
 import { useToast } from "./ToastContext";
 import { APP_NAME } from "./utils/constants";
 
@@ -21,7 +20,6 @@ const SPOTIFY_PLAYER_NAME = APP_NAME;
 
 interface SpotifyPlayerContextType {
   player: Spotify.Player | null;
-  deviceId: string | null;
   currentTrack: Spotify.WebPlaybackTrack | null;
   isPlaying: boolean;
   isPaused: boolean;
@@ -44,6 +42,7 @@ interface SpotifyPlayerContextType {
   previousTrack: () => Promise<void>;
   seekToPosition: (position: number) => Promise<void>;
   initializePlaylist: (round: PopulatedRound) => void;
+  isDisabled: boolean;
   error: string | null;
 }
 
@@ -213,12 +212,17 @@ export function SpotifyPlayerProvider({
     []
   );
 
-  if (!hasSetupPlayerRef.current) {
+  const setupPlayer = useCallback(async (): Promise<string> => {
+    // we've already set it up...
+    if (hasSetupPlayerRef.current) {
+      return deviceId || "";
+    }
+
     const token = Cookies.get("spotify_access_token");
     if (!token) {
       setIsReady(false);
       setHasInitialized(true);
-      return;
+      return deviceId || "";
     }
 
     hasSetupPlayerRef.current = true;
@@ -229,78 +233,79 @@ export function SpotifyPlayerProvider({
       setHasInitialized(true);
     }, 3_000);
 
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      const spotifyPlayer = new window.Spotify.Player({
-        name: SPOTIFY_PLAYER_NAME,
-        getOAuthToken: (cb) => {
-          const currentToken = Cookies.get("spotify_access_token");
-          cb(currentToken || token);
-        },
-        volume: 1,
-      });
+    return new Promise<string>((resolve) => {
+      window.onSpotifyWebPlaybackSDKReady = () => {
+        const spotifyPlayer = new window.Spotify.Player({
+          name: SPOTIFY_PLAYER_NAME,
+          getOAuthToken: (cb) => {
+            const currentToken = Cookies.get("spotify_access_token");
+            cb(currentToken || token);
+          },
+          volume: 1,
+        });
 
-      // Ready event - device is ready
-      spotifyPlayer.addListener("ready", async ({ device_id }) => {
-        console.log("Spotify Player Ready with Device ID:", device_id);
-        clearTimeout(initializedTimeout);
-        setHasInitialized(true);
-        setDeviceId(device_id);
-        setIsReady(true);
-      });
+        // Ready event - device is ready
+        spotifyPlayer.addListener("ready", async ({ device_id }) => {
+          console.log("Spotify Player Ready with Device ID:", device_id);
+          clearTimeout(initializedTimeout);
+          setHasInitialized(true);
+          setDeviceId(device_id);
+          setIsReady(true);
+        });
 
-      // Not Ready event - device has gone offline
-      spotifyPlayer.addListener("not_ready", ({ device_id }) => {
-        console.log("Spotify Player Not Ready with Device ID:", device_id);
-        setHasInitialized(true);
-        clearTimeout(initializedTimeout);
-        setIsReady(false);
-      });
+        // Not Ready event - device has gone offline
+        spotifyPlayer.addListener("not_ready", ({ device_id }) => {
+          console.log("Spotify Player Not Ready with Device ID:", device_id);
+          setHasInitialized(true);
+          clearTimeout(initializedTimeout);
+          setIsReady(false);
+        });
 
-      spotifyPlayer.addListener("initialization_error", ({ message }) => {
-        setError(message);
-      });
+        spotifyPlayer.addListener("initialization_error", ({ message }) => {
+          setError(message);
+        });
 
-      spotifyPlayer.addListener("authentication_error", ({ message }) => {
-        setError(message);
-      });
+        spotifyPlayer.addListener("authentication_error", ({ message }) => {
+          setError(message);
+        });
 
-      spotifyPlayer.addListener("account_error", ({ message }) => {
-        setError(message);
-      });
+        spotifyPlayer.addListener("account_error", ({ message }) => {
+          setError(message);
+        });
 
-      // Player state changed
-      spotifyPlayer.addListener("player_state_changed", updateWithNewState);
+        // Player state changed
+        spotifyPlayer.addListener("player_state_changed", updateWithNewState);
 
-      // Connect to the player
-      spotifyPlayer.connect().then((success: boolean) => {
-        if (success) {
-          console.log("Spotify Player Connected");
-          setPlayer(spotifyPlayer);
-          setError(null);
-        } else {
-          setPlayer(null);
-          setError("Failed to connect to Spotify Player");
-        }
-      });
+        // Connect to the player
+        spotifyPlayer.connect().then((success: boolean) => {
+          if (success) {
+            console.log("Spotify Player Connected");
+            setPlayer(spotifyPlayer);
+            setError(null);
+          } else {
+            setPlayer(null);
+            setError("Failed to connect to Spotify Player");
+          }
+        });
 
-      const poll = async () => {
-        clearTimeout(stateTimeout);
-        stateTimeout = setTimeout(async () => {
-          console.log("polling for spotify player state");
-          const state = await spotifyPlayer.getCurrentState();
-          updateWithNewState(state);
-          poll();
-        }, 1000);
+        const poll = async () => {
+          clearTimeout(stateTimeout);
+          stateTimeout = setTimeout(async () => {
+            console.log("polling for spotify player state");
+            const state = await spotifyPlayer.getCurrentState();
+            updateWithNewState(state);
+            poll();
+          }, 1000);
+        };
+
+        poll();
       };
 
-      poll();
-    };
-
-    // If SDK is already loaded, initialize immediately
-    if (window.Spotify) {
-      window.onSpotifyWebPlaybackSDKReady();
-    }
-  }
+      if (window.Spotify) {
+        window.onSpotifyWebPlaybackSDKReady();
+      }
+    });
+  }, [deviceId]);
 
   const initializePlaylist = useCallback(async (round: PopulatedRound) => {
     if (hasInitializedRef.current) {
@@ -346,6 +351,7 @@ export function SpotifyPlayerProvider({
     submission: PopulatedSubmission,
     round?: PopulatedRound | "same"
   ) => {
+    const deviceId = await setupPlayer();
     hasPreviouslyPlayedRef.current = true;
     if (!submission) {
       return;
@@ -518,7 +524,6 @@ export function SpotifyPlayerProvider({
 
   const value: SpotifyPlayerContextType = {
     player,
-    deviceId,
     currentTrack,
     isPlaying,
     isPaused,
@@ -539,6 +544,7 @@ export function SpotifyPlayerProvider({
     playlist,
     currentTrackIndex,
     playlistRound,
+    isDisabled: false,
   };
 
   return (

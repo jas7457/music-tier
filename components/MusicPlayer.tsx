@@ -12,7 +12,7 @@ export default function MusicPlayer() {
     isPlaying,
     currentTime,
     duration,
-    deviceId,
+    isDisabled,
     isReady,
     hasInitialized,
     pausePlayback,
@@ -117,7 +117,7 @@ export default function MusicPlayer() {
               <div className="flex items-center justify-center gap-2 md:gap-4">
                 <button
                   onClick={previousTrack}
-                  disabled={!deviceId || !currentTrack || !hasPreviousTrack}
+                  disabled={isDisabled || !currentTrack || !hasPreviousTrack}
                   className="w-8 h-8 md:w-12 md:h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
                   title="Previous track"
                 >
@@ -135,7 +135,7 @@ export default function MusicPlayer() {
                       resumePlayback();
                     }
                   }}
-                  disabled={!deviceId || !currentTrack}
+                  disabled={isDisabled || !currentTrack}
                   className="w-10 h-10 md:w-14 md:h-14 rounded-full backdrop-blur-xl bg-linear-to-br from-green-400 to-emerald-500 border-2 border-white/60 text-white flex items-center justify-center transition-all hover:from-green-300 hover:to-emerald-400 hover:scale-110 hover:shadow-[0_0_35px_rgba(16,185,129,0.8)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
                   title={isPlaying ? "Pause" : "Play"}
                 >
@@ -154,7 +154,7 @@ export default function MusicPlayer() {
 
                 <button
                   onClick={nextTrack}
-                  disabled={!deviceId || !currentTrack || !hasNextTrack}
+                  disabled={isDisabled || !currentTrack || !hasNextTrack}
                   className="w-8 h-8 md:w-12 md:h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
                   title="Next track"
                 >
@@ -178,7 +178,7 @@ export default function MusicPlayer() {
                     max={duration || 0}
                     value={currentTime}
                     onChange={(e) => seekToPosition(Number(e.target.value))}
-                    disabled={!deviceId || !currentTrack}
+                    disabled={isDisabled || !currentTrack}
                   />
                 </div>
                 <span className="text-xs text-white min-w-[35px] text-center font-bold">
@@ -258,7 +258,7 @@ export default function MusicPlayer() {
                             <button
                               key={submission._id}
                               onClick={() => playTrack(submission, "same")}
-                              disabled={!deviceId}
+                              disabled={isDisabled}
                               className={`w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed ${
                                 isCurrentTrack ? "bg-white/20" : ""
                               }`}
@@ -293,7 +293,7 @@ export default function MusicPlayer() {
           </div>
 
           {/* Premium Required Message */}
-          {!deviceId && !isReady && hasInitialized && (
+          {isDisabled && !isReady && hasInitialized && (
             <div className="col-span-full text-center mt-2">
               <div className="inline-block backdrop-blur-xl bg-red-500/50 border-2 border-red-300/60 rounded-full px-4 py-1.5 shadow-lg">
                 <span className="text-white text-xs font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">

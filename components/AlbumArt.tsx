@@ -23,7 +23,7 @@ export default function AlbumArt({
     initializePlaylist,
     currentTrack,
     isPlaying,
-    deviceId,
+    isDisabled,
     pausePlayback,
     resumePlayback,
     playTrack,
@@ -48,9 +48,6 @@ export default function AlbumArt({
 
   // Determine if this track is currently playing
   const isCurrentlyPlaying = isPlaying && isEffectivelyTheCurrentTrack;
-
-  // Determine if player is disabled
-  const isDisabled = !deviceId;
 
   // Handle play click
   const handlePlayClick = async () => {
