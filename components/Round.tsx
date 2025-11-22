@@ -14,6 +14,7 @@ import spotifyLogo from "../app/images/spotify.svg";
 import { useToast } from "@/lib/ToastContext";
 import { createSpotifyPlaylist } from "@/lib/utils/createSpotifyPlaylist";
 import { getRoundTitle } from "@/lib/utils/getRoundTitle";
+import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
 
 export function Round({
   currentUser,
@@ -153,19 +154,14 @@ export function Round({
             setCreatingPlaylist(true);
             await createSpotifyPlaylist({ round });
           } catch (err) {
-            const errorMessage = (() => {
-              if (typeof err === "string") {
-                return err;
-              }
-              if (err instanceof Error) {
-                return err.message;
-              }
-              return "An unknown error occurred";
-            })();
+            const message = unknownToErrorString(
+              err,
+              "Error creating playlist"
+            );
             toast.show({
               title: "Error creating playlist",
               variant: "error",
-              message: errorMessage,
+              message,
             });
           } finally {
             setCreatingPlaylist(false);

@@ -10,6 +10,8 @@ import { MultiLine } from "./MultiLine";
 import Card from "./Card";
 import { twMerge } from "tailwind-merge";
 import { useData } from "@/lib/DataContext";
+import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
+import { useToast } from "@/lib/ToastContext";
 
 interface SongSubmissionProps {
   round: PopulatedRound;
@@ -17,6 +19,7 @@ interface SongSubmissionProps {
 }
 export function SongSubmission({ round, className }: SongSubmissionProps) {
   const { user } = useAuth();
+  const toast = useToast();
   const { refreshData } = useData();
   const [submission, _setSubmission] = useState(round.userSubmission ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -81,7 +84,13 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
         setError(`Track not found: ${trackData.error}`);
       }
     } catch (err) {
-      setError(`Error fetching track preview: ${err}`);
+      const message = unknownToErrorString(err, "Error fetching track preview");
+      toast.show({
+        title: "Error fetching track preview",
+        variant: "error",
+        message,
+      });
+      setError(message);
     } finally {
       setLoadingPreview(false);
     }
@@ -143,8 +152,16 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
       setIsEditing(false);
       setIsSubmitting(false);
     } catch (err) {
-      console.error("Error submitting song:", err);
-      setError(`Failed to ${isRealSubmission ? "update" : "submit"} song`);
+      const message = unknownToErrorString(
+        err,
+        `Failed to ${isRealSubmission ? "update" : "submit"} song`
+      );
+      toast.show({
+        title: `Failed to ${isRealSubmission ? "update" : "submit"} song`,
+        variant: "error",
+        message,
+      });
+      setError(message);
       setIsSubmitting(false);
     } finally {
       refreshData("manual");

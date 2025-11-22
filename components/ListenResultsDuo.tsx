@@ -6,6 +6,7 @@ import { MaybeLink } from "./MaybeLink";
 import { useState } from "react";
 import { useToast } from "@/lib/ToastContext";
 import { createSpotifyPlaylist } from "@/lib/utils/createSpotifyPlaylist";
+import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
 
 export function ListenResultsDuo({
   league,
@@ -52,19 +53,14 @@ export function ListenResultsDuo({
               setCreatingPlaylist(true);
               await createSpotifyPlaylist({ round });
             } catch (err) {
-              const errorMessage = (() => {
-                if (typeof err === "string") {
-                  return err;
-                }
-                if (err instanceof Error) {
-                  return err.message;
-                }
-                return "An unknown error occurred";
-              })();
+              const message = unknownToErrorString(
+                err,
+                "Error creating playlist"
+              );
               toast.show({
                 title: "Error creating playlist",
                 variant: "error",
-                message: errorMessage,
+                message,
               });
             } finally {
               setCreatingPlaylist(false);

@@ -10,6 +10,8 @@ import { BlockQuote } from "./BlockQuote";
 import { twMerge } from "tailwind-merge";
 import { getStatusColor } from "@/lib/utils/colors";
 import { useData } from "@/lib/DataContext";
+import { useToast } from "@/lib/ToastContext";
+import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
 
 interface VotingRoundProps {
   round: PopulatedRound;
@@ -25,6 +27,7 @@ export default function VotingRound({
   league,
   currentUser,
 }: VotingRoundProps) {
+  const toast = useToast();
   const { refreshData } = useData();
   const [votes, setVotes] = useState(() =>
     round.submissions.reduce((acc, submission) => {
@@ -116,8 +119,12 @@ export default function VotingRound({
         throw new Error(`Failed to save vote for ${round._id}`);
       }
     } catch (error) {
-      console.error("Error saving votes:", error);
-      alert("Failed to save some votes. Please try again.");
+      const message = unknownToErrorString(error, "Failed to save some votes");
+      toast.show({
+        title: "Failed to save some votes",
+        variant: "error",
+        message,
+      });
     } finally {
       setSaving(false);
       refreshData("manual");

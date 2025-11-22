@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Card from "./Card";
 import { useData } from "@/lib/DataContext";
+import { useToast } from "@/lib/ToastContext";
+import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
 
 type CreateRoundProps = {
   leagueId: string;
@@ -16,6 +18,7 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { refreshData } = useData();
+  const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +44,13 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
       setDescription("");
       setIsOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create round");
+      const message = unknownToErrorString(err, "Failed to create round");
+      toast.show({
+        title: "Failed to create round",
+        message,
+        variant: "error",
+      });
+      setError(message);
     } finally {
       setIsSubmitting(false);
       refreshData("manual");

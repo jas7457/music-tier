@@ -26,11 +26,7 @@ type PusherContextType = {
   unsubscribe: (channelName: string) => void;
 };
 
-const PusherContext = createContext<PusherContextType>({
-  pusher: null,
-  subscribe: () => null,
-  unsubscribe: () => {},
-});
+const PusherContext = createContext<PusherContextType | null>(null);
 
 export function PusherProvider({ children }: { children: React.ReactNode }) {
   const [pusher, setPusher] = useState<PusherClient | null>(null);
@@ -69,7 +65,11 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function usePusher() {
-  return useContext(PusherContext);
+  const pusherContext = useContext(PusherContext);
+  if (!pusherContext) {
+    throw new Error("usePusher must be used within a PusherProvider");
+  }
+  return pusherContext;
 }
 
 type UpdatesFor = PopulatedLeague | PopulatedRound | PopulatedLeague[];

@@ -12,6 +12,7 @@ import Cookies from "js-cookie";
 import { PopulatedRound, PopulatedSubmission } from "./types";
 import { useToast } from "./ToastContext";
 import { APP_NAME } from "./utils/constants";
+import { unknownToErrorString } from "./utils/unknownToErrorString";
 
 // working url:     https://api.spotify.com/v1/me/player/play?device_id=84ba12cbec6088ef868f60f97ca1b1f6a4c9a140
 // not working url: https://api.spotify.com/v1/me/player/play?device_id=baa7bbf1c2c8f54c444a1c917e6f1d00229d8e49
@@ -43,7 +44,6 @@ interface SpotifyPlayerContextType {
   seekToPosition: (position: number) => Promise<void>;
   initializePlaylist: (round: PopulatedRound) => void;
   isDisabled: boolean;
-  error: string | null;
 }
 
 const SpotifyPlayerContext = createContext<SpotifyPlayerContextType | null>(
@@ -77,7 +77,6 @@ export function SpotifyPlayerProvider({
   const [duration, setDuration] = useState(0);
   const [isReady, setIsReady] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [{ playlist, currentTrackIndex, round: playlistRound }, setPlaylist] =
     useState<{
       round: PopulatedRound | null;
@@ -118,9 +117,12 @@ export function SpotifyPlayerProvider({
         return { success: true };
       }
     } catch (error) {
-      const errorMessage = `Failed to refresh Spotify token, ${error}`;
-      setError(errorMessage);
+      const errorMessage = unknownToErrorString(
+        error,
+        "Error refreshing Spotify token"
+      );
       toast.show({
+        title: "Error refreshing Spotify token",
         message: errorMessage,
         variant: "error",
       });
@@ -263,15 +265,27 @@ export function SpotifyPlayerProvider({
         });
 
         spotifyPlayer.addListener("initialization_error", ({ message }) => {
-          setError(message);
+          const errorMessage = unknownToErrorString(
+            message,
+            "Spotify Initialization Error"
+          );
+          toast.show({ message: errorMessage, variant: "error" });
         });
 
         spotifyPlayer.addListener("authentication_error", ({ message }) => {
-          setError(message);
+          const errorMessage = unknownToErrorString(
+            message,
+            "Spotify Authentication Error"
+          );
+          toast.show({ message: errorMessage, variant: "error" });
         });
 
         spotifyPlayer.addListener("account_error", ({ message }) => {
-          setError(message);
+          const errorMessage = unknownToErrorString(
+            message,
+            "Spotify Account Error"
+          );
+          toast.show({ message: errorMessage, variant: "error" });
         });
 
         // Player state changed
@@ -282,10 +296,12 @@ export function SpotifyPlayerProvider({
           if (success) {
             console.log("Spotify Player Connected");
             setPlayer(spotifyPlayer);
-            setError(null);
           } else {
             setPlayer(null);
-            setError("Failed to connect to Spotify Player");
+            toast.show({
+              message: "Failed to connect to Spotify Player",
+              variant: "error",
+            });
           }
         });
 
@@ -306,47 +322,60 @@ export function SpotifyPlayerProvider({
         window.onSpotifyWebPlaybackSDKReady();
       }
     });
-  }, [deviceId, updateWithNewState]);
+  }, [deviceId, toast, updateWithNewState]);
 
-  const initializePlaylist = useCallback(async (round: PopulatedRound) => {
-    if (hasInitializedRef.current) {
-      return;
-    }
-    hasInitializedRef.current = true;
-    setPlaylist((current) => {
-      if (current.round) {
-        return current;
+  const initializePlaylist = useCallback(
+    async (round: PopulatedRound) => {
+      if (hasInitializedRef.current) {
+        return;
       }
-      return { currentTrackIndex: 0, round, playlist: round.submissions };
-    });
-    const track = round.submissions[0]?.trackInfo;
-    if (!track) {
-      return;
-    }
-
-    const token = Cookies.get("spotify_access_token");
-    if (!token) {
-      return;
-    }
-    try {
-      const response = await fetch(
-        `https://api.spotify.com/v1/tracks/${track.trackId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      hasInitializedRef.current = true;
+      setPlaylist((current) => {
+        if (current.round) {
+          return current;
         }
-      );
+        return { currentTrackIndex: 0, round, playlist: round.submissions };
+      });
+      const track = round.submissions[0]?.trackInfo;
+      if (!track) {
+        return;
+      }
 
-      const data = await response.json();
+      const token = Cookies.get("spotify_access_token");
+      if (!token) {
+        return;
+      }
+      try {
+        const response = await fetch(
+          `https://api.spotify.com/v1/tracks/${track.trackId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      setCurrentTrack(data);
-      setIsPaused(true);
-      setIsPlaying(false);
-      setCurrentTime(0);
-      setDuration(data.duration_ms);
-    } catch {}
-  }, []);
+        const data = await response.json();
+
+        setCurrentTrack(data);
+        setIsPaused(true);
+        setIsPlaying(false);
+        setCurrentTime(0);
+        setDuration(data.duration_ms);
+      } catch (err) {
+        const message = unknownToErrorString(
+          err,
+          "Error initializing playlist"
+        );
+        toast.show({
+          title: "Error initializing playlist",
+          variant: "error",
+          message,
+        });
+      }
+    },
+    [toast]
+  );
 
   const playTrack = async (
     submission: PopulatedSubmission,
@@ -359,7 +388,6 @@ export function SpotifyPlayerProvider({
     }
     if (!deviceId) {
       const errorMessage = "No Spotify device available";
-      setError(errorMessage);
       toast.show({
         message: errorMessage,
         variant: "error",
@@ -372,7 +400,6 @@ export function SpotifyPlayerProvider({
     const accessToken = Cookies.get("spotify_access_token");
     if (!accessToken) {
       const errorMessage = "No Spotify access token";
-      setError(errorMessage);
       toast.show({
         message: errorMessage,
         variant: "error",
@@ -406,16 +433,16 @@ export function SpotifyPlayerProvider({
       const response = await attemptPlay();
       if (!response.ok) {
         setIsPlaying(false);
-        setError(
-          `Spotify API error: ${response.status} ${response.statusText}`
-        );
+        toast.show({
+          message: `Spotify API error: ${response.status} ${response.statusText}`,
+          variant: "error",
+        });
         setCurrentTrack(null);
         setPlaylist({ playlist: [], currentTrackIndex: -1, round: null });
         return;
       }
 
       setIsPlaying(true);
-      setError(null);
       if (round) {
         const info =
           round === "same"
@@ -436,12 +463,12 @@ export function SpotifyPlayerProvider({
         setPlaylist({ playlist: [], currentTrackIndex: -1, round: null });
       }
     } catch (error) {
-      console.error("Error playing track:", error);
-      const errorMessage =
-        "Failed to play track. Make sure you have Spotify Premium.";
-      setError(errorMessage);
+      const message = unknownToErrorString(
+        error,
+        "Failed to play track. Make sure you have Spotify Premium."
+      );
       toast.show({
-        message: errorMessage,
+        message,
         variant: "error",
       });
     }
@@ -460,7 +487,11 @@ export function SpotifyPlayerProvider({
       });
       setIsPlaying(false);
     } catch (error) {
-      console.error("Error pausing playback:", error);
+      const message = unknownToErrorString(error, "Error pausing playback");
+      toast.show({
+        message,
+        variant: "error",
+      });
     }
   };
 
@@ -480,7 +511,11 @@ export function SpotifyPlayerProvider({
       });
       setIsPlaying(true);
     } catch (error) {
-      console.error("Error resuming playback:", error);
+      const message = unknownToErrorString(error, "Error resuming playback");
+      toast.show({
+        message,
+        variant: "error",
+      });
     }
   };
 
@@ -519,7 +554,11 @@ export function SpotifyPlayerProvider({
       );
       setCurrentTime(position);
     } catch (error) {
-      console.error("Error seeking:", error);
+      const message = unknownToErrorString(error, "Error seeking");
+      toast.show({
+        message,
+        variant: "error",
+      });
     }
   };
 
@@ -541,7 +580,6 @@ export function SpotifyPlayerProvider({
     initializePlaylist,
     hasNextTrack,
     hasPreviousTrack,
-    error,
     playlist,
     currentTrackIndex,
     playlistRound,

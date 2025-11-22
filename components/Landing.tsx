@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { initiateSpotifyAuth } from "@/lib/spotify";
 import Cookies from "js-cookie";
 import { APP_NAME } from "@/lib/utils/constants";
+import { useToast } from "@/lib/ToastContext";
+import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
 
 interface SpotifyProfile {
   id: string;
@@ -12,6 +14,7 @@ interface SpotifyProfile {
 }
 
 export default function Landing() {
+  const toast = useToast();
   const [hasSpotifyToken, setHasSpotifyToken] = useState(false);
   const [spotifyProfile, setSpotifyProfile] = useState<SpotifyProfile | null>(
     null
@@ -71,7 +74,15 @@ export default function Landing() {
             }
           }
         } catch (err) {
-          console.error("Error fetching Spotify profile:", err);
+          const message = unknownToErrorString(
+            err,
+            "Failed to fetch Spotify profile"
+          );
+          toast.show({
+            title: "Error fetching Spotify profile",
+            message,
+            variant: "error",
+          });
         }
       }
 
@@ -79,14 +90,21 @@ export default function Landing() {
     };
 
     checkSpotifyToken();
-  }, []);
+  }, [toast]);
 
   const handleSpotifyLogin = async () => {
     try {
       await initiateSpotifyAuth();
     } catch (error) {
-      console.error("Error initiating Spotify auth:", error);
-      setError("Failed to connect to Spotify");
+      const message = unknownToErrorString(
+        error,
+        "Error initiating Spotify auth"
+      );
+      toast.show({
+        message,
+        variant: "error",
+      });
+      setError(message);
     }
   };
 
@@ -121,8 +139,12 @@ export default function Landing() {
 
       window.location.href = "/";
     } catch (err) {
-      console.error("Error signing up:", err);
-      setError("Failed to create account");
+      const message = unknownToErrorString(err, "Failed to create account");
+      toast.show({
+        message,
+        variant: "error",
+      });
+      setError(message);
       setSubmitting(false);
     }
   };

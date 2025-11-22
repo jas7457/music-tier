@@ -12,11 +12,7 @@ interface ToastContextValue {
   hideAll: () => void;
 }
 
-const ToastContext = createContext<ToastContextValue>({
-  show: () => "",
-  hide: () => {},
-  hideAll: () => {},
-});
+const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -29,6 +25,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           id,
           ...options,
         };
+        if (toast.title && toast.title === toast.message) {
+          delete toast.title;
+        }
 
         setToasts((prev) => [...prev, toast]);
         return id;
@@ -55,5 +54,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 }
 
 export function useToast() {
-  return useContext(ToastContext);
+  const contextValue = useContext(ToastContext);
+
+  if (!contextValue) {
+    throw new Error("useToast must be used within a ToastProvider");
+  }
+  return contextValue;
 }
