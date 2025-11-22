@@ -12,4 +12,55 @@
   button:not([disabled]), a[href] {
       cursor: pointer;
   }
+
+  .music-player-container {
+    contain: layout style paint;
+    isolation: isolate;
+  }
+
+  ::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* Don’t transition the document element itself */
+:root {
+  view-transition-name: none;
+}
+
+  ::view-transition-image-pair(.music-player), ::view-transition-group(.music-player) {
+    background: white;
+  }
+
+  ::view-transition-group(*) {
+  position: fixed;
+  inset: 0 0 110px 0; /* top, right, bottom, left */
+  overflow: hidden;
+}
+
+  ::view-transition-old(.music-player),
+  ::view-transition-new(.music-player),    
+  ::view-transition-image-pair(.music-player),    
+  ::view-transition-group(.music-player) {
+    animation: none !important;
+    /* background-color: white; */
+  }
+
+  ::view-transition-old(.music-player) {
+    /* background-color: white; */
+  }
+
+  ::view-transition-new(.music-player) {
+    display: none;
+  }
+
+  ::view-transition-old(.music-player),
+  ::view-transition-new(.music-player) {
+    /* Prevent the default animation,
+    so both views remain opacity:1 throughout the transition */
+    animation: none;
+    /* Use normal blending,
+    so the new view sits on top and obscures the old view */
+    mix-blend-mode: normal;
+  }
 }
