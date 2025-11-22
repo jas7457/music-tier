@@ -57,8 +57,8 @@ export function Round({
             stageTitle: "Pending",
             bodyMarkup: (
               <div>
-                {round.creatorObject.firstName} still needs to create their
-                round before you can submit your song.
+                {round.creatorObject.userName} still needs to create their round
+                before you can submit your song.
               </div>
             ),
           };
@@ -229,7 +229,9 @@ export function Round({
           <Avatar
             user={round.creatorObject}
             size={6}
-            tooltipText={`Submitted by ${round.creatorObject.firstName}`}
+            tooltipText={`Submitted by ${round.creatorObject.userName}`}
+            position="right"
+            tooltipClassName="-right-[10px]"
             includeTooltip
           />
         </div>

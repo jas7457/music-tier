@@ -1,19 +1,25 @@
 import { PopulatedUser } from "@/lib/types";
 import { twMerge } from "tailwind-merge";
 
-export function Avatar({
-  className,
-  user,
-  size = 8,
-  includeTooltip,
-  tooltipText = `${user.firstName} ${user.lastName}`,
-}: {
+export interface AvatarProps {
   user: PopulatedUser;
   size?: number;
   includeTooltip?: boolean;
   tooltipText?: string;
   className?: string;
-}) {
+  tooltipClassName?: string;
+  position?: "center" | "left" | "right";
+}
+
+export function Avatar({
+  className,
+  tooltipClassName,
+  user,
+  size = 8,
+  includeTooltip,
+  tooltipText = user.userName,
+  position = "center",
+}: AvatarProps) {
   const fullName = `${user.firstName} ${user.lastName}`;
   const initial = user.userName.charAt(0).toUpperCase();
 
@@ -56,7 +62,15 @@ export function Avatar({
       )}
 
       {includeTooltip && (
-        <div className="hidden md:block absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+        <div
+          className={twMerge(
+            "hidden md:block absolute bottom-full transform mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10",
+            position === "left" && "left-0 transform-none",
+            position === "right" && "right-0 left-auto transform-none",
+            position === "center" && "left-1/2 -translate-x-1/2",
+            tooltipClassName
+          )}
+        >
           {tooltipText}
         </div>
       )}

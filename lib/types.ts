@@ -12,8 +12,11 @@ export type PopulatedUser = WithStringId<User> & {
   index: number;
   canCreateBonusRound: boolean;
 };
-export type PopulatedSubmission = WithStringId<SongSubmission>;
+export type PopulatedSubmission = WithStringId<SongSubmission> & {
+  userObject: PopulatedUser | undefined;
+};
 export type PopulatedVote = WithStringId<Vote> & {
+  userObject: PopulatedUser | undefined;
   userGuessObject: PopulatedUser | undefined;
 };
 export type PopulatedTrackInfo = PopulatedSubmission["trackInfo"];

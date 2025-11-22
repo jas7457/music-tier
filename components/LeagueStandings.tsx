@@ -365,7 +365,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
           {/* User Info */}
           <div className="flex-1 min-w-0">
             <div className="font-semibold text-lg text-gray-800">
-              {standing.user.firstName} {standing.user.lastName}
+              {standing.user.userName}
             </div>
             <div className="text-sm text-gray-600">
               {standing.wins} {standing.wins === 1 ? "win" : "wins"}
@@ -464,7 +464,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                       {/* User Info */}
                       <div className="flex-1 min-w-0 text-left">
                         <div className="font-semibold text-base text-gray-800">
-                          {stat.user.firstName} {stat.user.lastName}
+                          {stat.user.userName}
                         </div>
                         <div className="text-sm text-gray-600">
                           {stat.correctCount} correct • {stat.incorrectCount}{" "}
@@ -527,8 +527,8 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                     user?._id === stat.user._id
                                       ? { capitalized: "You", normal: "you" }
                                       : {
-                                          capitalized: stat.user.firstName,
-                                          normal: stat.user.firstName,
+                                          capitalized: stat.user.userName,
+                                          normal: stat.user.userName,
                                         };
 
                                   return (

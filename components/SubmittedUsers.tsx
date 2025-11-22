@@ -3,6 +3,7 @@
 import { UsersList } from "./UsersList";
 import { useMemo } from "react";
 import { PopulatedSubmission, PopulatedUser } from "@/lib/types";
+import { formatDate } from "@/lib/utils/formatDate";
 
 interface SubmittedUsersProps {
   submissions: PopulatedSubmission[];
@@ -28,6 +29,18 @@ export function SubmittedUsers({
     <UsersList
       users={filteredUsers}
       text={{ verb: "Submitted", noun: "submissions" }}
+      position="left"
+      tooltipClassName="-left-[10px]"
+      tooltipText={(user) => {
+        const submission = submissions.find((sub) => sub.userId === user._id);
+        if (!submission) {
+          return user.userName;
+        }
+        return `${user.userName} submitted on ${formatDate(
+          submission.submissionDate,
+          { hour: "numeric", minute: "numeric" }
+        )}`;
+      }}
     />
   );
 }
@@ -49,6 +62,8 @@ export function UnsubmittedUsers({
   return (
     <UsersList
       users={filteredUsers}
+      position="left"
+      tooltipClassName="-left-[10px]"
       text={{ verb: "Not submitted", noun: "submissions" }}
     />
   );

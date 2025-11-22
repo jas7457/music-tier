@@ -12,6 +12,8 @@ import { getStatusColor } from "@/lib/utils/colors";
 import { useData } from "@/lib/DataContext";
 import { useToast } from "@/lib/ToastContext";
 import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
+import { Avatar } from "./Avatar";
+import { formatDate } from "@/lib/utils/formatDate";
 
 interface VotingRoundProps {
   round: PopulatedRound;
@@ -132,26 +134,35 @@ export default function VotingRound({
   };
 
   const { usersThatHaveVoted, usersThatHaveNotVoted } = useMemo(() => {
-    const usersWithIndex = league.users.map((user, index) => ({
-      ...user,
-      index,
-    }));
-    const usersById = usersWithIndex.reduce((acc, user) => {
-      acc[user._id] = user;
-      return acc;
-    }, {} as Record<string, PopulatedUser & { index: number }>);
-
-    const usersThatHaveVoted = round.votes
-      .map((vote) => usersById[vote.userId])
-      .filter((user, index, array) => user && array.indexOf(user) === index);
-
-    const usersThatHaveNotVoted = usersWithIndex.filter((user) => {
-      return !usersThatHaveVoted.find(
-        (votedUser) => votedUser._id === user._id
-      );
-    });
-
-    return { usersThatHaveVoted, usersThatHaveNotVoted };
+    return league.users.reduce(
+      (acc, user) => {
+        const userVotes = round.votes.reduce((acc, vote) => {
+          if (vote.userId === user._id) {
+            return acc + vote.points;
+          }
+          return acc;
+        }, 0);
+        const hasVoted = userVotes >= league.votesPerRound;
+        if (hasVoted) {
+          acc.usersThatHaveVoted.push(user);
+          acc.usersThatHaveVoted.sort((userA, userB) => {
+            const voteA = round.votes.find((vote) => vote.userId === userA._id);
+            const voteB = round.votes.find((vote) => vote.userId === userB._id);
+            if (!voteA || !voteB) {
+              return 0;
+            }
+            return voteA.voteDate - voteB.voteDate;
+          });
+        } else {
+          acc.usersThatHaveNotVoted.push(user);
+        }
+        return acc;
+      },
+      {
+        usersThatHaveVoted: [] as PopulatedUser[],
+        usersThatHaveNotVoted: [] as PopulatedUser[],
+      }
+    );
   }, [league, round]);
 
   const { title, subtitle } = (() => {
@@ -245,6 +256,15 @@ export default function VotingRound({
                     <p className="text-xs text-gray-600 mt-1 italic">
                       {submission.note}
                     </p>
+                  )}
+
+                  {round.stage === "completed" && submission.userObject && (
+                    <div className="flex items-center gap-1">
+                      <Avatar user={submission.userObject} size={6} />
+                      <p className="text-sm text-gray-600">
+                        Submitted by {`${submission.userObject.userName}`}
+                      </p>
+                    </div>
                   )}
                 </div>
 
@@ -374,6 +394,18 @@ export default function VotingRound({
             className="px-2 md:px-4"
             users={usersThatHaveVoted}
             text={{ noun: "votes", verb: "voted" }}
+            position="left"
+            tooltipClassName="-left-[10px]"
+            tooltipText={(user) => {
+              const vote = round.votes.find((vote) => vote.userId === user._id);
+              if (!vote) {
+                return `${user.userName}`;
+              }
+              return `${user.userName} voted on ${formatDate(vote.voteDate, {
+                hour: "numeric",
+                minute: "numeric",
+              })}`;
+            }}
           />
         )}
 

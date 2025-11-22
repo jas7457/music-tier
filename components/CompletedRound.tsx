@@ -128,12 +128,14 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                     {submission.trackInfo.albumName}
                   </p>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Avatar user={usersById[submission.userId]} size={6} />
-                  <p className="text-sm text-gray-600">
-                    Submitted by {usersById[submission.userId].userName}
-                  </p>
-                </div>
+                {submission.userObject && (
+                  <div className="flex items-center gap-1">
+                    <Avatar user={submission.userObject} size={6} />
+                    <p className="text-sm text-gray-600">
+                      Submitted by {submission.userObject.userName}
+                    </p>
+                  </div>
+                )}
 
                 {submission.note && (
                   <p className="text-sm text-gray-700 italic">
@@ -159,7 +161,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                     <Avatar
                       user={yourVote.userGuessObject}
                       size={6}
-                      tooltipText={`Your guess: ${yourVote.userGuessObject.firstName} ${yourVote.userGuessObject.lastName}`}
+                      tooltipText={`Your guess: ${yourVote.userGuessObject.userName}`}
                       includeTooltip
                     />
                     <GuessFeedback
@@ -201,7 +203,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                       {/* User Info */}
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-gray-800">
-                          {voter.user.firstName} {voter.user.lastName}
+                          {voter.user.userName}
                         </div>
                         {voter.note && (
                           <div className="text-sm text-gray-600 mt-1">

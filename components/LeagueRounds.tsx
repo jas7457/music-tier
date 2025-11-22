@@ -97,7 +97,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
               <div>Waiting for others to create their rounds.</div>
             ) : (
               <div>
-                Waiting for {round.creatorObject.firstName} to create their
+                Waiting for {round.creatorObject.userName} to create their
                 round.
               </div>
             )}
@@ -155,7 +155,9 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
 
                     <Avatar
                       user={round.creatorObject}
-                      tooltipText={`Created by ${round.creatorObject.firstName}`}
+                      tooltipText={`Created by ${round.creatorObject.userName}`}
+                      position="right"
+                      tooltipClassName="-right-[10px]"
                       includeTooltip
                     />
                   </div>

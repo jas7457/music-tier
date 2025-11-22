@@ -53,7 +53,7 @@ export function UserGuess({
   const innerMarkup = (() => {
     const titleText = (() => {
       if (selectedUser) {
-        return `Your guess: ${selectedUser.firstName} ${selectedUser.lastName}`;
+        return `Your guess: ${selectedUser.userName}`;
       }
       if (isEditable) {
         return "Guess who submitted this";
@@ -105,7 +105,7 @@ export function UserGuess({
           className="disabled:opacity-50 disabled:cursor-not-allowed group group-hover:bg-red-700"
           title={
             selectedUser
-              ? `Your guess: ${selectedUser.firstName} ${selectedUser.lastName}`
+              ? `Your guess: ${selectedUser.userName}`
               : "Guess who submitted this"
           }
         >

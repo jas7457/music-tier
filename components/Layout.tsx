@@ -83,7 +83,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               {/* User Info Section */}
               <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
                 <h2 className="text-gray-900 font-bold text-base">
-                  {user.firstName} {user.lastName}
+                  {user.userName}
                 </h2>
                 <p className="text-gray-600 text-sm">@{user.userName}</p>
               </div>

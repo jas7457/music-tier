@@ -11,34 +11,7 @@ import {
   PopulatedVote,
 } from "./types";
 import { verifySessionToken } from "./auth";
-
-// Seeded random number generator
-function seededRandom(seed: string) {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    const char = seed.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-
-  return function () {
-    hash = (hash * 9301 + 49297) % 233280;
-    return hash / 233280;
-  };
-}
-
-// Fisher-Yates shuffle with seeded random
-export function seededShuffle<T>(array: T[], seed: string): T[] {
-  const shuffled = [...array];
-  const random = seededRandom(seed);
-
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-
-  return shuffled;
-}
+import { seededShuffle } from "./utils/seededShuffle";
 
 const dbPromise = (async () => {
   const [
@@ -140,14 +113,19 @@ export async function getUserLeagues(
           ]);
 
           const submissions: PopulatedSubmission[] = _submissions.map(
-            (submission) => ({ ...submission, _id: submission._id.toString() })
+            (submission) => ({
+              ...submission,
+              _id: submission._id.toString(),
+              userObject: usersById[submission.userId].user,
+            })
           );
 
           const votes: PopulatedVote[] = _votes.map((vote) => ({
             ...vote,
             _id: vote._id.toString(),
+            userObject: usersById[vote.userId]?.user,
             userGuessObject: vote.userGuessId
-              ? usersById[vote.userGuessId].user
+              ? usersById[vote.userGuessId]?.user
               : undefined,
           }));
 
@@ -314,9 +292,8 @@ export async function getUserLeagues(
               return populatedRound.submissions;
             }
             default: {
-              return populatedRound.submissions;
-              // Shuffle with round ID as seed for reproducible randomization
-              // return seededShuffle(populatedRound.submissions, round._id);
+              // Return in shuffled order for all other rounds
+              return seededShuffle(populatedRound.submissions);
             }
           }
         })();
