@@ -412,6 +412,28 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
               {filteredGuesses.map((stat, index) => {
                 const isExpanded = expandedUsers.has(stat.user._id);
 
+                // Group guesses by round
+                const guessesByRound = stat.guesses.reduce(
+                  (acc, guess) => {
+                    const roundId = guess.round._id;
+                    if (!acc[roundId]) {
+                      acc[roundId] = {
+                        round: guess.round,
+                        guesses: [],
+                      };
+                    }
+                    acc[roundId].guesses.push(guess);
+                    return acc;
+                  },
+                  {} as Record<
+                    string,
+                    {
+                      round: (typeof stat.guesses)[0]["round"];
+                      guesses: typeof stat.guesses;
+                    }
+                  >
+                );
+
                 return (
                   <div key={stat.user._id}>
                     {/* Summary Row */}
@@ -480,110 +502,121 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
 
                     {/* Expanded Details */}
                     {isExpanded && (
-                      <div className="space-y-3 p-3">
-                        {stat.guesses.map((guess, guessIdx) => {
-                          const guesserText =
-                            user?._id === stat.user._id
-                              ? { capitalized: "You", normal: "you" }
-                              : {
-                                  capitalized: stat.user.firstName,
-                                  normal: stat.user.firstName,
-                                };
-
-                          return (
-                            <div
-                              key={guessIdx}
-                              className={twMerge(
-                                "p-2 md:p-3 rounded-lg border flex flex-col gap-1",
-                                guess.isCorrect
-                                  ? "bg-green-50 border-green-200"
-                                  : "bg-red-50 border-red-200"
-                              )}
-                            >
-                              <div className="flex items-center justify-between">
-                                {/* Round */}
-                                <div className="text-xs font-semibold text-gray-600">
-                                  {getRoundTitle(guess.round)}
+                      <div className="space-y-4 p-3">
+                        {Object.values(guessesByRound).map(
+                          ({ round, guesses }) => (
+                              <div key={round._id} className="space-y-2">
+                                {/* Round Title */}
+                                <div className="text-sm font-semibold text-gray-600">
+                                  {getRoundTitle(round)}
                                 </div>
-                                {guess.isCorrect ? (
-                                  <div className="flex items-center gap-1 text-green-700">
-                                    <svg
-                                      className="w-4 h-4"
-                                      fill="currentColor"
-                                      viewBox="0 0 20 20"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                    <span className="font-semibold">
-                                      Correct!
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-1 text-red-700">
-                                    <svg
-                                      className="w-4 h-4"
-                                      fill="currentColor"
-                                      viewBox="0 0 20 20"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                    <span className="font-semibold">
-                                      Incorrect
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex items-start gap-3">
-                                {/* Album Art */}
-                                <AlbumArt
-                                  submission={guess.submission}
-                                  round={guess.round}
-                                  size={60}
-                                />
 
-                                {/* Details */}
-                                <div className="flex-1 min-w-0">
-                                  {/* Track */}
-                                  <div className="font-semibold text-sm text-gray-900">
-                                    {guess.submission.trackInfo.title}
-                                  </div>
-                                  <div className="text-xs text-gray-600">
-                                    {guess.submission.trackInfo.artists.join(
-                                      ", "
-                                    )}
-                                  </div>
+                                {/* Guesses for this round */}
+                                <div className="space-y-2">
+                                  {guesses.map((guess, guessIdx) => {
+                                    const guesserText =
+                                      user?._id === stat.user._id
+                                        ? { capitalized: "You", normal: "you" }
+                                        : {
+                                            capitalized: stat.user.firstName,
+                                            normal: stat.user.firstName,
+                                          };
 
-                                  <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
-                                    <Avatar
-                                      user={guess.actualUser}
-                                      size={5}
-                                      includeTooltip
-                                      tooltipText={`Submitted by ${guess.actualUser.userName}`}
-                                    />{" "}
-                                    /{" "}
-                                    <Avatar
-                                      user={guess.guessedUser}
-                                      size={5}
-                                      includeTooltip
-                                      tooltipText={`${guesserText.capitalized} guessed ${guess.guessedUser.userName}`}
-                                    />
-                                    Submitted by {guess.actualUser.userName},{" "}
-                                    {guesserText.normal} guessed{" "}
-                                    {guess.guessedUser.userName}
-                                  </div>
+                                    return (
+                                      <div
+                                        key={guessIdx}
+                                        className={twMerge(
+                                          "p-2 md:p-3 rounded-lg border flex flex-col gap-1",
+                                          guess.isCorrect
+                                            ? "bg-green-50 border-green-200"
+                                            : "bg-red-50 border-red-200"
+                                        )}
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          {guess.isCorrect ? (
+                                            <div className="flex items-center gap-1 text-green-700">
+                                              <svg
+                                                className="w-4 h-4"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                              >
+                                                <path
+                                                  fillRule="evenodd"
+                                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                  clipRule="evenodd"
+                                                />
+                                              </svg>
+                                              <span className="font-semibold">
+                                                Correct!
+                                              </span>
+                                            </div>
+                                          ) : (
+                                            <div className="flex items-center gap-1 text-red-700">
+                                              <svg
+                                                className="w-4 h-4"
+                                                fill="currentColor"
+                                                viewBox="0 0 20 20"
+                                              >
+                                                <path
+                                                  fillRule="evenodd"
+                                                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                  clipRule="evenodd"
+                                                />
+                                              </svg>
+                                              <span className="font-semibold">
+                                                Incorrect
+                                              </span>
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                          {/* Album Art */}
+                                          <AlbumArt
+                                            submission={guess.submission}
+                                            round={guess.round}
+                                            size={60}
+                                          />
+
+                                          {/* Details */}
+                                          <div className="flex-1 min-w-0">
+                                            {/* Track */}
+                                            <div className="font-semibold text-sm text-gray-900">
+                                              {guess.submission.trackInfo.title}
+                                            </div>
+                                            <div className="text-xs text-gray-600">
+                                              {guess.submission.trackInfo.artists.join(
+                                                ", "
+                                              )}
+                                            </div>
+
+                                            <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
+                                              <Avatar
+                                                user={guess.actualUser}
+                                                size={5}
+                                                includeTooltip
+                                                tooltipText={`Submitted by ${guess.actualUser.userName}`}
+                                              />{" "}
+                                              /{" "}
+                                              <Avatar
+                                                user={guess.guessedUser}
+                                                size={5}
+                                                includeTooltip
+                                                tooltipText={`${guesserText.capitalized} guessed ${guess.guessedUser.userName}`}
+                                              />
+                                              Submitted by{" "}
+                                              {guess.actualUser.userName},{" "}
+                                              {guesserText.normal} guessed{" "}
+                                              {guess.guessedUser.userName}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })}
+                            )
+                        )}
                       </div>
                     )}
                   </div>
