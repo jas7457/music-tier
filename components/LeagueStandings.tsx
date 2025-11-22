@@ -599,19 +599,23 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                           </div>
 
                                           <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
-                                            <Avatar
-                                              user={guess.actualUser}
-                                              size={5}
-                                              includeTooltip
-                                              tooltipText={`Submitted by ${guess.actualUser.userName}`}
-                                            />{" "}
+                                            <div className="shrink-0">
+                                              <Avatar
+                                                user={guess.actualUser}
+                                                size={5}
+                                                includeTooltip
+                                                tooltipText={`Submitted by ${guess.actualUser.userName}`}
+                                              />
+                                            </div>{" "}
                                             /{" "}
-                                            <Avatar
-                                              user={guess.guessedUser}
-                                              size={5}
-                                              includeTooltip
-                                              tooltipText={`${guesserText.capitalized} guessed ${guess.guessedUser.userName}`}
-                                            />
+                                            <div className="shrink-0">
+                                              <Avatar
+                                                user={guess.guessedUser}
+                                                size={5}
+                                                includeTooltip
+                                                tooltipText={`${guesserText.capitalized} guessed ${guess.guessedUser.userName}`}
+                                              />
+                                            </div>
                                             Submitted by{" "}
                                             {guess.actualUser.userName},{" "}
                                             {guesserText.normal} guessed{" "}

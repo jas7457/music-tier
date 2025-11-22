@@ -104,7 +104,7 @@ export function League({
         </p>
 
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex gap-2 text-sm text-gray-500">
+          <div className="flex flex-wrap gap-2 text-sm text-gray-500">
             {league.status === "completed" && finalVoteTimestamp > 0 && (
               <>
                 <span>League ended: {formatDate(finalVoteTimestamp)}</span>
