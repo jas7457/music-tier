@@ -402,13 +402,7 @@ export async function getUserLeagues(
         }
       });
 
-      const numberOfRounds =
-        users.length +
-        roundsWithData.filter((round) => round.isBonusRound).length;
-
-      if (numberOfRounds !== roundsWithData.length) {
-        debugger;
-      }
+      const numberOfRounds = roundsWithData.length;
 
       const status = (() => {
         if (roundsObject.completed.length === numberOfRounds) {

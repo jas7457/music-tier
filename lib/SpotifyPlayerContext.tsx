@@ -27,7 +27,6 @@ interface SpotifyPlayerContextType {
   isPaused: boolean;
   currentTime: number;
   duration: number;
-  volume: number;
   isReady: boolean;
   hasInitialized: boolean;
   hasNextTrack: boolean;
@@ -44,7 +43,6 @@ interface SpotifyPlayerContextType {
   nextTrack: () => Promise<void>;
   previousTrack: () => Promise<void>;
   seekToPosition: (position: number) => Promise<void>;
-  setPlayerVolume: (volume: number) => Promise<void>;
   initializePlaylist: (round: PopulatedRound) => void;
   error: string | null;
 }
@@ -78,7 +76,6 @@ export function SpotifyPlayerProvider({
   const [isPaused, setIsPaused] = useState(true);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.7);
   const [isReady, setIsReady] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,6 +89,7 @@ export function SpotifyPlayerProvider({
   const nextTrackRef = useRef<() => void>(() => {});
   const hasInitializedRef = useRef(false);
   const hasPreviouslyPlayedRef = useRef(false);
+  const hasSetupPlayerRef = useRef(false);
   const toast = useToast();
 
   const hasNextTrack =
@@ -174,17 +172,57 @@ export function SpotifyPlayerProvider({
     };
   }, [refreshToken]);
 
-  // Initialize Spotify Web Playback SDK
-  useEffect(() => {
+  const updateWithNewState = useCallback(
+    (state: Spotify.WebPlaybackState | null) => {
+      const currentCallbackState = lastPlaybackStateRef.current;
+      lastPlaybackStateRef.current = state;
+      if (!state) {
+        return;
+      }
+      const shouldPlayNextTrack = (() => {
+        if (!currentCallbackState) {
+          return false;
+        }
+        if (currentCallbackState.paused) {
+          return false;
+        }
+        if (!state.paused) {
+          return false;
+        }
+        const currentTrack = currentCallbackState.track_window.current_track;
+        const timeLeft =
+          currentTrack.duration_ms - currentCallbackState.position;
+        if (timeLeft < 2000) {
+          return true;
+        }
+        return false;
+      })();
+
+      if (shouldPlayNextTrack) {
+        nextTrackRef.current();
+        return;
+      }
+
+      const newTrack = state.track_window.current_track;
+      setCurrentTrack(newTrack);
+      setIsPaused(state.paused);
+      setIsPlaying(!state.paused);
+      setCurrentTime(state.position);
+      setDuration(newTrack.duration_ms);
+    },
+    []
+  );
+
+  if (!hasSetupPlayerRef.current) {
     const token = Cookies.get("spotify_access_token");
     if (!token) {
       setIsReady(false);
       setHasInitialized(true);
       return;
     }
-    let spotifyPlayer: Spotify.Player;
+
+    hasSetupPlayerRef.current = true;
     let stateTimeout: NodeJS.Timeout;
-    let mounted = true;
 
     // after 3 seconds, assume it will not itialize
     const initializedTimeout = setTimeout(() => {
@@ -192,17 +230,17 @@ export function SpotifyPlayerProvider({
     }, 3_000);
 
     window.onSpotifyWebPlaybackSDKReady = () => {
-      spotifyPlayer = new window.Spotify.Player({
+      const spotifyPlayer = new window.Spotify.Player({
         name: SPOTIFY_PLAYER_NAME,
         getOAuthToken: (cb) => {
           const currentToken = Cookies.get("spotify_access_token");
           cb(currentToken || token);
         },
-        volume: volume,
+        volume: 1,
       });
 
       // Ready event - device is ready
-      spotifyPlayer.addListener("ready", async ({ device_id }: any) => {
+      spotifyPlayer.addListener("ready", async ({ device_id }) => {
         console.log("Spotify Player Ready with Device ID:", device_id);
         clearTimeout(initializedTimeout);
         setHasInitialized(true);
@@ -211,7 +249,7 @@ export function SpotifyPlayerProvider({
       });
 
       // Not Ready event - device has gone offline
-      spotifyPlayer.addListener("not_ready", ({ device_id }: any) => {
+      spotifyPlayer.addListener("not_ready", ({ device_id }) => {
         console.log("Spotify Player Not Ready with Device ID:", device_id);
         setHasInitialized(true);
         clearTimeout(initializedTimeout);
@@ -230,44 +268,6 @@ export function SpotifyPlayerProvider({
         setError(message);
       });
 
-      const updateWithNewState = (state: Spotify.WebPlaybackState | null) => {
-        const currentCallbackState = lastPlaybackStateRef.current;
-        lastPlaybackStateRef.current = state;
-        if (!state) {
-          return;
-        }
-        const shouldPlayNextTrack = (() => {
-          if (!currentCallbackState) {
-            return false;
-          }
-          if (currentCallbackState.paused) {
-            return false;
-          }
-          if (!state.paused) {
-            return false;
-          }
-          const currentTrack = currentCallbackState.track_window.current_track;
-          const timeLeft =
-            currentTrack.duration_ms - currentCallbackState.position;
-          if (timeLeft < 2000) {
-            return true;
-          }
-          return false;
-        })();
-
-        if (shouldPlayNextTrack) {
-          nextTrackRef.current();
-          return;
-        }
-
-        const newTrack = state.track_window.current_track;
-        setCurrentTrack(newTrack);
-        setIsPaused(state.paused);
-        setIsPlaying(!state.paused);
-        setCurrentTime(state.position);
-        setDuration(newTrack.duration_ms);
-      };
-
       // Player state changed
       spotifyPlayer.addListener("player_state_changed", updateWithNewState);
 
@@ -276,15 +276,17 @@ export function SpotifyPlayerProvider({
         if (success) {
           console.log("Spotify Player Connected");
           setPlayer(spotifyPlayer);
+          setError(null);
+        } else {
+          setPlayer(null);
+          setError("Failed to connect to Spotify Player");
         }
       });
 
       const poll = async () => {
         clearTimeout(stateTimeout);
         stateTimeout = setTimeout(async () => {
-          if (!mounted) {
-            return;
-          }
+          console.log("polling for spotify player state");
           const state = await spotifyPlayer.getCurrentState();
           updateWithNewState(state);
           poll();
@@ -298,17 +300,7 @@ export function SpotifyPlayerProvider({
     if (window.Spotify) {
       window.onSpotifyWebPlaybackSDKReady();
     }
-
-    return () => {
-      mounted = false;
-      clearTimeout(initializedTimeout);
-      clearTimeout(stateTimeout);
-
-      if (spotifyPlayer) {
-        spotifyPlayer.disconnect();
-      }
-    };
-  }, [volume]);
+  }
 
   const initializePlaylist = useCallback(async (round: PopulatedRound) => {
     if (hasInitializedRef.current) {
@@ -384,6 +376,10 @@ export function SpotifyPlayerProvider({
     const attemptPlay = async (
       deviceAttemptId = deviceId
     ): Promise<Response> => {
+      const body = JSON.stringify({
+        uris: [trackUri],
+      });
+      console.log({ body });
       return await fetch(
         `https://api.spotify.com/v1/me/player/play?device_id=${deviceAttemptId}`,
         {
@@ -402,48 +398,13 @@ export function SpotifyPlayerProvider({
     try {
       const response = await attemptPlay();
       if (!response.ok) {
-        const deviceResponse = await getSpotifyDevices(accessToken);
-        const thisDevice = deviceResponse.devices.find(
-          (device: any) => deviceId === device.id
+        setIsPlaying(false);
+        setError(
+          `Spotify API error: ${response.status} ${response.statusText}`
         );
-        const musicTierPlayer = deviceResponse.devices.find(
-          (device: any) => device.name === SPOTIFY_PLAYER_NAME
-        );
-
-        const order = [thisDevice?.id, musicTierPlayer?.id, deviceId].filter(
-          Boolean
-        );
-        let idToSet: string | undefined = undefined;
-        for (const id of order) {
-          const retryResponse = await attemptPlay(id);
-          if (retryResponse.ok) {
-            idToSet = id;
-            try {
-              const trackInfo = await retryResponse.json();
-              setCurrentTrack(trackInfo);
-            } catch {
-              // ignore json parse error
-            }
-
-            break;
-          }
-        }
-
-        if (idToSet) {
-          setDeviceId(idToSet);
-        } else {
-          throw new Error(
-            `Failed to play track after retries: ${response.statusText}`
-          );
-        }
-      } else {
-        try {
-          const trackInfo = await response.json();
-          console.log("Track started playing:", trackInfo);
-          setCurrentTrack(trackInfo);
-        } catch {
-          // ignore json parse error
-        }
+        setCurrentTrack(null);
+        setPlaylist({ playlist: [], currentTrackIndex: -1, round: null });
+        return;
       }
 
       setIsPlaying(true);
@@ -555,28 +516,6 @@ export function SpotifyPlayerProvider({
     }
   };
 
-  const setPlayerVolume = async (newVolume: number) => {
-    setVolume(newVolume);
-    const accessToken = Cookies.get("spotify_access_token");
-    if (!accessToken) return;
-
-    try {
-      await fetch(
-        `https://api.spotify.com/v1/me/player/volume?volume_percent=${Math.floor(
-          newVolume * 100
-        )}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-    } catch (error) {
-      console.error("Error setting volume:", error);
-    }
-  };
-
   const value: SpotifyPlayerContextType = {
     player,
     deviceId,
@@ -585,7 +524,6 @@ export function SpotifyPlayerProvider({
     isPaused,
     currentTime,
     duration,
-    volume,
     isReady,
     hasInitialized,
     playTrack,
@@ -594,7 +532,6 @@ export function SpotifyPlayerProvider({
     nextTrack,
     previousTrack,
     seekToPosition,
-    setPlayerVolume,
     initializePlaylist,
     hasNextTrack,
     hasPreviousTrack,

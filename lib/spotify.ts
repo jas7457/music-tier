@@ -66,6 +66,7 @@ export const initiateSpotifyAuth = async (): Promise<void> => {
   }
 
   const scope = [
+    "user-read-private",
     "user-read-email",
     "playlist-read-private",
     "playlist-read-collaborative",
