@@ -63,6 +63,16 @@ export default function AlbumArt({
     }
   };
 
+  const playButtonExtraClasses = (() => {
+    if (isDisabled) {
+      return "bg-gray-500/80 cursor-not-allowed opacity-60";
+    }
+    if (isCurrentlyPlaying) {
+      return "bg-[#1DB954]/90 opacity-100 scale-110";
+    }
+    return "bg-[#1DB954]/90 opacity-100 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 hover:bg-[#1ed760] hover:scale-110";
+  })();
+
   return (
     <div
       className={twMerge(
@@ -83,19 +93,10 @@ export default function AlbumArt({
         type="button"
         onClick={handlePlayClick}
         disabled={isDisabled}
-        className={`
-            absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-            w-10 h-10 rounded-full
-            flex items-center justify-center
-            transition-all duration-200 backdrop-blur-sm pointer-events-auto z-10
-            ${
-              isDisabled
-                ? "bg-gray-500 bg-opacity-80 cursor-not-allowed opacity-60"
-                : isCurrentlyPlaying
-                ? "bg-[#1DB954] bg-opacity-90 opacity-100"
-                : "bg-[#1DB954] bg-opacity-90 opacity-0 group-hover:opacity-100 hover:bg-[#1ed760] hover:scale-110"
-            }
-          `}
+        className={twMerge(
+          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm pointer-events-auto z-10",
+          playButtonExtraClasses
+        )}
         title={
           isDisabled
             ? "Spotify Premium required"
