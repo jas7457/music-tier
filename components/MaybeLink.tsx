@@ -4,12 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ComponentProps } from "react";
 
-type MaybeLinkProps = ComponentProps<typeof Link>;
+type MaybeLinkProps = ComponentProps<typeof Link> & {
+  forceNormalText?: boolean;
+};
 
 export function MaybeLink({
   href,
   children,
   className,
+  forceNormalText = false,
   ...props
 }: MaybeLinkProps) {
   const pathname = usePathname();
@@ -20,7 +23,7 @@ export function MaybeLink({
   // Check if the link is to the current route
   const isCurrentRoute = pathname === hrefString;
 
-  if (isCurrentRoute) {
+  if (isCurrentRoute || forceNormalText) {
     // Render as a div if linking to current route
     return <div className={className}>{children}</div>;
   }

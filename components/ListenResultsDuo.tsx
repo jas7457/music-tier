@@ -90,6 +90,7 @@ export function ListenResultsDuo({
       {/* Results link */}
       <MaybeLink
         href={`/leagues/${league._id}/rounds/${round._id}`}
+        forceNormalText={!round._id}
         className="flex flex-col items-center justify-center gap-1 md:gap-2 p-2 md:p-4 hover:bg-gray-100 rounded-lg transition-colors"
       >
         <svg

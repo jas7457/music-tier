@@ -30,10 +30,10 @@ export function League({
     }
 
     // Check if user has created their round for this league
-    const allRounds = [
-      ...getAllRounds(league),
-      ...league.rounds.pending.filter((round) => round._id),
-    ];
+    const allRounds = getAllRounds(league, {
+      includePending: true,
+      includeFake: false,
+    });
 
     return allRounds.reduce(
       (acc, round) => {

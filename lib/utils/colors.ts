@@ -2,7 +2,7 @@ import { PopulatedLeague, PopulatedRound } from "../types";
 import { assertNever } from "./never";
 
 export function getStatusColor(
-  status: PopulatedLeague["status"] | PopulatedRound["stage"]
+  status: PopulatedLeague["status"] | PopulatedRound["stage"] | "error"
 ): string {
   switch (status) {
     case "completed": {
@@ -24,6 +24,9 @@ export function getStatusColor(
     case "voting":
     case "currentUserVotingCompleted": {
       return "bg-orange-50 text-orange-800 border border-orange-300";
+    }
+    case "error": {
+      return "bg-red-50 text-red-800 border border-red-300";
     }
     default: {
       assertNever(status);

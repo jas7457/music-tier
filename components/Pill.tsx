@@ -8,7 +8,7 @@ export function Pill({
   className,
 }: {
   children: React.ReactNode;
-  status: PopulatedLeague["status"] | PopulatedRound["stage"];
+  status: PopulatedLeague["status"] | PopulatedRound["stage"] | "error";
   className?: string;
 }) {
   return (

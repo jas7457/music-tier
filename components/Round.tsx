@@ -13,16 +13,7 @@ import { ToggleButton } from "./ToggleButton";
 import spotifyLogo from "../app/images/spotify.svg";
 import { useToast } from "@/lib/ToastContext";
 import { createSpotifyPlaylist } from "@/lib/utils/createSpotifyPlaylist";
-
-type FullLeague = Pick<
-  PopulatedLeague,
-  | "daysForSubmission"
-  | "daysForVoting"
-  | "users"
-  | "votesPerRound"
-  | "_id"
-  | "rounds"
->;
+import { getRoundTitle } from "@/lib/utils/getRoundTitle";
 
 export function Round({
   currentUser,
@@ -31,7 +22,7 @@ export function Round({
 }: {
   currentUser: PopulatedUser;
   round: PopulatedRound;
-  league: FullLeague;
+  league: PopulatedLeague;
 }) {
   const [showVotesView, setShowVotesView] = useState(false);
   const toast = useToast();
@@ -60,16 +51,17 @@ export function Round({
         }
       }
       case "submission": {
-        /*
-        if (round.roundIndex !== league.rounds.completed.length) {
+        if (!round._id) {
           return {
             stageTitle: "Pending",
             bodyMarkup: (
-              <div>You cannot submit until the rounds before you do.</div>
+              <div>
+                {round.creatorObject.firstName} still needs to create their
+                round before you can submit your song.
+              </div>
             ),
           };
         }
-          */
 
         return {
           stageTitle: "Submission",
@@ -184,7 +176,11 @@ export function Round({
           alt=""
           src={spotifyLogo.src}
           width={20}
-          title="Listen on Spotify"
+          title={
+            round.spotifyPlaylistId
+              ? "Listen on Spotify"
+              : "Create Spotify Playlist"
+          }
         />
       </button>
     );
@@ -192,21 +188,47 @@ export function Round({
 
   const now = Date.now();
 
+  const statusPills = (() => {
+    const pills: Array<{ key: string; pill: React.ReactNode }> = [
+      { key: "normal", pill: <Pill status={round.stage}>{stageTitle}</Pill> },
+    ];
+
+    if (
+      now > round.submissionEndDate &&
+      round.submissions.length < league.users.length
+    ) {
+      pills.push({
+        key: "submissions",
+        pill: <Pill status="error">Not all users submitted</Pill>,
+      });
+    }
+
+    if (now > round.votingEndDate && round.votes.length < league.users.length) {
+      pills.push({
+        key: "votes",
+        pill: <Pill status="error">Not all users voted</Pill>,
+      });
+    }
+
+    return pills.map(({ key, pill }) => <Fragment key={key}>{pill}</Fragment>);
+  })();
+
   return (
     <div className="flex flex-col gap-4">
       <div>
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <MaybeLink
               href={`/leagues/${league._id}/rounds/${round._id}`}
               className="font-semibold text-lg"
+              forceNormalText={!round._id}
             >
-              Round {round.roundIndex + 1}: {round.title}
+              {getRoundTitle(round)}
             </MaybeLink>
 
             {spotifyMarkup}
 
-            <Pill status={round.stage}>{stageTitle}</Pill>
+            {statusPills}
           </div>
           <Avatar
             user={round.creatorObject}
@@ -246,7 +268,6 @@ export function Round({
           )}
         </div>
       </div>
-
       {/* Song Submission Section */}
       {round.stage === "completed" && (
         <div className="flex justify-center gap-2">

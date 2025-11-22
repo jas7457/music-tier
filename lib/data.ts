@@ -93,11 +93,7 @@ export async function getUserLeagues(
   const leagueWithData = await Promise.all(
     leagues.map(async (league) => {
       // Normalize league start date to midnight in America/New_York timezone
-      const reformattedDate = new Date(
-        new Date(league.leagueStartDate).toLocaleString("en-US", {
-          timeZone: "America/New_York",
-        })
-      ).setHours(0, 0, 0, 0);
+      const reformattedDate = getStartOfDay(league.leagueStartDate);
 
       league.leagueStartDate = reformattedDate;
 
@@ -231,36 +227,55 @@ export async function getUserLeagues(
           (submission) => submission.userId === userId
         );
 
-        const lastSubmission = round.submissions.reduce(
-          (latest, submission) => {
-            if (!latest) {
-              return submission;
-            }
-            return submission.submissionDate > latest.submissionDate
-              ? submission
-              : latest;
-          },
-          undefined as PopulatedSubmission | undefined
+        const sortedSubmissions = [...round.submissions].sort(
+          (a, b) => a.submissionDate - b.submissionDate
         );
+        const firstSubmission = sortedSubmissions[0];
+        const lastSubmission = sortedSubmissions[sortedSubmissions.length - 1];
 
-        const lastVote = round.votes.reduce((latest, vote) => {
-          if (!latest) {
-            return vote;
+        const sortedVotes = [...round.votes].sort(
+          (a, b) => a.voteDate - b.voteDate
+        );
+        const firstVote = sortedVotes[0];
+        const lastVote = sortedVotes[sortedVotes.length - 1];
+
+        const submissionStartDate = (() => {
+          if (firstSubmission) {
+            return Math.min(currentStartDate, firstSubmission.submissionDate);
           }
-          return vote.voteDate > latest.voteDate ? vote : latest;
-        }, undefined as PopulatedVote | undefined);
-
-        const submissionStartDate = currentStartDate;
-        const submissionEndDate = (() => {
-          const allSubmitted = round.submissions.length >= league.users.length;
-
-          if (allSubmitted && lastSubmission) {
-            return lastSubmission.submissionDate;
-          }
-          return submissionStartDate + league.daysForSubmission * ONE_DAY_MS;
+          return currentStartDate;
         })();
-        const votingStartDate = submissionEndDate;
+        const submissionEndDate = (() => {
+          const normalEnd = getEndOfDay(
+            submissionStartDate + league.daysForSubmission * ONE_DAY_MS
+          );
+
+          const allSubmitted = round.submissions.length >= league.users.length;
+          if (allSubmitted && lastSubmission) {
+            return Math.min(normalEnd, lastSubmission.submissionDate);
+          }
+          return normalEnd;
+        })();
+
+        const hadNoSubmissions =
+          round.submissions.length === 0 && now > submissionEndDate;
+
+        const votingStartDate = (() => {
+          if (hadNoSubmissions) {
+            return submissionEndDate;
+          }
+          if (firstVote) {
+            return Math.min(submissionEndDate, firstVote.voteDate);
+          }
+          return submissionEndDate;
+        })();
         const votingEndDate = (() => {
+          if (hadNoSubmissions) {
+            return submissionEndDate;
+          }
+          const normalEnd = getEndOfDay(
+            votingStartDate + league.daysForVoting * ONE_DAY_MS
+          );
           const roundPoints = round.votes.reduce(
             (acc, vote) => acc + vote.points,
             0
@@ -269,9 +284,9 @@ export async function getUserLeagues(
             roundPoints >= league.users.length * league.votesPerRound &&
             lastVote
           ) {
-            return lastVote.voteDate;
+            return Math.min(normalEnd, lastVote.voteDate);
           }
-          return votingStartDate + league.daysForVoting * ONE_DAY_MS;
+          return normalEnd;
         })();
         currentStartDate = votingEndDate;
         const populatedRound: Omit<PopulatedRound, "stage"> = {
@@ -289,6 +304,7 @@ export async function getUserLeagues(
           currentUserId: userId,
           league,
           round: populatedRound,
+          now,
         });
 
         const submissionsSorted = (() => {
@@ -344,7 +360,7 @@ export async function getUserLeagues(
             acc.completed.push(round);
           } else if (round.isBonusRound && round._id !== currentRound?._id) {
             acc.bonus.push(round);
-          } else if (round.isPending) {
+          } else if (round.isPending && round._id !== currentRound?._id) {
             acc.pending.push(round);
           }
 
@@ -370,7 +386,7 @@ export async function getUserLeagues(
         const hasPendingBefore = roundsObject.pending.some(
           (round) => round.roundIndex < userIndex
         );
-        if (hasPendingBefore && !round.isBonusRound) {
+        if (hasPendingBefore && !round.isBonusRound && !round.isPending) {
           roundsObject.pending.push(round);
           if (round._id === roundsObject.current?._id) {
             roundsObject.current = undefined;
@@ -390,23 +406,28 @@ export async function getUserLeagues(
         users.length +
         roundsWithData.filter((round) => round.isBonusRound).length;
 
+      if (numberOfRounds !== roundsWithData.length) {
+        debugger;
+      }
+
       const status = (() => {
         if (roundsObject.completed.length === numberOfRounds) {
           return "completed" as const;
         }
 
-        const hasStarted = now > league.leagueStartDate;
+        const hasStarted = now >= league.leagueStartDate;
         if (!hasStarted) {
           return "upcoming" as const;
+        }
+
+        if (roundsObject.current) {
+          return "active" as const;
         }
 
         if (roundsObject.pending.length > 0) {
           return "pending" as const;
         }
 
-        if (roundsObject.current) {
-          return "active" as const;
-        }
         return "unknown" as const;
       })();
 
@@ -456,43 +477,18 @@ function getRoundStage({
   currentUserId,
   league,
   round,
+  now,
 }: {
   currentUserId: string;
   round: Omit<PopulatedRound, "stage" | "roundIndex">;
   league: Pick<PopulatedLeague, "votesPerRound"> & { users: unknown[] };
+  now: number;
 }): PopulatedRoundStage {
-  const now = Date.now();
-
-  const allUsersSubmitted = round.submissions.length >= league.users.length;
-  const roundPoints = round.votes.reduce((acc, vote) => acc + vote.points, 0);
-  const allUsersVoted =
-    roundPoints >= league.users.length * league.votesPerRound;
-
-  if (allUsersVoted) {
-    return "completed";
-  }
-
-  const isVotingOpen = (() => {
-    if (now >= round.votingEndDate) {
-      return false;
-    }
-    if (allUsersSubmitted) {
-      return true;
-    }
-    return false;
-  })();
-  const isSubmissionOpen =
-    !isVotingOpen &&
-    now >= round.submissionStartDate &&
-    now < round.submissionEndDate;
-
   if (now >= round.votingEndDate) {
     return "completed";
   }
-  if (now < round.submissionStartDate) {
-    return "upcoming";
-  }
-  if (isVotingOpen) {
+
+  if (now >= round.votingStartDate) {
     const yourVotedPoints = round.votes
       .filter((v) => v.userId === currentUserId)
       .reduce((sum, v) => sum + v.points, 0);
@@ -502,8 +498,17 @@ function getRoundStage({
     }
     return "voting";
   }
-  if (isSubmissionOpen) {
+
+  if (now > round.submissionEndDate) {
+    return "unknown";
+  }
+
+  if (now >= round.submissionStartDate) {
     return "submission";
+  }
+
+  if (now < round.submissionStartDate) {
+    return "upcoming";
   }
   return "unknown";
 }
@@ -575,4 +580,20 @@ export async function getUserByCookies(leagueId: string) {
     console.error("Error fetching session:", error);
     return null;
   }
+}
+
+function getStartOfDay(date: number): number {
+  return new Date(
+    new Date(date).toLocaleString("en-US", {
+      timeZone: "America/New_York",
+    })
+  ).setHours(0, 0, 0, 0);
+}
+
+function getEndOfDay(date: number): number {
+  return new Date(
+    new Date(date).toLocaleString("en-US", {
+      timeZone: "America/New_York",
+    })
+  ).setHours(23, 59, 0, 0);
 }

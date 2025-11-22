@@ -9,6 +9,7 @@ import { MaybeLink } from "./MaybeLink";
 import { Avatar } from "./Avatar";
 import { MultiLine } from "./MultiLine";
 import { ListenResultsDuo } from "./ListenResultsDuo";
+import { getRoundTitle } from "@/lib/utils/getRoundTitle";
 
 export function LeagueRounds({ league }: { league: PopulatedLeague }) {
   const { user } = useAuth();
@@ -92,9 +93,15 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
         title: "Pending Rounds",
         footer: (round) => (
           <div>
-            <div>
-              Waiting for {round.creatorObject.firstName} to create this round.
-            </div>
+            {round._id ? (
+              <div>Waiting for others to create their rounds.</div>
+            ) : (
+              <div>
+                Waiting for {round.creatorObject.firstName} to create their
+                round.
+              </div>
+            )}
+
             {footerHelper(round)}
           </div>
         ),
@@ -107,7 +114,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
       {
         rounds: league.status === "completed" ? [] : league.rounds.completed,
         title: "Completed Rounds",
-        footer: (round) => `Round ended: ${formatDate(round.votingEndDate)}`,
+        footer: footerHelper,
       },
     ];
 
@@ -124,17 +131,6 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
               const hasAllSubmissions =
                 round.submissions.length === league.users.length;
 
-              const roundTitle = (() => {
-                if (round.title) {
-                  return round.title;
-                }
-                if (round.stage === "upcoming") {
-                  return "Pending";
-                }
-
-                return "";
-              })();
-
               return (
                 <Card
                   key={round._id || index}
@@ -148,11 +144,11 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
                           className="font-semibold"
                           href={`/leagues/${league._id}/rounds/${round._id}`}
                         >
-                          Round {round.roundIndex + 1}: {roundTitle}
+                          {getRoundTitle(round)}
                         </MaybeLink>
                       ) : (
                         <span className="font-semibold">
-                          Round {round.roundIndex + 1}: {roundTitle}
+                          {getRoundTitle(round)}
                         </span>
                       )}
                     </div>

@@ -28,7 +28,7 @@ export default async function RoundPage({ params }: PageProps) {
       return;
     }
 
-    const allRounds = getAllRounds(league);
+    const allRounds = getAllRounds(league, { includePending: true });
     if (roundId === "current") {
       const currentRound = allRounds.find(
         (round) => !["upcoming", "unknown", "completed"].includes(round.stage)

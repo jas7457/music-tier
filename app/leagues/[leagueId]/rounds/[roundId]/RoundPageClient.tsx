@@ -10,6 +10,7 @@ import {
   LeagueIcon,
   RoundIcon,
 } from "@/components/Breadcrumb";
+import { getRoundTitle } from "@/lib/utils/getRoundTitle";
 
 type RoundPageClientProps = {
   round: PopulatedRound;
@@ -22,7 +23,7 @@ export function RoundPageClient({
   league,
   currentUser,
 }: RoundPageClientProps) {
-  useRealTimeUpdates(round);
+  useRealTimeUpdates(league);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -36,7 +37,7 @@ export function RoundPageClient({
               href: `/leagues/${league._id}`,
             },
             {
-              label: `Round ${round.roundIndex + 1}: ${round.title}`,
+              label: getRoundTitle(round),
               icon: <RoundIcon />,
             },
           ]}

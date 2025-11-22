@@ -249,7 +249,6 @@ export function SpotifyPlayerProvider({
           const currentTrack = currentCallbackState.track_window.current_track;
           const timeLeft =
             currentTrack.duration_ms - currentCallbackState.position;
-          console.log(timeLeft);
           if (timeLeft < 2000) {
             return true;
           }
