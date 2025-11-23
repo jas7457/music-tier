@@ -113,9 +113,7 @@ export function League({
           <div className="flex flex-wrap gap-2 text-sm text-gray-500">
             {league.status === "completed" && finalVoteTimestamp > 0 && (
               <>
-                <span>
-                  League ended: <DateTime>{finalVoteTimestamp}</DateTime>
-                </span>
+                <DateTime prefix="League ended:">{finalVoteTimestamp}</DateTime>
                 <span>•</span>
               </>
             )}

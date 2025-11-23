@@ -76,7 +76,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="flex items-center gap-2 rounded-full transition-all hover:ring-2 hover:ring-white hover:ring-offset-2 hover:ring-offset-purple-600"
           >
-            <Avatar user={user} size={12} />
+            <Avatar user={user} size={12} includeLink={false} />
           </HapticButton>
 
           {isDropdownOpen && (

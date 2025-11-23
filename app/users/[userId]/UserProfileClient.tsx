@@ -183,7 +183,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
             <h1 className="text-3xl font-bold">{fullName}</h1>
             <p className="text-gray-600">{user.userName}</p>
             <p className="text-sm text-gray-500">
-              Joined <DateTime>{user.signupDate}</DateTime>
+              <DateTime prefix="Joined">{user.signupDate}</DateTime>
             </p>
           </div>
         </div>
@@ -316,21 +316,19 @@ function LeaguesCards({
                 sortedCompletedRounds[sortedCompletedRounds.length - 1];
               if (lastRound) {
                 return (
-                  <span>
-                    Completed on <DateTime>{lastRound.votingEndDate}</DateTime>
-                  </span>
+                  <DateTime prefix="Completed on">
+                    {lastRound.votingEndDate}
+                  </DateTime>
                 );
               }
               return (
-                <span>
-                  Started on <DateTime>{league.leagueStartDate}</DateTime>
-                </span>
+                <DateTime prefix="Started on">
+                  {league.leagueStartDate}
+                </DateTime>
               );
             }
             return (
-              <span>
-                Started on <DateTime>{league.leagueStartDate}</DateTime>
-              </span>
+              <DateTime prefix="Started on">{league.leagueStartDate}</DateTime>
             );
           })();
 
@@ -407,8 +405,10 @@ function SubmissionsCards({
                   >
                     {detail.round.title}
                   </MaybeLink>{" "}
-                  • Submitted on{" "}
-                  <DateTime>{detail.submission.submissionDate}</DateTime>
+                  •
+                  <DateTime prefix="Submitted on">
+                    {detail.submission.submissionDate}
+                  </DateTime>
                 </div>
               </div>
               <div className="text-lg font-bold shrink-0">

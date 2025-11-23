@@ -4,12 +4,8 @@ import { useAuth } from "@/lib/AuthContext";
 import Card from "./Card";
 import { Round } from "./Round";
 import { PopulatedLeague, PopulatedRound } from "@/lib/types";
-import { MaybeLink } from "./MaybeLink";
-import { Avatar } from "./Avatar";
-import { MultiLine } from "./MultiLine";
 import { ListenResultsDuo } from "./ListenResultsDuo";
-import { getRoundTitle } from "@/lib/utils/getRoundTitle";
-import { DateTime } from "./DateTime";
+import { RoundInfo } from "./RoundInfo";
 
 export function LeagueRounds({ league }: { league: PopulatedLeague }) {
   const { user } = useAuth();
@@ -56,43 +52,23 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
   })();
 
   const nonCurrentRoundsMarkup = (() => {
-    const footerHelper = (round: PopulatedRound) => {
-      const now = Date.now();
-      return (
-        <div className="flex gap-2">
-          <span>
-            Submissions {now > round.submissionStartDate ? "started" : "start"}:{" "}
-            <DateTime>{round.submissionStartDate}</DateTime>
-          </span>
-          <span>•</span>
-          <span>
-            Submissions {now > round.submissionEndDate ? "ended" : "end"}:{" "}
-            <DateTime>{round.submissionEndDate}</DateTime>
-          </span>
-          <span>•</span>
-          <span>
-            Round {now > round.votingEndDate ? "ended" : "ends"}:{" "}
-            <DateTime>{round.votingEndDate}</DateTime>
-          </span>
-        </div>
-      );
-    };
-
     const groups: Array<{
       rounds: PopulatedRound[];
       title: string;
-      footer: string | ((round: PopulatedRound) => React.ReactNode);
+      roundInfo: (round: PopulatedRound) => React.ReactNode;
     }> = [
       {
         rounds: league.rounds.upcoming,
         title: "Upcoming Rounds",
-        footer: footerHelper,
+        roundInfo: (round) => <RoundInfo round={round} league={league} />,
       },
       {
         rounds: league.rounds.pending,
         title: "Pending Rounds",
-        footer: (round) => (
-          <div>
+        roundInfo: (round) => (
+          <div className="flex flex-col gap-2">
+            <RoundInfo round={round} league={league} />
+
             {round._id ? (
               <div>Waiting for others to create their rounds.</div>
             ) : (
@@ -101,24 +77,22 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
                 round.
               </div>
             )}
-
-            {footerHelper(round)}
           </div>
         ),
       },
       {
         rounds: league.rounds.bonus,
         title: "Bonus Rounds",
-        footer: footerHelper,
+        roundInfo: (round) => <RoundInfo round={round} league={league} />,
       },
       {
         rounds: league.status === "completed" ? [] : league.rounds.completed,
         title: "Completed Rounds",
-        footer: footerHelper,
+        roundInfo: (round) => <RoundInfo round={round} league={league} />,
       },
     ];
 
-    return groups.map(({ rounds, title, footer }) => {
+    return groups.map(({ rounds, title, roundInfo }) => {
       if (rounds.length === 0) {
         return null;
       }
@@ -135,36 +109,9 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
                 <Card
                   key={round._id || index}
                   variant="outlined"
-                  className="border-gray-200 bg-gray-50 p-2 md:p-4"
+                  className="border-gray-200 bg-gray-50 p-2 md:p-4 flex flex-col gap-4"
                 >
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <div>
-                      {round._id ? (
-                        <MaybeLink
-                          className="font-semibold"
-                          href={`/leagues/${league._id}/rounds/${round._id}`}
-                        >
-                          {getRoundTitle(round)}
-                        </MaybeLink>
-                      ) : (
-                        <span className="font-semibold">
-                          {getRoundTitle(round)}
-                        </span>
-                      )}
-                    </div>
-
-                    <Avatar
-                      user={round.creatorObject}
-                      tooltipText={`Created by ${round.creatorObject.userName}`}
-                      includeTooltip
-                    />
-                  </div>
-                  <p className="text-gray-600 text-sm mb-2">
-                    <MultiLine>{round.description}</MultiLine>
-                  </p>
-                  <div className="text-xs text-gray-500">
-                    {typeof footer === "function" ? footer(round) : footer}
-                  </div>
+                  {roundInfo(round)}
 
                   {hasAllSubmissions && (
                     <ListenResultsDuo league={league} round={round} />

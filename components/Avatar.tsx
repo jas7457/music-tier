@@ -1,5 +1,6 @@
 import { PopulatedUser } from "@/lib/types";
 import { twMerge } from "tailwind-merge";
+import { MaybeLink } from "./MaybeLink";
 
 export interface AvatarProps {
   user: PopulatedUser;
@@ -7,6 +8,7 @@ export interface AvatarProps {
   includeTooltip?: boolean;
   tooltipText?: string;
   className?: string;
+  includeLink?: boolean;
 }
 
 export function Avatar({
@@ -15,6 +17,7 @@ export function Avatar({
   size = 8,
   includeTooltip,
   tooltipText = user.userName,
+  includeLink = true,
 }: AvatarProps) {
   const fullName = `${user.firstName} ${user.lastName}`;
   const initial = user.userName.charAt(0).toUpperCase();
@@ -37,8 +40,10 @@ export function Avatar({
   const index = user.index === -1 ? 0 : user.index;
   const gradient = gradients[index % gradients.length];
   return (
-    <div
+    <MaybeLink
+      href={`/users/${user._id}`}
       className="relative group"
+      forceNormalText={!includeLink}
       {...(includeTooltip ? { title: tooltipText } : {})}
     >
       {user.photoUrl ? (
@@ -62,6 +67,6 @@ export function Avatar({
           {initial}
         </div>
       )}
-    </div>
+    </MaybeLink>
   );
 }

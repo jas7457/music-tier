@@ -70,11 +70,23 @@ export default async function UserProfilePage({ params }: PageProps) {
     .filter((league) => league.status === "completed")
     .map(addExtra);
 
+  const userIndex = (() => {
+    for (const league of [...currentLeagues, ...pastLeagues]) {
+      const indexInLeague = league.users.findIndex(
+        (leagueUser) => leagueUser._id === user._id.toString()
+      );
+      if (indexInLeague !== -1) {
+        return indexInLeague;
+      }
+    }
+    return 0;
+  })();
+
   const profileData: ProfileData = {
     user: {
       ...user,
       _id: user._id.toString(),
-      index: 0,
+      index: userIndex,
     },
     currentLeagues,
     pastLeagues,
