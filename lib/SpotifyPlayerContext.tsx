@@ -79,8 +79,8 @@ export function SpotifyPlayerProvider({
   const lastPlaybackStateRef = useRef<Spotify.WebPlaybackState | null>(null);
   const hasInitializedRef = useRef(false);
   const hasPreviouslyPlayedRef = useRef(false);
-  const hasSetupPlayerRef = useRef(false);
   const deviceIdRef = useRef<string | null>(null);
+  const setupPromiseRef = useRef<Promise<string> | null>(null);
   const toast = useToast();
   const currentTrackIndex = useMemo(() => {
     if (!currentTrack || playlist.length === 0) {
@@ -225,19 +225,18 @@ export function SpotifyPlayerProvider({
     };
     const setupPlayer = async (): Promise<string> => {
       // we've already set it up...
-      if (hasSetupPlayerRef.current) {
-        return deviceIdRef.current || "";
+      if (setupPromiseRef.current) {
+        return setupPromiseRef.current;
       }
 
       const token = Cookies.get("spotify_access_token");
       if (!token) {
-        return deviceIdRef.current || "";
+        return "";
       }
 
-      hasSetupPlayerRef.current = true;
       let stateTimeout: NodeJS.Timeout;
 
-      return new Promise<string>((resolve) => {
+      const setupPromise = new Promise<string>((resolve) => {
         window.onSpotifyWebPlaybackSDKReady = () => {
           const spotifyPlayer = new window.Spotify.Player({
             name: SPOTIFY_PLAYER_NAME,
@@ -313,6 +312,9 @@ export function SpotifyPlayerProvider({
           window.onSpotifyWebPlaybackSDKReady();
         }
       });
+
+      setupPromiseRef.current = setupPromise;
+      return setupPromise;
     };
 
     const playTrack = async (
