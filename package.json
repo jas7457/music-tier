@@ -9,6 +9,7 @@
     "start": "next start",
     "type-check": "tsc --noEmit",
     "lint": "next lint && pnpm type-check",
+    "emptyLeague": "tsx scripts/emptyLeague.ts",
     "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
