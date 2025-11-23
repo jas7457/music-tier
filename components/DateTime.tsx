@@ -8,7 +8,7 @@ export function DateTime({
   prefix?: string;
 }) {
   return (
-    <span title={formatDateWithTime(children)}>
+    <span title={formatDateWithTime(children, { second: "numeric" })}>
       {prefix ? `${prefix} ` : ""}
       {formatDate(children)}
     </span>

@@ -565,17 +565,25 @@ export async function getUserByCookies(leagueId: string) {
 }
 
 function getStartOfDay(date: number): number {
-  return new Date(
-    new Date(date).toLocaleString("en-US", {
-      timeZone: "America/New_York",
-    })
-  ).setHours(0, 0, 0, 0);
+  const d = new Date(date);
+
+  // Get the year, month, day in Eastern time for this timestamp
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const parts = formatter.formatToParts(d);
+  const year = parts.find((p) => p.type === "year")!.value;
+  const month = parts.find((p) => p.type === "month")!.value;
+  const day = parts.find((p) => p.type === "day")!.value;
+
+  return new Date(`${year}-${month}-${day}T00:00:00-05:00`).getTime();
 }
 
 function getEndOfDay(date: number): number {
-  return new Date(
-    new Date(date).toLocaleString("en-US", {
-      timeZone: "America/New_York",
-    })
-  ).setHours(23, 59, 0, 0);
+  // Get start of day, then add 23 hours 59 minutes in milliseconds
+  return getStartOfDay(date) + ONE_DAY_MS - 1000;
 }
