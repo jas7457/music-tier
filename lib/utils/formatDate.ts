@@ -1,17 +1,27 @@
 export function formatDate(
   timestamp: number,
-  options?: Intl.DateTimeFormatOptions
+  options: Intl.DateTimeFormatOptions = {}
 ) {
   const date = new Date(timestamp);
   const now = new Date();
+  const timeZone = "America/New_York";
 
-  return date.toLocaleDateString("en-US", {
-    timeZone: "America/New_York",
+  // Use Intl to get the year *in Eastern time* for both dates
+  const yearFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+  });
+
+  const sameYearInET = yearFormatter.format(date) === yearFormatter.format(now);
+
+  return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
-    ...(date.getFullYear() !== now.getFullYear() ? { year: "numeric" } : {}),
+    ...(sameYearInET ? {} : { year: "numeric" }),
     ...options,
-  });
+    // Ensure EST/EDT no matter where this code runs
+    timeZone,
+  }).format(date);
 }
 
 export function formatDateWithTime(
