@@ -43,12 +43,7 @@ export function RoundPageClient({
           ]}
         />
         <Card className="p-2 md:p-6">
-          <Round
-            key={round.stage}
-            currentUser={currentUser}
-            round={round}
-            league={league}
-          />
+          <Round currentUser={currentUser} round={round} league={league} />
         </Card>
       </div>
     </div>

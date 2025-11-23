@@ -4,10 +4,26 @@ import { getCollection } from "@/lib/mongodb";
 import { SongSubmission } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
 import { triggerRealTimeUpdate } from "@/lib/pusher-server";
+import { getUserLeagues } from "@/lib/data";
+import { getAllRounds } from "@/lib/utils/getAllRounds";
 
 export async function POST(
   request: NextRequest,
   { params }: { params: { roundId: string } }
+) {
+  return handleRequest(request, { roundId: params.roundId, method: "ADD" });
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { roundId: string } }
+) {
+  return handleRequest(request, { roundId: params.roundId, method: "UPDATE" });
+}
+
+async function handleRequest(
+  request: NextRequest,
+  { roundId, method }: { roundId: string; method: "ADD" | "UPDATE" }
 ) {
   try {
     const payload = verifySessionToken();
@@ -15,35 +31,62 @@ export async function POST(
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
 
-    const { roundId } = params;
+    if (!roundId) {
+      return NextResponse.json(
+        { error: "Round ID is required" },
+        { status: 400 }
+      );
+    }
 
     const body = await request.json();
     const { trackInfo, note } = body;
 
-    if (!trackInfo) {
+    if (!trackInfo || !trackInfo.trackId) {
       return NextResponse.json(
         { error: "Track URL is required" },
         { status: 400 }
       );
     }
 
-    const submissionsCollection = await getCollection<SongSubmission>(
-      "songSubmissions"
+    const userLeagues = await getUserLeagues(payload.userId);
+
+    const { round: foundRound } = (() => {
+      for (const league of userLeagues) {
+        const rounds = getAllRounds(league, {
+          includePending: false,
+          includeFake: false,
+        });
+
+        for (const round of rounds) {
+          if (round._id.toString() === roundId) {
+            return { round };
+          }
+        }
+      }
+      return { round: null };
+    })();
+
+    if (!foundRound) {
+      return NextResponse.json(
+        { error: "No roound was found, Charlie Brown" },
+        { status: 404 }
+      );
+    }
+
+    if (foundRound.stage !== "submission") {
+      return NextResponse.json(
+        {
+          error: `Submissions are not open for this round. The round is currently in the "${foundRound.stage}" stage.`,
+        },
+        { status: 403 }
+      );
+    }
+
+    const existingSubmission = foundRound.submissions.find(
+      (sub) => sub.userId === payload.userId
     );
 
-    // Check if user has already submitted for this round
-    const [existingSubmission, existingSong] = await Promise.all([
-      submissionsCollection.findOne({
-        roundId,
-        userId: payload.userId,
-      }),
-      submissionsCollection.findOne({
-        roundId,
-        "trackInfo.trackId": trackInfo.trackId,
-      }),
-    ]);
-
-    if (existingSubmission) {
+    if (existingSubmission && method === "ADD") {
       return NextResponse.json(
         {
           error:
@@ -53,70 +96,20 @@ export async function POST(
       );
     }
 
-    if (existingSong) {
+    const existingSong = foundRound.submissions.find(
+      (sub) => sub.trackInfo.trackId === trackInfo.trackId
+    );
+
+    if (
+      existingSong &&
+      (method === "ADD" ? true : existingSong.userId !== payload.userId)
+    ) {
       return NextResponse.json(
         {
           error:
             "You have great taste! This song has already been submitted by another user in this round.",
         },
         { status: 409 }
-      );
-    }
-
-    // Create new submission
-    const submissionId = new ObjectId();
-    const newSubmission: SongSubmission = {
-      _id: submissionId,
-      roundId,
-      userId: payload.userId,
-      trackInfo,
-      note,
-      submissionDate: Date.now(),
-    };
-
-    await submissionsCollection.insertOne(newSubmission);
-    triggerRealTimeUpdate();
-
-    return NextResponse.json({ submission: newSubmission });
-  } catch (error) {
-    console.error("Error submitting song:", error);
-    return NextResponse.json(
-      { error: "Failed to submit song" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { roundId: string } }
-) {
-  try {
-    const payload = verifySessionToken();
-
-    if (!payload) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
-    }
-
-    const { roundId } = params;
-
-    const body = await request.json();
-    const { trackInfo, note } = body;
-
-    if (!trackInfo) {
-      return NextResponse.json(
-        { error: "Track URL is required" },
-        { status: 400 }
-      );
-    }
-
-    // Extract track ID from URL
-    const trackId = trackInfo.trackId;
-
-    if (!trackId) {
-      return NextResponse.json(
-        { error: "Invalid Spotify track URL" },
-        { status: 400 }
       );
     }
 
@@ -124,56 +117,57 @@ export async function PUT(
       "songSubmissions"
     );
 
-    const existingSong = await submissionsCollection.findOne({
-      roundId,
-      "trackInfo.trackId": trackInfo.trackId,
-    });
-
-    if (existingSong && existingSong.userId !== payload.userId) {
-      return NextResponse.json(
-        {
-          error:
-            "You have great taste! This song has already been submitted by another user in this round.",
-        },
-        { status: 409 }
-      );
-    }
-
-    // Update existing submission
-    const result = await submissionsCollection.findOneAndUpdate(
-      {
-        roundId,
-        userId: payload.userId,
-      },
-      {
-        $set: {
+    const newSubmission = await (async () => {
+      if (method === "ADD") {
+        // Create new submission
+        const submissionId = new ObjectId();
+        const newSubmission: SongSubmission = {
+          _id: submissionId,
+          roundId,
+          userId: payload.userId,
           trackInfo,
           note,
           submissionDate: Date.now(),
-        },
-      },
-      { returnDocument: "after" }
-    );
+        };
 
-    if (!result) {
-      return NextResponse.json(
-        { error: "No submission found to update" },
-        { status: 404 }
-      );
-    }
+        await submissionsCollection.insertOne(newSubmission);
+        return newSubmission;
+      } else {
+        // Update existing submission
+        const result = await submissionsCollection.findOneAndUpdate(
+          {
+            roundId,
+            userId: payload.userId,
+          },
+          {
+            $set: {
+              trackInfo,
+              note,
+              submissionDate: Date.now(),
+            },
+          },
+          { returnDocument: "after" }
+        );
 
-    const updatedSubmission = {
-      ...result,
-      _id: result._id.toString(),
-    };
+        if (!result) {
+          throw new Error("No submission found to update");
+        }
+
+        const updatedSubmission = {
+          ...result,
+          _id: result._id.toString(),
+        };
+        return updatedSubmission;
+      }
+    })();
 
     triggerRealTimeUpdate();
 
-    return NextResponse.json({ submission: updatedSubmission });
+    return NextResponse.json({ submission: newSubmission });
   } catch (error) {
-    console.error("Error updating song submission:", error);
+    console.error("Error submitting song:", error);
     return NextResponse.json(
-      { error: "Failed to update submission" },
+      { error: "Failed to submit song" },
       { status: 500 }
     );
   }
