@@ -238,6 +238,15 @@ export function SpotifyPlayerProvider({
 
       const setupPromise = new Promise<string>((resolve) => {
         window.onSpotifyWebPlaybackSDKReady = () => {
+          const resolveTimeout = setTimeout(() => {
+            resolveWithNothing();
+          }, 5_000);
+
+          const resolveWithNothing = () => {
+            resolve("");
+            clearTimeout(resolveTimeout);
+          };
+
           const spotifyPlayer = new window.Spotify.Player({
             name: SPOTIFY_PLAYER_NAME,
             getOAuthToken: (cb) => {
@@ -252,11 +261,14 @@ export function SpotifyPlayerProvider({
             console.log("Spotify Player Ready with Device ID:", device_id);
             deviceIdRef.current = device_id;
             resolve(device_id);
+            clearTimeout(resolveTimeout);
           });
 
           // Not Ready event - device has gone offline
-          spotifyPlayer.addListener("not_ready", ({ device_id }) => {
-            console.log("Spotify Player Not Ready with Device ID:", device_id);
+          spotifyPlayer.addListener("not_ready", () => {
+            const errorMessage = "Spotify Player went offline";
+            toast.show({ message: errorMessage, variant: "error" });
+            resolveWithNothing();
           });
 
           spotifyPlayer.addListener("initialization_error", ({ message }) => {
@@ -265,6 +277,7 @@ export function SpotifyPlayerProvider({
               "Spotify Initialization Error"
             );
             toast.show({ message: errorMessage, variant: "error" });
+            resolveWithNothing();
           });
 
           spotifyPlayer.addListener("authentication_error", ({ message }) => {
@@ -273,6 +286,7 @@ export function SpotifyPlayerProvider({
               "Spotify Authentication Error"
             );
             toast.show({ message: errorMessage, variant: "error" });
+            resolveWithNothing();
           });
 
           spotifyPlayer.addListener("account_error", ({ message }) => {
@@ -281,6 +295,7 @@ export function SpotifyPlayerProvider({
               "Spotify Account Error"
             );
             toast.show({ message: errorMessage, variant: "error" });
+            resolveWithNothing();
           });
 
           // Player state changed
@@ -289,6 +304,7 @@ export function SpotifyPlayerProvider({
           // Connect to the player
           spotifyPlayer.connect().then((success: boolean) => {
             if (!success) {
+              resolveWithNothing();
               toast.show({
                 message: "Failed to connect to Spotify Player",
                 variant: "error",
