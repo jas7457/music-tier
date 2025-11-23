@@ -13,6 +13,7 @@ import { getPlaces } from "@/lib/utils/getPlaces";
 import AlbumArt from "./AlbumArt";
 import { useAuth } from "@/lib/AuthContext";
 import { getRoundTitle } from "@/lib/utils/getRoundTitle";
+import { Expandable } from "./Expandable";
 
 export function LeagueStandings({ league }: { league: PopulatedLeague }) {
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
@@ -501,16 +502,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                     </button>
 
                     {/* Expanded Details */}
-                    <div
-                      className={twMerge(
-                        "overflow-hidden transition-[height] duration-300 ease-in-out",
-                        isExpanded ? "h-auto" : "h-0"
-                      )}
-                      style={{
-                        // @ts-ignore
-                        interpolateSize: "allow-keywords",
-                      }}
-                    >
+                    <Expandable isExpanded={isExpanded}>
                       <div className="space-y-4 p-3">
                         {Object.values(guessesByRound).map(
                           ({ round, guesses }) => (
@@ -631,7 +623,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                           )
                         )}
                       </div>
-                    </div>
+                    </Expandable>
                   </div>
                 );
               })}

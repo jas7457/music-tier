@@ -29,8 +29,6 @@ export function SubmittedUsers({
     <UsersList
       users={filteredUsers}
       text={{ verb: "Submitted", noun: "submissions" }}
-      position="left"
-      tooltipClassName="-left-[10px]"
       tooltipText={(user) => {
         const submission = submissions.find((sub) => sub.userId === user._id);
         if (!submission) {
@@ -62,8 +60,6 @@ export function UnsubmittedUsers({
   return (
     <UsersList
       users={filteredUsers}
-      position="left"
-      tooltipClassName="-left-[10px]"
       text={{ verb: "Not submitted", noun: "submissions" }}
     />
   );

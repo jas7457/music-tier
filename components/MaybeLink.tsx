@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ComponentProps } from "react";
+import { twMerge } from "tailwind-merge";
 
 type MaybeLinkProps = ComponentProps<typeof Link> & {
   forceNormalText?: boolean;
@@ -32,9 +33,7 @@ export function MaybeLink({
   return (
     <Link
       href={href}
-      className={[className, "hover:text-purple-500 transition-colors"]
-        .filter(Boolean)
-        .join(" ")}
+      className={twMerge("hover:text-purple-500 transition-colors", className)}
       {...props}
     >
       {children}

@@ -46,6 +46,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
           userId: user?._id || "",
           submissionDate: Date.now(),
           note: "",
+          userObject: user || undefined,
           trackInfo: {
             trackId: "",
             title: "",
@@ -57,7 +58,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
         };
       });
     },
-    [round._id, user?._id]
+    [round._id, user]
   );
 
   const fetchTrackPreview = async (trackId: string | null) => {

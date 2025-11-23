@@ -5,6 +5,8 @@ import { PopulatedLeague, PopulatedUser } from "@/lib/types";
 import { League } from "./League";
 import { useRealTimeUpdates } from "@/lib/PusherContext";
 import { useEffect, useState } from "react";
+import { twMerge } from "tailwind-merge";
+import { Expandable } from "./Expandable";
 
 export default function Home({
   leagues,
@@ -113,9 +115,10 @@ export default function Home({
                         </span>
                       </div>
                       <svg
-                        className={`w-6 h-6 text-gray-400 transition-transform ${
+                        className={twMerge(
+                          "w-6 h-6 text-gray-400 transition-transform",
                           isExpanded ? "rotate-180" : ""
-                        }`}
+                        )}
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -129,11 +132,9 @@ export default function Home({
                       </svg>
                     </button>
 
-                    {isExpanded && (
-                      <div className="p-4">
-                        <League league={league} user={user} />
-                      </div>
-                    )}
+                    <Expandable className="p-4" isExpanded={isExpanded}>
+                      <League league={league} user={user} />
+                    </Expandable>
                   </Card>
                 );
               })}

@@ -230,8 +230,6 @@ export function Round({
             user={round.creatorObject}
             size={6}
             tooltipText={`Submitted by ${round.creatorObject.userName}`}
-            position="right"
-            tooltipClassName="-right-[10px]"
             includeTooltip
           />
         </div>

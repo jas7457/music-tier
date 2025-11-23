@@ -156,8 +156,6 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
                     <Avatar
                       user={round.creatorObject}
                       tooltipText={`Created by ${round.creatorObject.userName}`}
-                      position="right"
-                      tooltipClassName="-right-[10px]"
                       includeTooltip
                     />
                   </div>

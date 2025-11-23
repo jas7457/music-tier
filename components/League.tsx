@@ -95,7 +95,13 @@ export function League({
           </div>
           <div className="flex flex-wrap items-center gap-1">
             {league.users.map((user) => (
-              <Avatar key={user._id} user={user} includeTooltip />
+              <MaybeLink key={user._id} href={`/users/${user._id}`}>
+                <Avatar
+                  user={user}
+                  includeTooltip
+                  tooltipText={`${user.userName}'s profile`}
+                />
+              </MaybeLink>
             ))}
           </div>
         </div>

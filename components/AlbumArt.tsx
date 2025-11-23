@@ -49,20 +49,6 @@ export default function AlbumArt({
   // Determine if this track is currently playing
   const isCurrentlyPlaying = isPlaying && isEffectivelyTheCurrentTrack;
 
-  // Handle play click
-  const handlePlayClick = async () => {
-    if (isDisabled || !submission) {
-      return;
-    }
-    if (isCurrentlyPlaying) {
-      await pausePlayback();
-    } else if (isEffectivelyTheCurrentTrack) {
-      await resumePlayback();
-    } else {
-      await playTrack(submission, round);
-    }
-  };
-
   const playButtonExtraClasses = (() => {
     if (isDisabled) {
       return "bg-gray-500/80 cursor-not-allowed opacity-60";
@@ -91,7 +77,21 @@ export default function AlbumArt({
 
       <button
         type="button"
-        onClick={handlePlayClick}
+        onClick={async (event) => {
+          event.stopPropagation();
+          event.preventDefault();
+
+          if (isDisabled || !submission) {
+            return;
+          }
+          if (isCurrentlyPlaying) {
+            await pausePlayback();
+          } else if (isEffectivelyTheCurrentTrack) {
+            await resumePlayback();
+          } else {
+            await playTrack(submission, round);
+          }
+        }}
         disabled={isDisabled}
         className={twMerge(
           "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm pointer-events-auto z-10",

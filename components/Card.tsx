@@ -1,15 +1,21 @@
 import { twMerge } from "tailwind-merge";
 
-interface CardProps {
+export interface CardProps {
   children: React.ReactNode;
   className?: string;
   variant?: "default" | "outlined" | "elevated";
+  element?: "div" | "button";
+  onClick?: () => void;
+  title?: string;
 }
 
 export default function Card({
   children,
   className = "",
   variant = "default",
+  element: Element = "div",
+  onClick,
+  title,
 }: CardProps) {
   const baseStyles = "rounded-lg transition-shadow";
 
@@ -20,11 +26,13 @@ export default function Card({
   };
 
   return (
-    <div
+    <Element
       data-component="Card"
       className={twMerge(baseStyles, variantStyles[variant], className)}
+      onClick={onClick}
+      title={title}
     >
       {children}
-    </div>
+    </Element>
   );
 }

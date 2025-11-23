@@ -91,6 +91,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
               {/* Actions Section */}
               <div className="py-1">
                 <Link
+                  href={`/users/${user._id}`}
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  View Profile
+                </Link>
+
+                <Link
                   href="/leagues/current"
                   onClick={() => setIsDropdownOpen(false)}
                   className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"

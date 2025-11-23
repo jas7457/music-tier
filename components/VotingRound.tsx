@@ -394,8 +394,6 @@ export default function VotingRound({
             className="px-2 md:px-4"
             users={usersThatHaveVoted}
             text={{ noun: "votes", verb: "voted" }}
-            position="left"
-            tooltipClassName="-left-[10px]"
             tooltipText={(user) => {
               const vote = round.votes.find((vote) => vote.userId === user._id);
               if (!vote) {
