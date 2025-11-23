@@ -5,6 +5,7 @@ import { ProfileData, UserProfileClient } from "./UserProfileClient";
 import { Breadcrumb, HomeIcon } from "@/components/Breadcrumb";
 import { getUserLeagues, getUser } from "@/lib/data";
 import { PopulatedLeague } from "@/lib/types";
+import { getPlaces } from "@/lib/utils/getPlaces";
 
 type ProfileStats = ProfileData["stats"];
 
@@ -191,13 +192,22 @@ function calculateUserStats(
         .sort((a, b) => b.points - a.points);
 
       if (sortedSubmissions.length > 0) {
-        const topSubmission = round.submissions.find(
-          (s) => s._id === sortedSubmissions[0].submissionId
+        const userSubmission = round.submissions.find(
+          (s) => s.userId === userId
         );
-        if (topSubmission && topSubmission.userId === userId) {
+        const topSubmission = sortedSubmissions[0];
+        const userPoints =
+          sortedSubmissions.find((s) => s.submissionId === userSubmission?._id)
+            ?.points || 0;
+
+        if (
+          userSubmission &&
+          topSubmission &&
+          userPoints === topSubmission.points
+        ) {
           mostVotedSongDetails.push({
             league,
-            submission: topSubmission,
+            submission: userSubmission,
             round,
             points: sortedSubmissions[0].points,
           });
@@ -228,29 +238,35 @@ function calculateUserStats(
       });
     });
 
-    // Determine placement
-    const sortedPoints = Object.entries(userPoints)
-      .map(([uid, points]) => ({ userId: uid, points }))
+    const userPointsConfigs = league.users
+      .map((user) => ({
+        user,
+        points: userPoints[user._id] || 0,
+      }))
       .sort((a, b) => b.points - a.points);
+    const places = getPlaces(userPointsConfigs.map((up) => up.points));
+    const userIndex = userPointsConfigs.findIndex(
+      (up) => up.user._id === userId
+    );
+    if (userIndex === -1 || userIndex > places.length - 1) {
+      return;
+    }
 
-    const userPlacement = sortedPoints.findIndex((p) => p.userId === userId);
-    if (userPlacement === 0) {
+    const userPlacement = places[userIndex];
+    if (userPlacement === 1) {
       firstPlaceLeagues.push({
-        leagueId: league._id,
-        leagueName: league.title,
-        points: userPoints[userId] || 0,
-      });
-    } else if (userPlacement === 1) {
-      secondPlaceLeagues.push({
-        leagueId: league._id,
-        leagueName: league.title,
-        points: userPoints[userId] || 0,
+        ...league,
+        yourPoints: userPoints[userId] || 0,
       });
     } else if (userPlacement === 2) {
+      secondPlaceLeagues.push({
+        ...league,
+        yourPoints: userPoints[userId] || 0,
+      });
+    } else if (userPlacement === 3) {
       thirdPlaceLeagues.push({
-        leagueId: league._id,
-        leagueName: league.title,
-        points: userPoints[userId] || 0,
+        ...league,
+        yourPoints: userPoints[userId] || 0,
       });
     }
   });
