@@ -10,17 +10,14 @@ export default function MusicPlayer() {
   const {
     currentTrack,
     isPlaying,
-    currentTime,
-    duration,
     isDisabled,
-    isReady,
-    hasInitialized,
     pausePlayback,
     resumePlayback,
     nextTrack,
     previousTrack,
     seekToPosition,
     playTrack,
+    registerTimeUpdate,
     hasNextTrack,
     hasPreviousTrack,
     playlist,
@@ -30,6 +27,12 @@ export default function MusicPlayer() {
 
   const [showPlaylist, setShowPlaylist] = useState(false);
   const playlistRef = useRef<HTMLDivElement>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  // Register time update listener
+  useEffect(() => {
+    return registerTimeUpdate(setCurrentTime);
+  }, [registerTimeUpdate]);
 
   // Close playlist when clicking outside or pressing Escape
   useEffect(() => {
@@ -175,14 +178,14 @@ export default function MusicPlayer() {
                     type="range"
                     className="w-full h-2.5 bg-white/30 backdrop-blur-sm rounded-full appearance-none cursor-pointer border-2 border-white/40 shadow-inner [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-linear-to-br [&::-webkit-slider-thumb]:from-white [&::-webkit-slider-thumb]:to-white [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-3 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7),0_2px_6px_rgba(0,0,0,0.35)] [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-125 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-linear-to-br [&::-moz-range-thumb]:from-white [&::-moz-range-thumb]:to-green-300 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-3 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
                     min="0"
-                    max={duration || 0}
+                    max={currentTrack?.duration_ms || 0}
                     value={currentTime}
                     onChange={(e) => seekToPosition(Number(e.target.value))}
                     disabled={isDisabled || !currentTrack}
                   />
                 </div>
                 <span className="text-xs text-white min-w-[35px] text-center font-bold">
-                  {formatTime(duration || 0)}
+                  {formatTime(currentTrack?.duration_ms || 0)}
                 </span>
               </div>
             </div>
@@ -291,17 +294,6 @@ export default function MusicPlayer() {
               )}
             </div>
           </div>
-
-          {/* Premium Required Message */}
-          {isDisabled && !isReady && hasInitialized && (
-            <div className="col-span-full text-center mt-2">
-              <div className="inline-block backdrop-blur-xl bg-red-500/50 border-2 border-red-300/60 rounded-full px-4 py-1.5 shadow-lg">
-                <span className="text-white text-xs font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                  Premium required for playback
-                </span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
