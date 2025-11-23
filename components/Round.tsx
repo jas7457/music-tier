@@ -1,4 +1,3 @@
-import { formatDate } from "@/lib/utils/formatDate";
 import { SongSubmission } from "./SongSubmission";
 import { SubmittedUsers, UnsubmittedUsers } from "./SubmittedUsers";
 import { Fragment, useMemo, useState } from "react";
@@ -15,6 +14,8 @@ import { useToast } from "@/lib/ToastContext";
 import { createSpotifyPlaylist } from "@/lib/utils/createSpotifyPlaylist";
 import { getRoundTitle } from "@/lib/utils/getRoundTitle";
 import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
+import { HapticButton } from "./HapticButton";
+import { DateTime } from "./DateTime";
 
 export function Round({
   currentUser,
@@ -145,7 +146,7 @@ export function Round({
     }
 
     return (
-      <button
+      <HapticButton
         disabled={creatingPlaylist}
         className="disabled:opacity-30"
         title="Create playlist"
@@ -178,7 +179,7 @@ export function Round({
               : "Create Spotify Playlist"
           }
         />
-      </button>
+      </HapticButton>
     );
   })();
 
@@ -240,7 +241,9 @@ export function Round({
           {round.stage === "completed" ? (
             <div className="flex flex-col gap-1">
               {lastVote && (
-                <span>Round ended: {formatDate(lastVote.voteDate)}</span>
+                <span>
+                  Round ended: <DateTime>{lastVote.voteDate}</DateTime>
+                </span>
               )}
             </div>
           ) : (
@@ -248,17 +251,17 @@ export function Round({
               <span>
                 Submissions{" "}
                 {now > round.submissionStartDate ? "started" : "start"}:{" "}
-                {formatDate(round.submissionStartDate)}
+                <DateTime>{round.submissionStartDate}</DateTime>
               </span>
               <span>•</span>
               <span>
                 Submissions {now > round.submissionEndDate ? "ended" : "end"}:{" "}
-                {formatDate(round.submissionEndDate)}
+                <DateTime>{round.submissionEndDate}</DateTime>
               </span>
               <span>•</span>
               <span>
                 Round {now > round.votingEndDate ? "ended" : "ends"}:{" "}
-                {formatDate(round.votingEndDate)}
+                <DateTime>{round.votingEndDate}</DateTime>
               </span>
             </>
           )}

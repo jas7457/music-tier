@@ -5,6 +5,7 @@ import Card from "./Card";
 import { useData } from "@/lib/DataContext";
 import { useToast } from "@/lib/ToastContext";
 import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
+import { HapticButton } from "./HapticButton";
 
 type CreateRoundProps = {
   leagueId: string;
@@ -65,12 +66,12 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
             ? "Congrats! You have a bonus round."
             : "You haven't created your round yet."}
         </p>
-        <button
+        <HapticButton
           onClick={() => setIsOpen(true)}
           className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
         >
           {isBonusRound ? "Create Your Bonus Round" : "Create Your Round"}
-        </button>
+        </HapticButton>
       </Card>
     );
   }
@@ -131,14 +132,14 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
         )}
 
         <div className="flex gap-3">
-          <button
+          <HapticButton
             type="submit"
             disabled={isSubmitting}
             className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Creating..." : "Create Round"}
-          </button>
-          <button
+          </HapticButton>
+          <HapticButton
             type="button"
             onClick={() => {
               setIsOpen(false);
@@ -150,7 +151,7 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
             className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors disabled:bg-gray-200 disabled:cursor-not-allowed"
           >
             Cancel
-          </button>
+          </HapticButton>
         </div>
       </form>
     </Card>

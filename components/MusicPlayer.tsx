@@ -5,6 +5,7 @@ import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 import { PlayIcon, PauseIcon, NextIcon, PreviousIcon } from "./PlayerIcons";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
+import { HapticButton } from "./HapticButton";
 
 export default function MusicPlayer() {
   const {
@@ -118,7 +119,7 @@ export default function MusicPlayer() {
             <div className="max-w-3xl grid grid-rows-1 gap-1 mx-auto grow shrink">
               {/* Player Controls */}
               <div className="flex items-center justify-center gap-2 md:gap-4">
-                <button
+                <HapticButton
                   onClick={previousTrack}
                   disabled={isDisabled || !currentTrack || !hasPreviousTrack}
                   className="w-8 h-8 md:w-12 md:h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
@@ -128,9 +129,9 @@ export default function MusicPlayer() {
                     size={20}
                     className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
                   />
-                </button>
+                </HapticButton>
 
-                <button
+                <HapticButton
                   onClick={() => {
                     if (isPlaying) {
                       pausePlayback();
@@ -153,9 +154,9 @@ export default function MusicPlayer() {
                       className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
                     />
                   )}
-                </button>
+                </HapticButton>
 
-                <button
+                <HapticButton
                   onClick={nextTrack}
                   disabled={isDisabled || !currentTrack || !hasNextTrack}
                   className="w-8 h-8 md:w-12 md:h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
@@ -165,7 +166,7 @@ export default function MusicPlayer() {
                     size={20}
                     className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
                   />
-                </button>
+                </HapticButton>
               </div>
 
               {/* Progress Bar */}
@@ -195,7 +196,7 @@ export default function MusicPlayer() {
               className="flex grow items-center justify-end w-52 max-w-[35%] relative"
               ref={playlistRef}
             >
-              <button
+              <HapticButton
                 onClick={() => setShowPlaylist(!showPlaylist)}
                 disabled={playlist.length === 0}
                 className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1 md:py-2 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white transition-all hover:bg-white/40 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed"
@@ -217,7 +218,7 @@ export default function MusicPlayer() {
                 <span className="text-sm font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                   {playlist.length}
                 </span>
-              </button>
+              </HapticButton>
 
               {/* Playlist Panel - Floating */}
               {showPlaylist && playlist.length > 0 && (
@@ -262,9 +263,10 @@ export default function MusicPlayer() {
                               key={submission._id}
                               onClick={() => playTrack(submission, "same")}
                               disabled={isDisabled}
-                              className={`w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed ${
+                              className={twMerge(
+                                "w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed",
                                 isCurrentTrack ? "bg-white/20" : ""
-                              }`}
+                              )}
                             >
                               {/* Album Art */}
                               <div className="relative shrink-0">

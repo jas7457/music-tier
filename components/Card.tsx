@@ -4,7 +4,7 @@ export interface CardProps {
   children: React.ReactNode;
   className?: string;
   variant?: "default" | "outlined" | "elevated";
-  element?: "div" | "button";
+  element?: "div" | "button" | React.FC<JSX.IntrinsicElements["button"]>;
   onClick?: () => void;
   title?: string;
 }

@@ -5,6 +5,7 @@ import { PopulatedUser } from "@/lib/types";
 import { Avatar } from "./Avatar";
 import { twMerge } from "tailwind-merge";
 import { GuessFeedback } from "./GuessFeedback";
+import { HapticButton } from "./HapticButton";
 
 type UserGuessProps = {
   isEditable?: boolean;
@@ -51,24 +52,8 @@ export function UserGuess({
   };
 
   const innerMarkup = (() => {
-    const titleText = (() => {
-      if (selectedUser) {
-        return `Your guess: ${selectedUser.userName}`;
-      }
-      if (isEditable) {
-        return "Guess who submitted this";
-      }
-      return "No guess made";
-    })();
-
     return (
-      <div
-        className={twMerge(
-          "relative w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center transition-colors border-gray-300",
-          selectedUser ? "" : "bg-gray-100"
-        )}
-        title={titleText}
-      >
+      <div>
         {typeof isCorrect === "boolean" && (
           <GuessFeedback
             className="absolute -top-0.5 -right-0.5 z-10"
@@ -95,22 +80,31 @@ export function UserGuess({
     );
   })();
 
+  const titleText = (() => {
+    if (selectedUser) {
+      return `Your guess: ${selectedUser.userName}`;
+    }
+    if (isEditable) {
+      return "Guess who submitted this";
+    }
+    return "No guess made";
+  })();
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Avatar Button */}
       {isEditable ? (
-        <button
-          onClick={() => !disabled && setIsOpen(!isOpen)}
+        <HapticButton
+          title={titleText}
+          onClick={() => setIsOpen(!isOpen)}
           disabled={disabled}
-          className="disabled:opacity-50 disabled:cursor-not-allowed group group-hover:bg-red-700"
-          title={
-            selectedUser
-              ? `Your guess: ${selectedUser.userName}`
-              : "Guess who submitted this"
-          }
+          className={twMerge(
+            "disabled:opacity-50 disabled:cursor-not-allowed group relative w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center transition-colors border-gray-300",
+            selectedUser ? "" : "bg-gray-100"
+          )}
         >
           {innerMarkup}
-        </button>
+        </HapticButton>
       ) : (
         <div>{innerMarkup}</div>
       )}
@@ -136,9 +130,10 @@ export function UserGuess({
             <button
               key={user._id}
               onClick={() => handleSelectUser(user)}
-              className={`w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors flex items-center gap-2 ${
+              className={twMerge(
+                "w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors flex items-center gap-2",
                 selectedUser?._id === user._id ? "bg-blue-50" : ""
-              }`}
+              )}
             >
               <Avatar user={user} size={6} />
               <span className="text-sm">{user.userName}</span>

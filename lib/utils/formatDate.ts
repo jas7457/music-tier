@@ -5,7 +5,14 @@ export function formatDate(
   return new Date(timestamp).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
-    year: "numeric",
     ...options,
+  });
+}
+
+export function formatDateWithTime(timestamp: number) {
+  return formatDate(timestamp, {
+    hour: "numeric",
+    minute: "numeric",
+    year: "numeric",
   });
 }

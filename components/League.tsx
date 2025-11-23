@@ -11,7 +11,7 @@ import { LeagueRounds } from "./LeagueRounds";
 import { LeagueStandings } from "./LeagueStandings";
 import { ToggleButton } from "./ToggleButton";
 import { getAllRounds } from "@/lib/utils/getAllRounds";
-import { formatDate } from "@/lib/utils/formatDate";
+import { DateTime } from "./DateTime";
 
 export function League({
   league,
@@ -113,7 +113,9 @@ export function League({
           <div className="flex flex-wrap gap-2 text-sm text-gray-500">
             {league.status === "completed" && finalVoteTimestamp > 0 && (
               <>
-                <span>League ended: {formatDate(finalVoteTimestamp)}</span>
+                <span>
+                  League ended: <DateTime>{finalVoteTimestamp}</DateTime>
+                </span>
                 <span>•</span>
               </>
             )}

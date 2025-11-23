@@ -14,6 +14,7 @@ import { PopulatedRound, PopulatedSubmission } from "./types";
 import { useToast } from "./ToastContext";
 import { APP_NAME } from "./utils/constants";
 import { unknownToErrorString } from "./utils/unknownToErrorString";
+import { useAuth } from "./AuthContext";
 
 // working url:     https://api.spotify.com/v1/me/player/play?device_id=84ba12cbec6088ef868f60f97ca1b1f6a4c9a140
 // not working url: https://api.spotify.com/v1/me/player/play?device_id=baa7bbf1c2c8f54c444a1c917e6f1d00229d8e49
@@ -63,7 +64,7 @@ interface SpotifyPlayerProviderProps {
 export function SpotifyPlayerProvider({
   children,
 }: SpotifyPlayerProviderProps) {
-  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const { user } = useAuth();
   const [currentTrack, setCurrentTrack] =
     useState<Spotify.WebPlaybackTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -79,6 +80,7 @@ export function SpotifyPlayerProvider({
   const hasInitializedRef = useRef(false);
   const hasPreviouslyPlayedRef = useRef(false);
   const hasSetupPlayerRef = useRef(false);
+  const deviceIdRef = useRef<string | null>(null);
   const toast = useToast();
   const currentTrackIndex = useMemo(() => {
     if (!currentTrack || playlist.length === 0) {
@@ -94,6 +96,8 @@ export function SpotifyPlayerProvider({
       return false;
     });
   }, [playlist, currentTrack]);
+  const currentTrackIndexRef = useRef(currentTrackIndex);
+  currentTrackIndexRef.current = currentTrackIndex;
 
   const hasNextTrack =
     playlist.length > 0 && currentTrackIndex < playlist.length - 1;
@@ -222,12 +226,12 @@ export function SpotifyPlayerProvider({
     const setupPlayer = async (): Promise<string> => {
       // we've already set it up...
       if (hasSetupPlayerRef.current) {
-        return deviceId || "";
+        return deviceIdRef.current || "";
       }
 
       const token = Cookies.get("spotify_access_token");
       if (!token) {
-        return deviceId || "";
+        return deviceIdRef.current || "";
       }
 
       hasSetupPlayerRef.current = true;
@@ -247,7 +251,7 @@ export function SpotifyPlayerProvider({
           // Ready event - device is ready
           spotifyPlayer.addListener("ready", async ({ device_id }) => {
             console.log("Spotify Player Ready with Device ID:", device_id);
-            setDeviceId(device_id);
+            deviceIdRef.current = device_id;
             resolve(device_id);
           });
 
@@ -313,7 +317,7 @@ export function SpotifyPlayerProvider({
 
     const playTrack = async (
       submission: PopulatedSubmission,
-      round?: PopulatedRound | "same"
+      round: PopulatedRound | "same"
     ) => {
       const deviceId = await setupPlayer();
       hasPreviouslyPlayedRef.current = true;
@@ -341,11 +345,9 @@ export function SpotifyPlayerProvider({
         return;
       }
 
-      const attemptPlay = async (
-        deviceAttemptId = deviceId
-      ): Promise<Response> => {
-        return await fetch(
-          `https://api.spotify.com/v1/me/player/play?device_id=${deviceAttemptId}`,
+      try {
+        const response = await fetch(
+          `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
           {
             method: "PUT",
             headers: {
@@ -357,10 +359,7 @@ export function SpotifyPlayerProvider({
             }),
           }
         );
-      };
 
-      try {
-        const response = await attemptPlay();
         if (!response.ok) {
           setIsPlaying(false);
           toast.show({
@@ -377,7 +376,10 @@ export function SpotifyPlayerProvider({
           const info =
             round === "same"
               ? { playlist, round: playlistRound }
-              : { playlist: round.submissions, round };
+              : {
+                  playlist: getPlaylistForRound({ round, userId: user?._id }),
+                  round,
+                };
 
           setPlaylist(info);
         } else {
@@ -395,7 +397,7 @@ export function SpotifyPlayerProvider({
       }
     };
     const nextTrack = async () => {
-      const nextTrack = playlist[currentTrackIndex + 1];
+      const nextTrack = playlist[currentTrackIndexRef.current + 1];
       if (nextTrack) {
         playTrack(nextTrack, "same");
         return;
@@ -433,7 +435,7 @@ export function SpotifyPlayerProvider({
       },
       resumePlayback: async () => {
         if (!hasPreviouslyPlayedRef.current) {
-          return playTrack(playlist[currentTrackIndex], "same");
+          return playTrack(playlist[currentTrackIndexRef.current], "same");
         }
         const accessToken = Cookies.get("spotify_access_token");
         if (!accessToken) return;
@@ -458,14 +460,14 @@ export function SpotifyPlayerProvider({
         }
       },
       nextTrack: async () => {
-        const nextTrack = playlist[currentTrackIndex + 1];
+        const nextTrack = playlist[currentTrackIndexRef.current + 1];
         if (nextTrack) {
           playTrack(nextTrack, "same");
           return;
         }
       },
       previousTrack: async () => {
-        const previousTrack = playlist[currentTrackIndex - 1];
+        const previousTrack = playlist[currentTrackIndexRef.current - 1];
         if (previousTrack) {
           playTrack(previousTrack, "same");
           return;
@@ -504,13 +506,17 @@ export function SpotifyPlayerProvider({
           return;
         }
         hasInitializedRef.current = true;
+        const playlist = getPlaylistForRound({ round, userId: user?._id });
         setPlaylist((current) => {
           if (current.round) {
             return current;
           }
-          return { currentTrackIndex: 0, round, playlist: round.submissions };
+          return {
+            round,
+            playlist,
+          };
         });
-        const track = round.submissions[0]?.trackInfo;
+        const track = playlist[0]?.trackInfo;
         if (!track) {
           return;
         }
@@ -561,13 +567,13 @@ export function SpotifyPlayerProvider({
   }, [
     currentTrack,
     currentTrackIndex,
-    deviceId,
     hasNextTrack,
     hasPreviousTrack,
     isPlaying,
     playlist,
     playlistRound,
     toast,
+    user?._id,
   ]);
 
   return (
@@ -575,4 +581,25 @@ export function SpotifyPlayerProvider({
       {children}
     </SpotifyPlayerContext.Provider>
   );
+}
+
+function getPlaylistForRound({
+  round,
+  userId,
+}: {
+  round: PopulatedRound;
+  userId: string | undefined;
+}) {
+  return round.submissions.filter((submission) => {
+    switch (round.stage) {
+      case "completed":
+      case "voting":
+      case "currentUserVotingCompleted": {
+        return true;
+      }
+      default: {
+        return submission.userId === userId;
+      }
+    }
+  });
 }

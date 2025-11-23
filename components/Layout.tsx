@@ -11,6 +11,7 @@ import MusicPlayer from "./MusicPlayer";
 import { useEffect, useState, useRef } from "react";
 import { MaybeLink } from "./MaybeLink";
 import { APP_NAME } from "@/lib/utils/constants";
+import { HapticButton } from "./HapticButton";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -71,12 +72,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </MaybeLink>
 
         <div className="relative" ref={dropdownRef}>
-          <button
+          <HapticButton
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="flex items-center gap-2 rounded-full transition-all hover:ring-2 hover:ring-white hover:ring-offset-2 hover:ring-offset-purple-600"
           >
             <Avatar user={user} size={12} />
-          </button>
+          </HapticButton>
 
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border-2 border-gray-300 z-50 overflow-hidden">

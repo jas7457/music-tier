@@ -484,9 +484,10 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                       {/* Expand Icon */}
                       <div className="text-gray-400">
                         <svg
-                          className={`w-5 h-5 transition-transform ${
+                          className={twMerge(
+                            "w-5 h-5 transition-transform",
                             isExpanded ? "rotate-180" : ""
-                          }`}
+                          )}
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"

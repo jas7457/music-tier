@@ -3,7 +3,7 @@
 import { UsersList } from "./UsersList";
 import { useMemo } from "react";
 import { PopulatedSubmission, PopulatedUser } from "@/lib/types";
-import { formatDate } from "@/lib/utils/formatDate";
+import { formatDateWithTime } from "@/lib/utils/formatDate";
 
 interface SubmittedUsersProps {
   submissions: PopulatedSubmission[];
@@ -34,9 +34,8 @@ export function SubmittedUsers({
         if (!submission) {
           return user.userName;
         }
-        return `${user.userName} submitted on ${formatDate(
-          submission.submissionDate,
-          { hour: "numeric", minute: "numeric" }
+        return `${user.userName} submitted on ${formatDateWithTime(
+          submission.submissionDate
         )}`;
       }}
     />

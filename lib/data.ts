@@ -333,11 +333,22 @@ export async function getUserLeagues(
 
       const roundsObject = roundsWithData.reduce(
         (acc, round) => {
+          const isCurrentRound = (() => {
+            if (!currentRound) {
+              return false;
+            }
+            if (currentRound._id !== round._id) {
+              return false;
+            }
+
+            return currentRound.creatorId === round.creatorId;
+          })();
+
           if (now >= round.votingEndDate) {
             acc.completed.push(round);
-          } else if (round.isBonusRound && round._id !== currentRound?._id) {
+          } else if (round.isBonusRound && !isCurrentRound) {
             acc.bonus.push(round);
-          } else if (round.isPending && round._id !== currentRound?._id) {
+          } else if (round.isPending && !isCurrentRound) {
             acc.pending.push(round);
           }
 

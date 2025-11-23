@@ -1,4 +1,5 @@
 import { twMerge } from "tailwind-merge";
+import { HapticButton } from "./HapticButton";
 
 export function ToggleButton({
   children,
@@ -10,17 +11,17 @@ export function ToggleButton({
   selected: boolean;
 }) {
   return (
-    <button
+    <HapticButton
       type="button"
       onClick={onClick}
       className={twMerge(
-        "px-4 py-2 rounded-lg font-medium transition-colors",
+        "px-4 py-2 rounded-lg font-medium",
         selected
           ? "bg-purple-600 text-white"
           : "bg-gray-200 text-gray-700 hover:bg-gray-300"
       )}
     >
       {children}
-    </button>
+    </HapticButton>
   );
 }

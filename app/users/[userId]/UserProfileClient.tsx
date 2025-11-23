@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { MaybeLink } from "@/components/MaybeLink";
-import { formatDate } from "@/lib/utils/formatDate";
 import {
   PopulatedLeague,
   PopulatedRound,
@@ -15,6 +14,8 @@ import AlbumArt from "@/components/AlbumArt";
 import { Pill } from "@/components/Pill";
 import { assertNever } from "@/lib/utils/never";
 import Card, { CardProps } from "@/components/Card";
+import { HapticButton } from "@/components/HapticButton";
+import { DateTime } from "@/components/DateTime";
 
 type LeagueInfo = {
   leagueId: string;
@@ -182,7 +183,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
             <h1 className="text-3xl font-bold">{fullName}</h1>
             <p className="text-gray-600">{user.userName}</p>
             <p className="text-sm text-gray-500">
-              Joined {formatDate(user.signupDate)}
+              Joined <DateTime>{user.signupDate}</DateTime>
             </p>
           </div>
         </div>
@@ -314,11 +315,23 @@ function LeaguesCards({
               const lastRound =
                 sortedCompletedRounds[sortedCompletedRounds.length - 1];
               if (lastRound) {
-                return `Completed on ${formatDate(lastRound.votingEndDate)}`;
+                return (
+                  <span>
+                    Completed on <DateTime>{lastRound.votingEndDate}</DateTime>
+                  </span>
+                );
               }
-              return `Started on ${formatDate(league.leagueStartDate)}`;
+              return (
+                <span>
+                  Started on <DateTime>{league.leagueStartDate}</DateTime>
+                </span>
+              );
             }
-            return `Started on ${formatDate(league.leagueStartDate)}`;
+            return (
+              <span>
+                Started on <DateTime>{league.leagueStartDate}</DateTime>
+              </span>
+            );
           })();
 
           return (
@@ -394,7 +407,8 @@ function SubmissionsCards({
                   >
                     {detail.round.title}
                   </MaybeLink>{" "}
-                  • Submitted on {formatDate(detail.submission.submissionDate)}
+                  • Submitted on{" "}
+                  <DateTime>{detail.submission.submissionDate}</DateTime>
                 </div>
               </div>
               <div className="text-lg font-bold shrink-0">
@@ -472,7 +486,7 @@ function StatCard({
   return (
     <GenericStatCard
       title={info}
-      element="button"
+      element={HapticButton}
       onClick={onClick}
       className={twMerge(
         isClickable

@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/lib/AuthContext";
 import Card from "./Card";
-import { formatDate } from "@/lib/utils/formatDate";
 import { Round } from "./Round";
 import { PopulatedLeague, PopulatedRound } from "@/lib/types";
 import { MaybeLink } from "./MaybeLink";
@@ -10,6 +9,7 @@ import { Avatar } from "./Avatar";
 import { MultiLine } from "./MultiLine";
 import { ListenResultsDuo } from "./ListenResultsDuo";
 import { getRoundTitle } from "@/lib/utils/getRoundTitle";
+import { DateTime } from "./DateTime";
 
 export function LeagueRounds({ league }: { league: PopulatedLeague }) {
   const { user } = useAuth();
@@ -62,17 +62,17 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
         <div className="flex gap-2">
           <span>
             Submissions {now > round.submissionStartDate ? "started" : "start"}:{" "}
-            {formatDate(round.submissionStartDate)}
+            <DateTime>{round.submissionStartDate}</DateTime>
           </span>
           <span>•</span>
           <span>
             Submissions {now > round.submissionEndDate ? "ended" : "end"}:{" "}
-            {formatDate(round.submissionEndDate)}
+            <DateTime>{round.submissionEndDate}</DateTime>
           </span>
           <span>•</span>
           <span>
             Round {now > round.votingEndDate ? "ended" : "ends"}:{" "}
-            {formatDate(round.votingEndDate)}
+            <DateTime>{round.votingEndDate}</DateTime>
           </span>
         </div>
       );

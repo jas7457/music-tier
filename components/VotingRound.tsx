@@ -13,7 +13,8 @@ import { useData } from "@/lib/DataContext";
 import { useToast } from "@/lib/ToastContext";
 import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
 import { Avatar } from "./Avatar";
-import { formatDate } from "@/lib/utils/formatDate";
+import { formatDateWithTime } from "@/lib/utils/formatDate";
+import { HapticButton } from "./HapticButton";
 
 interface VotingRoundProps {
   round: PopulatedRound;
@@ -280,7 +281,7 @@ export default function VotingRound({
                   >
                     <div className="flex flex-col items-center min-w-[60px]">
                       {round.stage === "voting" && (
-                        <button
+                        <HapticButton
                           onClick={() => handleVoteChange(submission._id, 1)}
                           disabled={!canVoteUp || saving}
                           className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
@@ -296,7 +297,7 @@ export default function VotingRound({
                           >
                             <path d="M18 15l-6-6-6 6" />
                           </svg>
-                        </button>
+                        </HapticButton>
                       )}
 
                       <div className="text-lg font-bold text-gray-700">
@@ -304,7 +305,7 @@ export default function VotingRound({
                       </div>
 
                       {round.stage === "voting" && (
-                        <button
+                        <HapticButton
                           onClick={() => handleVoteChange(submission._id, -1)}
                           disabled={savedSubmission?.points === 0 || saving}
                           className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
@@ -320,7 +321,7 @@ export default function VotingRound({
                           >
                             <path d="M6 9l6 6 6-6" />
                           </svg>
-                        </button>
+                        </HapticButton>
                       )}
                     </div>
                     {/* User Guess */}
@@ -379,13 +380,13 @@ export default function VotingRound({
         {/* Save All Button */}
         {round.stage === "voting" && (
           <div className="px-2 md:px-4 pt-3">
-            <button
+            <HapticButton
               onClick={handleSave}
               disabled={saving || remainingVotes !== 0}
               className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {saving ? "Saving..." : "Save Votes"}
-            </button>
+            </HapticButton>
           </div>
         )}
 
@@ -399,10 +400,9 @@ export default function VotingRound({
               if (!vote) {
                 return `${user.userName}`;
               }
-              return `${user.userName} voted on ${formatDate(vote.voteDate, {
-                hour: "numeric",
-                minute: "numeric",
-              })}`;
+              return `${user.userName} voted on ${formatDateWithTime(
+                vote.voteDate
+              )}`;
             }}
           />
         )}

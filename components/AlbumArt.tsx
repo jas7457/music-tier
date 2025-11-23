@@ -5,6 +5,7 @@ import { PlayIcon, PauseIcon } from "./PlayerIcons";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 import { useEffect } from "react";
 import { twMerge } from "tailwind-merge";
+import { HapticButton } from "./HapticButton";
 
 interface AlbumArtProps {
   submission: PopulatedSubmission;
@@ -75,7 +76,7 @@ export default function AlbumArt({
         />
       </div>
 
-      <button
+      <HapticButton
         type="button"
         onClick={async (event) => {
           event.stopPropagation();
@@ -110,7 +111,7 @@ export default function AlbumArt({
         ) : (
           <PlayIcon size={16} className="text-white" />
         )}
-      </button>
+      </HapticButton>
     </div>
   );
 }

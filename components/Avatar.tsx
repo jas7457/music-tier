@@ -45,7 +45,10 @@ export function Avatar({
         <img
           src={user.photoUrl}
           alt={fullName}
-          className={`${sizeStr} rounded-full object-cover border-2 border-gray-300`}
+          className={twMerge(
+            sizeStr,
+            "rounded-full object-cover border-2 border-gray-300"
+          )}
         />
       ) : (
         <div
