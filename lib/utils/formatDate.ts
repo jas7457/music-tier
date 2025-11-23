@@ -6,6 +6,7 @@ export function formatDate(
   const now = new Date();
 
   return date.toLocaleDateString("en-US", {
+    timeZone: "America/New_York",
     month: "short",
     day: "numeric",
     ...(date.getFullYear() !== now.getFullYear() ? { year: "numeric" } : {}),

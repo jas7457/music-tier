@@ -8,6 +8,31 @@ type WithRealId<T> = Omit<T, "_id"> & { _id: ObjectId };
 // Load environment variables from .env.local
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
+/**
+ * Sample league document before deleting
+{
+  "_id": {
+    "$oid": "6912aff020024991c82b72e1"
+  },
+  "title": "Indie Rock Showdown",
+  "description": "A league dedicated to discovering the best indie rock tracks. Submit your favorite hidden gems and vote for the best tracks each round!",
+  "users": [
+    "69167220e4c741213b9e401c",
+    "691673fc22a34f0ccca322ae",
+    "6917ece827ed2929c03cb220"
+  ],
+  "daysForSubmission": 5,
+  "daysForVoting": 3,
+  "votesPerRound": 7,
+  "leagueStartDate": {
+    "$numberLong": "1763614800000"
+  },
+  "bonusRoundUserIds": [
+    "69167220e4c741213b9e401c"
+  ]
+}
+ */
+
 const MONGO_DB_URI = process.env.MONGO_DB_URI;
 const DB_NAME = "music-tier";
 
