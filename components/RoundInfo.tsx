@@ -46,6 +46,9 @@ export function RoundInfo({
         return "Votes Pending";
       }
       case "upcoming": {
+        if (round.isPending) {
+          return "Pending";
+        }
         return "Upcoming";
       }
       case "unknown": {
@@ -120,7 +123,14 @@ export function RoundInfo({
 
   const statusPills = (() => {
     const pills: Array<{ key: string; pill: React.ReactNode }> = [
-      { key: "normal", pill: <Pill status={round.stage}>{stageTitle}</Pill> },
+      {
+        key: "normal",
+        pill: (
+          <Pill status={round.isPending ? "pending" : round.stage}>
+            {stageTitle}
+          </Pill>
+        ),
+      },
     ];
 
     if (
