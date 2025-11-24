@@ -1,5 +1,9 @@
 import type { ObjectId } from "mongodb";
 
+import type { Notification } from "./lib/notifications";
+
+type NotificationCodes = Notification["code"];
+
 /* "users" collection */
 export type User = {
   // a mongo ObjectId
@@ -10,6 +14,12 @@ export type User = {
   userName: string;
   signupDate: number;
   photoUrl?: string;
+  phoneNumber?: string;
+  emailAddress?: string;
+  notificationSettings?: Record<NotificationCodes, boolean> & {
+    textNotificationsEnabled: boolean;
+    emailNotificationsEnabled: boolean;
+  };
 };
 
 /* "leagues" collection */
