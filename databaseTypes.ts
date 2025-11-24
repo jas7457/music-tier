@@ -15,6 +15,9 @@ export type User = {
   signupDate: number;
   photoUrl?: string;
   phoneNumber?: string;
+  phoneCarrier?: "verizon" | "att" | "tmobile";
+  phoneVerificationCode?: string;
+  phoneVerified?: boolean;
   emailAddress?: string;
   notificationSettings?: Record<NotificationCodes, boolean> & {
     textNotificationsEnabled: boolean;

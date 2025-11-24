@@ -40,3 +40,18 @@ export async function sendEmail({
     });
   } catch {}
 }
+
+export async function sendTextEmail({
+  number,
+  message,
+}: {
+  number: string;
+  message: string;
+}) {
+  mg.messages.create(MAILGUN_DOMAIN!, {
+    from: `${APP_NAME} <notifications@${MAILGUN_DOMAIN}>`,
+    to: [number],
+    subject: "",
+    text: message,
+  });
+}
