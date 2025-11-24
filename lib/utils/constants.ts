@@ -9,5 +9,6 @@ export const PUSHER_REAL_TIME_UPDATES = "pusher_realTimeUpdates";
 export const PUSHER_NOTIFICATIONS = "pusher_notifications";
 
 export const APP_NAME = "Playlist Party";
+export const PRODUCTION_URL = "https://music-tier.vercel.app";
 
 export { logo };

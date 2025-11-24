@@ -1,5 +1,6 @@
 import { sendEmail } from "./emailService";
 import { triggerNotifications } from "./pusher-server";
+import { sendTextMessage } from "./textMessageService";
 import {
   PopulatedLeague,
   PopulatedRound,
@@ -7,7 +8,7 @@ import {
   PopulatedUser,
   PopulatedVote,
 } from "./types";
-import { APP_NAME } from "./utils/constants";
+import { APP_NAME, PRODUCTION_URL } from "./utils/constants";
 import { getAllRounds } from "./utils/getAllRounds";
 
 export type Notification =
@@ -16,42 +17,49 @@ export type Notification =
       userIds: string[];
       title: string;
       message: string;
+      additionalHTML: string;
     }
   | {
       code: "SUBMISSIONS.HALF_SUBMITTED";
       userIds: string[];
       title: string;
       message: string;
+      additionalHTML: string;
     }
   | {
       code: "SUBMISSIONS.LAST_TO_SUBMIT";
       userIds: string[];
       title: string;
       message: string;
+      additionalHTML: string;
     }
   | {
       code: "ROUND.COMPLETED";
       userIds: string[];
       title: string;
       message: string;
+      additionalHTML: string;
     }
   | {
       code: "ROUND.HALF_VOTED";
       userIds: string[];
       title: string;
       message: string;
+      additionalHTML: string;
     }
   | {
       code: "ROUND.LAST_TO_VOTE";
       userIds: string[];
       title: string;
       message: string;
+      additionalHTML: string;
     }
   | {
       code: "LEAGUE.COMPLETED";
       userIds: string[];
       title: string;
       message: string;
+      additionalHTML: string;
     };
 
 export function submissionNotifications({
@@ -86,12 +94,15 @@ export function submissionNotifications({
   const halfOfUsers = league.users.length / 2;
 
   (() => {
+    const leagueLink = `${PRODUCTION_URL}/leagues/${league._id}`;
+    const roundLink = `${leagueLink}/rounds/${before.round._id}`;
     if (unsubmittedUsers.length === 0) {
       notifications.push({
         code: "VOTING.STARTED",
         userIds: league.users.map((user) => user._id),
         title: "Voting has started",
         message: `All submissions are in. It's time to vote on ${before.round.title}!`,
+        additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and cast your vote.</a></p>`,
       });
       return;
     }
@@ -102,6 +113,7 @@ export function submissionNotifications({
         userIds: [unsubmittedUsers[0]._id],
         title: "Last to submit",
         message: `You are the last to submit your song for ${before.round.title}.`,
+        additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and submit your song.</a></p>`,
       });
       return;
     }
@@ -115,6 +127,7 @@ export function submissionNotifications({
         userIds: unsubmittedUsers.map((user) => user._id),
         title: "Half of users have submitted",
         message: `Half of the users have submitted their songs for ${before.round.title}. Don't forget to submit yours!`,
+        additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and submit your song.</a></p>`,
       });
       return;
     }
@@ -155,6 +168,9 @@ export function voteNotifications({
   const halfOfUsers = league.users.length / 2;
 
   (() => {
+    const leagueLink = `${PRODUCTION_URL}/leagues/${league._id}`;
+    const roundLink = `${leagueLink}/rounds/${before.round._id}`;
+
     if (unvotedUsers.length === 0) {
       const isLeagueCompleted = getAllRounds(league, {
         includePending: true,
@@ -172,6 +188,7 @@ export function voteNotifications({
           userIds: league.users.map((user) => user._id),
           title: "League completed",
           message: `The league "${league.title}" has been completed. Check out the final results!`,
+          additionalHTML: `<p><a href="${leagueLink}">Click here to go to the league and view the final results.</a></p>`,
         });
       } else {
         notifications.push({
@@ -179,6 +196,7 @@ export function voteNotifications({
           userIds: league.users.map((user) => user._id),
           title: "Round completed",
           message: `All votes are in for ${before.round.title}. Check out the results!`,
+          additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and view the results.</a></p>`,
         });
       }
 
@@ -191,6 +209,7 @@ export function voteNotifications({
         userIds: [unvotedUsers[0]._id],
         title: "Last to vote",
         message: `You are the last to vote for ${before.round.title}.`,
+        additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and cast your vote.</a></p>`,
       });
       return;
     }
@@ -204,6 +223,7 @@ export function voteNotifications({
         userIds: unvotedUsers.map((user) => user._id),
         title: "Half of users have voted",
         message: `Half of the users have voted for ${before.round.title}. Don't forget to cast your vote!`,
+        additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and cast your vote.</a></p>`,
       });
       return;
     }
@@ -230,26 +250,28 @@ function sendNotifications(
         return;
       }
 
-      if (
-        !user.emailAddress ||
-        !user.notificationSettings?.emailNotificationsEnabled
-      ) {
-        return;
-      }
-
       const preferences = user.notificationSettings;
-      if (!preferences[notification.code]) {
+      if (!preferences || !preferences[notification.code]) {
         return;
       }
 
-      sendEmail({
-        to: {
-          fullName: `${user.firstName} ${user.lastName}`,
-          email: user.emailAddress,
-        },
-        subject: `${APP_NAME} Update: ${notification.title}`,
-        text: notification.message,
-      });
+      if (user.emailAddress && preferences.emailNotificationsEnabled) {
+        sendEmail({
+          to: {
+            fullName: `${user.firstName} ${user.lastName}`,
+            email: user.emailAddress,
+          },
+          subject: `${APP_NAME} Update: ${notification.title}`,
+          html: `<p>${notification.message}</p>${notification.additionalHTML}`,
+        });
+      }
+
+      if (user.phoneNumber && preferences.textNotificationsEnabled) {
+        sendTextMessage({
+          number: user.phoneNumber,
+          message: `${APP_NAME} Update: ${notification.title} - ${notification.message}`,
+        });
+      }
     });
   });
 }

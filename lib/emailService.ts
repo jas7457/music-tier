@@ -22,21 +22,21 @@ const mg = mailgun.client({
 export async function sendEmail({
   to,
   subject,
-  text,
+  html,
 }: {
   to: {
     fullName: string;
     email: string;
   };
   subject: string;
-  text: string;
+  html: string;
 }) {
   try {
     await mg.messages.create(MAILGUN_DOMAIN!, {
       from: `${APP_NAME} <notifications@${MAILGUN_DOMAIN}>`,
       to: [`${to.fullName} <${to.email}>`],
       subject,
-      text,
+      html,
     });
   } catch {}
 }
