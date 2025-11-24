@@ -208,8 +208,17 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     {
       key: "textNotificationsEnabled",
       label: "Enable Text Notifications",
-      description: "Receive SMS notifications to your phone number",
-      disabled: !phoneNumber,
+      description: (
+        <div className="grid gap-2">
+          <div>Receive SMS notifications to your phone number</div>
+          {!phoneVerified && (
+            <div>
+              You must verify your phone number to receive text notifications.
+            </div>
+          )}
+        </div>
+      ),
+      disabled: !phoneNumber || !phoneVerified,
     },
     {
       key: "emailNotificationsEnabled",

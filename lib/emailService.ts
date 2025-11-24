@@ -1,6 +1,7 @@
 import FormData from "form-data";
 import Mailgun from "mailgun.js";
 import { APP_NAME } from "./utils/constants";
+import { User } from "@/databaseTypes";
 
 const MAILGUN_API_KEY = process.env.MAILGUN_API_KEY;
 const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN;
@@ -41,17 +42,34 @@ export async function sendEmail({
   } catch {}
 }
 
+export function getCarrierGateway(
+  carrier: NonNullable<User["phoneCarrier"]>
+): string {
+  const gateways = {
+    verizon: "@vtext.com",
+    att: "@txt.att.net",
+    tmobile: "@tmomail.net",
+  };
+  return gateways[carrier];
+}
+
 export async function sendTextEmail({
   number,
   message,
+  phoneCarrier,
 }: {
   number: string;
   message: string;
+  phoneCarrier: "verizon" | "att" | "tmobile";
 }) {
   try {
+    // Send the code via SMS (using email-to-SMS gateway)
+    const cleanNumber = number.replace(/\D/g, "");
+    const smsAddress = `${cleanNumber}${getCarrierGateway(phoneCarrier)}`;
+
     const results = await mg.messages.create(MAILGUN_DOMAIN!, {
       from: `${APP_NAME} <notifications@${MAILGUN_DOMAIN}>`,
-      to: [number],
+      to: [smsAddress],
       subject: "",
       text: message,
       html: message,

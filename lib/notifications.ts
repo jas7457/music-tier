@@ -1,6 +1,5 @@
 import { sendEmail, sendTextEmail } from "./emailService";
 import { triggerNotifications } from "./pusher-server";
-import { sendTextMessage } from "./textMessageService";
 import {
   PopulatedLeague,
   PopulatedRound,
@@ -286,20 +285,10 @@ function sendNotifications(
         user.phoneCarrier &&
         user.phoneVerified
       ) {
-        sendTextMessage({
+        sendTextEmail({
           number: user.phoneNumber,
           message: `${APP_NAME} Update: ${notification.title} - ${notification.message}`,
-        });
-
-        const gateway = {
-          verizon: "vtext.com",
-          att: "txt.att.net",
-          tmobile: "tmomail.net",
-        }[user.phoneCarrier];
-
-        sendTextEmail({
-          number: `${user.phoneNumber}@${gateway}`,
-          message: `${APP_NAME} Update: ${notification.title} - ${notification.message}`,
+          phoneCarrier: user.phoneCarrier,
         });
       }
     });

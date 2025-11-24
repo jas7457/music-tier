@@ -3,21 +3,11 @@ import { verifySessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
 import { User } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
-import { sendTextEmail } from "@/lib/emailService";
+import { getCarrierGateway, sendTextEmail } from "@/lib/emailService";
 
 // Generate a 6-digit verification code
 function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-// Get the email gateway for SMS based on carrier
-function getCarrierGateway(carrier: User["phoneCarrier"]): string | null {
-  const gateways = {
-    verizon: "@vtext.com",
-    att: "@txt.att.net",
-    tmobile: "@tmomail.net",
-  };
-  return carrier ? gateways[carrier] : null;
 }
 
 export async function POST(request: NextRequest) {
@@ -39,10 +29,7 @@ export async function POST(request: NextRequest) {
 
     const gateway = getCarrierGateway(phoneCarrier);
     if (!gateway) {
-      return NextResponse.json(
-        { error: "Invalid carrier" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid carrier" }, { status: 400 });
     }
 
     // Generate verification code
@@ -59,12 +46,9 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    // Send the code via SMS (using email-to-SMS gateway)
-    const cleanNumber = phoneNumber.replace(/\D/g, "");
-    const smsAddress = `${cleanNumber}${gateway}`;
-
     await sendTextEmail({
-      number: smsAddress,
+      number: phoneNumber,
+      phoneCarrier,
       message: `Your verification code is: ${code}`,
     });
 
