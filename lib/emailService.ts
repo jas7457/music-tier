@@ -48,10 +48,16 @@ export async function sendTextEmail({
   number: string;
   message: string;
 }) {
-  mg.messages.create(MAILGUN_DOMAIN!, {
-    from: `${APP_NAME} <notifications@${MAILGUN_DOMAIN}>`,
-    to: [number],
-    subject: "",
-    text: message,
-  });
+  try {
+    const results = await mg.messages.create(MAILGUN_DOMAIN!, {
+      from: `${APP_NAME} <notifications@${MAILGUN_DOMAIN}>`,
+      to: [number],
+      subject: "",
+      text: message,
+      html: message,
+    });
+    console.log(results);
+  } catch (error) {
+    console.error("Error sending text email:", error);
+  }
 }

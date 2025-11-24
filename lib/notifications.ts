@@ -18,6 +18,7 @@ export type Notification =
       title: string;
       message: string;
       additionalHTML: string;
+      link: string;
     }
   | {
       code: "SUBMISSIONS.HALF_SUBMITTED";
@@ -25,6 +26,7 @@ export type Notification =
       title: string;
       message: string;
       additionalHTML: string;
+      link: string;
     }
   | {
       code: "SUBMISSIONS.LAST_TO_SUBMIT";
@@ -32,6 +34,7 @@ export type Notification =
       title: string;
       message: string;
       additionalHTML: string;
+      link: string;
     }
   | {
       code: "ROUND.COMPLETED";
@@ -39,6 +42,7 @@ export type Notification =
       title: string;
       message: string;
       additionalHTML: string;
+      link: string;
     }
   | {
       code: "ROUND.HALF_VOTED";
@@ -46,6 +50,7 @@ export type Notification =
       title: string;
       message: string;
       additionalHTML: string;
+      link: string;
     }
   | {
       code: "ROUND.LAST_TO_VOTE";
@@ -53,6 +58,7 @@ export type Notification =
       title: string;
       message: string;
       additionalHTML: string;
+      link: string;
     }
   | {
       code: "LEAGUE.COMPLETED";
@@ -60,6 +66,7 @@ export type Notification =
       title: string;
       message: string;
       additionalHTML: string;
+      link: string;
     };
 
 export function submissionNotifications({
@@ -103,6 +110,7 @@ export function submissionNotifications({
         title: "Voting has started",
         message: `All submissions are in. It's time to vote on ${before.round.title}!`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and cast your vote.</a></p>`,
+        link: roundLink,
       });
       return;
     }
@@ -114,6 +122,7 @@ export function submissionNotifications({
         title: "Last to submit",
         message: `You are the last to submit your song for ${before.round.title}.`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and submit your song.</a></p>`,
+        link: roundLink,
       });
       return;
     }
@@ -128,6 +137,7 @@ export function submissionNotifications({
         title: "Half of users have submitted",
         message: `Half of the users have submitted their songs for ${before.round.title}. Don't forget to submit yours!`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and submit your song.</a></p>`,
+        link: roundLink,
       });
       return;
     }
@@ -189,6 +199,7 @@ export function voteNotifications({
           title: "League completed",
           message: `The league "${league.title}" has been completed. Check out the final results!`,
           additionalHTML: `<p><a href="${leagueLink}">Click here to go to the league and view the final results.</a></p>`,
+          link: leagueLink,
         });
       } else {
         notifications.push({
@@ -197,6 +208,7 @@ export function voteNotifications({
           title: "Round completed",
           message: `All votes are in for ${before.round.title}. Check out the results!`,
           additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and view the results.</a></p>`,
+          link: roundLink,
         });
       }
 
@@ -210,6 +222,7 @@ export function voteNotifications({
         title: "Last to vote",
         message: `You are the last to vote for ${before.round.title}.`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and cast your vote.</a></p>`,
+        link: roundLink,
       });
       return;
     }
@@ -224,6 +237,7 @@ export function voteNotifications({
         title: "Half of users have voted",
         message: `Half of the users have voted for ${before.round.title}. Don't forget to cast your vote!`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and cast your vote.</a></p>`,
+        link: roundLink,
       });
       return;
     }

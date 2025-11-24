@@ -23,7 +23,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { phoneNumber, emailAddress, notificationSettings } = body;
+    const { phoneNumber, phoneCarrier, emailAddress, notificationSettings } = body;
 
     const formattedPhoneNumber = phoneNumber
       ? getFormattedPhoneNumber(phoneNumber)
@@ -32,6 +32,13 @@ export async function PUT(request: NextRequest) {
     if (phoneNumber && !formattedPhoneNumber) {
       return NextResponse.json(
         { error: "Invalid phone number format" },
+        { status: 400 }
+      );
+    }
+
+    if (phoneCarrier && !["verizon", "att", "tmobile"].includes(phoneCarrier)) {
+      return NextResponse.json(
+        { error: "Invalid phone carrier" },
         { status: 400 }
       );
     }
@@ -61,18 +68,40 @@ export async function PUT(request: NextRequest) {
 
     const usersCollection = await getCollection<User>("users");
 
+    // Check if we need to get the current user to compare phone details
+    const currentUser = await usersCollection.findOne({
+      _id: new ObjectId(payload.userId),
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // If phone number or carrier changed, reset verification
+    const phoneChanged =
+      formattedPhoneNumber !== currentUser.phoneNumber ||
+      phoneCarrier !== currentUser.phoneCarrier;
+
     // Update the user document
+    const updateFields: any = {
+      phoneNumber: formattedPhoneNumber || undefined,
+      phoneCarrier: phoneCarrier || undefined,
+      emailAddress: emailAddress || undefined,
+      notificationSettings: {
+        ...defaultNotificationSettings,
+        ...(notificationSettings || {}),
+      },
+    };
+
+    // Reset verification if phone details changed
+    if (phoneChanged) {
+      updateFields.phoneVerified = false;
+    }
+
     const result = await usersCollection.findOneAndUpdate(
       { _id: new ObjectId(payload.userId) },
       {
-        $set: {
-          phoneNumber: formattedPhoneNumber || undefined,
-          emailAddress: emailAddress || undefined,
-          notificationSettings: {
-            ...defaultNotificationSettings,
-            ...(notificationSettings || {}),
-          },
-        },
+        $set: updateFields,
       },
       { returnDocument: "after" }
     );
@@ -85,6 +114,8 @@ export async function PUT(request: NextRequest) {
       success: true,
       notificationSettings: result.notificationSettings,
       phoneNumber: result.phoneNumber,
+      phoneCarrier: result.phoneCarrier,
+      phoneVerified: result.phoneVerified,
       emailAddress: result.emailAddress,
     });
   } catch (error) {

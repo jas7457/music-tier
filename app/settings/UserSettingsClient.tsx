@@ -17,6 +17,15 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   // Settings form state
   const toast = useToast();
   const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || "");
+  const [phoneCarrier, setPhoneCarrier] = useState<User["phoneCarrier"]>(
+    user.phoneCarrier || undefined
+  );
+  const [phoneVerified, setPhoneVerified] = useState(
+    user.phoneVerified || false
+  );
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [emailAddress, setEmailAddress] = useState(user.emailAddress || "");
   const [notificationSettings, setNotificationSettings] = useState<
     NonNullable<User["notificationSettings"]>
@@ -34,6 +43,106 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   });
   const [isSaving, setIsSaving] = useState(false);
 
+  const handleSendVerificationCode = async () => {
+    if (!phoneNumber || !phoneCarrier) {
+      toast.show({
+        variant: "error",
+        message: "Please enter your phone number and select your carrier",
+      });
+      return;
+    }
+
+    setIsSendingCode(true);
+    try {
+      const response = await fetch("/api/users/phone/send-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phoneNumber,
+          phoneCarrier,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to send verification code");
+      }
+
+      toast.show({
+        variant: "success",
+        message: "Verification code sent! Check your text messages.",
+      });
+    } catch (error) {
+      const errorMessage = unknownToErrorString(
+        error,
+        "Failed to send verification code. Please try again."
+      );
+      toast.show({
+        variant: "error",
+        message: errorMessage,
+      });
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (!verificationCode) {
+      toast.show({
+        variant: "error",
+        message: "Please enter the verification code",
+      });
+      return;
+    }
+    if (!phoneNumber || !phoneCarrier) {
+      toast.show({
+        variant: "error",
+        message: "Please enter your phone number and select your carrier",
+      });
+      return;
+    }
+
+    setIsVerifying(true);
+    try {
+      const response = await fetch("/api/users/phone/verify-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code: verificationCode,
+          phoneNumber,
+          phoneCarrier,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to verify code");
+      }
+
+      setPhoneVerified(true);
+      setVerificationCode("");
+      toast.show({
+        variant: "success",
+        message: "Phone number verified successfully!",
+      });
+    } catch (error) {
+      const errorMessage = unknownToErrorString(
+        error,
+        "Invalid verification code. Please try again."
+      );
+      toast.show({
+        variant: "error",
+        message: errorMessage,
+      });
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
   const handleSaveSettings = async () => {
     setIsSaving(true);
 
@@ -45,6 +154,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
         },
         body: JSON.stringify({
           phoneNumber,
+          phoneCarrier,
           emailAddress,
           notificationSettings,
         }),
@@ -68,6 +178,8 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
         ...data.notificationSettings,
       }));
       setPhoneNumber(data.phoneNumber || "");
+      setPhoneCarrier(data.phoneCarrier || undefined);
+      setPhoneVerified(data.phoneVerified || false);
       setEmailAddress(data.emailAddress || "");
     } catch (error) {
       const errorMessage = unknownToErrorString(
@@ -154,8 +266,19 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
         ...prev,
         textNotificationsEnabled: false,
       }));
+      setPhoneVerified(false);
     }
   }, [phoneNumber]);
+
+  useEffect(() => {
+    // Reset verification when phone number or carrier changes
+    if (
+      phoneNumber !== user.phoneNumber ||
+      phoneCarrier !== user.phoneCarrier
+    ) {
+      setPhoneVerified(false);
+    }
+  }, [phoneNumber, phoneCarrier, user.phoneNumber, user.phoneCarrier]);
 
   useEffect(() => {
     if (!emailAddress) {
@@ -208,11 +331,108 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 id="phoneNumber"
                 type="tel"
                 value={phoneNumber}
+                disabled={phoneVerified}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="+1 (555) 123-4567"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
+
+            <div>
+              <label
+                htmlFor="phoneCarrier"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Phone Carrier * Needed for text notifications
+              </label>
+              <select
+                id="phoneCarrier"
+                value={phoneCarrier || ""}
+                disabled={!phoneNumber || phoneVerified}
+                onChange={(e) =>
+                  setPhoneCarrier(
+                    e.target.value as User["phoneCarrier"] | undefined
+                  )
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="">Select a carrier</option>
+                <option value="verizon">Verizon</option>
+                <option value="att">AT&T</option>
+                <option value="tmobile">T-Mobile</option>
+              </select>
+            </div>
+
+            {phoneNumber && phoneCarrier && !phoneVerified && (
+              <div className="p-4 bg-purple-50 border border-purple-200 rounded-md">
+                <p className="text-sm text-purple-800 mb-3">
+                  Your phone number needs to be verified before you can receive
+                  text notifications.
+                </p>
+                <div className="flex flex-col gap-3">
+                  <HapticButton
+                    onClick={handleSendVerificationCode}
+                    disabled={isSendingCode}
+                    className={twMerge(
+                      "px-4 py-2 rounded-md font-semibold transition-colors",
+                      isSendingCode
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-purple-600 hover:bg-purple-700 text-white"
+                    )}
+                  >
+                    {isSendingCode ? "Sending..." : "Send Verification Code"}
+                  </HapticButton>
+
+                  <div>
+                    <label
+                      htmlFor="verificationCode"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Verification Code
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        id="verificationCode"
+                        type="text"
+                        value={verificationCode}
+                        onChange={(e) => setVerificationCode(e.target.value)}
+                        placeholder="Enter code"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <HapticButton
+                        onClick={handleVerifyCode}
+                        disabled={isVerifying || !verificationCode}
+                        className={twMerge(
+                          "px-4 py-2 rounded-md font-semibold transition-colors whitespace-nowrap bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        )}
+                      >
+                        {isVerifying ? "Verifying..." : "Verify"}
+                      </HapticButton>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {phoneVerified && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+                <p className="text-sm text-green-800 flex items-center gap-2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                  Phone number verified!
+                </p>
+              </div>
+            )}
+
             <div>
               <label
                 htmlFor="emailAddress"
