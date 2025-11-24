@@ -1,8 +1,13 @@
+import logo from "../../app/images/5.png";
+
 export const PUSHER_PUBLIC_KEY = "fcb8176d967e29e0121b";
 export const PUSHER_SECRET_KEY = process.env.PUSHER_SECRET!;
 export const PUSHER_CLUSTER = "us2";
 export const PUSHER_APP_ID = "2076001";
 
-export const PUSHER_CHANNEL_NAME = "real-time-updates";
+export const PUSHER_REAL_TIME_UPDATES = "pusher_realTimeUpdates";
+export const PUSHER_NOTIFICATIONS = "pusher_notifications";
 
-export const APP_NAME = "Plylst Prty";
+export const APP_NAME = "Playlist Party";
+
+export { logo };

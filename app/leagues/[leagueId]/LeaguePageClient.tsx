@@ -12,7 +12,7 @@ type LeaguePageClientProps = {
 };
 
 export function LeaguePageClient({ league, user }: LeaguePageClientProps) {
-  useRealTimeUpdates(league);
+  useRealTimeUpdates();
 
   return (
     <div className="min-h-screen bg-gray-100">

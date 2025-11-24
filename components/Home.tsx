@@ -19,7 +19,7 @@ export default function Home({
     new Set(leagues.length > 0 ? [leagues[0]._id] : [])
   );
 
-  useRealTimeUpdates(leagues);
+  useRealTimeUpdates();
 
   useEffect(() => {
     if (!("Notification" in window)) {

@@ -6,11 +6,10 @@ import Link from "next/link";
 import Image from "next/image";
 import Cookies from "js-cookie";
 
-import logo from "../app/images/5.png";
 import MusicPlayer from "./MusicPlayer";
 import { useEffect, useState, useRef } from "react";
 import { MaybeLink } from "./MaybeLink";
-import { APP_NAME } from "@/lib/utils/constants";
+import { APP_NAME, logo } from "@/lib/utils/constants";
 import { HapticButton } from "./HapticButton";
 
 export function Layout({ children }: { children: React.ReactNode }) {

@@ -15,7 +15,7 @@ export async function createSpotifyPlaylist({
       body: JSON.stringify({
         name: `${APP_NAME} - ${round.title}`,
         roundId: round._id,
-        description: `A plylst prty playlist`,
+        description: `A ${APP_NAME} playlist`,
         songs: round.submissions.map(
           (submission) => `spotify:track:${submission.trackInfo.trackId}`
         ),

@@ -23,7 +23,7 @@ export function RoundPageClient({
   league,
   currentUser,
 }: RoundPageClientProps) {
-  useRealTimeUpdates(league);
+  useRealTimeUpdates();
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -43,7 +43,12 @@ export function RoundPageClient({
           ]}
         />
         <Card className="p-2 md:p-6">
-          <Round currentUser={currentUser} round={round} league={league} />
+          <Round
+            key={round.stage}
+            currentUser={currentUser}
+            round={round}
+            league={league}
+          />
         </Card>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { ObjectId } from "mongodb";
 import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 import { getUserLeagues } from "@/lib/data";
 import { getAllRounds } from "@/lib/utils/getAllRounds";
+import { submissionNotifications } from "@/lib/notifications";
 
 export async function POST(
   request: NextRequest,
@@ -50,7 +51,7 @@ async function handleRequest(
 
     const userLeagues = await getUserLeagues(payload.userId);
 
-    const { round: foundRound } = (() => {
+    const { round: foundRound, league: foundLeague } = (() => {
       for (const league of userLeagues) {
         const rounds = getAllRounds(league, {
           includePending: false,
@@ -59,11 +60,11 @@ async function handleRequest(
 
         for (const round of rounds) {
           if (round._id.toString() === roundId) {
-            return { round };
+            return { round, league };
           }
         }
       }
-      return { round: null };
+      return { round: null, league: null };
     })();
 
     if (!foundRound) {
@@ -162,6 +163,16 @@ async function handleRequest(
     })();
 
     triggerRealTimeUpdate();
+
+    if (method === "ADD") {
+      submissionNotifications({
+        league: foundLeague,
+        submission: newSubmission,
+        before: {
+          round: foundRound,
+        },
+      });
+    }
 
     return NextResponse.json({ submission: newSubmission });
   } catch (error) {
