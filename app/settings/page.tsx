@@ -1,4 +1,4 @@
-import { getUser, getUserByCookies } from "@/lib/data";
+import { getUser } from "@/lib/data";
 import { redirect } from "next/navigation";
 import { UserSettingsClient } from "./UserSettingsClient";
 import { verifySessionToken } from "@/lib/auth";
