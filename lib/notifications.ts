@@ -1,3 +1,4 @@
+import { sendEmail } from "./emailService";
 import { triggerNotifications } from "./pusher-server";
 import {
   PopulatedLeague,
@@ -6,6 +7,7 @@ import {
   PopulatedUser,
   PopulatedVote,
 } from "./types";
+import { APP_NAME } from "./utils/constants";
 import { getAllRounds } from "./utils/getAllRounds";
 
 export type Notification =
@@ -118,7 +120,7 @@ export function submissionNotifications({
     }
   })();
 
-  sendNotifications(notifications);
+  sendNotifications(notifications, league);
 }
 
 export function voteNotifications({
@@ -207,9 +209,47 @@ export function voteNotifications({
     }
   })();
 
-  sendNotifications(notifications);
+  sendNotifications(notifications, league);
 }
 
-function sendNotifications(notifications: Notification[]) {
+function sendNotifications(
+  notifications: Notification[],
+  league: PopulatedLeague
+) {
   triggerNotifications(notifications);
+
+  const usersById = league.users.reduce((acc, user) => {
+    acc[user._id] = user;
+    return acc;
+  }, {} as Record<string, PopulatedUser>);
+
+  notifications.forEach((notification) => {
+    notification.userIds.forEach((userId) => {
+      const user = usersById[userId];
+      if (!user) {
+        return;
+      }
+
+      if (
+        !user.emailAddress ||
+        !user.notificationSettings?.emailNotificationsEnabled
+      ) {
+        return;
+      }
+
+      const preferences = user.notificationSettings;
+      if (!preferences[notification.code]) {
+        return;
+      }
+
+      sendEmail({
+        to: {
+          fullName: `${user.firstName} ${user.lastName}`,
+          email: user.emailAddress,
+        },
+        subject: `${APP_NAME} Update: ${notification.title}`,
+        text: notification.message,
+      });
+    });
+  });
 }

@@ -127,7 +127,6 @@ function useNotifications() {
           });
         }
       });
-      console.log({ notifications });
     };
     channel.bind("notification", notificationHandler);
 

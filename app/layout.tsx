@@ -30,7 +30,7 @@ export default async function RootLayout({
       initialUser = user || null;
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 
   return (
