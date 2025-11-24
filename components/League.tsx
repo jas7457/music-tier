@@ -82,8 +82,8 @@ export function League({
     <div className="flex flex-col gap-6">
       {/* League Header */}
       <div className="border-b border-gray-300 pb-4">
-        <div className="flex flex-wrap items-center">
-          <div className="flex items-center gap-2 grow">
+        <div className="flex flex-wrap gap-2 items-center">
+          <div className="flex flex-wrap items-center gap-x-2 grow">
             <MaybeLink
               href={`/leagues/${league._id}`}
               className="text-2xl font-bold mb-2"
