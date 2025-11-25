@@ -8,8 +8,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { JASON_ID } from "./utils/constants";
-import { useAuth } from "./AuthContext";
 
 type ServiceWorkerContextType = {
   registration: ServiceWorkerRegistration | null;
@@ -32,7 +30,6 @@ export function ServiceWorkerProvider({
   children: React.ReactNode;
   userId?: string;
 }) {
-  const { user } = useAuth();
   const [registration, setRegistration] =
     useState<ServiceWorkerRegistration | null>(null);
   const [isSupported, setIsSupported] = useState(false);
@@ -40,7 +37,7 @@ export function ServiceWorkerProvider({
     useState<NotificationPermission>("default");
 
   const hasInitializedServiceWorkerRef = useRef(false);
-  const isEnabled = user?._id === JASON_ID;
+  const isEnabled = true;
 
   useLayoutEffect(() => {
     setIsSupported(
