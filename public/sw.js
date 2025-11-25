@@ -118,19 +118,29 @@ self.addEventListener("message", (event) => {
   }
 
   if (event.data && event.data.type === "SHOW_NOTIFICATION") {
-    const { title, body, icon, data } = event.data.payload;
+    const { title, body, icon, data, delay } = event.data.payload;
 
-    event.waitUntil(
-      self.registration.showNotification(title, {
-        body,
-        icon: icon || "/icon-192.png",
-        badge: "/icon-192.png",
-        tag: data?.link || "notification",
-        data: data || {},
-        requireInteraction: false,
-        silent: false,
-      })
-    );
+    const sendNotification = () => {
+      event.waitUntil(
+        self.registration.showNotification(title, {
+          body,
+          icon: icon || "/icon-192.png",
+          badge: "/icon-192.png",
+          tag: data?.link || "notification",
+          data: data || {},
+          requireInteraction: false,
+          silent: false,
+        })
+      );
+    };
+
+    if (delay && typeof delay === "number") {
+      setTimeout(() => {
+        sendNotification();
+      }, delay);
+    } else {
+      sendNotification();
+    }
   }
 });
 

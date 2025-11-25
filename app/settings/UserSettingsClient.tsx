@@ -41,6 +41,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
   const [isSendingTestNotification, setIsSendingTestNotification] =
     useState(false);
+  const [testNotificationDelay, setTestNotificationDelay] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
   const [emailAddress, setEmailAddress] = useState(user.emailAddress || "");
   const [notificationSettings, setNotificationSettings] = useState<
@@ -435,28 +436,41 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
       }
       case "granted": {
         return (
-          <HapticButton
-            onClick={() => {
-              setIsSendingTestNotification(true);
-              sendMessageToSW({
-                type: "SHOW_NOTIFICATION",
-                payload: {
-                  title: `${APP_NAME} Test Notification`,
-                  body: "You're all set to receive notifications!",
-                  icon: logo.src,
-                },
-              });
-              setTimeout(() => {
-                setIsSendingTestNotification(false);
-              }, 1000);
-            }}
-            disabled={isSendingTestNotification}
-            className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {isSendingTestNotification
-              ? "Sending..."
-              : "Send Test Notification"}
-          </HapticButton>
+          <div className="grid sm:grid-cols-[1fr_auto] gap-2">
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              value={testNotificationDelay}
+              onChange={(e) => setTestNotificationDelay(Number(e.target.value))}
+            >
+              <option value={0}>Send Immediately</option>
+              <option value={5000}>Delay by 5 seconds</option>
+              <option value={10_000}>Delay by 10 seconds</option>
+            </select>
+            <HapticButton
+              onClick={() => {
+                setIsSendingTestNotification(true);
+                sendMessageToSW({
+                  type: "SHOW_NOTIFICATION",
+                  payload: {
+                    title: `${APP_NAME} Test Notification`,
+                    body: "You're all set to receive notifications!",
+                    icon: logo.src,
+                    delay: testNotificationDelay,
+                  },
+                });
+
+                setTimeout(() => {
+                  setIsSendingTestNotification(false);
+                }, testNotificationDelay);
+              }}
+              disabled={isSendingTestNotification}
+              className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {isSendingTestNotification
+                ? "Sending..."
+                : "Send Test Notification"}
+            </HapticButton>
+          </div>
         );
       }
     }
@@ -596,7 +610,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
               >
                 Email Address
               </label>
-              <div className="grid grid-cols-[1fr_auto] gap-2">
+              <div className="grid sm:grid-cols-[1fr_auto] gap-2">
                 <input
                   id="emailAddress"
                   type="email"
@@ -649,7 +663,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                     }
                   }}
                 >
-                  Send test notification
+                  Send Test Email
                 </HapticButton>
               </div>
             </div>
