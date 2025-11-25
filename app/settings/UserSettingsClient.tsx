@@ -9,12 +9,15 @@ import type { PopulatedUser } from "@/lib/types";
 import { useToast } from "@/lib/ToastContext";
 import { useServiceWorker } from "@/lib/ServiceWorkerContext";
 import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
+import { JASON_ID } from "@/lib/utils/constants";
 
 type UserSettingsClientProps = {
   user: PopulatedUser;
 };
 
 export function UserSettingsClient({ user }: UserSettingsClientProps) {
+  const isJason = user._id === JASON_ID;
+
   // Settings form state
   const toast = useToast();
   const {
@@ -376,7 +379,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
 
       <GenericStatCard color="gray" className="flex flex-col gap-6">
         {/* Push Notifications - Only show for enabled users */}
-        {isEnabled && (
+        {isEnabled && isJason && (
           <div>
             <h3 className="font-semibold mb-3 text-lg">Push Notifications</h3>
             <div className="flex flex-col gap-4">
