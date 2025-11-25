@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/lib/AuthContext";
 import { SpotifyPlayerProvider } from "@/lib/SpotifyPlayerContext";
 import { PusherProvider } from "@/lib/PusherContext";
+import { ServiceWorkerProvider } from "@/lib/ServiceWorkerContext";
 import { Layout } from "@/components/Layout";
 import { PopulatedUser } from "@/lib/types";
 import { getUserByCookies } from "@/lib/data";
@@ -14,6 +15,19 @@ import { APP_NAME } from "@/lib/utils/constants";
 export const metadata: Metadata = {
   title: APP_NAME,
   description: "Compete with friends in music discovery leagues",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_NAME,
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
 };
 
 export default async function RootLayout({
@@ -37,17 +51,21 @@ export default async function RootLayout({
     <html lang="en">
       <head>
         <script src="https://sdk.scdn.co/spotify-player.js" async></script>
+        <link rel="icon" href="/icon-192.png" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body>
         <AuthProvider initialUser={initialUser}>
           <ToastProvider>
-            <PusherProvider>
-              <SpotifyPlayerProvider>
-                <DataProvider>
-                  <Layout>{children}</Layout>
-                </DataProvider>
-              </SpotifyPlayerProvider>
-            </PusherProvider>
+            <ServiceWorkerProvider>
+              <PusherProvider>
+                <SpotifyPlayerProvider>
+                  <DataProvider>
+                    <Layout>{children}</Layout>
+                  </DataProvider>
+                </SpotifyPlayerProvider>
+              </PusherProvider>
+            </ServiceWorkerProvider>
           </ToastProvider>
         </AuthProvider>
       </body>

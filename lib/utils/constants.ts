@@ -11,4 +11,6 @@ export const PUSHER_NOTIFICATIONS = "pusher_notifications";
 export const APP_NAME = "Playlist Party";
 export const PRODUCTION_URL = "https://music-tier.vercel.app";
 
+export const JASON_ID = "6924608790c0b7c51ab5aec9";
+
 export { logo };
