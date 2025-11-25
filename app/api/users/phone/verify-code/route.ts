@@ -3,6 +3,7 @@ import { verifySessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
 import { User } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
+import { getFormattedPhoneNumber } from "@/lib/utils/phone";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,6 +14,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { code, phoneNumber, phoneCarrier } = body;
+    const formattedPhoneNumber = getFormattedPhoneNumber(phoneNumber || "");
 
     if (!code) {
       return NextResponse.json(
@@ -24,6 +26,13 @@ export async function POST(request: NextRequest) {
     if (!phoneNumber) {
       return NextResponse.json(
         { error: "Phone number is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!formattedPhoneNumber) {
+      return NextResponse.json(
+        { error: "Invalid phone number format" },
         { status: 400 }
       );
     }
@@ -64,7 +73,7 @@ export async function POST(request: NextRequest) {
       {
         $set: {
           phoneVerified: true,
-          phoneNumber,
+          phoneNumber: formattedPhoneNumber,
           phoneCarrier,
         },
         $unset: {

@@ -72,7 +72,6 @@ export async function sendTextEmail({
       to: [smsAddress],
       subject: "",
       text: message,
-      html: message,
     });
     console.log(results);
   } catch (error) {
