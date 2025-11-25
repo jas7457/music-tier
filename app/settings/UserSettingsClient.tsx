@@ -9,7 +9,7 @@ import type { PopulatedUser } from "@/lib/types";
 import { useToast } from "@/lib/ToastContext";
 import { useServiceWorker } from "@/lib/ServiceWorkerContext";
 import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
-import { JASON_ID } from "@/lib/utils/constants";
+import { APP_NAME, JASON_ID, logo } from "@/lib/utils/constants";
 
 type UserSettingsClientProps = {
   user: PopulatedUser;
@@ -26,6 +26,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     notificationPermission,
     requestNotificationPermission,
     unregisterServiceWorker,
+    sendMessageToSW,
   } = useServiceWorker();
   const [isUnregistering, setIsUnregistering] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || "");
@@ -38,6 +39,8 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   const [verificationCode, setVerificationCode] = useState("");
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
+  const [isSendingTestNotification, setIsSendingTestNotification] =
+    useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [emailAddress, setEmailAddress] = useState(user.emailAddress || "");
   const [notificationSettings, setNotificationSettings] = useState<
@@ -368,6 +371,97 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     }
   };
 
+  const developerToolsMarkup = (() => {
+    if (!isJason || isJason || !isSupported) {
+      return null;
+    }
+
+    return (
+      <div className="pt-4 border-t border-gray-200">
+        <p className="text-sm text-gray-600 mb-2">
+          <strong>Developer Tools:</strong> If you&apos;re experiencing issues
+          with caching or want to reset the app, you can unregister the service
+          worker below.
+        </p>
+        <HapticButton
+          onClick={handleUnregisterServiceWorker}
+          disabled={isUnregistering}
+          className={twMerge(
+            "w-full px-4 py-2 rounded-md font-semibold transition-colors",
+            isUnregistering
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-red-600 hover:bg-red-700 text-white"
+          )}
+        >
+          {isUnregistering ? "Unregistering..." : "Unregister Service Worker"}
+        </HapticButton>
+      </div>
+    );
+  })();
+
+  const pushNotificationMarkup = (() => {
+    switch (notificationPermission) {
+      case "default": {
+        return (
+          <HapticButton
+            onClick={async () => {
+              const permission = await requestNotificationPermission();
+              if (permission === "granted") {
+                toast.show({
+                  variant: "success",
+                  message: "Push notifications enabled!",
+                });
+              } else if (permission === "denied") {
+                toast.show({
+                  variant: "error",
+                  message:
+                    "Push notifications denied. Please enable them in your browser settings.",
+                });
+              }
+            }}
+            className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-purple-600 hover:bg-purple-700 text-white"
+          >
+            Enable Push Notifications
+          </HapticButton>
+        );
+      }
+      case "denied": {
+        return (
+          <p className="text-sm text-red-600">
+            You have denied notification permissions. To enable them, please go
+            to your browser settings and allow notifications for this site.
+          </p>
+        );
+      }
+      case "granted": {
+        return (
+          <HapticButton
+            onClick={() => {
+              setIsSendingTestNotification(true);
+              sendMessageToSW({
+                type: "SHOW_NOTIFICATION",
+                payload: {
+                  title: `${APP_NAME} Test Notification`,
+                  body: "You're all set to receive notifications!",
+                  icon: logo.src,
+                },
+              });
+              setTimeout(() => {
+                setIsSendingTestNotification(false);
+              }, 1000);
+            }}
+            disabled={isSendingTestNotification}
+            className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {isSendingTestNotification
+              ? "Sending..."
+              : "Send Test Notification"}
+          </HapticButton>
+        );
+      }
+    }
+  })();
+
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto p-6">
       <div>
@@ -378,89 +472,6 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
       </div>
 
       <GenericStatCard color="gray" className="flex flex-col gap-6">
-        {/* Push Notifications - Only show for enabled users */}
-        {isEnabled && isJason && (
-          <div>
-            <h3 className="font-semibold mb-3 text-lg">Push Notifications</h3>
-            <div className="flex flex-col gap-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">Notification Permission:</span>
-                  <span
-                    className={twMerge(
-                      "px-3 py-1 rounded-full text-sm font-semibold",
-                      notificationPermission === "granted"
-                        ? "bg-green-100 text-green-800"
-                        : notificationPermission === "denied"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    )}
-                  >
-                    {notificationPermission === "granted"
-                      ? "Granted"
-                      : notificationPermission === "denied"
-                      ? "Denied"
-                      : "Not Set"}
-                  </span>
-                </div>
-                {notificationPermission === "default" && (
-                  <HapticButton
-                    onClick={async () => {
-                      const permission = await requestNotificationPermission();
-                      if (permission === "granted") {
-                        toast.show({
-                          variant: "success",
-                          message: "Push notifications enabled!",
-                        });
-                      } else if (permission === "denied") {
-                        toast.show({
-                          variant: "error",
-                          message:
-                            "Push notifications denied. Please enable them in your browser settings.",
-                        });
-                      }
-                    }}
-                    className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    Enable Push Notifications
-                  </HapticButton>
-                )}
-                {notificationPermission === "denied" && (
-                  <p className="text-sm text-red-600">
-                    You have denied notification permissions. To enable them,
-                    please go to your browser settings and allow notifications
-                    for this site.
-                  </p>
-                )}
-              </div>
-
-              {isSupported && (
-                <div className="pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-600 mb-2">
-                    <strong>Developer Tools:</strong> If you&apos;re
-                    experiencing issues with caching or want to reset the app,
-                    you can unregister the service worker below.
-                  </p>
-                  <HapticButton
-                    onClick={handleUnregisterServiceWorker}
-                    disabled={isUnregistering}
-                    className={twMerge(
-                      "w-full px-4 py-2 rounded-md font-semibold transition-colors",
-                      isUnregistering
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-red-600 hover:bg-red-700 text-white"
-                    )}
-                  >
-                    {isUnregistering
-                      ? "Unregistering..."
-                      : "Unregister Service Worker"}
-                  </HapticButton>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Contact Information */}
         <div>
           <h3 className="font-semibold mb-3 text-lg">Contact Information</h3>
@@ -642,6 +653,19 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 </HapticButton>
               </div>
             </div>
+
+            {/* Push Notifications - Only show for enabled users */}
+            {isEnabled && isJason && (
+              <div>
+                <h3 className="block text-sm font-medium text-gray-700 mb-1">
+                  Push Notifications
+                </h3>
+                {pushNotificationMarkup}
+                <div className="flex flex-col gap-4">
+                  {developerToolsMarkup}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

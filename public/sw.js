@@ -126,7 +126,7 @@ self.addEventListener("message", (event) => {
         icon: icon || "/icon-192.png",
         badge: "/icon-192.png",
         tag: data?.link || "notification",
-        data,
+        data: data || {},
         requireInteraction: false,
         silent: false,
       })
