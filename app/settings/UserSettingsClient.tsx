@@ -510,7 +510,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                     }
                   }}
                 >
-                  Test notification
+                  Send test notification
                 </HapticButton>
               </div>
             </div>
