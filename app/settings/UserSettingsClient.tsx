@@ -25,6 +25,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   );
   const [verificationCode, setVerificationCode] = useState("");
   const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [emailAddress, setEmailAddress] = useState(user.emailAddress || "");
   const [notificationSettings, setNotificationSettings] = useState<
@@ -315,6 +316,13 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     notificationSettings.emailNotificationsEnabled,
   ]);
 
+  const looksLikeEmailAddress = (() => {
+    if (!emailAddress) {
+      return false;
+    }
+    return /.+@.+\..+/.test(emailAddress);
+  })();
+
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto p-6">
       <div>
@@ -458,6 +466,59 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
+
+            {emailAddress && looksLikeEmailAddress && (
+              <HapticButton
+                onClick={async () => {
+                  setIsSendingTestEmail(true);
+                  try {
+                    const response = await fetch("/api/users/email/test", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        emailAddress,
+                      }),
+                    });
+
+                    if (!response.ok) {
+                      const errorData = await response.json();
+                      throw new Error(
+                        errorData.error || "Failed to send test email"
+                      );
+                    }
+
+                    toast.show({
+                      variant: "success",
+                      message: "Test email sent! Check your email inbox.",
+                    });
+                  } catch (error) {
+                    const errorMessage = unknownToErrorString(
+                      error,
+                      "Failed to send test email. Please try again."
+                    );
+                    toast.show({
+                      variant: "error",
+                      message: errorMessage,
+                    });
+                  } finally {
+                    setIsSendingTestEmail(false);
+                  }
+                }}
+                disabled={isSendingTestEmail}
+                className={twMerge(
+                  "px-4 py-2 rounded-md font-semibold transition-colors",
+                  isSendingTestEmail
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-purple-600 hover:bg-purple-700 text-white"
+                )}
+              >
+                {isSendingTestEmail
+                  ? "Sending..."
+                  : "Send Test Email Notification"}
+              </HapticButton>
+            )}
           </div>
         </div>
 
