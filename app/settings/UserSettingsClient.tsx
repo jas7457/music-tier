@@ -669,7 +669,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
             </div>
 
             {/* Push Notifications - Only show for enabled users */}
-            {isEnabled && isJason && (
+            {isEnabled && (
               <div>
                 <h3 className="block text-sm font-medium text-gray-700 mb-1">
                   Push Notifications
