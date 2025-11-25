@@ -457,68 +457,63 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
               >
                 Email Address
               </label>
-              <input
-                id="emailAddress"
-                type="email"
-                value={emailAddress}
-                onChange={(e) => setEmailAddress(e.target.value)}
-                placeholder="your.email@example.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
+              <div className="grid grid-cols-[1fr_auto] gap-2">
+                <input
+                  id="emailAddress"
+                  type="email"
+                  value={emailAddress}
+                  onChange={(e) => setEmailAddress(e.target.value)}
+                  placeholder="your.email@example.com"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
 
-            {emailAddress && looksLikeEmailAddress && (
-              <HapticButton
-                onClick={async () => {
-                  setIsSendingTestEmail(true);
-                  try {
-                    const response = await fetch("/api/users/email/test", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        emailAddress,
-                      }),
-                    });
+                <HapticButton
+                  disabled={isSendingTestEmail || !looksLikeEmailAddress}
+                  className={twMerge(
+                    "px-4 py-2 rounded-md font-semibold transition-colors bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  )}
+                  onClick={async () => {
+                    setIsSendingTestEmail(true);
+                    try {
+                      const response = await fetch("/api/users/email/test", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          emailAddress,
+                        }),
+                      });
 
-                    if (!response.ok) {
-                      const errorData = await response.json();
-                      throw new Error(
-                        errorData.error || "Failed to send test email"
+                      if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(
+                          errorData.error || "Failed to send test email"
+                        );
+                      }
+
+                      toast.show({
+                        variant: "success",
+                        message: "Test email sent! Check your email inbox.",
+                      });
+                    } catch (error) {
+                      const errorMessage = unknownToErrorString(
+                        error,
+                        "Failed to send test email. Please try again."
                       );
+                      toast.show({
+                        variant: "error",
+                        message: errorMessage,
+                      });
+                    } finally {
+                      setIsSendingTestEmail(false);
                     }
-
-                    toast.show({
-                      variant: "success",
-                      message: "Test email sent! Check your email inbox.",
-                    });
-                  } catch (error) {
-                    const errorMessage = unknownToErrorString(
-                      error,
-                      "Failed to send test email. Please try again."
-                    );
-                    toast.show({
-                      variant: "error",
-                      message: errorMessage,
-                    });
-                  } finally {
-                    setIsSendingTestEmail(false);
-                  }
-                }}
-                disabled={isSendingTestEmail}
-                className={twMerge(
-                  "px-4 py-2 rounded-md font-semibold transition-colors",
-                  isSendingTestEmail
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-purple-600 hover:bg-purple-700 text-white"
-                )}
-              >
-                {isSendingTestEmail
-                  ? "Sending..."
-                  : "Send Test Email Notification"}
-              </HapticButton>
-            )}
+                  }}
+                >
+                  Test notification
+                </HapticButton>
+              </div>
+            </div>
           </div>
         </div>
 
