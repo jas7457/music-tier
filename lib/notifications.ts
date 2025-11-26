@@ -7,8 +7,12 @@ import {
   PopulatedUser,
   PopulatedVote,
 } from "./types";
-import { APP_NAME, PRODUCTION_URL } from "./utils/constants";
+import { APP_NAME, PRODUCTION_URL, logo } from "./utils/constants";
 import { getAllRounds } from "./utils/getAllRounds";
+import { sendPushNotification } from "./webPush";
+import { getCollection } from "./mongodb";
+import type { User } from "@/databaseTypes";
+import { ObjectId } from "mongodb";
 
 export type Notification =
   | {
@@ -245,7 +249,7 @@ export function voteNotifications({
   sendNotifications(notifications, league);
 }
 
-function sendNotifications(
+async function sendNotifications(
   notifications: Notification[],
   league: PopulatedLeague
 ) {
@@ -256,9 +260,36 @@ function sendNotifications(
     return acc;
   }, {} as Record<string, PopulatedUser>);
 
+  // Collect all user IDs that need notifications
+  const userIdsNeedingNotifications = new Set<string>();
+  notifications.forEach((notification) => {
+    notification.userIds.forEach((userId) => {
+      userIdsNeedingNotifications.add(userId);
+    });
+  });
+
+  // Fetch full user data with push subscriptions from database
+  const usersCollection = await getCollection<User>("users");
+  const usersWithPushData = await usersCollection
+    .find({
+      _id: {
+        $in: Array.from(userIdsNeedingNotifications).map((id) => new ObjectId(id)),
+      },
+    })
+    .toArray();
+
+  const usersWithPushById = usersWithPushData.reduce((acc, user) => {
+    acc[user._id.toString()] = user;
+    return acc;
+  }, {} as Record<string, User>);
+
+  // Send all notifications
+  const notificationPromises: Promise<void>[] = [];
+
   notifications.forEach((notification) => {
     notification.userIds.forEach((userId) => {
       const user = usersById[userId];
+      const userWithPush = usersWithPushById[userId];
       if (!user) {
         return;
       }
@@ -266,6 +297,24 @@ function sendNotifications(
       const preferences = user.notificationSettings;
       if (!preferences || !preferences[notification.code]) {
         return;
+      }
+
+      // Send push notifications via VAPID
+      if (userWithPush?.pushSubscriptions && userWithPush.pushSubscriptions.length > 0) {
+        userWithPush.pushSubscriptions.forEach((subscription) => {
+          const pushPromise = sendPushNotification(subscription, {
+            title: notification.title,
+            body: notification.message,
+            icon: logo.src,
+            data: {
+              link: notification.link,
+              code: notification.code,
+            },
+          }).catch((error) => {
+            console.error("[Notifications] Error sending push notification:", error);
+          });
+          notificationPromises.push(pushPromise as Promise<void>);
+        });
       }
 
       if (user.emailAddress && preferences.emailNotificationsEnabled) {
@@ -293,4 +342,7 @@ function sendNotifications(
       }
     });
   });
+
+  // Wait for all push notifications to be sent
+  await Promise.all(notificationPromises);
 }

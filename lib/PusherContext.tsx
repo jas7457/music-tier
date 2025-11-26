@@ -8,12 +8,10 @@ import {
   PUSHER_CLUSTER,
   PUSHER_PUBLIC_KEY,
   PUSHER_NOTIFICATIONS,
-  logo,
 } from "./utils/constants";
 import { useData } from "./DataContext";
 import { useToast } from "./ToastContext";
 import { useAuth } from "./AuthContext";
-import { useServiceWorker } from "./ServiceWorkerContext";
 import type { Notification } from "./notifications";
 
 type PusherContextType = {
@@ -96,9 +94,9 @@ function useNotifications() {
   const toast = useToast();
   const { user } = useAuth();
   const { subscribe, unsubscribe } = usePusher();
-  const { sendMessageToSW, notificationPermission, isEnabled } =
-    useServiceWorker();
 
+  // Show in-app toast notifications via Pusher (for real-time updates)
+  // Push notifications are now sent from the server via VAPID
   useEffect(() => {
     const channel = subscribe(PUSHER_NOTIFICATIONS);
     if (!channel) {
@@ -117,17 +115,6 @@ function useNotifications() {
             variant: "info",
             timeout: 10_000,
           });
-
-          if (
-            !("Notification" in window) ||
-            Notification.permission !== "granted"
-          ) {
-            return;
-          }
-          new Notification(notification.title, {
-            body: notification.message,
-            icon: logo.src,
-          });
         }
       });
     };
@@ -138,55 +125,4 @@ function useNotifications() {
       unsubscribe(PUSHER_NOTIFICATIONS);
     };
   }, [subscribe, toast, unsubscribe, user?._id]);
-
-  useEffect(() => {
-    if (
-      !isEnabled ||
-      !("Notification" in window) ||
-      notificationPermission !== "granted"
-    ) {
-      return;
-    }
-
-    const channel = subscribe(PUSHER_NOTIFICATIONS);
-    if (!channel) {
-      return;
-    }
-    const notificationHandler = ({
-      notifications,
-    }: {
-      notifications: Notification[];
-    }) => {
-      notifications.forEach((notification) => {
-        if (notification.userIds.includes(user?._id || "")) {
-          // Use service worker for notifications if available
-          sendMessageToSW({
-            type: "SHOW_NOTIFICATION",
-            payload: {
-              title: notification.title,
-              body: notification.message,
-              icon: logo.src,
-              data: {
-                link: notification.link,
-                code: notification.code,
-              },
-            },
-          });
-        }
-      });
-    };
-    channel.bind("notification", notificationHandler);
-
-    return () => {
-      channel.unbind("notification", notificationHandler);
-      unsubscribe(PUSHER_NOTIFICATIONS);
-    };
-  }, [
-    isEnabled,
-    notificationPermission,
-    sendMessageToSW,
-    subscribe,
-    unsubscribe,
-    user?._id,
-  ]);
 }
