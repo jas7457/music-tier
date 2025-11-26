@@ -103,109 +103,6 @@ export function SpotifyPlayerProvider({
     playlist.length > 0 && currentTrackIndex < playlist.length - 1;
   const hasPreviousTrack = playlist.length > 0 && currentTrackIndex > 0;
 
-  // Store playback functions in refs so we can use them in Media Session handlers
-  const playbackFunctionsRef = useRef<{
-    pausePlayback: () => Promise<void>;
-    resumePlayback: () => Promise<void>;
-    nextTrack: () => Promise<void>;
-    previousTrack: () => Promise<void>;
-    seekToPosition: (position: number) => Promise<void>;
-  }>({
-    pausePlayback: async () => {},
-    resumePlayback: async () => {},
-    nextTrack: async () => {},
-    previousTrack: async () => {},
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    seekToPosition: async (_position: number) => {},
-  });
-
-  // Update Media Session API with current track info
-  useEffect(() => {
-    if (typeof window === "undefined" || !("mediaSession" in navigator)) {
-      return;
-    }
-
-    if (!currentTrack) {
-      // Clear media session when no track
-      navigator.mediaSession.metadata = null;
-      return;
-    }
-
-    // Set metadata for iOS lock screen, control center, etc.
-    const setMetadata = () => {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: currentTrack.name,
-        artist: currentTrack.artists.map((a) => a.name).join(", "),
-        album: currentTrack.album.name,
-        artwork: currentTrack.album.images.map((img) => ({
-          src: img.url,
-          sizes: `${img.width}x${img.height}`,
-          type: "image/jpeg",
-        })),
-      });
-    };
-
-    // Set metadata immediately
-    setMetadata();
-
-    // Re-set metadata periodically to override Spotify's default metadata
-    // The Spotify Web Playback SDK sets its own "Spotify Embedded Player" metadata
-    // We need to continuously override it
-    const intervalId = setInterval(setMetadata, 500);
-
-    // Update playback state
-    navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
-
-    // Set up action handlers for media controls
-    navigator.mediaSession.setActionHandler("play", () => {
-      playbackFunctionsRef.current.resumePlayback();
-    });
-
-    navigator.mediaSession.setActionHandler("pause", () => {
-      playbackFunctionsRef.current.pausePlayback();
-    });
-
-    // Only enable previous track button if there's a previous track
-    navigator.mediaSession.setActionHandler(
-      "previoustrack",
-      hasPreviousTrack
-        ? () => {
-            playbackFunctionsRef.current.previousTrack();
-          }
-        : null
-    );
-
-    // Only enable next track button if there's a next track
-    navigator.mediaSession.setActionHandler(
-      "nexttrack",
-      hasNextTrack
-        ? () => {
-            playbackFunctionsRef.current.nextTrack();
-          }
-        : null
-    );
-
-    navigator.mediaSession.setActionHandler("seekto", (details) => {
-      if (details.seekTime !== undefined) {
-        playbackFunctionsRef.current.seekToPosition(details.seekTime * 1000);
-      }
-    });
-
-    return () => {
-      // Clean up interval
-      clearInterval(intervalId);
-
-      // Clean up handlers when component unmounts or track changes
-      if ("mediaSession" in navigator) {
-        navigator.mediaSession.setActionHandler("play", null);
-        navigator.mediaSession.setActionHandler("pause", null);
-        navigator.mediaSession.setActionHandler("previoustrack", null);
-        navigator.mediaSession.setActionHandler("nexttrack", null);
-        navigator.mediaSession.setActionHandler("seekto", null);
-      }
-    };
-  }, [currentTrack, isPlaying, hasNextTrack, hasPreviousTrack]);
-
   const refreshToken = useCallback(async (): Promise<{ success: boolean }> => {
     const refreshToken = Cookies.get("spotify_refresh_token");
     if (!refreshToken) {
@@ -283,16 +180,6 @@ export function SpotifyPlayerProvider({
   }, [refreshToken]);
 
   const value: SpotifyPlayerContextType = useMemo(() => {
-    // Helper to update media session playback state
-    const updateMediaSessionState = (playing: boolean) => {
-      if (
-        typeof window !== "undefined" &&
-        "mediaSession" in navigator &&
-        navigator.mediaSession.playbackState !== undefined
-      ) {
-        navigator.mediaSession.playbackState = playing ? "playing" : "paused";
-      }
-    };
     const updateWithNewState = (state: Spotify.WebPlaybackState | null) => {
       const currentCallbackState = lastPlaybackStateRef.current;
       lastPlaybackStateRef.current = state;
@@ -534,7 +421,7 @@ export function SpotifyPlayerProvider({
         return;
       }
     };
-    const result = {
+    return {
       currentTrack,
       isPlaying,
       hasNextTrack,
@@ -556,7 +443,6 @@ export function SpotifyPlayerProvider({
             },
           });
           setIsPlaying(false);
-          updateMediaSessionState(false);
         } catch (error) {
           const message = unknownToErrorString(error, "Error pausing playback");
           toast.show({
@@ -580,7 +466,6 @@ export function SpotifyPlayerProvider({
             },
           });
           setIsPlaying(true);
-          updateMediaSessionState(true);
         } catch (error) {
           const message = unknownToErrorString(
             error,
@@ -697,18 +582,6 @@ export function SpotifyPlayerProvider({
         };
       },
     };
-
-    // Update playback functions ref synchronously so Media Session handlers can use them
-    // This must happen before the Media Session useEffect runs
-    playbackFunctionsRef.current = {
-      pausePlayback: result.pausePlayback,
-      resumePlayback: result.resumePlayback,
-      nextTrack: result.nextTrack,
-      previousTrack: result.previousTrack,
-      seekToPosition: result.seekToPosition,
-    };
-
-    return result;
   }, [
     currentTrack,
     currentTrackIndex,
