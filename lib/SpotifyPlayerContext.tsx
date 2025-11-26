@@ -115,6 +115,7 @@ export function SpotifyPlayerProvider({
     resumePlayback: async () => {},
     nextTrack: async () => {},
     previousTrack: async () => {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     seekToPosition: async (_position: number) => {},
   });
 
