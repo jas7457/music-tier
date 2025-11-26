@@ -32,7 +32,7 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET || "";
 const REDIRECT_URI =
   process.env.NODE_ENV === "development"
     ? "https://127.0.0.1:3000/callback"
-    : "https://music-tier-git-test-notifications-jason-addlemans-projects.vercel.app/callback";
+    : "https://music-tier.vercel.app/callback";
 
 export const generateRandomString = (length: number): string => {
   const possible =
