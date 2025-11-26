@@ -108,8 +108,10 @@ export default function Home({
                       onClick={() => toggleLeague(league._id)}
                       className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
                     >
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-xl font-bold">{league.title}</h3>
+                      <div className="text-left">
+                        <span className="sm:text-xl font-bold">
+                          {league.title}{" "}
+                        </span>
                         <span className="text-sm text-gray-500">
                           ({league.users.length} members)
                         </span>
