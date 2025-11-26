@@ -76,7 +76,6 @@ export function SpotifyPlayerProvider({
     round: PopulatedRound | null;
     playlist: PopulatedSubmission[];
   }>({ playlist: [], round: null });
-  const lastPlaybackStateRef = useRef<Spotify.WebPlaybackState | null>(null);
   const hasInitializedRef = useRef(false);
   const hasPreviouslyPlayedRef = useRef(false);
   const deviceIdRef = useRef<string | null>(null);
@@ -181,32 +180,7 @@ export function SpotifyPlayerProvider({
 
   const value: SpotifyPlayerContextType = useMemo(() => {
     const updateWithNewState = (state: Spotify.WebPlaybackState | null) => {
-      const currentCallbackState = lastPlaybackStateRef.current;
-      lastPlaybackStateRef.current = state;
       if (!state) {
-        return;
-      }
-      const shouldPlayNextTrack = (() => {
-        if (!currentCallbackState) {
-          return false;
-        }
-        if (currentCallbackState.paused) {
-          return false;
-        }
-        if (!state.paused) {
-          return false;
-        }
-        const currentTrack = currentCallbackState.track_window.current_track;
-        const timeLeft =
-          currentTrack.duration_ms - currentCallbackState.position;
-        if (timeLeft < 2000) {
-          return true;
-        }
-        return false;
-      })();
-
-      if (shouldPlayNextTrack) {
-        nextTrack();
         return;
       }
 
@@ -351,8 +325,6 @@ export function SpotifyPlayerProvider({
         return;
       }
 
-      const trackUri = `spotify:track:${submission.trackInfo.trackId}`;
-
       const accessToken = Cookies.get("spotify_access_token");
       if (!accessToken) {
         const errorMessage = "No Spotify access token";
@@ -364,6 +336,21 @@ export function SpotifyPlayerProvider({
       }
 
       try {
+        const playlistInfo =
+          round === "same"
+            ? { playlist, round: playlistRound }
+            : {
+                playlist: getPlaylistForRound({ round, userId: user?._id }),
+                round,
+              };
+
+        const uris = playlistInfo.playlist.map(
+          (sub) => `spotify:track:${sub.trackInfo.trackId}`
+        );
+
+        const trackUri = `spotify:track:${submission.trackInfo.trackId}`;
+        const offset = uris.indexOf(trackUri);
+
         const response = await fetch(
           `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
           {
@@ -373,7 +360,8 @@ export function SpotifyPlayerProvider({
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              uris: [trackUri],
+              uris,
+              offset: { position: offset === -1 ? 0 : offset },
             }),
           }
         );
@@ -390,19 +378,7 @@ export function SpotifyPlayerProvider({
         }
 
         setIsPlaying(true);
-        if (round) {
-          const info =
-            round === "same"
-              ? { playlist, round: playlistRound }
-              : {
-                  playlist: getPlaylistForRound({ round, userId: user?._id }),
-                  round,
-                };
-
-          setPlaylist(info);
-        } else {
-          setPlaylist({ playlist: [], round: null });
-        }
+        setPlaylist(playlistInfo);
       } catch (error) {
         const message = unknownToErrorString(
           error,
@@ -412,13 +388,6 @@ export function SpotifyPlayerProvider({
           message,
           variant: "error",
         });
-      }
-    };
-    const nextTrack = async () => {
-      const nextTrack = playlist[currentTrackIndexRef.current + 1];
-      if (nextTrack) {
-        playTrack(nextTrack, "same");
-        return;
       }
     };
     return {
@@ -456,7 +425,9 @@ export function SpotifyPlayerProvider({
           return playTrack(playlist[currentTrackIndexRef.current], "same");
         }
         const accessToken = Cookies.get("spotify_access_token");
-        if (!accessToken) return;
+        if (!accessToken) {
+          return;
+        }
 
         try {
           await fetch("https://api.spotify.com/v1/me/player/play", {
@@ -481,19 +452,19 @@ export function SpotifyPlayerProvider({
         const nextTrack = playlist[currentTrackIndexRef.current + 1];
         if (nextTrack) {
           playTrack(nextTrack, "same");
-          return;
         }
       },
       previousTrack: async () => {
         const previousTrack = playlist[currentTrackIndexRef.current - 1];
         if (previousTrack) {
           playTrack(previousTrack, "same");
-          return;
         }
       },
       seekToPosition: async (position: number) => {
         const accessToken = Cookies.get("spotify_access_token");
-        if (!accessToken) return;
+        if (!accessToken) {
+          return;
+        }
 
         try {
           await fetch(
