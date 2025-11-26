@@ -155,17 +155,25 @@ export function SpotifyPlayerProvider({
       playbackFunctionsRef.current.pausePlayback();
     });
 
-    navigator.mediaSession.setActionHandler("previoustrack", () => {
-      if (hasPreviousTrack) {
-        playbackFunctionsRef.current.previousTrack();
-      }
-    });
+    // Only enable previous track button if there's a previous track
+    navigator.mediaSession.setActionHandler(
+      "previoustrack",
+      hasPreviousTrack
+        ? () => {
+            playbackFunctionsRef.current.previousTrack();
+          }
+        : null
+    );
 
-    navigator.mediaSession.setActionHandler("nexttrack", () => {
-      if (hasNextTrack) {
-        playbackFunctionsRef.current.nextTrack();
-      }
-    });
+    // Only enable next track button if there's a next track
+    navigator.mediaSession.setActionHandler(
+      "nexttrack",
+      hasNextTrack
+        ? () => {
+            playbackFunctionsRef.current.nextTrack();
+          }
+        : null
+    );
 
     navigator.mediaSession.setActionHandler("seekto", (details) => {
       if (details.seekTime !== undefined) {
