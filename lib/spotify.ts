@@ -84,7 +84,7 @@ export const initiateSpotifyAuth = async (): Promise<void> => {
     response_type: "code",
     client_id: CLIENT_ID,
     scope,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: window.location.origin + "/callback",
   };
 
   authUrl.search = new URLSearchParams(params).toString();
