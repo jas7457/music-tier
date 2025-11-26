@@ -72,15 +72,13 @@ export async function POST(request: NextRequest) {
 
     await usersCollection.insertOne(newUser);
     // add the user to all the existing leagues
-    const existingLeagues = await leagueCollection
-      .find({})
-      .sort({ _id: -1 })
-      .toArray();
-    const newestLeague = existingLeagues[0];
-    if (newestLeague) {
+    const existingLeague = await leagueCollection.findOne({
+      _id: new ObjectId("6912aff020024991c82b72e1"),
+    });
+    if (existingLeague) {
       await leagueCollection.updateOne(
-        { _id: newestLeague._id },
-        { $set: { users: [...newestLeague.users, newUser._id.toString()] } }
+        { _id: existingLeague._id },
+        { $set: { users: [...existingLeague.users, newUser._id.toString()] } }
       );
     }
 
