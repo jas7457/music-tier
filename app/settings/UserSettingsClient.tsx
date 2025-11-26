@@ -9,7 +9,7 @@ import type { PopulatedUser } from "@/lib/types";
 import { useToast } from "@/lib/ToastContext";
 import { useServiceWorker } from "@/lib/ServiceWorkerContext";
 import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
-import { APP_NAME, JASON_ID, logo } from "@/lib/utils/constants";
+import { JASON_ID } from "@/lib/utils/constants";
 
 type UserSettingsClientProps = {
   user: PopulatedUser;
@@ -26,7 +26,6 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     notificationPermission,
     requestNotificationPermission,
     unregisterServiceWorker,
-    sendMessageToSW,
   } = useServiceWorker();
   const [isUnregistering, setIsUnregistering] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || "");
@@ -39,7 +38,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   const [verificationCode, setVerificationCode] = useState("");
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
-  const [isSendingTestNotification, setIsSendingTestNotification] =
+  const [isSendingTestPushNotification, setIsSendingTestPushNotification] =
     useState(false);
   const [testNotificationDelay, setTestNotificationDelay] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -447,28 +446,56 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
               <option value={10_000}>Delay by 10 seconds</option>
             </select>
             <HapticButton
-              onClick={() => {
-                setIsSendingTestNotification(true);
-                sendMessageToSW({
-                  type: "SHOW_NOTIFICATION",
-                  payload: {
-                    title: `${APP_NAME} Test Notification`,
-                    body: "You're all set to receive notifications!",
-                    icon: logo.src,
-                    delay: testNotificationDelay,
-                  },
-                });
+              onClick={async () => {
+                setIsSendingTestPushNotification(true);
+                try {
+                  const response = await fetch("/api/push/test", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      delay: testNotificationDelay,
+                    }),
+                  });
 
-                setTimeout(() => {
-                  setIsSendingTestNotification(false);
-                }, testNotificationDelay);
+                  if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(
+                      errorData.error || "Failed to send test notification"
+                    );
+                  }
+
+                  const message =
+                    testNotificationDelay > 0
+                      ? `Test push notification scheduled! You should receive it in ${
+                          testNotificationDelay / 1000
+                        } seconds.`
+                      : "Test push notification sent! You should receive it shortly.";
+
+                  toast.show({
+                    variant: "success",
+                    message,
+                  });
+                } catch (error) {
+                  const errorMessage = unknownToErrorString(
+                    error,
+                    "Failed to send test notification. Please try again."
+                  );
+                  toast.show({
+                    variant: "error",
+                    message: errorMessage,
+                  });
+                } finally {
+                  setIsSendingTestPushNotification(false);
+                }
               }}
-              disabled={isSendingTestNotification}
+              disabled={isSendingTestPushNotification}
               className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {isSendingTestNotification
+              {isSendingTestPushNotification
                 ? "Sending..."
-                : "Send Test Notification"}
+                : "Send Test Push Notification"}
             </HapticButton>
           </div>
         );

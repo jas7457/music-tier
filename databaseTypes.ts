@@ -23,6 +23,16 @@ export type User = {
     textNotificationsEnabled: boolean;
     emailNotificationsEnabled: boolean;
   };
+  pushSubscriptions?: PushSubscription[];
+};
+
+/* Push subscription for web push notifications */
+export type PushSubscription = {
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
 };
 
 /* "leagues" collection */

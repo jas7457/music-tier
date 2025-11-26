@@ -17,11 +17,26 @@ type ServiceWorkerContextType = {
   requestNotificationPermission: () => Promise<NotificationPermission>;
   unregisterServiceWorker: () => Promise<boolean>;
   sendMessageToSW: (message: any) => void;
+  subscribeToPush: () => Promise<boolean>;
 };
 
 const ServiceWorkerContext = createContext<ServiceWorkerContextType | null>(
   null
 );
+
+// Helper function to convert VAPID public key
+function urlBase64ToUint8Array(base64String: string): BufferSource {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
 
 export function ServiceWorkerProvider({
   children,
@@ -60,7 +75,7 @@ export function ServiceWorkerProvider({
     // Register the service worker
     navigator.serviceWorker
       .register("/sw.js")
-      .then((reg) => {
+      .then(async (reg) => {
         console.log("[App] Service Worker registered:", reg);
         setRegistration(reg);
 
@@ -74,11 +89,59 @@ export function ServiceWorkerProvider({
           console.log("[App] New service worker activated, reloading...");
           window.location.reload();
         });
+
+        // If notification permission is granted, subscribe to push
+        if (Notification.permission === "granted") {
+          try {
+            await subscribeToPushNotifications(reg);
+          } catch (error) {
+            console.error("[App] Failed to subscribe to push:", error);
+          }
+        }
       })
       .catch((error) => {
         console.error("[App] Service Worker registration failed:", error);
       });
   }, [isEnabled, isSupported, userId]);
+
+  async function subscribeToPushNotifications(
+    reg: ServiceWorkerRegistration
+  ): Promise<boolean> {
+    try {
+      // Get the VAPID public key from the server
+      const response = await fetch("/api/push/subscribe");
+      if (!response.ok) {
+        throw new Error("Failed to get VAPID public key");
+      }
+
+      const { publicKey } = await response.json();
+
+      // Subscribe to push notifications
+      const subscription = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
+      });
+
+      // Send subscription to server
+      const subscribeResponse = await fetch("/api/push/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(subscription.toJSON()),
+      });
+
+      if (!subscribeResponse.ok) {
+        throw new Error("Failed to save subscription");
+      }
+
+      console.log("[App] Push subscription successful");
+      return true;
+    } catch (error) {
+      console.error("[App] Error subscribing to push:", error);
+      return false;
+    }
+  }
 
   const contextValue = useMemo(() => {
     return {
@@ -97,6 +160,12 @@ export function ServiceWorkerProvider({
             const permission = await Notification.requestPermission();
             setNotificationPermission(permission);
             console.log("[App] Notification permission:", permission);
+
+            // If permission granted and we have a registration, subscribe to push
+            if (permission === "granted" && registration) {
+              await subscribeToPushNotifications(registration);
+            }
+
             return permission;
           } catch (error) {
             console.error(
@@ -136,6 +205,13 @@ export function ServiceWorkerProvider({
         if (registration && registration.active) {
           registration.active.postMessage(message);
         }
+      },
+      subscribeToPush: async (): Promise<boolean> => {
+        if (!registration) {
+          console.error("[App] No service worker registration");
+          return false;
+        }
+        return subscribeToPushNotifications(registration);
       },
     };
   }, [registration, isSupported, isEnabled, notificationPermission]);

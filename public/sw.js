@@ -174,20 +174,23 @@ self.addEventListener("notificationclick", (event) => {
   );
 });
 
-// Push event - handle push notifications (for future Web Push API integration)
+// Push event - handle push notifications from server via VAPID
 self.addEventListener("push", (event) => {
   console.log("[SW] Push received:", event);
 
   if (event.data) {
-    const data = event.data.json();
+    const payload = event.data.json();
+    const { title, body, icon, data } = payload;
 
     event.waitUntil(
-      self.registration.showNotification(data.title, {
-        body: data.message,
-        icon: "/icon-192.png",
+      self.registration.showNotification(title, {
+        body: body,
+        icon: icon || "/icon-192.png",
         badge: "/icon-192.png",
-        tag: data.link || "notification",
-        data: data,
+        tag: data?.link || "notification",
+        data: data || {},
+        requireInteraction: false,
+        silent: false,
       })
     );
   }
