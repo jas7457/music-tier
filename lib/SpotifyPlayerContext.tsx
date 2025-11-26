@@ -132,16 +132,26 @@ export function SpotifyPlayerProvider({
     }
 
     // Set metadata for iOS lock screen, control center, etc.
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: currentTrack.name,
-      artist: currentTrack.artists.map((a) => a.name).join(", "),
-      album: currentTrack.album.name,
-      artwork: currentTrack.album.images.map((img) => ({
-        src: img.url,
-        sizes: `${img.width}x${img.height}`,
-        type: "image/jpeg",
-      })),
-    });
+    const setMetadata = () => {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentTrack.name,
+        artist: currentTrack.artists.map((a) => a.name).join(", "),
+        album: currentTrack.album.name,
+        artwork: currentTrack.album.images.map((img) => ({
+          src: img.url,
+          sizes: `${img.width}x${img.height}`,
+          type: "image/jpeg",
+        })),
+      });
+    };
+
+    // Set metadata immediately
+    setMetadata();
+
+    // Re-set metadata periodically to override Spotify's default metadata
+    // The Spotify Web Playback SDK sets its own "Spotify Embedded Player" metadata
+    // We need to continuously override it
+    const intervalId = setInterval(setMetadata, 500);
 
     // Update playback state
     navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
@@ -182,6 +192,9 @@ export function SpotifyPlayerProvider({
     });
 
     return () => {
+      // Clean up interval
+      clearInterval(intervalId);
+
       // Clean up handlers when component unmounts or track changes
       if ("mediaSession" in navigator) {
         navigator.mediaSession.setActionHandler("play", null);
@@ -521,7 +534,7 @@ export function SpotifyPlayerProvider({
         return;
       }
     };
-    return {
+    const result = {
       currentTrack,
       isPlaying,
       hasNextTrack,
@@ -684,6 +697,18 @@ export function SpotifyPlayerProvider({
         };
       },
     };
+
+    // Update playback functions ref synchronously so Media Session handlers can use them
+    // This must happen before the Media Session useEffect runs
+    playbackFunctionsRef.current = {
+      pausePlayback: result.pausePlayback,
+      resumePlayback: result.resumePlayback,
+      nextTrack: result.nextTrack,
+      previousTrack: result.previousTrack,
+      seekToPosition: result.seekToPosition,
+    };
+
+    return result;
   }, [
     currentTrack,
     currentTrackIndex,
@@ -695,17 +720,6 @@ export function SpotifyPlayerProvider({
     toast,
     user?._id,
   ]);
-
-  // Update playback functions ref so Media Session handlers can use them
-  useEffect(() => {
-    playbackFunctionsRef.current = {
-      pausePlayback: value.pausePlayback,
-      resumePlayback: value.resumePlayback,
-      nextTrack: value.nextTrack,
-      previousTrack: value.previousTrack,
-      seekToPosition: value.seekToPosition,
-    };
-  }, [value]);
 
   return (
     <SpotifyPlayerContext.Provider value={value}>
