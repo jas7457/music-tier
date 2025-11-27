@@ -344,6 +344,13 @@ export function SpotifyPlayerProvider({
                 round,
               };
 
+        const hasSong = playlistInfo.playlist.find(
+          (sub) => sub._id === submission._id
+        );
+        if (!hasSong) {
+          playlistInfo.playlist.unshift(submission);
+        }
+
         const uris = playlistInfo.playlist.map(
           (sub) => `spotify:track:${sub.trackInfo.trackId}`
         );
