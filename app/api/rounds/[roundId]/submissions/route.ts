@@ -165,7 +165,7 @@ async function handleRequest(
     triggerRealTimeUpdate();
 
     if (method === "ADD") {
-      submissionNotifications({
+      await submissionNotifications({
         league: foundLeague,
         submission: newSubmission,
         before: {

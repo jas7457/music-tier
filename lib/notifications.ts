@@ -72,7 +72,7 @@ export type Notification =
       link: string;
     };
 
-export function submissionNotifications({
+export async function submissionNotifications({
   league,
   submission,
   before,
@@ -146,10 +146,10 @@ export function submissionNotifications({
     }
   })();
 
-  sendNotifications(notifications, league);
+  await sendNotifications(notifications, league);
 }
 
-export function voteNotifications({
+export async function voteNotifications({
   league,
   votes,
   before,
@@ -246,103 +246,115 @@ export function voteNotifications({
     }
   })();
 
-  sendNotifications(notifications, league);
+  await sendNotifications(notifications, league);
 }
 
 async function sendNotifications(
   notifications: Notification[],
   league: PopulatedLeague
 ) {
-  triggerNotifications(notifications);
+  try {
+    triggerNotifications(notifications);
 
-  const usersById = league.users.reduce((acc, user) => {
-    acc[user._id] = user;
-    return acc;
-  }, {} as Record<string, PopulatedUser>);
+    const usersById = league.users.reduce((acc, user) => {
+      acc[user._id] = user;
+      return acc;
+    }, {} as Record<string, PopulatedUser>);
 
-  // Collect all user IDs that need notifications
-  const userIdsNeedingNotifications = new Set<string>();
-  notifications.forEach((notification) => {
-    notification.userIds.forEach((userId) => {
-      userIdsNeedingNotifications.add(userId);
+    // Collect all user IDs that need notifications
+    const userIdsNeedingNotifications = new Set<string>();
+    notifications.forEach((notification) => {
+      notification.userIds.forEach((userId) => {
+        userIdsNeedingNotifications.add(userId);
+      });
     });
-  });
 
-  // Fetch full user data with push subscriptions from database
-  const usersCollection = await getCollection<User>("users");
-  const usersWithPushData = await usersCollection
-    .find({
-      _id: {
-        $in: Array.from(userIdsNeedingNotifications).map((id) => new ObjectId(id)),
-      },
-    })
-    .toArray();
+    // Fetch full user data with push subscriptions from database
+    const usersCollection = await getCollection<User>("users");
+    const usersWithPushData = await usersCollection
+      .find({
+        _id: {
+          $in: Array.from(userIdsNeedingNotifications).map(
+            (id) => new ObjectId(id)
+          ),
+        },
+      })
+      .toArray();
 
-  const usersWithPushById = usersWithPushData.reduce((acc, user) => {
-    acc[user._id.toString()] = user;
-    return acc;
-  }, {} as Record<string, User>);
+    const usersWithPushById = usersWithPushData.reduce((acc, user) => {
+      acc[user._id.toString()] = user;
+      return acc;
+    }, {} as Record<string, User>);
 
-  // Send all notifications
-  const notificationPromises: Promise<void>[] = [];
+    // Send all notifications
+    const notificationPromises: Promise<void>[] = [];
 
-  notifications.forEach((notification) => {
-    notification.userIds.forEach((userId) => {
-      const user = usersById[userId];
-      const userWithPush = usersWithPushById[userId];
-      if (!user) {
-        return;
-      }
+    notifications.forEach((notification) => {
+      notification.userIds.forEach((userId) => {
+        const user = usersById[userId];
+        const userWithPush = usersWithPushById[userId];
+        if (!user) {
+          return;
+        }
 
-      const preferences = user.notificationSettings;
-      if (!preferences || !preferences[notification.code]) {
-        return;
-      }
+        const preferences = user.notificationSettings;
+        if (!preferences || !preferences[notification.code]) {
+          return;
+        }
 
-      // Send push notifications via VAPID
-      if (userWithPush?.pushSubscriptions && userWithPush.pushSubscriptions.length > 0) {
-        userWithPush.pushSubscriptions.forEach((subscription) => {
-          const pushPromise = sendPushNotification(subscription, {
-            title: notification.title,
-            body: notification.message,
-            icon: logo.src,
-            data: {
-              link: notification.link,
-              code: notification.code,
-            },
-          }).catch((error) => {
-            console.error("[Notifications] Error sending push notification:", error);
+        // Send push notifications via VAPID
+        if (
+          userWithPush?.pushSubscriptions &&
+          userWithPush.pushSubscriptions.length > 0
+        ) {
+          userWithPush.pushSubscriptions.forEach((subscription) => {
+            const pushPromise = sendPushNotification(subscription, {
+              title: notification.title,
+              body: notification.message,
+              icon: logo.src,
+              data: {
+                link: notification.link,
+                code: notification.code,
+              },
+            }).catch((error) => {
+              console.error(
+                "[Notifications] Error sending push notification:",
+                error
+              );
+            });
+            notificationPromises.push(pushPromise as Promise<void>);
           });
-          notificationPromises.push(pushPromise as Promise<void>);
-        });
-      }
+        }
 
-      if (user.emailAddress && preferences.emailNotificationsEnabled) {
-        sendEmail({
-          to: {
-            fullName: `${user.firstName} ${user.lastName}`,
-            email: user.emailAddress,
-          },
-          subject: `${APP_NAME} Update: ${notification.title}`,
-          html: `<p>${notification.message}</p>${notification.additionalHTML}`,
-        });
-      }
+        if (user.emailAddress && preferences.emailNotificationsEnabled) {
+          sendEmail({
+            to: {
+              fullName: `${user.firstName} ${user.lastName}`,
+              email: user.emailAddress,
+            },
+            subject: `${APP_NAME} Update: ${notification.title}`,
+            html: `<p>${notification.message}</p>${notification.additionalHTML}`,
+          });
+        }
 
-      if (
-        user.phoneNumber &&
-        preferences.textNotificationsEnabled &&
-        user.phoneCarrier &&
-        user.phoneVerified
-      ) {
-        sendTextEmail({
-          number: user.phoneNumber,
-          message: `${APP_NAME} Update: ${notification.title} - ${notification.message}`,
-          phoneCarrier: user.phoneCarrier,
-        });
-      }
+        if (
+          user.phoneNumber &&
+          preferences.textNotificationsEnabled &&
+          user.phoneCarrier &&
+          user.phoneVerified
+        ) {
+          sendTextEmail({
+            number: user.phoneNumber,
+            message: `${APP_NAME} Update: ${notification.title} - ${notification.message}`,
+            phoneCarrier: user.phoneCarrier,
+          });
+        }
+      });
     });
-  });
 
-  // Wait for all push notifications to be sent
-  await Promise.all(notificationPromises);
+    // Wait for all push notifications to be sent
+    await Promise.all(notificationPromises);
+  } catch (error) {
+    console.error("[Notifications] Error sending notifications", error);
+  }
 }

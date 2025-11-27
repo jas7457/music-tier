@@ -75,7 +75,7 @@ export async function POST(
     await votesCollection.insertMany(data);
 
     triggerRealTimeUpdate();
-    voteNotifications({
+    await voteNotifications({
       league,
       votes: data.map(({ userId }) => ({ userId })),
       before: {
