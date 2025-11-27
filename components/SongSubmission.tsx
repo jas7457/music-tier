@@ -30,7 +30,13 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [searchResults, setSearchResults] = useState<
+    PopulatedSubmission["trackInfo"][]
+  >([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const searchDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastFetchedTrackIdRef = useRef<string | null>(null);
 
   const isRealSubmission = submission ? submission._id !== "" : false;
@@ -110,12 +116,49 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
     }, 1000);
   };
 
-  const handleTrackUrlBlur = () => {
-    // Clear debounce timer and fetch immediately
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
+  const searchTracks = async (query: string) => {
+    if (!query || query.trim().length === 0) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
     }
-    fetchTrackPreview(extractTrackIdFromUrl(trackUrl));
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `/api/spotify/search?q=${encodeURIComponent(query)}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to search tracks");
+      }
+
+      const data = await response.json();
+      setSearchResults(data.tracks || []);
+      setShowSearchResults(true);
+    } catch (err) {
+      const message = unknownToErrorString(err, "Error searching tracks");
+      toast.show({
+        title: "Error searching tracks",
+        variant: "error",
+        message,
+      });
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const debouncedSearch = (query: string) => {
+    // Clear existing timer
+    if (searchDebounceTimerRef.current) {
+      clearTimeout(searchDebounceTimerRef.current);
+    }
+
+    // Set new timer
+    searchDebounceTimerRef.current = setTimeout(() => {
+      searchTracks(query);
+    }, 500);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -247,12 +290,12 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-3">
-        <div>
+        <div className="relative">
           <label
             htmlFor="trackUrl"
             className="block text-xs font-medium text-gray-700 mb-1"
           >
-            Spotify Track URL *
+            Search for a song or paste Spotify URL *
           </label>
           <input
             id="trackUrl"
@@ -262,17 +305,91 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
             value={trackUrl}
             onPaste={(e) => {
               const value = e.clipboardData.getData("text");
-              fetchTrackPreview(extractTrackIdFromUrl(value));
+              const trackId = extractTrackIdFromUrl(value);
+              if (trackId) {
+                // It's a URL, fetch preview
+                fetchTrackPreview(trackId);
+                setShowSearchResults(false);
+              } else {
+                // It's not a URL, search for it
+                debouncedSearch(value);
+              }
             }}
             onChange={(e) => {
               const value = e.target.value;
               setTrackUrl(value);
-              debouncedFetchPreview(extractTrackIdFromUrl(value));
+              const trackId = extractTrackIdFromUrl(value);
+              if (trackId) {
+                // It's a URL, fetch preview
+                debouncedFetchPreview(trackId);
+                setShowSearchResults(false);
+              } else {
+                // It's not a URL, search for it
+                debouncedSearch(value);
+              }
             }}
-            onBlur={handleTrackUrlBlur}
-            placeholder="https://open.spotify.com/track/..."
+            onBlur={() => {
+              // Delay hiding results to allow clicking on them
+              setTimeout(() => {
+                setShowSearchResults(false);
+              }, 200);
+            }}
+            onFocus={() => {
+              if (searchResults.length > 0) {
+                setShowSearchResults(true);
+              }
+            }}
+            placeholder="Search: 'Bohemian Rhapsody' or paste: https://open.spotify.com/track/..."
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
+
+          {/* Search Results Dropdown */}
+          {showSearchResults && searchResults.length > 0 && (
+            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-80 overflow-y-auto">
+              {searchResults.map((result) => (
+                <button
+                  key={result.trackId}
+                  type="button"
+                  onClick={() => {
+                    setSubmission({ trackInfo: result });
+                    setTrackUrl(getTrackUrlFromId(result.trackId));
+                    setSearchResults([]);
+                    setShowSearchResults(false);
+                    setError(null);
+                  }}
+                  className="w-full p-3 hover:bg-purple-50 transition-colors text-left border-b border-gray-100 last:border-b-0"
+                >
+                  <div className="flex items-center gap-3">
+                    {result.albumImageUrl && (
+                      <img
+                        src={result.albumImageUrl}
+                        alt={result.albumName}
+                        className="w-12 h-12 rounded object-cover"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">
+                        {result.title}
+                      </p>
+                      <p className="text-xs text-gray-600 truncate">
+                        {result.artists.join(", ")}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {result.albumName}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Search Loading */}
+          {isSearching && (
+            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+              <p className="text-xs text-gray-500">Searching...</p>
+            </div>
+          )}
         </div>
 
         {/* Track Preview */}
