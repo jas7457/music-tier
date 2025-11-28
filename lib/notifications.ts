@@ -83,12 +83,14 @@ export type Notification =
 
 export async function roundNotifications({
   userId,
+  isNewRound,
   round,
   before,
 }: {
   userId: string;
-  round: Pick<PopulatedRound, "_id">;
-  before: { round: PopulatedRound; league: PopulatedLeague };
+  isNewRound: boolean;
+  round: Pick<PopulatedRound, "_id" | "isBonusRound">;
+  before: { league: PopulatedLeague };
 }) {
   const notifications: Notification[] = [];
   const leagueLink = `${PRODUCTION_URL}/leagues/${before.league._id}`;
@@ -111,11 +113,33 @@ export async function roundNotifications({
     return { league: null, foundRound: null };
   })();
 
-  if (!league || !foundRound) {
+  const beforeRound = getAllRounds(before.league, {
+    includePending: true,
+    includeFake: true,
+  }).find((currentRound) => {
+    if (isNewRound) {
+      if (currentRound._id) {
+        return false;
+      }
+      if (round.isBonusRound) {
+        return currentRound.isBonusRound;
+      } else {
+        return !currentRound.isBonusRound;
+      }
+    }
+
+    return currentRound._id === round._id;
+  });
+
+  if (!league || !foundRound || !beforeRound) {
     return;
   }
 
-  if (foundRound.stage === "submission" && before.round.stage === "upcoming") {
+  if (
+    foundRound.stage === "submission" &&
+    (beforeRound.stage === "upcoming" ||
+      (beforeRound.stage === "submission" && beforeRound.isPending))
+  ) {
     notifications.push({
       code: "ROUND.STARTED",
       userIds: league.users.map((user) => user._id),

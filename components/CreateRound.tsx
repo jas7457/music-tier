@@ -36,6 +36,7 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
       });
 
       if (!response.ok) {
+        debugger;
         const data = await response.json();
         throw new Error(data.error || "Failed to create round");
       }
@@ -45,6 +46,7 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
       setDescription("");
       setIsOpen(false);
     } catch (err) {
+      debugger;
       const message = unknownToErrorString(err, "Failed to create round");
       toast.show({
         title: "Failed to create round",

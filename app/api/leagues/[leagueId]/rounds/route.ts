@@ -97,10 +97,10 @@ export async function POST(
     triggerRealTimeUpdate();
     await roundNotifications({
       userId: payload.userId,
-      round: { _id: result.insertedId.toString() },
+      isNewRound: true,
+      round: { _id: result.insertedId.toString(), isBonusRound },
       before: {
         league,
-        round: isBonusRound ? existingBonusRound! : existingRound!,
       },
     });
 
