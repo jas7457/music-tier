@@ -23,7 +23,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { phoneNumber, phoneCarrier, emailAddress, notificationSettings } = body;
+    const { phoneNumber, phoneCarrier, emailAddress, notificationSettings } =
+      body;
 
     const formattedPhoneNumber = phoneNumber
       ? getFormattedPhoneNumber(phoneNumber)
@@ -58,6 +59,7 @@ export async function PUT(request: NextRequest) {
         "VOTING.STARTED": false,
         "SUBMISSIONS.HALF_SUBMITTED": false,
         "SUBMISSIONS.LAST_TO_SUBMIT": false,
+        "ROUND.STARTED": false,
         "ROUND.COMPLETED": false,
         "ROUND.HALF_VOTED": false,
         "ROUND.LAST_TO_VOTE": false,

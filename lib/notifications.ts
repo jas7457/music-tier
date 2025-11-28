@@ -13,6 +13,7 @@ import { sendPushNotification } from "./webPush";
 import { getCollection } from "./mongodb";
 import type { User } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
+import { getUserLeagues } from "./data";
 
 export type Notification =
   | {
@@ -33,6 +34,14 @@ export type Notification =
     }
   | {
       code: "SUBMISSIONS.LAST_TO_SUBMIT";
+      userIds: string[];
+      title: string;
+      message: string;
+      additionalHTML: string;
+      link: string;
+    }
+  | {
+      code: "ROUND.STARTED";
       userIds: string[];
       title: string;
       message: string;
@@ -71,6 +80,54 @@ export type Notification =
       additionalHTML: string;
       link: string;
     };
+
+export async function roundNotifications({
+  userId,
+  round,
+  before,
+}: {
+  userId: string;
+  round: Pick<PopulatedRound, "_id">;
+  before: { round: PopulatedRound; league: PopulatedLeague };
+}) {
+  const notifications: Notification[] = [];
+  const leagueLink = `${PRODUCTION_URL}/leagues/${before.league._id}`;
+  const roundLink = `${leagueLink}/rounds/${round._id}`;
+
+  const userLeagues = await getUserLeagues(userId);
+
+  const { league, foundRound } = (() => {
+    for (const league of userLeagues) {
+      if (league._id === before.league._id) {
+        const allRounds = getAllRounds(league, {
+          includeFake: true,
+          includePending: true,
+        });
+
+        const foundRound = allRounds.find((r) => r._id === round._id) ?? null;
+        return { league, foundRound };
+      }
+    }
+    return { league: null, foundRound: null };
+  })();
+
+  if (!league || !foundRound) {
+    return;
+  }
+
+  if (foundRound.stage === "submission" && before.round.stage === "upcoming") {
+    notifications.push({
+      code: "ROUND.STARTED",
+      userIds: league.users.map((user) => user._id),
+      title: "Round started",
+      message: `The round "${foundRound.title}" has started! Get ready to submit your songs.`,
+      additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and view details.</a></p>`,
+      link: roundLink,
+    });
+  }
+
+  await sendNotifications(notifications, league);
+}
 
 export async function submissionNotifications({
   league,

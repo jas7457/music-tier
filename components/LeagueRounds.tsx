@@ -38,7 +38,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
 
     return (
       <div>
-        <h3 className="text-lg font-semibold mb-3 text-green-700">
+        <h3 className="text-lg font-semibold mb-3 text-primary-dark">
           Current Round
         </h3>
         <Round

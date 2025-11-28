@@ -51,6 +51,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     "VOTING.STARTED": false,
     "SUBMISSIONS.HALF_SUBMITTED": false,
     "SUBMISSIONS.LAST_TO_SUBMIT": false,
+    "ROUND.STARTED": false,
     "ROUND.COMPLETED": false,
     "ROUND.HALF_VOTED": false,
     "ROUND.LAST_TO_VOTE": false,
@@ -274,6 +275,12 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
       key: "ROUND.LAST_TO_VOTE",
       label: "Last to Vote",
       description: "When you are the last person to vote in a round",
+    },
+    {
+      key: "ROUND.STARTED",
+      label: "Round Started",
+      description:
+        "When a currently pending round begins, otherwise you just get a round completed notification",
     },
     {
       key: "ROUND.COMPLETED",
