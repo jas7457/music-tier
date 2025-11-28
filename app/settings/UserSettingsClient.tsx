@@ -10,6 +10,7 @@ import { useToast } from "@/lib/ToastContext";
 import { useServiceWorker } from "@/lib/ServiceWorkerContext";
 import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
 import { JASON_ID } from "@/lib/utils/constants";
+import { useTheme } from "@/lib/ThemeContext";
 
 type UserSettingsClientProps = {
   user: PopulatedUser;
@@ -20,6 +21,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
 
   // Settings form state
   const toast = useToast();
+  const { primaryColor, setPrimaryColor, availableColors } = useTheme();
   const {
     isSupported,
     isEnabled,
@@ -707,6 +709,52 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Theme Color */}
+        <div>
+          <h3 className="font-semibold mb-3 text-lg">Theme Color</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Choose your preferred accent color for the app
+          </p>
+          <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-3">
+            {availableColors.map((color) => (
+              <HapticButton
+                key={color}
+                onClick={() => setPrimaryColor(color)}
+                className={twMerge(
+                  "relative px-4 py-3 rounded-lg border-2 transition-all capitalize font-medium",
+                  primaryColor === color
+                    ? "border-gray-900 shadow-md scale-105"
+                    : "border-gray-300 hover:border-gray-400"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-6 h-6 rounded-full border border-gray-300 shrink-0"
+                    style={{
+                      backgroundColor: `var(--color-${color}-500)`,
+                    }}
+                  />
+                  <span className="text-sm">{color}</span>
+                </div>
+                {primaryColor === color && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="white"
+                      strokeWidth="3"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </div>
+                )}
+              </HapticButton>
+            ))}
           </div>
         </div>
 

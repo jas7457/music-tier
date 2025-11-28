@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @source inline("w-{{1..50}}");
 @source inline("h-{{1..50}}");
+@source inline("{{text,bg,border,ring}}-{{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}}-{{50,200,300,500,600,700,800,900}}");
 
 @theme {
   --color-primary-lightest: theme(--color-purple-50);

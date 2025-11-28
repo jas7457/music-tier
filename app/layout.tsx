@@ -10,6 +10,7 @@ import { getUserByCookies } from "@/lib/data";
 import { cookies } from "next/headers";
 import { DataProvider } from "@/lib/DataContext";
 import { ToastProvider } from "@/lib/ToastContext";
+import { ThemeProvider } from "@/lib/ThemeContext";
 import { APP_NAME } from "@/lib/utils/constants";
 
 export const metadata: Metadata = {
@@ -36,8 +37,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   let initialUser: PopulatedUser | null = null;
+  const cookieStore = cookies();
+  const primaryColor = cookieStore.get("primaryColor")?.value || "purple";
+
   try {
-    const cookieStore = cookies();
     const sessionToken = cookieStore.get("session_token")?.value;
     if (sessionToken) {
       const user = await getUserByCookies("");
@@ -53,19 +56,34 @@ export default async function RootLayout({
         <script src="https://sdk.scdn.co/spotify-player.js" async></script>
         <link rel="icon" href="/icon-192.png" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `:root {
+            --color-primary-lightest: var(--color-${primaryColor}-50);
+            --color-primary-lighter: var(--color-${primaryColor}-200);
+            --color-primary-light: var(--color-${primaryColor}-300);
+            --color-primary: var(--color-${primaryColor}-500);
+            --color-primary-dark: var(--color-${primaryColor}-600);
+            --color-primary-darker: var(--color-${primaryColor}-700);
+            --color-primary-darkest: var(--color-${primaryColor}-800);
+          }`,
+          }}
+        />
       </head>
       <body>
         <AuthProvider initialUser={initialUser}>
           <ToastProvider>
-            <ServiceWorkerProvider>
-              <PusherProvider>
-                <SpotifyPlayerProvider>
-                  <DataProvider>
-                    <Layout>{children}</Layout>
-                  </DataProvider>
-                </SpotifyPlayerProvider>
-              </PusherProvider>
-            </ServiceWorkerProvider>
+            <ThemeProvider initialColor={primaryColor as any}>
+              <ServiceWorkerProvider>
+                <PusherProvider>
+                  <SpotifyPlayerProvider>
+                    <DataProvider>
+                      <Layout>{children}</Layout>
+                    </DataProvider>
+                  </SpotifyPlayerProvider>
+                </PusherProvider>
+              </ServiceWorkerProvider>
+            </ThemeProvider>
           </ToastProvider>
         </AuthProvider>
       </body>

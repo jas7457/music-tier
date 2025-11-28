@@ -71,7 +71,7 @@ export default function MusicPlayer() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 w-screen">
       {/* Liquid glass background with gradient */}
-      <div className="relative backdrop-blur-3xl bg-linear-to-b from-purple-600/40 via-pink-600/30 to-blue-600/40 border-t-2 border-white/30 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+      <div className="relative backdrop-blur-md bg-linear-to-b from-primary/60 to-primary-dark/60 border-t-2 border-white/30 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         {/* Additional glass layer for depth - darker for contrast */}
         <div className="absolute inset-0 bg-black/30"></div>
 
@@ -85,7 +85,7 @@ export default function MusicPlayer() {
                     {/* Animated border when playing */}
                     {isPlaying && (
                       <div className="absolute inset-0 rounded-2xl animate-spin-slow">
-                        <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-purple-400/80 via-pink-400/80 to-blue-400/80 blur-sm"></div>
+                        <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-primary/80 to-primary-dark/80 blur-sm"></div>
                       </div>
                     )}
 
@@ -224,7 +224,7 @@ export default function MusicPlayer() {
               {showPlaylist && playlist.length > 0 && (
                 <div className="absolute bottom-full right-0 mb-2 w-96 max-h-96 overflow-y-auto rounded-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] bg-white">
                   {/* Liquid glass background with gradient - matching player style */}
-                  <div className="relative backdrop-blur-3xl bg-linear-to-b from-purple-600/50 via-pink-600/50 to-blue-600/50 border-2 border-white/30 rounded-2xl overflow-hidden">
+                  <div className="relative backdrop-blur-3xl bg-linear-to-b from-primary/50 to-primary-dark/50 border-2 border-white/30 rounded-2xl overflow-hidden">
                     {/* Additional glass layer for depth - darker for contrast */}
                     <div className="absolute inset-0 bg-black/40"></div>
 
