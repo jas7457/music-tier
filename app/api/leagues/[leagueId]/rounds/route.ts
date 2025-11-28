@@ -35,7 +35,7 @@ export async function POST(
       for (const league of userLeagues) {
         if (league._id === leagueId) {
           const allRounds = getAllRounds(league, {
-            includeFake: true,
+            includeFake: false,
             includePending: true,
           });
 
