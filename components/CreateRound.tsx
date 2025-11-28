@@ -60,7 +60,7 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
 
   if (!isOpen) {
     return (
-      <Card className="p-6 text-center border-2 border-dashed border-purple-300 bg-purple-50">
+      <Card className="p-6 text-center border-2 border-dashed border-primary-light bg-primary-lightest">
         <p className="text-gray-700 mb-3">
           {isBonusRound
             ? "Congrats! You have a bonus round."
@@ -68,7 +68,7 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
         </p>
         <HapticButton
           onClick={() => setIsOpen(true)}
-          className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+          className="bg-primary-dark hover:bg-primary-darker text-white font-semibold py-2 px-6 rounded-lg transition-colors"
         >
           {isBonusRound ? "Create Your Bonus Round" : "Create Your Round"}
         </HapticButton>
@@ -77,8 +77,8 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
   }
 
   return (
-    <Card className="p-6 border-2 border-purple-300 bg-purple-50">
-      <h3 className="text-xl font-bold mb-4 text-purple-900">
+    <Card className="p-6 border-2 border-primary-light bg-primary-lightest">
+      <h3 className="text-xl font-bold mb-4 text-primary-darkest">
         {isBonusRound ? "Create Your Bonus Round" : "Create Your Round"}
       </h3>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -97,7 +97,7 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
             required
             maxLength={100}
             placeholder="e.g., 90s Hip Hop, Summer Vibes, etc."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             disabled={isSubmitting}
           />
         </div>
@@ -117,7 +117,7 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
             maxLength={500}
             rows={4}
             placeholder="Describe the theme or criteria for this round..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             disabled={isSubmitting}
           />
           <p className="text-sm text-gray-500 mt-1">
@@ -135,7 +135,7 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
           <HapticButton
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="flex-1 bg-primary-dark hover:bg-primary-darker text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Creating..." : "Create Round"}
           </HapticButton>

@@ -33,7 +33,7 @@ export function MaybeLink({
   return (
     <Link
       href={href}
-      className={twMerge("hover:text-purple-500 transition-colors", className)}
+      className={twMerge("hover:text-primary transition-colors", className)}
       {...props}
     >
       {children}

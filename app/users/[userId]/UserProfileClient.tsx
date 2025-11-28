@@ -552,9 +552,9 @@ function StatCard({
       color="gray"
       className={twMerge(
         isClickable
-          ? "cursor-pointer hover:shadow-md hover:border-purple-400"
+          ? "cursor-pointer hover:shadow-md hover:border-primary"
           : "",
-        isExpanded ? "ring-2 ring-purple-500 shadow-md" : ""
+        isExpanded ? "ring-2 ring-primary shadow-md" : ""
       )}
     >
       <div className="text-4xl mb-3 text-center">{icon}</div>

@@ -2,6 +2,16 @@
 @source inline("w-{{1..50}}");
 @source inline("h-{{1..50}}");
 
+@theme {
+  --color-primary-lightest: theme(--color-purple-50);
+  --color-primary-lighter: theme(--color-purple-200);
+  --color-primary-light: theme(--color-purple-300);
+  --color-primary: theme(--color-purple-500);
+  --color-primary-dark: theme(--color-purple-600);
+  --color-primary-darker: theme(--color-purple-700);
+  --color-primary-darkest: theme(--color-purple-800);
+}
+
 @layer base {
   * {
       margin: 0;

@@ -221,7 +221,10 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
     return (
       <Card
         variant="outlined"
-        className={twMerge(fullClassName, "bg-purple-50 border-purple-300")}
+        className={twMerge(
+          fullClassName,
+          "bg-primary-lightest border-primary-light"
+        )}
       >
         <div className="flex items-center justify-between mb-3">
           <h5 className="font-semibold text-sm text-gray-700">
@@ -230,7 +233,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
           {!isRoundEnded && (
             <HapticButton
               onClick={() => setIsEditing(true)}
-              className="text-xs text-purple-600 hover:text-purple-800 font-medium"
+              className="text-xs text-primary-dark hover:text-primary-darkest font-medium"
             >
               Change
             </HapticButton>
@@ -340,7 +343,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
               }
             }}
             placeholder="Search: 'Bohemian Rhapsody' or paste: https://open.spotify.com/track/..."
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
 
           {/* Search Results Dropdown */}
@@ -357,7 +360,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
                     setShowSearchResults(false);
                     setError(null);
                   }}
-                  className="w-full p-3 hover:bg-purple-50 transition-colors text-left border-b border-gray-100 last:border-b-0"
+                  className="w-full p-3 hover:bg-primary-lightest transition-colors text-left border-b border-gray-100 last:border-b-0"
                 >
                   <div className="flex items-center gap-3">
                     {result.albumImageUrl && (
@@ -394,13 +397,13 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
 
         {/* Track Preview */}
         {loadingPreview && (
-          <div className="p-3 bg-purple-50 border border-purple-400 rounded-md">
+          <div className="p-3 bg-primary-lightest border border-primary rounded-md">
             <p className="text-xs text-gray-500">Loading track preview...</p>
           </div>
         )}
 
         {submission?.trackInfo && !loadingPreview && (
-          <div className="p-3 bg-purple-50 border border-purple-400 rounded-md">
+          <div className="p-3 bg-primary-lightest border border-primary rounded-md">
             <div className="flex items-center gap-3">
               {submission.trackInfo.albumImageUrl && (
                 <AlbumArt submission={submission} size={56} round={round} />
@@ -433,7 +436,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
             onChange={(e) => setSubmission({ note: e.target.value })}
             placeholder="Why did you choose this song?"
             rows={2}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
@@ -446,7 +449,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
               !submission.trackInfo.trackId ||
               loadingPreview
             }
-            className="flex-1 bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600 transition-colors text-sm font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="flex-1 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors text-sm font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isSubmitting
               ? isRealSubmission

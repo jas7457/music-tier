@@ -233,18 +233,18 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
             <div className="flex flex-col items-center space-y-3">
               {/* Ribbon Banner */}
               <div className="relative inline-block mx-10">
-                <div className="bg-purple-200 border-2 border-purple-400 px-8 py-2 text-center">
-                  <div className="text-sm font-bold text-purple-700 uppercase tracking-wide">
+                <div className="bg-primary-lighter border-2 border-primary px-8 py-2 text-center">
+                  <div className="text-sm font-bold text-primary-darker uppercase tracking-wide">
                     Your Biggest Fan
                   </div>
                 </div>
                 {/* Left ribbon tail */}
                 <div className="absolute left-0 top-0 -translate-x-full h-full w-6">
-                  <div className="absolute inset-0 bg-purple-200 border-y-2 border-l-2 border-purple-400 origin-right transform -skew-y-12"></div>
+                  <div className="absolute inset-0 bg-primary-lighter border-y-2 border-l-2 border-primary origin-right transform -skew-y-12"></div>
                 </div>
                 {/* Right ribbon tail */}
                 <div className="absolute right-0 top-0 translate-x-full h-full w-6">
-                  <div className="absolute inset-0 bg-purple-200 border-y-2 border-r-2 border-purple-400 origin-left transform skew-y-12"></div>
+                  <div className="absolute inset-0 bg-primary-lighter border-y-2 border-r-2 border-primary origin-left transform skew-y-12"></div>
                 </div>
               </div>
 

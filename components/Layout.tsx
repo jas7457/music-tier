@@ -55,7 +55,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       return null;
     }
     return (
-      <div className="grid grid-cols-[auto_1fr_auto] items-center bg-purple-600 text-white p-3">
+      <div className="grid grid-cols-[auto_1fr_auto] items-center bg-primary-dark text-white p-3">
         <Link href="/" className="flex items-center gap-4">
           <Image
             src={logo.src}
@@ -73,7 +73,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="relative" ref={dropdownRef}>
           <HapticButton
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-2 rounded-full transition-all hover:ring-2 hover:ring-white hover:ring-offset-2 hover:ring-offset-purple-600"
+            className="flex items-center gap-2 rounded-full transition-all hover:ring-2 hover:ring-white hover:ring-offset-2 hover:ring-offset-primary-dark"
           >
             <Avatar user={user} size={12} includeLink={false} />
           </HapticButton>

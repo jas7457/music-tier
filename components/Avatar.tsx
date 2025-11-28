@@ -23,12 +23,12 @@ export function Avatar({
   const initial = user.userName.charAt(0).toUpperCase();
 
   const gradients = [
-    "from-blue-500 to-purple-600",
+    "from-blue-500 to-primary-dark",
     "from-pink-500 to-rose-600",
     "from-green-500 to-emerald-600",
     "from-orange-500 to-red-600",
     "from-cyan-500 to-blue-600",
-    "from-violet-500 to-purple-600",
+    "from-violet-500 to-primary-dark",
     "from-amber-500 to-orange-600",
     "from-teal-500 to-cyan-600",
     "from-indigo-500 to-blue-600",

@@ -419,7 +419,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 });
               }
             }}
-            className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-purple-600 hover:bg-purple-700 text-white"
+            className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-primary-dark hover:bg-primary-darker text-white"
           >
             Enable Push Notifications
           </HapticButton>
@@ -437,7 +437,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
         return (
           <div className="grid sm:grid-cols-[1fr_auto] gap-2">
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
               value={testNotificationDelay}
               onChange={(e) => setTestNotificationDelay(Number(e.target.value))}
             >
@@ -491,7 +491,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 }
               }}
               disabled={isSendingTestPushNotification}
-              className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-primary-dark hover:bg-primary-darker text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {isSendingTestPushNotification
                 ? "Sending..."
@@ -531,7 +531,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 disabled={phoneVerified}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="555-123-4567"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -551,7 +551,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                     e.target.value as User["phoneCarrier"] | undefined
                   )
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">Select a carrier</option>
                 <option value="verizon">Verizon</option>
@@ -561,8 +561,8 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
             </div>
 
             {phoneNumber && phoneCarrier && !phoneVerified && (
-              <div className="p-4 bg-purple-50 border border-purple-200 rounded-md">
-                <p className="text-sm text-purple-800 mb-3">
+              <div className="p-4 bg-primary-lightest border border-primary-lighter rounded-md">
+                <p className="text-sm text-primary-darkest mb-3">
                   Your phone number needs to be verified before you can receive
                   text notifications.
                 </p>
@@ -574,7 +574,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                       "px-4 py-2 rounded-md font-semibold transition-colors",
                       isSendingCode
                         ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-purple-600 hover:bg-purple-700 text-white"
+                        : "bg-primary-dark hover:bg-primary-darker text-white"
                     )}
                   >
                     {isSendingCode ? "Sending..." : "Send Verification Code"}
@@ -594,13 +594,13 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                         value={verificationCode}
                         onChange={(e) => setVerificationCode(e.target.value)}
                         placeholder="Enter code"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                       <HapticButton
                         onClick={handleVerifyCode}
                         disabled={isVerifying || !verificationCode}
                         className={twMerge(
-                          "px-4 py-2 rounded-md font-semibold transition-colors whitespace-nowrap bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+                          "px-4 py-2 rounded-md font-semibold transition-colors whitespace-nowrap bg-primary-dark hover:bg-primary-darker text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
                         )}
                       >
                         {isVerifying ? "Verifying..." : "Verify"}
@@ -644,13 +644,13 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                   value={emailAddress}
                   onChange={(e) => setEmailAddress(e.target.value)}
                   placeholder="your.email@example.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
 
                 <HapticButton
                   disabled={isSendingTestEmail || !looksLikeEmailAddress}
                   className={twMerge(
-                    "px-4 py-2 rounded-md font-semibold transition-colors bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    "px-4 py-2 rounded-md font-semibold transition-colors bg-primary-dark hover:bg-primary-darker text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
                   )}
                   onClick={async () => {
                     setIsSendingTestEmail(true);
@@ -717,7 +717,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
           </h3>
 
           {/* Enable/Disable toggles */}
-          <div className="mb-4 p-4 bg-purple-50 rounded-md border border-purple-200">
+          <div className="mb-4 p-4 bg-primary-lightest rounded-md border border-primary-lighter">
             <div className="flex flex-col gap-3">
               {notificationMethodOptions.map((option) => (
                 <label
@@ -729,7 +729,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                     checked={notificationSettings[option.key]}
                     onChange={() => handleNotificationToggle(option.key)}
                     disabled={option.disabled}
-                    className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                    className="w-5 h-5 text-primary-dark rounded focus:ring-primary"
                   />
                   <div>
                     <div className="font-medium">{option.label}</div>
@@ -757,7 +757,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                   }
                   checked={notificationSettings[option.key]}
                   onChange={() => handleNotificationToggle(option.key)}
-                  className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 mt-0.5"
+                  className="w-5 h-5 text-primary-dark rounded focus:ring-primary mt-0.5"
                 />
                 <div>
                   <div className="font-medium">{option.label}</div>
@@ -779,7 +779,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
               "w-full px-4 py-3 rounded-md font-semibold transition-colors",
               isSaving
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-purple-600 hover:bg-purple-700 text-white"
+                : "bg-primary-dark hover:bg-primary-darker text-white"
             )}
           >
             {isSaving ? "Saving..." : "Save Settings"}

@@ -19,7 +19,7 @@ export function getStatusColor(
       return "bg-gray-50 text-gray-800 border border-gray-300";
     }
     case "submission": {
-      return "bg-purple-50 text-purple-800 border border-purple-300";
+      return "bg-primary-lightest text-primary-darkest border border-primary-light";
     }
     case "voting":
     case "currentUserVotingCompleted": {
