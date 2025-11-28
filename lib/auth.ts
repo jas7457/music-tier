@@ -23,8 +23,8 @@ export function createSessionToken(user: User): string {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const userDharam = {
-  userId: "691673fc22a34f0ccca322ae",
-  userName: "dharam66",
+  userId: "692722dc52eadc22aeac2cf5",
+  userName: "4everevolution",
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -44,10 +44,7 @@ const userTest = {
   userName: "testuser",
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const oldKeleyId = "69165b47e6a0480e21051d27";
-
-const users = [userJen, userDharam, userKelsey, userTest];
+const users = [userDharam, userKelsey, userTest];
 
 export function verifySessionToken(): SessionPayload | null {
   const cookieStore = cookies();
