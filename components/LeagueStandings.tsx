@@ -598,6 +598,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                                 size={5}
                                                 includeTooltip
                                                 tooltipText={`Submitted by ${guess.actualUser.userName}`}
+                                                includeLink={false}
                                               />
                                             </div>{" "}
                                             /{" "}
@@ -607,6 +608,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                                 size={5}
                                                 includeTooltip
                                                 tooltipText={`${guesserText.capitalized} guessed ${guess.guessedUser.userName}`}
+                                                includeLink={false}
                                               />
                                             </div>
                                             Submitted by{" "}

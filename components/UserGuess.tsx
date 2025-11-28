@@ -61,7 +61,7 @@ export function UserGuess({
           />
         )}
         {selectedUser ? (
-          <Avatar user={selectedUser} />
+          <Avatar user={selectedUser} includeLink={false} />
         ) : (
           <svg
             width="20"
@@ -135,7 +135,7 @@ export function UserGuess({
                 selectedUser?._id === user._id ? "bg-blue-50" : ""
               )}
             >
-              <Avatar user={user} size={6} />
+              <Avatar user={user} size={6} includeLink={false} />
               <span className="text-sm">{user.userName}</span>
               {selectedUser?._id === user._id && (
                 <svg

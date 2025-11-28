@@ -130,7 +130,11 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                 </div>
                 {submission.userObject && (
                   <div className="flex items-center gap-1">
-                    <Avatar user={submission.userObject} size={6} />
+                    <Avatar
+                      user={submission.userObject}
+                      size={6}
+                      includeLink={false}
+                    />
                     <p className="text-sm text-gray-600">
                       Submitted by {submission.userObject.userName}
                     </p>
@@ -163,6 +167,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                       size={6}
                       tooltipText={`Your guess: ${yourVote.userGuessObject.userName}`}
                       includeTooltip
+                      includeLink={false}
                     />
                     <GuessFeedback
                       className="absolute -top-1 -right-1"

@@ -241,7 +241,12 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
       {/* User Header */}
       <div className="border-b border-gray-300 pb-4">
         <div className="flex items-center gap-4 mb-4">
-          <Avatar user={user} size={20} className="text-3xl" />
+          <Avatar
+            user={user}
+            size={20}
+            className="text-3xl"
+            includeLink={false}
+          />
           <div>
             <h1 className="text-3xl font-bold">{fullName}</h1>
             <p className="text-gray-600">{user.userName}</p>
