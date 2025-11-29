@@ -1,4 +1,5 @@
-import logo from "../../app/images/5.png";
+import logo from "../../app/images/logo.png";
+import logoLarge from "../../app/images/logoLarge.png";
 
 export const PUSHER_PUBLIC_KEY = "fcb8176d967e29e0121b";
 export const PUSHER_SECRET_KEY = process.env.PUSHER_SECRET!;
@@ -13,4 +14,4 @@ export const PRODUCTION_URL = "https://music-tier.vercel.app";
 
 export const JASON_ID = "6924608790c0b7c51ab5aec9";
 
-export { logo };
+export { logo, logoLarge };

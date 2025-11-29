@@ -8,8 +8,7 @@ import Cookies from "js-cookie";
 
 import MusicPlayer from "./MusicPlayer";
 import { useEffect, useState, useRef } from "react";
-import { MaybeLink } from "./MaybeLink";
-import { APP_NAME, logo } from "@/lib/utils/constants";
+import { APP_NAME, logo, logoLarge } from "@/lib/utils/constants";
 import { HapticButton } from "./HapticButton";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -55,7 +54,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       return null;
     }
     return (
-      <div className="grid grid-cols-[auto_1fr_auto] items-center bg-primary-dark text-white p-3">
+      <div className="grid grid-cols-[auto_1fr_auto] gap-2 items-center bg-primary-dark text-white p-3">
         <Link href="/" className="flex items-center gap-4">
           <Image
             src={logo.src}
@@ -66,9 +65,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
           />
         </Link>
 
-        <MaybeLink href="/" className="hover:text-white">
-          <h1 className="text-2xl font-bold text-center">{APP_NAME}</h1>
-        </MaybeLink>
+        <div className="flex justify-center">
+          <Link href="/">
+            <img src={logoLarge.src} alt={APP_NAME} className="w-56" />
+          </Link>
+        </div>
 
         <div className="relative" ref={dropdownRef}>
           <HapticButton
