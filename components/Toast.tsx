@@ -81,7 +81,7 @@ export function Toast({
   return (
     <div
       className={twMerge(
-        "pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border min-w-[300px] max-w-md animate-in slide-in-from-right duration-300",
+        "pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border min-w-[300px] max-w-full animate-in slide-in-from-right duration-300",
         variantStyles[variant]
       )}
     >
