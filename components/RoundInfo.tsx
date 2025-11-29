@@ -155,7 +155,7 @@ export function RoundInfo({
 
   return (
     <div>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <MaybeLink
             href={`/leagues/${league._id}/rounds/${round._id}`}
@@ -169,12 +169,14 @@ export function RoundInfo({
 
           {statusPills}
         </div>
-        <Avatar
-          user={round.creatorObject}
-          size={8}
-          tooltipText={`Submitted by ${round.creatorObject.userName}`}
-          includeTooltip
-        />
+        <div className="shrink-0">
+          <Avatar
+            user={round.creatorObject}
+            size={8}
+            tooltipText={`Submitted by ${round.creatorObject.userName}`}
+            includeTooltip
+          />
+        </div>
       </div>
       <p className="text-gray-600 text-sm">
         <MultiLine>{round.description}</MultiLine>
