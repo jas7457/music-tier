@@ -16,9 +16,6 @@ import { APP_NAME } from "./utils/constants";
 import { unknownToErrorString } from "./utils/unknownToErrorString";
 import { useAuth } from "./AuthContext";
 
-// working url:     https://api.spotify.com/v1/me/player/play?device_id=84ba12cbec6088ef868f60f97ca1b1f6a4c9a140
-// not working url: https://api.spotify.com/v1/me/player/play?device_id=baa7bbf1c2c8f54c444a1c917e6f1d00229d8e49
-
 const SPOTIFY_PLAYER_NAME = APP_NAME;
 
 interface SpotifyPlayerContextType {
@@ -101,40 +98,6 @@ export function SpotifyPlayerProvider({
   const hasNextTrack =
     playlist.length > 0 && currentTrackIndex < playlist.length - 1;
   const hasPreviousTrack = playlist.length > 0 && currentTrackIndex > 0;
-
-  // Media Session API - Update metadata
-  useEffect(() => {
-    if (!("mediaSession" in navigator)) {
-      return;
-    }
-
-    if (currentTrack) {
-      const albumArt = currentTrack.album.images[0]?.url;
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: currentTrack.name,
-        artist: currentTrack.artists.map((a) => a.name).join(", "),
-        album: currentTrack.album.name,
-        artwork: albumArt
-          ? [
-              { src: albumArt, sizes: "640x640", type: "image/jpeg" },
-              { src: albumArt, sizes: "512x512", type: "image/jpeg" },
-              { src: albumArt, sizes: "300x300", type: "image/jpeg" },
-            ]
-          : undefined,
-      });
-    } else {
-      navigator.mediaSession.metadata = null;
-    }
-  }, [currentTrack]);
-
-  // Media Session API - Update playback state
-  useEffect(() => {
-    if (!("mediaSession" in navigator)) {
-      return;
-    }
-
-    navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
-  }, [isPlaying]);
 
   const refreshToken = useCallback(async (): Promise<{ success: boolean }> => {
     const refreshToken = Cookies.get("spotify_refresh_token");
@@ -257,6 +220,8 @@ export function SpotifyPlayerProvider({
 
           const spotifyPlayer = new window.Spotify.Player({
             name: SPOTIFY_PLAYER_NAME,
+            // @ts-ignore
+            enableMediaSession: true,
             getOAuthToken: (cb) => {
               const currentToken = Cookies.get("spotify_access_token");
               cb(currentToken || token);
@@ -368,7 +333,6 @@ export function SpotifyPlayerProvider({
         });
         return;
       }
-      5286888;
 
       try {
         const playlistInfo =
@@ -606,55 +570,6 @@ export function SpotifyPlayerProvider({
     toast,
     user?._id,
   ]);
-
-  // Media Session API - Action handlers
-  useEffect(() => {
-    if (!("mediaSession" in navigator)) {
-      return;
-    }
-
-    navigator.mediaSession.setActionHandler("play", value.resumePlayback);
-    navigator.mediaSession.setActionHandler("pause", value.pausePlayback);
-    navigator.mediaSession.setActionHandler("stop", value.pausePlayback);
-    navigator.mediaSession.setActionHandler(
-      "previoustrack",
-      hasPreviousTrack ? value.previousTrack : null
-    );
-    navigator.mediaSession.setActionHandler(
-      "nexttrack",
-      hasNextTrack ? value.nextTrack : null
-    );
-    navigator.mediaSession.setActionHandler("seekto", (details) => {
-      if (details.seekTime !== undefined) {
-        value.seekToPosition(details.seekTime * 1000);
-      }
-    });
-    navigator.mediaSession.setActionHandler("seekbackward", null);
-    navigator.mediaSession.setActionHandler("seekforward", null);
-
-    return () => {
-      navigator.mediaSession.setActionHandler("play", null);
-      navigator.mediaSession.setActionHandler("pause", null);
-      navigator.mediaSession.setActionHandler("stop", null);
-      navigator.mediaSession.setActionHandler("previoustrack", null);
-      navigator.mediaSession.setActionHandler("nexttrack", null);
-      navigator.mediaSession.setActionHandler("seekto", null);
-    };
-  }, [value, hasNextTrack, hasPreviousTrack, currentTrack]);
-
-  useEffect(() => {
-    if (!currentTrack || !("mediaSession" in navigator)) {
-      return;
-    }
-    const cleanup = value.registerTimeUpdate((time) => {
-      navigator.mediaSession.setPositionState({
-        duration: currentTrack.duration_ms / 1000,
-        playbackRate: 1,
-        position: time / 1000,
-      });
-    });
-    return cleanup;
-  }, [currentTrack, value]);
 
   return (
     <SpotifyPlayerContext.Provider value={value}>
