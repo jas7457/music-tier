@@ -154,7 +154,7 @@ export function RoundInfo({
   })();
 
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <div className="flex justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <MaybeLink
@@ -178,9 +178,11 @@ export function RoundInfo({
           />
         </div>
       </div>
-      <p className="text-gray-600 text-sm">
-        <MultiLine>{round.description}</MultiLine>
-      </p>
+      {round.description && (
+        <p className="text-gray-600 text-sm">
+          <MultiLine>{round.description}</MultiLine>
+        </p>
+      )}
 
       <div
         className={twMerge(
