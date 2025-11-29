@@ -413,6 +413,9 @@ export async function getUserLeagues(
         return "unknown" as const;
       })();
 
+      roundsObject.pending.sort((a, b) => a.roundIndex - b.roundIndex);
+      roundsObject.upcoming.sort((a, b) => a.roundIndex - b.roundIndex);
+
       return {
         ...league,
         numberOfRounds,
