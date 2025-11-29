@@ -725,7 +725,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
           <p className="text-sm text-gray-600 mb-4">
             Choose your preferred accent color for the app
           </p>
-          <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {availableColors.map((color) => (
               <HapticButton
                 key={color}
@@ -784,7 +784,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                     checked={notificationSettings[option.key]}
                     onChange={() => handleNotificationToggle(option.key)}
                     disabled={option.disabled}
-                    className="w-5 h-5 text-primary-dark rounded focus:ring-primary"
+                    className="w-5 h-5 shrink-0 text-primary-dark rounded focus:ring-primary"
                   />
                   <div>
                     <div className="font-medium">{option.label}</div>
@@ -812,7 +812,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                   }
                   checked={notificationSettings[option.key]}
                   onChange={() => handleNotificationToggle(option.key)}
-                  className="w-5 h-5 text-primary-dark rounded focus:ring-primary mt-0.5"
+                  className="w-5 h-5 shrink-0 text-primary-dark rounded focus:ring-primary mt-0.5"
                 />
                 <div>
                   <div className="font-medium">{option.label}</div>
