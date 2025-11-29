@@ -75,7 +75,7 @@ export default function MusicPlayer() {
         {/* Additional glass layer for depth - darker for contrast */}
         <div className="absolute inset-0 bg-black/30"></div>
 
-        <div className="relative px-3 py-2 md:px-5 md:py-3">
+        <div className="relative px-5 py-3">
           <div className="flex gap-2 md:gap-5 items-center">
             {/* Track Display */}
             <div className="flex grow items-center gap-3 min-w-0 w-52 max-w-[35%]">
@@ -122,7 +122,7 @@ export default function MusicPlayer() {
                 <HapticButton
                   onClick={previousTrack}
                   disabled={isDisabled || !currentTrack || !hasPreviousTrack}
-                  className="w-8 h-8 md:w-12 md:h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
                   title="Previous track"
                 >
                   <PreviousIcon
@@ -140,7 +140,7 @@ export default function MusicPlayer() {
                     }
                   }}
                   disabled={isDisabled || !currentTrack}
-                  className="w-10 h-10 md:w-14 md:h-14 rounded-full backdrop-blur-xl bg-linear-to-br from-green-400 to-emerald-500 border-2 border-white/60 text-white flex items-center justify-center transition-all hover:from-green-300 hover:to-emerald-400 hover:scale-110 hover:shadow-[0_0_35px_rgba(16,185,129,0.8)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full backdrop-blur-xl bg-linear-to-br from-green-400 to-emerald-500 border-2 border-white/60 text-white flex items-center justify-center transition-all hover:from-green-300 hover:to-emerald-400 hover:scale-110 hover:shadow-[0_0_35px_rgba(16,185,129,0.8)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
                   title={isPlaying ? "Pause" : "Play"}
                 >
                   {isPlaying ? (
@@ -159,7 +159,7 @@ export default function MusicPlayer() {
                 <HapticButton
                   onClick={nextTrack}
                   disabled={isDisabled || !currentTrack || !hasNextTrack}
-                  className="w-8 h-8 md:w-12 md:h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-10 h-10 md:w-12 md:h-12 rounded-full backdrop-blur-xl bg-white/30 border-2 border-white/50 text-white flex items-center justify-center transition-all hover:bg-white/40 hover:scale-110 hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
                   title="Next track"
                 >
                   <NextIcon
