@@ -223,6 +223,8 @@ export function SpotifyPlayerProvider({
 
           const spotifyPlayer = new window.Spotify.Player({
             name: SPOTIFY_PLAYER_NAME,
+            // @ts-ignore
+            enableMediaSession: true,
             getOAuthToken: (cb) => {
               const currentToken = Cookies.get("spotify_access_token");
               cb(currentToken || token);
