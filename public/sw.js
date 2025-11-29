@@ -1,6 +1,6 @@
 // Service Worker for Playlist Party
 // Cache version - increment this to force cache refresh
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_NAME = `playlist-party-${CACHE_VERSION}`;
 
 // Assets to cache (minimal - we use network-first for everything)
