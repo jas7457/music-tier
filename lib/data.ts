@@ -267,6 +267,14 @@ export async function getUserLeagues(
           return normalEnd;
         })();
         currentStartDate = votingEndDate;
+
+        const maybeTomorrow = getStartOfDay(currentStartDate + 3_000);
+        const isPracticallyTomorrow =
+          getStartOfDay(currentStartDate) !== maybeTomorrow;
+        if (isPracticallyTomorrow) {
+          currentStartDate = maybeTomorrow;
+        }
+
         const populatedRound: Omit<PopulatedRound, "stage"> = {
           ...round,
           _id: round._id.toString(),
