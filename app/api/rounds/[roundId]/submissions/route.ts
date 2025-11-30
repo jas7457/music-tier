@@ -97,9 +97,25 @@ async function handleRequest(
       );
     }
 
-    const existingSong = foundRound.submissions.find(
-      (sub) => sub.trackInfo.trackId === trackInfo.trackId
-    );
+    const existingSong = foundRound.submissions.find((sub) => {
+      if (sub.trackInfo.trackId === trackInfo.trackId) {
+        return true;
+      }
+      if (sub.trackInfo.title.toLowerCase() !== trackInfo.title.toLowerCase()) {
+        return false;
+      }
+      if (sub.trackInfo.artists.length !== trackInfo.artists.length) {
+        return false;
+      }
+      const allArtistsMatch = sub.trackInfo.artists.every((artist) =>
+        trackInfo.artists.includes(artist)
+      );
+      if (allArtistsMatch) {
+        return true;
+      }
+
+      return false;
+    });
 
     if (
       existingSong &&
