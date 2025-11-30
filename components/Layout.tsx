@@ -10,12 +10,27 @@ import MusicPlayer from "./MusicPlayer";
 import { useEffect, useState, useRef } from "react";
 import { APP_NAME, logo, logoLarge } from "@/lib/utils/constants";
 import { HapticButton } from "./HapticButton";
+import { usePullToRefresh } from "@/lib/hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "./PullToRefreshIndicator";
+import { useRouter } from "next/navigation";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const [hasSpotifyAccess, setHasSpotifyAccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  // Pull to refresh functionality
+  const { pullDistance, isRefreshing, shouldTriggerRefresh } = usePullToRefresh(
+    {
+      onRefresh: async () => {
+        // window.location.reload();
+        router.refresh();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      },
+    }
+  );
 
   // Check for Spotify access token
   useEffect(() => {
@@ -201,6 +216,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-gray-100 pb-28">
+      <PullToRefreshIndicator
+        pullDistance={pullDistance}
+        isRefreshing={isRefreshing}
+        shouldTriggerRefresh={shouldTriggerRefresh}
+      />
       {userHeader}
       <div className="p-2 md:p-4">{children}</div>
       {hasSpotifyAccess && <MusicPlayer />}
