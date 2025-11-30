@@ -14,4 +14,6 @@ export const PRODUCTION_URL = "https://music-tier.vercel.app";
 
 export const JASON_ID = "6924608790c0b7c51ab5aec9";
 
+export const UPCOMING_ROUNDS_TO_SHOW = 3;
+
 export { logo, logoLarge };

@@ -5,6 +5,9 @@ export function getRoundTitle(
   includeRoundPrefix = true
 ) {
   const roundTitle = (() => {
+    if (round.isHidden) {
+      return "Hidden";
+    }
     if (round.title) {
       return round.title;
     }

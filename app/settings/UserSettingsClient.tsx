@@ -323,23 +323,6 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     }
   }, [emailAddress]);
 
-  useEffect(() => {
-    if (
-      !notificationSettings.textNotificationsEnabled &&
-      !notificationSettings.emailNotificationsEnabled
-    ) {
-      // If both methods are disabled, turn off all notifications
-      setNotificationSettings((prev) => {
-        return Object.fromEntries(
-          Object.entries(prev).map(([key]) => [key, false])
-        ) as NonNullable<User["notificationSettings"]>;
-      });
-    }
-  }, [
-    notificationSettings.textNotificationsEnabled,
-    notificationSettings.emailNotificationsEnabled,
-  ]);
-
   const looksLikeEmailAddress = (() => {
     if (!emailAddress) {
       return false;
@@ -806,10 +789,6 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
               >
                 <input
                   type="checkbox"
-                  disabled={
-                    !notificationSettings.textNotificationsEnabled &&
-                    !notificationSettings.emailNotificationsEnabled
-                  }
                   checked={notificationSettings[option.key]}
                   onChange={() => handleNotificationToggle(option.key)}
                   className="w-5 h-5 shrink-0 text-primary-dark rounded focus:ring-primary mt-0.5"

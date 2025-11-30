@@ -12,6 +12,7 @@ import {
 } from "./types";
 import { verifySessionToken } from "./auth";
 import { seededShuffle } from "./utils/seededShuffle";
+import { UPCOMING_ROUNDS_TO_SHOW } from "./utils/constants";
 
 const dbPromise = (async () => {
   const [
@@ -284,6 +285,7 @@ export async function getUserLeagues(
           votingStartDate,
           votingEndDate,
           creatorObject: usersById[round.creatorId]?.user,
+          isHidden: false,
         };
 
         const roundStage = getRoundStage({
@@ -394,6 +396,19 @@ export async function getUserLeagues(
           !round.isBonusRound &&
           !round.isPending
         ) {
+          const isHidden = (() => {
+            if (round.creatorId === userId) {
+              return false;
+            }
+            if (
+              roundsObject.upcoming.length + (currentRound ? 1 : 0) >=
+              UPCOMING_ROUNDS_TO_SHOW
+            ) {
+              return true;
+            }
+            return false;
+          })();
+          round.isHidden = isHidden;
           roundsObject.upcoming.push(round);
         }
       });

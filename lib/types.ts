@@ -42,6 +42,7 @@ export type PopulatedRound = WithStringId<Round> & {
   userSubmission: PopulatedSubmission | undefined;
   creatorObject: PopulatedUser;
   isPending?: boolean;
+  isHidden: boolean;
 };
 
 export type PopulatedLeague = WithStringId<Omit<League, "users">> & {

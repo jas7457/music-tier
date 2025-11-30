@@ -92,7 +92,7 @@ export function ThemeProvider({
 
   const setPrimaryColor = useCallback(
     (color: ColorName) => {
-      Cookies.set("primaryColor", color, { path: "/" });
+      Cookies.set("primaryColor", color, { path: "/", expires: 365 * 5 });
       setStyles(color);
       setPrimaryColorState(color);
     },

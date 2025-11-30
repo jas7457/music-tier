@@ -153,6 +153,10 @@ export function RoundInfo({
     return pills.map(({ key, pill }) => <Fragment key={key}>{pill}</Fragment>);
   })();
 
+  const roundDescription = round.isHidden
+    ? `${round.creatorObject.userName} has submitted their round, but masking until the previous rounds have been submitted.`
+    : round.description;
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between">
@@ -178,9 +182,9 @@ export function RoundInfo({
           />
         </div>
       </div>
-      {round.description && (
+      {roundDescription && (
         <p className="text-gray-600 text-sm">
-          <MultiLine>{round.description}</MultiLine>
+          <MultiLine>{roundDescription}</MultiLine>
         </p>
       )}
 
