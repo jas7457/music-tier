@@ -68,6 +68,8 @@ export type Round = {
   spotifyPlaylistId?: string;
   // whether this round is a bonus round
   isBonusRound: boolean;
+  submissionDate: number;
+  lastUpdatedDate: number;
 };
 
 // "songSubmissions" collection */

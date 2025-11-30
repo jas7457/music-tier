@@ -12,20 +12,43 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { leagueId: string } }
 ) {
+  const { leagueId } = params;
+  return handleRequest(request, { leagueId, method: "ADD" });
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { leagueId: string; roundId: string } }
+) {
+  const { leagueId } = params;
+  return handleRequest(request, { leagueId, method: "UPDATE" });
+}
+
+async function handleRequest(
+  request: NextRequest,
+  { leagueId, method }: { leagueId: string; method: "ADD" | "UPDATE" }
+) {
+  const now = Date.now();
   try {
     const payload = verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
 
-    const { leagueId } = params;
     const body = await request.json();
-    const { title, description, isBonusRound: _isBonusRound } = body;
+    const { title, description, roundId, isBonusRound: _isBonusRound } = body;
     const isBonusRound = Boolean(_isBonusRound);
 
     if (!title || !description) {
       return NextResponse.json(
         { error: "Title and description are required" },
+        { status: 400 }
+      );
+    }
+
+    if (method === "UPDATE" && !roundId) {
+      return NextResponse.json(
+        { error: "Round ID is required for update" },
         { status: 400 }
       );
     }
@@ -69,36 +92,62 @@ export async function POST(
       );
     }
 
-    if (existingBonusRound && isBonusRound) {
+    if (method === "ADD" && existingBonusRound && isBonusRound) {
       return NextResponse.json(
         { error: "You have already created a bonus round for this league" },
         { status: 400 }
       );
     }
-    if (existingRound && !isBonusRound) {
+    if (method === "ADD" && existingRound && !isBonusRound) {
       return NextResponse.json(
         { error: "You have already created a round for this league" },
         { status: 400 }
       );
     }
 
-    // Create the round
-    const newRound: Round = {
-      _id: new ObjectId(),
-      leagueId: leagueId,
-      title: title.trim(),
-      description: description.trim(),
-      creatorId: payload.userId,
-      isBonusRound: Boolean(isBonusRound),
-    };
-
     const roundsCollection = await getCollection<Round>("rounds");
-    const result = await roundsCollection.insertOne(newRound);
+
+    const newRound = await (async () => {
+      if (method === "ADD") {
+        // Create the round
+        const newRound: Round = {
+          _id: new ObjectId(),
+          leagueId: leagueId,
+          title: title.trim(),
+          description: description.trim(),
+          creatorId: payload.userId,
+          isBonusRound: Boolean(isBonusRound),
+          submissionDate: now,
+          lastUpdatedDate: now,
+        };
+
+        const result = await roundsCollection.insertOne(newRound);
+        return { ...newRound, _id: result.insertedId.toString() };
+      } else {
+        // Update existing round
+        const result = await roundsCollection.findOneAndUpdate(
+          { _id: new ObjectId(roundId) },
+          {
+            $set: {
+              title: title.trim(),
+              description: description.trim(),
+              lastUpdatedDate: now,
+            },
+          },
+          { returnDocument: "after" }
+        );
+        if (!result) {
+          throw new Error("No round found to update");
+        }
+        return { ...result, _id: result._id.toString() };
+      }
+    })();
+
     triggerRealTimeUpdate();
     await roundNotifications({
       userId: payload.userId,
       isNewRound: true,
-      round: { _id: result.insertedId.toString(), isBonusRound },
+      round: { _id: newRound._id, isBonusRound },
       before: {
         league,
       },
@@ -106,10 +155,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      round: {
-        ...newRound,
-        _id: result.insertedId.toString(),
-      },
+      round: newRound,
     });
   } catch (error) {
     console.error("Error creating round:", error);

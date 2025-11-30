@@ -174,6 +174,8 @@ export async function getUserLeagues(
               stage: "upcoming" as const,
               userSubmission: undefined,
               isBonusRound: false,
+              submissionDate: inAWeek,
+              lastUpdatedDate: inAWeek,
             };
           }
         })

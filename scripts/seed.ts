@@ -48,6 +48,7 @@ async function seed() {
   try {
     await client.connect();
     console.log("✅ Connected to MongoDB");
+    const now = Date.now();
 
     const db = client.db(DB_NAME);
 
@@ -108,6 +109,8 @@ async function seed() {
             "Submit and vote for tracks with the most memorable and creative guitar riffs. Let's celebrate the art of the six-string!",
           creatorId: userId.toString(),
           isBonusRound: false,
+          submissionDate: now,
+          lastUpdatedDate: now,
         };
 
         await roundsCollection.insertOne(round);

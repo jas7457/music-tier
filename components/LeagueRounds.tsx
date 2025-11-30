@@ -25,6 +25,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
                 round={round}
                 league={league}
                 currentUser={user}
+                isRoundPage={false}
               />
             </Card>
           ))}
@@ -46,6 +47,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
           currentUser={user}
           round={league.rounds.current}
           league={league}
+          isRoundPage={false}
         />
       </div>
     );

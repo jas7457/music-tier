@@ -6,17 +6,41 @@ import CompletedRound from "./CompletedRound";
 import { PopulatedLeague, PopulatedRound, PopulatedUser } from "@/lib/types";
 import { ToggleButton } from "./ToggleButton";
 import { RoundInfo } from "./RoundInfo";
+import { HapticButton } from "./HapticButton";
+import { useToast } from "@/lib/ToastContext";
 
 export function Round({
   currentUser,
   round,
   league,
+  isRoundPage,
 }: {
   currentUser: PopulatedUser;
   round: PopulatedRound;
   league: PopulatedLeague;
+  isRoundPage: boolean;
 }) {
   const [showVotesView, setShowVotesView] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [roundTitle, setRoundTitle] = useState(round.title);
+  const [roundDescription, setRoundDescription] = useState(round.description);
+  const toast = useToast();
+
+  const canEdit = (() => {
+    if (!isRoundPage) {
+      return false;
+    }
+    if (currentUser._id !== round.creatorId) {
+      return false;
+    }
+    if (round.stage !== "upcoming") {
+      return false;
+    }
+    if (!round._id) {
+      return false;
+    }
+    return true;
+  })();
 
   const bodyMarkup = useMemo(() => {
     switch (round.stage) {
@@ -87,7 +111,16 @@ export function Round({
 
   return (
     <div className="flex flex-col gap-4">
-      <RoundInfo league={league} round={round} />
+      <RoundInfo
+        league={league}
+        round={{ ...round, title: roundTitle, description: roundDescription }}
+        {...(canEdit
+          ? {
+              onTitleUpdate: setRoundTitle,
+              onDescriptionUpdate: setRoundDescription,
+            }
+          : {})}
+      />
 
       {/* Song Submission Section */}
       {round.stage === "completed" && (
@@ -107,6 +140,61 @@ export function Round({
         </div>
       )}
       {bodyMarkup}
+
+      {canEdit && (
+        <div>
+          <HapticButton
+            disabled={isUpdating}
+            className="w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors text-sm font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+            onClick={async () => {
+              try {
+                setIsUpdating(true);
+                const response = await fetch(
+                  `/api/leagues/${league._id}/rounds`,
+                  {
+                    method: "PUT",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      roundId: round._id,
+                      title: roundTitle,
+                      description: roundDescription,
+                      isBonusRound: round.isBonusRound,
+                    }),
+                  }
+                );
+
+                if (response.ok) {
+                  toast.show({
+                    variant: "success",
+                    message: "Round updated successfully",
+                  });
+                  return;
+                }
+
+                try {
+                  const data = await response.json();
+                  toast.show({
+                    variant: "error",
+                    message: data.error || "Error updating round",
+                  });
+                } catch {
+                  toast.show({
+                    variant: "error",
+                    message: "Error updating round",
+                  });
+                }
+              } catch {
+              } finally {
+                setIsUpdating(false);
+              }
+            }}
+          >
+            Update
+          </HapticButton>
+        </div>
+      )}
     </div>
   );
 }

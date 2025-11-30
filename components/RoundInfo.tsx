@@ -19,10 +19,14 @@ export function RoundInfo({
   round,
   league,
   dateTimeClassName,
+  onTitleUpdate,
+  onDescriptionUpdate,
 }: {
   round: PopulatedRound;
   league: PopulatedLeague;
   dateTimeClassName?: string;
+  onTitleUpdate?: (newTitle: string) => void;
+  onDescriptionUpdate?: (newDescription: string) => void;
 }) {
   const toast = useToast();
   const [creatingPlaylist, setCreatingPlaylist] = useState(false);
@@ -153,21 +157,48 @@ export function RoundInfo({
     return pills.map(({ key, pill }) => <Fragment key={key}>{pill}</Fragment>);
   })();
 
-  const roundDescription = round.isHidden
-    ? `${round.creatorObject.userName} has submitted their round, but masking until the previous rounds have been submitted.`
-    : round.description;
+  const descriptionMarkup = (() => {
+    if (onDescriptionUpdate) {
+      return (
+        <textarea
+          value={round.description}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none field-sizing-content"
+          maxLength={500}
+          onChange={(e) => onDescriptionUpdate(e.target.value)}
+        />
+      );
+    }
+
+    const roundDescription = round.isHidden
+      ? `${round.creatorObject.userName} has submitted their round, but masking until the previous rounds have been submitted.`
+      : round.description;
+
+    return (
+      <p className="text-gray-600 text-sm">
+        <MultiLine>{roundDescription}</MultiLine>
+      </p>
+    );
+  })();
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex justify-between">
-        <div className="flex flex-wrap items-center gap-2">
-          <MaybeLink
-            href={`/leagues/${league._id}/rounds/${round._id}`}
-            className="font-semibold text-lg"
-            forceNormalText={!round._id}
-          >
-            {getRoundTitle(round)}
-          </MaybeLink>
+      <div className="flex gap-2 justify-between">
+        <div className="flex flex-wrap items-center gap-2 grow">
+          {onTitleUpdate ? (
+            <input
+              value={round.title}
+              className="font-semibold text-lg w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              onChange={(e) => onTitleUpdate(e.target.value)}
+            />
+          ) : (
+            <MaybeLink
+              href={`/leagues/${league._id}/rounds/${round._id}`}
+              className="font-semibold text-lg"
+              forceNormalText={!round._id}
+            >
+              {getRoundTitle(round)}
+            </MaybeLink>
+          )}
 
           {spotifyMarkup}
 
@@ -182,11 +213,8 @@ export function RoundInfo({
           />
         </div>
       </div>
-      {roundDescription && (
-        <p className="text-gray-600 text-sm">
-          <MultiLine>{roundDescription}</MultiLine>
-        </p>
-      )}
+
+      {descriptionMarkup}
 
       <div
         className={twMerge(
@@ -194,6 +222,14 @@ export function RoundInfo({
           dateTimeClassName
         )}
       >
+        {round.submissionDate !== round.lastUpdatedDate && (
+          <>
+            <DateTime prefix="Submission updated:">
+              {round.lastUpdatedDate}
+            </DateTime>
+            <span>•</span>
+          </>
+        )}
         <DateTime
           prefix={`Submissions ${
             now > round.submissionStartDate ? "started" : "start"

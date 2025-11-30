@@ -48,6 +48,7 @@ export function RoundPageClient({
             currentUser={currentUser}
             round={round}
             league={league}
+            isRoundPage={true}
           />
         </Card>
       </div>
