@@ -35,7 +35,7 @@ const userKelsey = {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const userJen = {
-  userId: "6917ece827ed2929c03cb220",
+  userId: "692b4f13016f4a750237c163",
   userName: "stickyrice",
 };
 
@@ -44,7 +44,7 @@ const userTest = {
   userName: "testuser",
 };
 
-const users = [userDharam, userKelsey, userTest];
+const users = [userDharam, userKelsey, userJen, userTest];
 
 export function verifySessionToken(): SessionPayload | null {
   const cookieStore = cookies();
