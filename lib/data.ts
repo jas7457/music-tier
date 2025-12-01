@@ -58,9 +58,19 @@ export async function getUserLeagues(
       })
       .sort({ _id: -1 }) // Sort by newest first
       .toArray()
-  ).map((league) => {
-    return { ...league, _id: league._id.toString() };
-  });
+  )
+    .map((league) => {
+      return { ...league, _id: league._id.toString() };
+    })
+    .sort((leagueA, leagueB) => {
+      if (leagueA.title === "Test league") {
+        return 1;
+      }
+      if (leagueB.title === "Test league") {
+        return -1;
+      }
+      return leagueB.leagueStartDate - leagueA.leagueStartDate;
+    });
 
   // get the current timestamp in the east coast of the usa
   const now = Date.now();
