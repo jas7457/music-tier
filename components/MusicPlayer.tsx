@@ -73,6 +73,24 @@ export default function MusicPlayer({
     }
   }, [showPlaylist, isExpanded, setIsExpanded]);
 
+  // Reset drag state when page loses visibility or focus (e.g., iOS app switcher)
+  useEffect(() => {
+    const resetDragState = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        setDragY(0);
+      }
+    };
+
+    document.addEventListener("visibilitychange", resetDragState);
+    window.addEventListener("blur", resetDragState);
+
+    return () => {
+      document.removeEventListener("visibilitychange", resetDragState);
+      window.removeEventListener("blur", resetDragState);
+    };
+  }, [isDragging]);
+
   const formatTime = (ms: number) => {
     const minutes = Math.floor(ms / 1000 / 60);
     const seconds = Math.floor((ms / 1000) % 60);
