@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 interface UsePullToRefreshOptions {
   onRefresh: () => void | Promise<void>;
+  isMusicPlayerExpanded: boolean;
   threshold?: number; // How far to pull before triggering refresh (in pixels)
   resistance?: number; // How much resistance when pulling (0-1, lower = more resistance)
 }
@@ -12,6 +13,7 @@ export function usePullToRefresh({
   onRefresh,
   threshold = 80,
   resistance = 0.5,
+  isMusicPlayerExpanded,
 }: UsePullToRefreshOptions) {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -19,11 +21,9 @@ export function usePullToRefresh({
   const isPulling = useRef(false);
 
   useEffect(() => {
-    let rafId: number;
-
     const handleTouchStart = (e: TouchEvent) => {
       // Only start if we're at the top of the page
-      if (window.scrollY === 0) {
+      if (window.scrollY === 0 && !isMusicPlayerExpanded) {
         touchStartY.current = e.touches[0].clientY;
         isPulling.current = true;
       }
@@ -62,31 +62,7 @@ export function usePullToRefresh({
           setIsRefreshing(false);
         }
       }
-      console.log({ currentPullDistance });
       setPullDistance(0);
-      return;
-
-      // Animate back to 0
-      const startDistance = currentPullDistance;
-      const startTime = Date.now();
-      const duration = 300;
-
-      const animate = () => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-
-        const newDistance = startDistance * (1 - easeOut);
-        setPullDistance(newDistance);
-
-        if (progress < 1) {
-          rafId = requestAnimationFrame(animate);
-        } else {
-          setPullDistance(0);
-        }
-      };
-
-      rafId = requestAnimationFrame(animate);
     };
 
     // Add event listeners with { passive: false } to allow preventDefault
@@ -102,9 +78,15 @@ export function usePullToRefresh({
       document.removeEventListener("touchstart", handleTouchStart);
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
-      if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [pullDistance, threshold, resistance, onRefresh, isRefreshing]);
+  }, [
+    pullDistance,
+    threshold,
+    resistance,
+    onRefresh,
+    isRefreshing,
+    isMusicPlayerExpanded,
+  ]);
 
   return {
     pullDistance,

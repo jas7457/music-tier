@@ -18,12 +18,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const [hasSpotifyAccess, setHasSpotifyAccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMusicPlayerExpanded, setIsMusicPlayerExpanded] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   // Pull to refresh functionality
   const { pullDistance, isRefreshing, shouldTriggerRefresh } = usePullToRefresh(
     {
+      isMusicPlayerExpanded,
       onRefresh: async () => {
         // window.location.reload();
         router.refresh();
@@ -223,7 +225,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
       />
       {userHeader}
       <div className="p-2 md:p-4">{children}</div>
-      {hasSpotifyAccess && <MusicPlayer />}
+      {hasSpotifyAccess && (
+        <MusicPlayer
+          isExpanded={isMusicPlayerExpanded}
+          setIsExpanded={setIsMusicPlayerExpanded}
+        />
+      )}
     </div>
   );
 }

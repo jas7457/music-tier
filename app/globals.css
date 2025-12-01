@@ -23,4 +23,16 @@
   button:not([disabled]), a[href] {
       cursor: pointer;
   }
+
+  @keyframes subtle-zoom {
+    0% {
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      transform: scale(2) rotate(20deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
+  }
 }
