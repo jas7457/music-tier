@@ -215,7 +215,7 @@ export function RoundInfo({
             ) : (
               <MaybeLink
                 href={`/leagues/${league._id}/rounds/${round._id}`}
-                className="font-semibold text-lg"
+                className="font-semibold text-lg inline"
                 forceNormalText={!round._id}
               >
                 {getRoundTitle(round)}
