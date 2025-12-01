@@ -85,7 +85,18 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
       {
         rounds: league.rounds.bonus,
         title: "Bonus Rounds",
-        roundInfo: (round) => <RoundInfo round={round} league={league} />,
+        roundInfo: (round) => (
+          <div className="flex flex-col gap-2">
+            <RoundInfo round={round} league={league} />
+
+            {!round._id && (
+              <div>
+                Waiting for {round.creatorObject.userName} to create their bonus
+                round.
+              </div>
+            )}
+          </div>
+        ),
       },
       {
         rounds: league.status === "completed" ? [] : league.rounds.completed,

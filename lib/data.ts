@@ -13,6 +13,7 @@ import {
 import { verifySessionToken } from "./auth";
 import { seededShuffle } from "./utils/seededShuffle";
 import { UPCOMING_ROUNDS_TO_SHOW } from "./utils/constants";
+import { assertNever } from "./utils/never";
 
 const dbPromise = (async () => {
   const [
@@ -139,6 +140,40 @@ export async function getUserLeagues(
         })
       );
 
+      const createPendingRound = ({
+        roundIndex,
+        userId,
+        isBonusRound,
+      }: {
+        roundIndex: number;
+        userId: string;
+        isBonusRound: boolean;
+      }): Omit<PopulatedRound, "isHidden"> => {
+        const inAWeek = now + 7 * ONE_DAY_MS;
+
+        return {
+          _id: "",
+          isPending: true,
+          leagueId: league._id.toString(),
+          creatorId: userId,
+          title: "",
+          description: "",
+          submissions: [],
+          votes: [],
+          submissionStartDate: inAWeek,
+          submissionEndDate: inAWeek,
+          votingStartDate: inAWeek,
+          votingEndDate: inAWeek,
+          roundIndex,
+          creatorObject: usersById[userId]?.user,
+          stage: "upcoming" as const,
+          userSubmission: undefined,
+          isBonusRound,
+          submissionDate: inAWeek,
+          lastUpdatedDate: inAWeek,
+        };
+      };
+
       const normalUserRounds: Array<
         (typeof populatedRounds)[number] & { roundIndex: number }
       > = league.users
@@ -153,30 +188,11 @@ export async function getUserLeagues(
           if (populatedRound) {
             return { ...populatedRound, roundIndex: index };
           } else {
-            const inAWeek = now + 7 * ONE_DAY_MS;
-            const roundIndex = usersById[userId]?.index ?? index;
-
-            return {
-              _id: "",
-              isPending: true,
-              leagueId: league._id.toString(),
-              creatorId: userId,
-              title: "",
-              description: "",
-              submissions: [],
-              votes: [],
-              submissionStartDate: inAWeek,
-              submissionEndDate: inAWeek,
-              votingStartDate: inAWeek,
-              votingEndDate: inAWeek,
-              roundIndex,
-              creatorObject: usersById[userId]?.user,
-              stage: "upcoming" as const,
-              userSubmission: undefined,
+            return createPendingRound({
+              roundIndex: usersById[userId]?.index ?? index,
+              userId,
               isBonusRound: false,
-              submissionDate: inAWeek,
-              lastUpdatedDate: inAWeek,
-            };
+            });
           }
         })
         .filter((round) => round !== undefined)
@@ -185,14 +201,22 @@ export async function getUserLeagues(
       const bonusRounds: Array<
         (typeof populatedRounds)[number] & { roundIndex: number }
       > = league.bonusRoundUserIds
-        .map((userId) => {
+        .map((userId, userIndex) => {
           const user = usersById[userId]?.user;
           if (!user) {
             return undefined;
           }
-          return populatedRounds.find(
+          const populatedRound = populatedRounds.find(
             (round) => round.creatorId === userId && round.isBonusRound
           );
+          if (populatedRound) {
+            return populatedRound;
+          }
+          return createPendingRound({
+            roundIndex: league.users.length + userIndex,
+            userId,
+            isBonusRound: true,
+          });
         })
         .filter((round) => round !== undefined)
         .map((round, index) => ({
@@ -200,10 +224,11 @@ export async function getUserLeagues(
           roundIndex: index + league.users.length,
         }));
 
+      let currentOrUpcomingRoundsCount = 0;
       const roundsWithData: PopulatedRound[] = [
         ...normalUserRounds,
         ...bonusRounds,
-      ].map((round) => {
+      ].map((round, roundIndex) => {
         const userSubmission = round.submissions.find(
           (submission) => submission.userId === userId
         );
@@ -278,7 +303,7 @@ export async function getUserLeagues(
           currentStartDate = maybeTomorrow;
         }
 
-        const populatedRound: Omit<PopulatedRound, "stage"> = {
+        const populatedRound: Omit<PopulatedRound, "stage" | "isHidden"> = {
           ...round,
           _id: round._id.toString(),
           userSubmission,
@@ -287,7 +312,7 @@ export async function getUserLeagues(
           votingStartDate,
           votingEndDate,
           creatorObject: usersById[round.creatorId]?.user,
-          isHidden: false,
+          roundIndex,
         };
 
         const roundStage = getRoundStage({
@@ -296,6 +321,30 @@ export async function getUserLeagues(
           round: populatedRound,
           now,
         });
+
+        const isHidden = (() => {
+          if (round.creatorId === userId) {
+            return false;
+          }
+          switch (roundStage) {
+            case "completed":
+            case "submission":
+            case "unknown":
+            case "voting":
+            case "currentUserVotingCompleted": {
+              return false;
+            }
+            case "upcoming": {
+              if (round._id !== "") {
+                currentOrUpcomingRoundsCount += 1;
+              }
+              return currentOrUpcomingRoundsCount > UPCOMING_ROUNDS_TO_SHOW;
+            }
+            default: {
+              assertNever(roundStage);
+            }
+          }
+        })();
 
         const submissionsSorted = (() => {
           switch (roundStage) {
@@ -314,6 +363,7 @@ export async function getUserLeagues(
           ...populatedRound,
           submissions: submissionsSorted,
           stage: roundStage,
+          isHidden,
         };
       });
 
@@ -398,19 +448,6 @@ export async function getUserLeagues(
           !round.isBonusRound &&
           !round.isPending
         ) {
-          const isHidden = (() => {
-            if (round.creatorId === userId) {
-              return false;
-            }
-            if (
-              roundsObject.upcoming.length + (currentRound ? 1 : 0) >=
-              UPCOMING_ROUNDS_TO_SHOW
-            ) {
-              return true;
-            }
-            return false;
-          })();
-          round.isHidden = isHidden;
           roundsObject.upcoming.push(round);
         }
       });
@@ -490,7 +527,7 @@ function getRoundStage({
   now,
 }: {
   currentUserId: string;
-  round: Omit<PopulatedRound, "stage" | "roundIndex">;
+  round: Omit<PopulatedRound, "stage" | "roundIndex" | "isHidden">;
   league: Pick<PopulatedLeague, "votesPerRound"> & { users: unknown[] };
   now: number;
 }): PopulatedRoundStage {
