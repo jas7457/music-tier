@@ -14,6 +14,7 @@ import { useToast } from "@/lib/ToastContext";
 import { createSpotifyPlaylist } from "@/lib/utils/createSpotifyPlaylist";
 import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
 import { assertNever } from "@/lib/utils/never";
+import { InlineGap } from "./InlineGap";
 
 export function RoundInfo({
   round,
@@ -65,6 +66,26 @@ export function RoundInfo({
   })();
 
   const spotifyMarkup = (() => {
+    const isCorrectStage = (() => {
+      switch (round.stage) {
+        case "completed":
+        case "voting":
+        case "currentUserVotingCompleted": {
+          return true;
+        }
+        case "upcoming":
+        case "submission":
+        case "unknown": {
+          return false;
+        }
+        default: {
+          assertNever(round.stage);
+        }
+      }
+    })();
+    if (!isCorrectStage) {
+      return null;
+    }
     if (round.submissions.length < league.users.length) {
       return null;
     }
@@ -90,7 +111,7 @@ export function RoundInfo({
     return (
       <HapticButton
         disabled={creatingPlaylist}
-        className="disabled:opacity-30"
+        className="disabled:opacity-30 align-middle"
         title="Create playlist"
         onClick={async () => {
           try {
@@ -182,28 +203,31 @@ export function RoundInfo({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex gap-2 justify-between">
-        <div className="flex flex-wrap items-center gap-2 grow">
-          {onTitleUpdate ? (
-            <input
-              value={round.title}
-              className="font-semibold text-lg w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              onChange={(e) => onTitleUpdate(e.target.value)}
-            />
-          ) : (
-            <MaybeLink
-              href={`/leagues/${league._id}/rounds/${round._id}`}
-              className="font-semibold text-lg"
-              forceNormalText={!round._id}
-            >
-              {getRoundTitle(round)}
-            </MaybeLink>
-          )}
+      <div className="flex gap-1">
+        <div className="grow shrink">
+          <InlineGap>
+            {onTitleUpdate ? (
+              <input
+                value={round.title}
+                className="font-semibold text-lg w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                onChange={(e) => onTitleUpdate(e.target.value)}
+              />
+            ) : (
+              <MaybeLink
+                href={`/leagues/${league._id}/rounds/${round._id}`}
+                className="font-semibold text-lg"
+                forceNormalText={!round._id}
+              >
+                {getRoundTitle(round)}
+              </MaybeLink>
+            )}
 
-          {spotifyMarkup}
+            {spotifyMarkup}
 
-          {statusPills}
+            {statusPills}
+          </InlineGap>
         </div>
+
         <div className="shrink-0">
           <Avatar
             user={round.creatorObject}
