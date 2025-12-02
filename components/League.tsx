@@ -12,6 +12,9 @@ import { LeagueStandings } from "./LeagueStandings";
 import { ToggleButton } from "./ToggleButton";
 import { getAllRounds } from "@/lib/utils/getAllRounds";
 import { DateTime } from "./DateTime";
+import { ConfirmUploadButton } from "./UploadThing";
+import { useToast } from "@/lib/ToastContext";
+import { HapticButton } from "./HapticButton";
 
 export function League({
   league,
@@ -20,8 +23,13 @@ export function League({
   league: PopulatedLeague;
   user: PopulatedUser;
 }) {
+  const toast = useToast();
   const [showStandings, setShowStandings] = useState(
     league.status === "completed"
+  );
+  const [leagueImageUrl, setLeagueImageUrl] = useState(league.heroImageUrl);
+  const [heroStage, setHeroState] = useState(
+    leagueImageUrl ? ("edit" as const) : ("add" as const)
   );
 
   const { userHasCreatedRound, userHasCreatedBonusRound } = useMemo(() => {
@@ -78,37 +86,147 @@ export function League({
     }
   })();
 
+  const heroButtons = (() => {
+    if (league.heroImageUserId !== user._id) {
+      return null;
+    }
+    switch (heroStage) {
+      case "add": {
+        return (
+          <div className="absolute inset-0 flex justify-center items-center">
+            <ConfirmUploadButton
+              endpoint="imageUploader"
+              onCancel={() => {
+                setLeagueImageUrl(league.heroImageUrl);
+              }}
+              onImagePreview={setLeagueImageUrl}
+              onUploadComplete={async (url) => {
+                try {
+                  const response = await fetch(
+                    `/api/leagues/${league._id}/hero-image`,
+                    {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ heroImageUrl: url }),
+                    }
+                  );
+
+                  if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(
+                      error.error || "Failed to update hero image"
+                    );
+                  }
+
+                  setLeagueImageUrl(url);
+                  setHeroState("edit");
+                  toast.show({
+                    variant: "success",
+                    message: "Hero image updated successfully!",
+                  });
+                } catch (error) {
+                  console.error("Error updating hero image:", error);
+                  toast.show({
+                    variant: "error",
+                    message:
+                      error instanceof Error
+                        ? error.message
+                        : "Failed to update hero image",
+                  });
+                  // Revert to original image on error
+                  setLeagueImageUrl(league.heroImageUrl);
+                }
+              }}
+              onUploadError={(error) => {
+                toast.show({
+                  variant: "error",
+                  message: `Image upload failed: ${error.message}`,
+                });
+              }}
+            />
+          </div>
+        );
+      }
+      case "edit": {
+        return (
+          <div className="absolute inset-0 flex justify-end items-start p-4">
+            <HapticButton
+              className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+              onClick={() => setHeroState("add")}
+            >
+              <svg
+                className="w-5 h-5 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                />
+              </svg>
+            </HapticButton>
+          </div>
+        );
+      }
+    }
+  })();
+
   return (
     <div className="flex flex-col gap-6">
-      {/* League Header */}
-      <div className="border-b border-gray-300 pb-4">
-        <div className="flex flex-wrap gap-2 items-center">
-          <div className="flex flex-wrap items-center gap-x-2 grow">
+      {/* Hero Banner with Cover Photo */}
+      <div className="relative h-64 md:h-80 overflow-hidden rounded-lg">
+        {/* Background Image */}
+        {leagueImageUrl && (
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${leagueImageUrl})`,
+            }}
+          />
+        )}
+
+        {/* Gradient Overlay for readability */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent flex justify-center items-center">
+          {heroButtons}
+        </div>
+
+        {/* Title and Status overlaid on cover */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+          <div className="flex flex-wrap items-center gap-3">
             <MaybeLink
               href={`/leagues/${league._id}`}
-              className="text-2xl font-bold mb-2"
+              className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg"
             >
               {league.title}
             </MaybeLink>
-
             <Pill status={league.status}>{text}</Pill>
           </div>
-          <div className="flex flex-wrap items-center gap-1">
-            {league.users.map((user) => (
-              <Avatar
-                key={user._id}
-                user={user}
-                includeTooltip
-                tooltipText={`${user.userName}'s profile`}
-              />
-            ))}
-          </div>
         </div>
+      </div>
+
+      {/* League Info Section */}
+      <div className="flex flex-col gap-4">
+        {/* Avatars and Description */}
+        <div className="flex flex-wrap items-center gap-1">
+          {league.users.map((user) => (
+            <Avatar
+              key={user._id}
+              user={user}
+              includeTooltip
+              tooltipText={`${user.userName}'s profile`}
+            />
+          ))}
+        </div>
+
         <p className="text-gray-600 mb-3">
           <MultiLine>{league.description}</MultiLine>
         </p>
 
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        {/* League Details and Toggle */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-gray-300">
           <div className="flex flex-wrap gap-x-2 text-sm text-gray-500">
             {league.status === "completed" && finalVoteTimestamp > 0 && (
               <>

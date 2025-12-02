@@ -53,6 +53,9 @@ export type League = {
   daysForVoting: number;
   // array of user IDs who are allowed to create a bonus round
   bonusRoundUserIds: string[];
+
+  heroImageUserId?: string;
+  heroImageUrl?: string;
 };
 
 /* "rounds" collection */
