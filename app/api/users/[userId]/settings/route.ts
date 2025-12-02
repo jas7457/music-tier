@@ -61,6 +61,7 @@ export async function PUT(request: NextRequest) {
         "SUBMISSIONS.HALF_SUBMITTED": false,
         "SUBMISSIONS.LAST_TO_SUBMIT": false,
         "SUBMISSION.REMINDER": false,
+        "ROUND.REMINDER": false,
         "ROUND.STARTED": false,
         "ROUND.COMPLETED": false,
         "ROUND.HALF_VOTED": false,
