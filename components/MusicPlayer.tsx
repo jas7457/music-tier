@@ -241,7 +241,7 @@ export default function MusicPlayer({
           className="relative backdrop-blur-md bg-linear-to-b from-primary/60 to-primary-dark/60 border-t-2 border-white/30 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] cursor-pointer active:opacity-90 touch-none"
         >
           <div className="absolute inset-0 bg-black/30"></div>
-          <div className="relative px-3 py-2 flex items-center gap-3">
+          <div className="relative p-4 flex items-center gap-3">
             {/* Album Art */}
             <div className="relative">
               {isPlaying && (
