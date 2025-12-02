@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import {
   getDueNotifications,
   markNotificationCompleted,
@@ -13,10 +13,11 @@ import { PopulatedLeague } from "@/lib/types";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // Allow up to 60 seconds for processing
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Verify this is a legitimate cron request
     // In production, you should verify the request is from Vercel Cron
+    /*
     const authHeader = request.headers.get("authorization");
     if (
       process.env.NODE_ENV === "production" &&
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest) {
     ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    */
 
     const tasks = await getDueNotifications();
     const results = {
