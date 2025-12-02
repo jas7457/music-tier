@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import AlbumArt from "./AlbumArt";
 import Card from "./Card";
 import { UsersList } from "./UsersList";
@@ -16,14 +16,22 @@ import { Avatar } from "./Avatar";
 import { formatDateWithTime } from "@/lib/utils/formatDate";
 import { HapticButton } from "./HapticButton";
 
+const LOCAL_STORAGE_KEY = "VotingRound.votes";
+
 interface VotingRoundProps {
   round: PopulatedRound;
   league: {
+    _id: string;
     votesPerRound: number;
     users: Array<PopulatedUser>;
   };
   currentUser: PopulatedUser;
 }
+
+type VoteRecord = Record<
+  string,
+  { points: number; note: string; userGuessId?: string }
+>;
 
 export default function VotingRound({
   round,
@@ -32,25 +40,71 @@ export default function VotingRound({
 }: VotingRoundProps) {
   const toast = useToast();
   const { refreshData } = useData();
-  const [votes, setVotes] = useState(() =>
-    round.submissions.reduce((acc, submission) => {
+  const [votes, setVotes] = useState(() => {
+    const storedVersion: Partial<VoteRecord> = (() => {
+      try {
+        const storedVersion = JSON.parse(
+          localStorage.getItem(LOCAL_STORAGE_KEY) || "{}"
+        );
+        if (
+          storedVersion.roundId !== round._id ||
+          storedVersion.leagueId !== league._id
+        ) {
+          return {};
+        }
+        return storedVersion.votes;
+      } catch {
+        return {};
+      }
+    })();
+
+    return round.submissions.reduce((acc, submission) => {
       const currentVote = round.votes.find(
         (vote) =>
           vote.userId === currentUser._id &&
           vote.submissionId === submission._id
       );
+
+      const points = (() => {
+        if (round.stage === "currentUserVotingCompleted") {
+          return round.votes.reduce((sum, vote) => {
+            return (
+              sum + (vote.submissionId === submission._id ? vote.points : 0)
+            );
+          }, 0);
+        }
+        return currentVote?.points ?? 0;
+      })();
+
       if (currentVote) {
         acc[submission._id] = {
-          points: currentVote.points,
+          points,
           note: currentVote.note || "",
           userGuessId: currentVote.userGuessId,
         };
       } else {
-        acc[submission._id] = { points: 0, note: "", userGuessId: undefined };
+        acc[submission._id] = {
+          points: 0,
+          note: "",
+          userGuessId: undefined,
+          ...(storedVersion[submission._id] ?? {}),
+        };
       }
       return acc;
-    }, {} as Record<string, { points: number; note: string; userGuessId?: string }>)
-  );
+    }, {} as VoteRecord);
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY,
+      JSON.stringify({
+        roundId: round._id,
+        leagueId: league._id,
+        votes,
+      })
+    );
+  }, [votes, round._id, league._id]);
+
   const [saving, setSaving] = useState(false);
 
   // Calculate total votes used
@@ -270,7 +324,8 @@ export default function VotingRound({
                 </div>
 
                 {/* Voting Controls */}
-                {!isYourSubmission && (
+                {(!isYourSubmission ||
+                  round.stage === "currentUserVotingCompleted") && (
                   <div
                     className={twMerge(
                       "flex items-center gap-1",
@@ -279,7 +334,7 @@ export default function VotingRound({
                         : ""
                     )}
                   >
-                    <div className="flex flex-col items-center min-w-[60px]">
+                    <div className="flex flex-col items-center min-w-10">
                       {round.stage === "voting" && (
                         <HapticButton
                           onClick={() => handleVoteChange(submission._id, 1)}
@@ -334,9 +389,14 @@ export default function VotingRound({
                             : undefined
                         }
                         isEditable={round.stage === "voting"}
-                        users={league.users.filter(
-                          (u) => u._id !== currentUser._id
-                        )}
+                        users={league.users.filter((u) => {
+                          if (u._id === currentUser._id) {
+                            return false;
+                          }
+                          return !Object.values(votes).some(
+                            (vote) => vote.userGuessId === u._id
+                          );
+                        })}
                         selectedUser={
                           savedSubmission?.userGuessId
                             ? league.users.find(
