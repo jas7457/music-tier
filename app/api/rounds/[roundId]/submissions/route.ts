@@ -7,6 +7,7 @@ import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 import { getUserLeagues } from "@/lib/data";
 import { getAllRounds } from "@/lib/utils/getAllRounds";
 import { submissionNotifications } from "@/lib/notifications";
+import { setScheduledNotifications } from "@/lib/scheduledNotifications";
 
 export async function POST(
   request: NextRequest,
@@ -49,9 +50,9 @@ async function handleRequest(
       );
     }
 
-    const userLeagues = await getUserLeagues(payload.userId);
+    const getData = async () => {
+      const userLeagues = await getUserLeagues(payload.userId);
 
-    const { round: foundRound, league: foundLeague } = (() => {
       for (const league of userLeagues) {
         const rounds = getAllRounds(league, {
           includePending: false,
@@ -65,7 +66,9 @@ async function handleRequest(
         }
       }
       return { round: null, league: null };
-    })();
+    };
+
+    const { round: foundRound, league: foundLeague } = await getData();
 
     if (!foundRound) {
       return NextResponse.json(
@@ -178,17 +181,24 @@ async function handleRequest(
       }
     })();
 
-    triggerRealTimeUpdate();
+    const newData = await getData();
 
-    if (method === "ADD") {
-      await submissionNotifications({
-        league: foundLeague,
-        submission: newSubmission,
-        before: {
-          round: foundRound,
-        },
-      });
-    }
+    await Promise.all([
+      method === "ADD"
+        ? submissionNotifications({
+            league: foundLeague,
+            before: {
+              round: foundRound,
+            },
+            after: {
+              round: newData.round || undefined,
+            },
+          })
+        : Promise.resolve(),
+      setScheduledNotifications(newData.league!),
+    ]);
+
+    triggerRealTimeUpdate();
 
     return NextResponse.json({ submission: newSubmission });
   } catch (error) {

@@ -1,19 +1,12 @@
 import { sendEmail, sendTextEmail } from "./emailService";
 import { triggerNotifications } from "./pusher-server";
-import {
-  PopulatedLeague,
-  PopulatedRound,
-  PopulatedSubmission,
-  PopulatedUser,
-  PopulatedVote,
-} from "./types";
+import { PopulatedLeague, PopulatedRound, PopulatedUser } from "./types";
 import { APP_NAME, PRODUCTION_URL, logo } from "./utils/constants";
 import { getAllRounds } from "./utils/getAllRounds";
 import { sendPushNotification } from "./webPush";
 import { getCollection } from "./mongodb";
 import type { User } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
-import { getUserLeagues } from "./data";
 
 export type Notification =
   | {
@@ -21,97 +14,110 @@ export type Notification =
       userIds: string[];
       title: string;
       message: string;
-      additionalHTML: string;
-      link: string;
+      additionalHTML?: string;
+      link?: string;
+    }
+  | {
+      code: "VOTING.REMINDER";
+      userIds: string[];
+      title: string;
+      message: string;
+      additionalHTML?: string;
+      link?: string;
+    }
+  | {
+      code: "SUBMISSION.REMINDER";
+      userIds: string[];
+      title: string;
+      message: string;
+      additionalHTML?: string;
+      link?: string;
     }
   | {
       code: "SUBMISSIONS.HALF_SUBMITTED";
       userIds: string[];
       title: string;
       message: string;
-      additionalHTML: string;
-      link: string;
+      additionalHTML?: string;
+      link?: string;
     }
   | {
       code: "SUBMISSIONS.LAST_TO_SUBMIT";
       userIds: string[];
       title: string;
       message: string;
-      additionalHTML: string;
-      link: string;
+      additionalHTML?: string;
+      link?: string;
+    }
+  | {
+      code: "ROUND.REMINDER";
+      userIds: string[];
+      title: string;
+      message: string;
+      additionalHTML?: string;
+      link?: string;
     }
   | {
       code: "ROUND.STARTED";
       userIds: string[];
       title: string;
       message: string;
-      additionalHTML: string;
-      link: string;
+      additionalHTML?: string;
+      link?: string;
     }
   | {
       code: "ROUND.COMPLETED";
       userIds: string[];
       title: string;
       message: string;
-      additionalHTML: string;
-      link: string;
+      additionalHTML?: string;
+      link?: string;
     }
   | {
       code: "ROUND.HALF_VOTED";
       userIds: string[];
       title: string;
       message: string;
-      additionalHTML: string;
-      link: string;
+      additionalHTML?: string;
+      link?: string;
     }
   | {
       code: "ROUND.LAST_TO_VOTE";
       userIds: string[];
       title: string;
       message: string;
-      additionalHTML: string;
-      link: string;
+      additionalHTML?: string;
+      link?: string;
     }
   | {
       code: "LEAGUE.COMPLETED";
       userIds: string[];
       title: string;
       message: string;
-      additionalHTML: string;
-      link: string;
+      additionalHTML?: string;
+      link?: string;
     };
 
 export async function roundNotifications({
-  userId,
   isNewRound,
   round,
   before,
+  after,
 }: {
-  userId: string;
   isNewRound: boolean;
   round: Pick<PopulatedRound, "_id" | "isBonusRound">;
   before: { league: PopulatedLeague };
+  after: { league: PopulatedLeague };
 }) {
   const notifications: Notification[] = [];
   const leagueLink = `${PRODUCTION_URL}/leagues/${before.league._id}`;
   const roundLink = `${leagueLink}/rounds/${round._id}`;
 
-  const userLeagues = await getUserLeagues(userId);
-
-  const { league, foundRound } = (() => {
-    for (const league of userLeagues) {
-      if (league._id === before.league._id) {
-        const allRounds = getAllRounds(league, {
-          includeFake: true,
-          includePending: true,
-        });
-
-        const foundRound = allRounds.find((r) => r._id === round._id) ?? null;
-        return { league, foundRound };
-      }
-    }
-    return { league: null, foundRound: null };
-  })();
+  const league = after.league;
+  const foundRound =
+    getAllRounds(league, { includeFake: true, includePending: true }).find(
+      (r) => r._id === round._id
+    ) ?? null;
 
   const beforeRound = getAllRounds(before.league, {
     includePending: true,
@@ -155,18 +161,22 @@ export async function roundNotifications({
 
 export async function submissionNotifications({
   league,
-  submission,
   before,
+  after,
 }: {
   league: PopulatedLeague;
-  submission: Pick<PopulatedSubmission, "userId">;
   before: { round: PopulatedRound };
+  after: { round: PopulatedRound | undefined };
 }) {
+  const afterRound = after.round;
+  if (!afterRound) {
+    return;
+  }
   const notifications: Notification[] = [];
 
   const { submittedUsers, unsubmittedUsers } = league.users.reduce(
     (acc, user) => {
-      const userHasSubmitted = [...before.round.submissions, submission].some(
+      const userHasSubmitted = afterRound.submissions.some(
         (submission) => submission.userId === user._id
       );
       if (userHasSubmitted) {
@@ -231,19 +241,24 @@ export async function submissionNotifications({
 }
 
 export async function voteNotifications({
-  league,
-  votes,
   before,
+  after,
 }: {
-  league: PopulatedLeague;
-  votes: Array<Pick<PopulatedVote, "userId">>;
-  before: { round: PopulatedRound };
+  before: { league: PopulatedLeague; round: PopulatedRound };
+  after: {
+    league: PopulatedLeague | undefined;
+    round: PopulatedRound | undefined;
+  };
 }) {
+  const { round: afterRound, league: afterLeague } = after;
+  if (!afterRound || !afterLeague) {
+    return;
+  }
   const notifications: Notification[] = [];
 
-  const { votedUsers, unvotedUsers } = league.users.reduce(
+  const { unvotedUsers } = afterLeague.users.reduce(
     (acc, user) => {
-      const userHasVoted = [...before.round.votes, ...votes].some(
+      const userHasVoted = afterRound.votes.some(
         (vote) => vote.userId === user._id
       );
       if (userHasVoted) {
@@ -259,41 +274,54 @@ export async function voteNotifications({
     }
   );
 
-  const halfOfUsers = league.users.length / 2;
+  const halfOfUsers = afterLeague.users.length / 2;
 
   (() => {
-    const leagueLink = `${PRODUCTION_URL}/leagues/${league._id}`;
-    const roundLink = `${leagueLink}/rounds/${before.round._id}`;
+    const leagueLink = `${PRODUCTION_URL}/leagues/${afterLeague._id}`;
+    const roundLink = `${leagueLink}/rounds/${afterRound._id}`;
 
     if (unvotedUsers.length === 0) {
-      const isLeagueCompleted = getAllRounds(league, {
-        includePending: true,
-        includeFake: true,
-      }).every((round) => {
-        if (round._id === before.round._id) {
-          return true;
-        }
-        return round.stage === "completed";
-      });
-
-      if (isLeagueCompleted) {
+      if (
+        afterLeague.status === "completed" &&
+        before.league.status !== "completed"
+      ) {
         notifications.push({
           code: "LEAGUE.COMPLETED",
-          userIds: league.users.map((user) => user._id),
+          userIds: afterLeague.users.map((user) => user._id),
           title: "League completed",
-          message: `The league "${league.title}" has been completed. Check out the final results!`,
+          message: `The league "${afterLeague.title}" has been completed. Check out the final results!`,
           additionalHTML: `<p><a href="${leagueLink}">Click here to go to the league and view the final results.</a></p>`,
           link: leagueLink,
         });
       } else {
         notifications.push({
           code: "ROUND.COMPLETED",
-          userIds: league.users.map((user) => user._id),
+          userIds: afterLeague.users.map((user) => user._id),
           title: "Round completed",
-          message: `All votes are in for ${before.round.title}. Check out the results!`,
+          message: `All votes are in for ${afterRound.title}. Check out the results!`,
           additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and view the results.</a></p>`,
           link: roundLink,
         });
+
+        const next3Rounds = [
+          afterLeague.rounds.current,
+          ...afterLeague.rounds.upcoming,
+        ]
+          .filter((round) => round !== undefined)
+          .slice(0, 3)
+          .filter((round) => round.isPending);
+
+        for (const round of next3Rounds) {
+          notifications.push({
+            code: "ROUND.REMINDER",
+            userIds: [round.creatorId],
+            title: "Round reminder",
+            message:
+              "You still have to submit your round, and it's coming up soon!",
+            additionalHTML: `<p><a href="${PRODUCTION_URL}/leagues/${afterLeague._id}">Click here to add your round.</a></p>`,
+            link: `${PRODUCTION_URL}/leagues/${afterLeague._id}`,
+          });
+        }
       }
 
       return;
@@ -304,7 +332,7 @@ export async function voteNotifications({
         code: "ROUND.LAST_TO_VOTE",
         userIds: [unvotedUsers[0]._id],
         title: "Last to vote",
-        message: `You are the last to vote for ${before.round.title}.`,
+        message: `You are the last to vote for ${afterRound.title}.`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and cast your vote.</a></p>`,
         link: roundLink,
       });
@@ -313,13 +341,13 @@ export async function voteNotifications({
 
     if (
       before.round.votes.length < halfOfUsers &&
-      votedUsers.length >= halfOfUsers
+      afterRound.votes.length >= halfOfUsers
     ) {
       notifications.push({
         code: "ROUND.HALF_VOTED",
         userIds: unvotedUsers.map((user) => user._id),
         title: "Half of users have voted",
-        message: `Half of the users have voted for ${before.round.title}. Don't forget to cast your vote!`,
+        message: `Half of the users have voted for ${afterRound.title}. Don't forget to cast your vote!`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and cast your vote.</a></p>`,
         link: roundLink,
       });
@@ -327,13 +355,16 @@ export async function voteNotifications({
     }
   })();
 
-  await sendNotifications(notifications, league);
+  await sendNotifications(notifications, afterLeague);
 }
 
-async function sendNotifications(
+export async function sendNotifications(
   notifications: Notification[],
   league: PopulatedLeague
 ) {
+  if (notifications.length === 0) {
+    return;
+  }
   try {
     triggerNotifications(notifications);
 
@@ -414,7 +445,9 @@ async function sendNotifications(
               email: user.emailAddress,
             },
             subject: `${APP_NAME} Update: ${notification.title}`,
-            html: `<p>${notification.message}</p>${notification.additionalHTML}`,
+            html: `<p>${notification.message}</p>${
+              notification.additionalHTML || ""
+            }`,
           });
         }
 

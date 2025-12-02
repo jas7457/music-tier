@@ -108,3 +108,36 @@ export type Vote = {
   // corresponds to a guess for who submitted the song
   userGuessId?: string;
 };
+
+/* "scheduledNotifications" collection */
+export type ScheduledNotification = {
+  _id: ObjectId;
+  status: "pending" | "completed" | "failed" | "cancelled";
+  leagueId: string;
+  userIds: string[];
+
+  executeAt: number;
+  executedAt?: number;
+  error?: string;
+} & (
+  | {
+      type: "VOTING.REMINDER";
+      data: {
+        notification: {
+          code: "VOTING.REMINDER";
+          title: string;
+          message: string;
+        };
+      };
+    }
+  | {
+      type: "SUBMISSION.REMINDER";
+      data: {
+        notification: {
+          code: "SUBMISSION.REMINDER";
+          title: string;
+          message: string;
+        };
+      };
+    }
+);

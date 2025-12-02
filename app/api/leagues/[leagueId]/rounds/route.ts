@@ -7,6 +7,7 @@ import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 import { roundNotifications } from "@/lib/notifications";
 import { getUserLeagues } from "@/lib/data";
 import { getAllRounds } from "@/lib/utils/getAllRounds";
+import { setScheduledNotifications } from "@/lib/scheduledNotifications";
 
 export async function POST(
   request: NextRequest,
@@ -53,8 +54,8 @@ async function handleRequest(
       );
     }
 
-    const userLeagues = await getUserLeagues(payload.userId);
-    const { league, existingRound, existingBonusRound } = (() => {
+    const getLeagueData = async () => {
+      const userLeagues = await getUserLeagues(payload.userId);
       for (const league of userLeagues) {
         if (league._id === leagueId) {
           const allRounds = getAllRounds(league, {
@@ -78,7 +79,9 @@ async function handleRequest(
         existingRound: null,
         existingBonusRound: null,
       };
-    })();
+    };
+
+    const { league, existingRound, existingBonusRound } = await getLeagueData();
 
     if (!league) {
       return NextResponse.json({ error: "League not found" }, { status: 404 });
@@ -143,15 +146,23 @@ async function handleRequest(
       }
     })();
 
+    const newData = await getLeagueData();
+
+    await Promise.all([
+      roundNotifications({
+        isNewRound: true,
+        round: { _id: newRound._id, isBonusRound },
+        before: {
+          league,
+        },
+        after: {
+          league: newData.league!,
+        },
+      }),
+      setScheduledNotifications(newData.league),
+    ]);
+
     triggerRealTimeUpdate();
-    await roundNotifications({
-      userId: payload.userId,
-      isNewRound: true,
-      round: { _id: newRound._id, isBonusRound },
-      before: {
-        league,
-      },
-    });
 
     return NextResponse.json({
       success: true,

@@ -7,6 +7,7 @@ import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 import { getUserLeagues } from "@/lib/data";
 import { getAllRounds } from "@/lib/utils/getAllRounds";
 import { voteNotifications } from "@/lib/notifications";
+import { setScheduledNotifications } from "@/lib/scheduledNotifications";
 
 export async function POST(
   request: NextRequest,
@@ -28,8 +29,8 @@ export async function POST(
 
     const body = await request.json();
 
-    const userLeagues = await getUserLeagues(payload.userId);
-    const { round, league } = (() => {
+    const getData = async () => {
+      const userLeagues = await getUserLeagues(payload.userId);
       for (const league of userLeagues) {
         const leagueRounds = getAllRounds(league, {
           includePending: false,
@@ -42,7 +43,9 @@ export async function POST(
         }
       }
       return { round: null, league: null };
-    })();
+    };
+
+    const { round, league } = await getData();
 
     if (!round) {
       return NextResponse.json({ error: "Round not found" }, { status: 404 });
@@ -74,18 +77,30 @@ export async function POST(
 
     await votesCollection.insertMany(data);
 
+    const newData = await getData();
+
+    await Promise.all([
+      setScheduledNotifications(newData.league),
+      voteNotifications({
+        before: {
+          league,
+          round,
+        },
+        after: {
+          league: newData.league || undefined,
+          round: newData.round || undefined,
+        },
+      }),
+    ]);
+
     triggerRealTimeUpdate();
-    await voteNotifications({
-      league,
-      votes: data.map(({ userId }) => ({ userId })),
-      before: {
-        round,
-      },
-    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error saving vote:", error);
-    return NextResponse.json({ error: "Failed to save vote" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to submit vote" },
+      { status: 500 }
+    );
   }
 }

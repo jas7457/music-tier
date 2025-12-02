@@ -193,8 +193,10 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
     const yourStandingIndex = standings.findIndex(
       (standing) => standing.user._id === user?._id
     );
+
+    const places = getPlaces(standings.map((s) => s.points));
     const yourStanding = standings[yourStandingIndex];
-    const yourPlace = yourStandingIndex + 1;
+    const yourPlace = places[yourStandingIndex];
 
     const suffix = (() => {
       const lastDigit = yourPlace % 10;

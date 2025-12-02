@@ -49,8 +49,11 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     NonNullable<User["notificationSettings"]>
   >({
     "VOTING.STARTED": false,
+    "VOTING.REMINDER": false,
+    "SUBMISSION.REMINDER": false,
     "SUBMISSIONS.HALF_SUBMITTED": false,
     "SUBMISSIONS.LAST_TO_SUBMIT": false,
+    "ROUND.REMINDER": false,
     "ROUND.STARTED": false,
     "ROUND.COMPLETED": false,
     "ROUND.HALF_VOTED": false,
@@ -249,6 +252,12 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
 
   const notificationOptions = [
     {
+      key: "SUBMISSION.REMINDER",
+      label: "Submission Reminder",
+      description:
+        "Reminder to submit your song 12 hours before song submission ends",
+    },
+    {
       key: "SUBMISSIONS.HALF_SUBMITTED",
       label: "Half Submitted Songs",
       description:
@@ -264,6 +273,17 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
       key: "VOTING.STARTED",
       label: "Voting Started",
       description: "When voting starts for a round",
+    },
+    {
+      key: "VOTING.REMINDER",
+      label: "Voting Reminder",
+      description: "Reminder to vote 12 hours before a round ends",
+    },
+    {
+      key: "ROUND.REMINDER",
+      label: "Round Reminder",
+      description:
+        "Sent when a round ends and your round hasn't been submitted yet. Only notifies the next 3 rounds in line.",
     },
     {
       key: "ROUND.HALF_VOTED",

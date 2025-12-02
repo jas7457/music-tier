@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import * as dotenv from "dotenv";
 import * as path from "path";
 
@@ -31,6 +31,16 @@ async function emptyLeague() {
     console.log(" Connected to MongoDB");
 
     const db = client.db(DB_NAME);
+
+    const leaguesCollection = db.collection("leagues");
+    const league = await leaguesCollection.findOne({
+      _id: new ObjectId(leagueId),
+    });
+
+    if (!league) {
+      console.log("League not found");
+      return;
+    }
 
     // Get all rounds for this league
     const roundsCollection = db.collection("rounds");

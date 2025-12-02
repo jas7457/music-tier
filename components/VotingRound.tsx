@@ -119,7 +119,7 @@ export default function VotingRound({
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to save vote for ${round._id}`);
+        throw new Error(`Failed to submit vote for ${round._id}`);
       }
     } catch (error) {
       const message = unknownToErrorString(error, "Failed to save some votes");
@@ -385,7 +385,7 @@ export default function VotingRound({
               disabled={saving || remainingVotes !== 0}
               className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {saving ? "Saving..." : "Save Votes"}
+              {saving ? "Submitting..." : "Submit Votes"}
             </HapticButton>
           </div>
         )}

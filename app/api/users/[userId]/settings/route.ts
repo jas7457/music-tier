@@ -57,8 +57,10 @@ export async function PUT(request: NextRequest) {
     const defaultNotificationSettings: Required<User["notificationSettings"]> =
       {
         "VOTING.STARTED": false,
+        "VOTING.REMINDER": false,
         "SUBMISSIONS.HALF_SUBMITTED": false,
         "SUBMISSIONS.LAST_TO_SUBMIT": false,
+        "SUBMISSION.REMINDER": false,
         "ROUND.STARTED": false,
         "ROUND.COMPLETED": false,
         "ROUND.HALF_VOTED": false,
