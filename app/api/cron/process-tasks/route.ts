@@ -43,10 +43,7 @@ export async function GET() {
       results.processed++;
 
       if (task.userIds.length === 0) {
-        await markNotificationFailed(
-          task._id,
-          `No users found for league ${task.leagueId}`
-        );
+        results.succeeded++;
         continue;
       }
 

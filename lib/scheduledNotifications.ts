@@ -11,10 +11,40 @@ export async function setScheduledNotifications(
     return;
   }
   try {
+    const db = await getDatabase();
+    const scheduledNotificationsCollection =
+      db.collection<ScheduledNotification>("scheduledNotifications");
+
+    // Fetch all existing scheduled notifications for this league
+    const existingNotifications = await scheduledNotificationsCollection
+      .find({ leagueId: league._id })
+      .toArray();
+
     const scheduledNotifications: Array<ScheduledNotification> = [];
 
     const getTimeBefore = (timestamp: number, hours = 12) =>
       timestamp - hours * 60 * 60 * 1000;
+
+    // Helper function to get users who already received a specific notification type for a round
+    const getUsersAlreadyNotified = (
+      roundId: string,
+      type: ScheduledNotification["type"]
+    ): Set<string> => {
+      return new Set(
+        existingNotifications
+          .filter((n) => {
+            const isCompletedType = n.type === type && n.status === "completed";
+            if (!isCompletedType) {
+              return false;
+            }
+            if ("roundId" in n.data) {
+              return n.data.roundId === roundId;
+            }
+            return false;
+          })
+          .flatMap((n) => n.userIds)
+      );
+    };
 
     (() => {
       const currentRound = league.rounds.current;
@@ -38,14 +68,31 @@ export async function setScheduledNotifications(
           if (unsubmittedUsers.length === 0) {
             return;
           }
+
+          // Get users who already received this notification
+          const usersAlreadyNotified = getUsersAlreadyNotified(
+            currentRound._id,
+            "SUBMISSION.REMINDER"
+          );
+
+          // Filter out users who already received the notification
+          const usersToNotify = unsubmittedUsers
+            .map((user) => user._id)
+            .filter((userId) => !usersAlreadyNotified.has(userId));
+
+          if (usersToNotify.length === 0) {
+            return;
+          }
+
           scheduledNotifications.push({
             _id: new ObjectId(),
             type: "SUBMISSION.REMINDER",
             status: "pending",
             leagueId: league._id,
-            userIds: unsubmittedUsers.map((user) => user._id),
+            userIds: usersToNotify,
             executeAt: getTimeBefore(currentRound.submissionEndDate),
             data: {
+              roundId: currentRound._id,
               notification: {
                 code: "SUBMISSION.REMINDER",
                 title: "Round Submission Reminder",
@@ -71,14 +118,31 @@ export async function setScheduledNotifications(
           if (unvotedUsers.length === 0) {
             return;
           }
+
+          // Get users who already received this notification
+          const usersAlreadyNotified = getUsersAlreadyNotified(
+            currentRound._id,
+            "VOTING.REMINDER"
+          );
+
+          // Filter out users who already received the notification
+          const usersToNotify = unvotedUsers
+            .map((user) => user._id)
+            .filter((userId) => !usersAlreadyNotified.has(userId));
+
+          if (usersToNotify.length === 0) {
+            return;
+          }
+
           scheduledNotifications.push({
             _id: new ObjectId(),
             type: "VOTING.REMINDER",
             status: "pending",
             leagueId: league._id,
-            userIds: unvotedUsers.map((user) => user._id),
+            userIds: usersToNotify,
             executeAt: getTimeBefore(currentRound.votingEndDate),
             data: {
+              roundId: currentRound._id,
               notification: {
                 code: "VOTING.REMINDER",
                 title: "Round Voting Reminder",
@@ -95,10 +159,11 @@ export async function setScheduledNotifications(
       }
     })();
 
-    const db = await getDatabase();
-    const scheduledNotificationsCollection =
-      db.collection<ScheduledNotification>("scheduledNotifications");
-    await scheduledNotificationsCollection.deleteMany({ leagueId: league._id });
+    // Only delete pending notifications - keep completed/failed as historical record
+    await scheduledNotificationsCollection.deleteMany({
+      leagueId: league._id,
+      status: "pending",
+    });
 
     if (scheduledNotifications.length > 0) {
       await scheduledNotificationsCollection.insertMany(scheduledNotifications);

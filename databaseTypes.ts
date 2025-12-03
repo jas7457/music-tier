@@ -126,6 +126,7 @@ export type ScheduledNotification = {
   | {
       type: "VOTING.REMINDER";
       data: {
+        roundId: string;
         notification: {
           code: "VOTING.REMINDER";
           title: string;
@@ -136,6 +137,7 @@ export type ScheduledNotification = {
   | {
       type: "SUBMISSION.REMINDER";
       data: {
+        roundId: string;
         notification: {
           code: "SUBMISSION.REMINDER";
           title: string;
