@@ -40,6 +40,9 @@ export default function VotingRound({
 }: VotingRoundProps) {
   const toast = useToast();
   const { refreshData } = useData();
+  const [stage, setStage] = useState<"voting" | "guessing" | "submitted">(
+    round.stage === "voting" ? "voting" : "submitted"
+  );
   const [votes, setVotes] = useState(() => {
     const storedVersion: Partial<VoteRecord> = (() => {
       try {
@@ -48,7 +51,8 @@ export default function VotingRound({
         );
         if (
           storedVersion.roundId !== round._id ||
-          storedVersion.leagueId !== league._id
+          storedVersion.leagueId !== league._id ||
+          storedVersion.userId !== currentUser._id
         ) {
           return {};
         }
@@ -100,11 +104,11 @@ export default function VotingRound({
       JSON.stringify({
         roundId: round._id,
         leagueId: league._id,
+        userId: currentUser._id,
         votes,
       })
     );
-  }, [votes, round._id, league._id]);
-
+  }, [votes, round._id, league._id, currentUser._id]);
   const [saving, setSaving] = useState(false);
 
   // Calculate total votes used
@@ -184,6 +188,7 @@ export default function VotingRound({
       });
     } finally {
       setSaving(false);
+      setStage("submitted");
       refreshData("manual");
     }
   };
@@ -335,7 +340,7 @@ export default function VotingRound({
                     )}
                   >
                     <div className="flex flex-col items-center min-w-10">
-                      {round.stage === "voting" && (
+                      {stage === "voting" && (
                         <HapticButton
                           onClick={() => handleVoteChange(submission._id, 1)}
                           disabled={!canVoteUp || saving}
@@ -359,7 +364,7 @@ export default function VotingRound({
                         {savedSubmission?.points || 0}
                       </div>
 
-                      {round.stage === "voting" && (
+                      {stage === "voting" && (
                         <HapticButton
                           onClick={() => handleVoteChange(submission._id, -1)}
                           disabled={savedSubmission?.points === 0 || saving}
@@ -388,7 +393,7 @@ export default function VotingRound({
                             ? savedSubmission.userGuessId === submission.userId
                             : undefined
                         }
-                        isEditable={round.stage === "voting"}
+                        stage={stage}
                         users={league.users.filter((u) => {
                           if (u._id === currentUser._id) {
                             return false;
@@ -437,8 +442,19 @@ export default function VotingRound({
           );
         })}
 
-        {/* Save All Button */}
-        {round.stage === "voting" && (
+        {stage === "voting" && (
+          <div className="px-2 md:px-4 pt-3">
+            <HapticButton
+              onClick={() => setStage("guessing")}
+              disabled={remainingVotes !== 0}
+              className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              Continue to Guesses
+            </HapticButton>
+          </div>
+        )}
+
+        {stage === "guessing" && (
           <div className="px-2 md:px-4 pt-3">
             <HapticButton
               onClick={handleSave}

@@ -8,21 +8,21 @@ import { GuessFeedback } from "./GuessFeedback";
 import { HapticButton } from "./HapticButton";
 
 type UserGuessProps = {
-  isEditable?: boolean;
   users: PopulatedUser[];
   selectedUser: PopulatedUser | undefined;
   onSelectUser: (user: PopulatedUser | undefined) => void;
   disabled?: boolean;
   isCorrect: boolean | undefined;
+  stage: "voting" | "guessing" | "submitted";
 };
 
 export function UserGuess({
-  isEditable = true,
   users,
   selectedUser,
   onSelectUser,
   disabled = false,
   isCorrect,
+  stage,
 }: UserGuessProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -84,32 +84,41 @@ export function UserGuess({
     if (selectedUser) {
       return `Your guess: ${selectedUser.userName}`;
     }
-    if (isEditable) {
+    if (stage === "guessing") {
       return "Guess who submitted this";
     }
     return "No guess made";
   })();
 
-  return (
-    <div className="relative" ref={dropdownRef}>
-      {/* Avatar Button */}
-      {isEditable ? (
+  const fullMarkup = (() => {
+    if (stage === "voting") {
+      return <div className="w-10 h-10"></div>;
+    }
+    if (stage === "guessing") {
+      return (
         <HapticButton
           title={titleText}
           onClick={() => setIsOpen(!isOpen)}
           disabled={disabled}
           className={twMerge(
-            "disabled:opacity-50 disabled:cursor-not-allowed group relative w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center transition-colors border-gray-300",
+            "disabled:opacity-50 disabled:cursor-not-allowed group relative w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center transition-colors border-2 border-primary",
             selectedUser ? "" : "bg-gray-100"
           )}
         >
           {innerMarkup}
         </HapticButton>
-      ) : (
-        <div className="flex items-center justify-center w-10 h-10">
-          {innerMarkup}
-        </div>
-      )}
+      );
+    }
+    return (
+      <div className="flex items-center justify-center w-10 h-10">
+        {innerMarkup}
+      </div>
+    );
+  })();
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      {fullMarkup}
 
       {/* Dropdown */}
       {isOpen && !disabled && (
