@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PopulatedLeague, PopulatedUser } from "@/lib/types";
 import { CreateRound } from "./CreateRound";
 import { MaybeLink } from "./MaybeLink";
@@ -32,6 +32,17 @@ export function League({
     leagueImageUrl ? ("edit" as const) : ("add" as const)
   );
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
+  const [imageScale, setImageScale] = useState(1);
+  const [imageTranslate, setImageTranslate] = useState({ x: 0, y: 0 });
+  const touchStartRef = useRef<{ distance: number; scale: number; x: number; y: number } | null>(null);
+
+  // Reset zoom when closing full-screen
+  useEffect(() => {
+    if (!isImageFullScreen) {
+      setImageScale(1);
+      setImageTranslate({ x: 0, y: 0 });
+    }
+  }, [isImageFullScreen]);
 
   // Close full-screen image on Escape key
   useEffect(() => {
@@ -47,6 +58,59 @@ export function League({
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, [isImageFullScreen]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+      const centerX = (touch1.clientX + touch2.clientX) / 2;
+      const centerY = (touch1.clientY + touch2.clientY) / 2;
+      touchStartRef.current = { distance, scale: imageScale, x: centerX, y: centerY };
+    } else if (e.touches.length === 1 && imageScale > 1) {
+      // Single touch for panning when zoomed
+      e.preventDefault();
+      const touch = e.touches[0];
+      touchStartRef.current = {
+        distance: 0,
+        scale: imageScale,
+        x: touch.clientX - imageTranslate.x,
+        y: touch.clientY - imageTranslate.y,
+      };
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const touch1 = e.touches[0];
+      const touch2 = e.touches[1];
+      const distance = Math.hypot(
+        touch2.clientX - touch1.clientX,
+        touch2.clientY - touch1.clientY
+      );
+      const scale = (distance / touchStartRef.current.distance) * touchStartRef.current.scale;
+      // Limit scale between 1x and 5x
+      setImageScale(Math.min(Math.max(scale, 1), 5));
+    } else if (e.touches.length === 1 && imageScale > 1) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      setImageTranslate({
+        x: touch.clientX - touchStartRef.current.x,
+        y: touch.clientY - touchStartRef.current.y,
+      });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    touchStartRef.current = null;
+  };
 
   const { userHasCreatedRound, userHasCreatedBonusRound } = useMemo(() => {
     if (!user) {
@@ -222,6 +286,14 @@ export function League({
             alt={league.title}
             className="max-w-full max-h-full object-contain"
             onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            style={{
+              transform: `scale(${imageScale}) translate(${imageTranslate.x}px, ${imageTranslate.y}px)`,
+              transition: imageScale === 1 ? 'transform 0.3s ease-out' : 'none',
+              touchAction: 'none',
+            }}
           />
         </div>
       )}
