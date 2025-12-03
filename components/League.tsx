@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PopulatedLeague, PopulatedUser } from "@/lib/types";
 import { CreateRound } from "./CreateRound";
 import { MaybeLink } from "./MaybeLink";
@@ -31,6 +31,22 @@ export function League({
   const [heroStage, setHeroState] = useState(
     leagueImageUrl ? ("edit" as const) : ("add" as const)
   );
+  const [isImageFullScreen, setIsImageFullScreen] = useState(false);
+
+  // Close full-screen image on Escape key
+  useEffect(() => {
+    if (!isImageFullScreen) {
+      return;
+    }
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsImageFullScreen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isImageFullScreen]);
 
   const { userHasCreatedRound, userHasCreatedBonusRound } = useMemo(() => {
     if (!user) {
@@ -176,6 +192,40 @@ export function League({
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Full-Screen Image Viewer */}
+      {isImageFullScreen && leagueImageUrl && (
+        <div
+          className="fixed inset-0 z-200 bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setIsImageFullScreen(false)}
+        >
+          <button
+            onClick={() => setIsImageFullScreen(false)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white"
+            aria-label="Close"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+          <img
+            src={leagueImageUrl}
+            alt={league.title}
+            className="max-w-full max-h-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
       {/* Hero Banner with Cover Photo */}
       <div className="relative h-64 md:h-80 overflow-hidden rounded-lg">
         {/* Background Image */}
@@ -192,6 +242,31 @@ export function League({
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent flex justify-center items-center">
           {heroButtons}
         </div>
+
+        {/* Zoom Button - Top Left */}
+        {leagueImageUrl && (
+          <div className="absolute top-4 left-4">
+            <HapticButton
+              onClick={() => setIsImageFullScreen(true)}
+              className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+              aria-label="View full size"
+            >
+              <svg
+                className="w-5 h-5 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"
+                />
+              </svg>
+            </HapticButton>
+          </div>
+        )}
 
         {/* Title and Status overlaid on cover */}
         <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
