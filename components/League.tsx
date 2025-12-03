@@ -97,7 +97,13 @@ export function League({
       );
       const scale = (distance / touchStartRef.current.distance) * touchStartRef.current.scale;
       // Limit scale between 1x and 5x
-      setImageScale(Math.min(Math.max(scale, 1), 5));
+      const newScale = Math.min(Math.max(scale, 1), 5);
+      setImageScale(newScale);
+
+      // Reset translation when zooming back to 1x
+      if (newScale === 1) {
+        setImageTranslate({ x: 0, y: 0 });
+      }
     } else if (e.touches.length === 1 && imageScale > 1) {
       e.preventDefault();
       const touch = e.touches[0];
