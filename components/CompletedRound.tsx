@@ -53,7 +53,15 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
     });
 
     // Sort by total points descending
-    return results.sort((a, b) => b.totalPoints - a.totalPoints);
+    return results.sort((a, b) => {
+      if (a.totalPoints === b.totalPoints) {
+        return (
+          b.voters.filter((voter) => voter.points > 0).length -
+          a.voters.filter((voter) => voter.points > 0).length
+        );
+      }
+      return b.totalPoints - a.totalPoints;
+    });
   }, [round.submissions, round.votes, usersById]);
 
   const submissionMarkup = useMemo(() => {
