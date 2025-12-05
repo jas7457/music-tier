@@ -332,6 +332,10 @@ export async function getUserLeagues(
           now,
         });
 
+        if (roundStage !== "completed") {
+          currentOrUpcomingRoundsCount += 1;
+        }
+
         const isHidden = (() => {
           if (round.creatorId === userId) {
             return false;
@@ -345,8 +349,8 @@ export async function getUserLeagues(
               return false;
             }
             case "upcoming": {
-              if (round._id !== "") {
-                currentOrUpcomingRoundsCount += 1;
+              if (populatedRound.isPending) {
+                return false;
               }
               return currentOrUpcomingRoundsCount > UPCOMING_ROUNDS_TO_SHOW;
             }

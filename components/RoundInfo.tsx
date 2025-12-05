@@ -191,7 +191,7 @@ export function RoundInfo({
     }
 
     const roundDescription = round.isHidden
-      ? `${round.creatorObject.userName} has submitted their round, but masking until the previous rounds have been submitted.`
+      ? `${round.creatorObject.userName} has submitted their round, but masking until the previous rounds have completed.`
       : round.description;
 
     return (
