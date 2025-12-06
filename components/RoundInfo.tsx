@@ -96,7 +96,7 @@ export function RoundInfo({
           href={`https://open.spotify.com/playlist/${round.spotifyPlaylistId}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex gap-1 items-center hover:underline"
+          className="inline-flex gap-1 items-center hover:underline align-text-bottom"
         >
           <img
             alt=""
