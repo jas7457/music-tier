@@ -23,7 +23,7 @@ export function usePullToRefresh({
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
       // Only start if we're at the top of the page
-      if (window.scrollY === 0 && !isMusicPlayerExpanded) {
+      if (window.scrollY <= 0 && !isMusicPlayerExpanded) {
         touchStartY.current = e.touches[0].clientY;
         isPulling.current = true;
       }
@@ -36,7 +36,7 @@ export function usePullToRefresh({
       const distance = touchY - touchStartY.current;
 
       // Only allow pulling down (positive distance) and when at top
-      if (distance > 0 && window.scrollY === 0) {
+      if (distance > 0 && window.scrollY <= 0) {
         // Prevent default scrolling when pulling
         e.preventDefault();
 
