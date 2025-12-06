@@ -168,7 +168,12 @@ export function RoundInfo({
       });
     }
 
-    if (now > round.votingEndDate && round.votes.length < league.users.length) {
+    const usersThatVoted = new Set(round.votes.map((vote) => vote.userId));
+
+    if (
+      now > round.votingEndDate &&
+      usersThatVoted.size < league.users.length
+    ) {
       pills.push({
         key: "votes",
         pill: <Pill status="error">Not all users voted</Pill>,

@@ -256,7 +256,7 @@ export async function voteNotifications({
   }
   const notifications: Notification[] = [];
 
-  const { unvotedUsers } = afterLeague.users.reduce(
+  const { unvotedUsers, votedUsers } = afterLeague.users.reduce(
     (acc, user) => {
       const userHasVoted = afterRound.votes.some(
         (vote) => vote.userId === user._id
@@ -327,6 +327,10 @@ export async function voteNotifications({
       return;
     }
 
+    const beforeUsersVotes = new Set(
+      before.round.votes.map((vote) => vote.userId)
+    );
+
     if (unvotedUsers.length === 1) {
       notifications.push({
         code: "ROUND.LAST_TO_VOTE",
@@ -340,8 +344,8 @@ export async function voteNotifications({
     }
 
     if (
-      before.round.votes.length < halfOfUsers &&
-      afterRound.votes.length >= halfOfUsers
+      beforeUsersVotes.size < halfOfUsers &&
+      votedUsers.length >= halfOfUsers
     ) {
       notifications.push({
         code: "ROUND.HALF_VOTED",
