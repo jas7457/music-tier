@@ -196,12 +196,12 @@ export default function MusicPlayer({
                 )}
 
                 <div className="divide-y divide-white/10">
-                  {playlist.map((submission, index) => {
+                  {playlist.map((trackInfo, index) => {
                     const isCurrentTrack = index === currentTrackIndex;
                     return (
                       <button
-                        key={submission._id}
-                        onClick={() => playTrack(submission, "same")}
+                        key={trackInfo.trackId}
+                        onClick={() => playTrack(trackInfo, "same")}
                         disabled={isDisabled}
                         className={twMerge(
                           "w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed",
@@ -210,18 +210,18 @@ export default function MusicPlayer({
                       >
                         <div className="relative shrink-0">
                           <img
-                            src={submission.trackInfo.albumImageUrl}
-                            alt={submission.trackInfo.title}
+                            src={trackInfo.albumImageUrl}
+                            alt={trackInfo.title}
                             className="w-12 h-12 rounded-lg object-cover shadow-lg border border-white/30"
                           />
                         </div>
 
                         <div className="flex-1 min-w-0 text-left">
                           <div className="font-semibold text-sm text-white truncate drop-shadow-lg">
-                            {submission.trackInfo.title}
+                            {trackInfo.title}
                           </div>
                           <div className="text-xs text-white/80 truncate drop-shadow-md">
-                            {submission.trackInfo.artists.join(", ")}
+                            {trackInfo.artists.join(", ")}
                           </div>
                         </div>
                       </button>
@@ -630,12 +630,12 @@ export default function MusicPlayer({
                         )}
 
                         <div className="divide-y divide-white/10">
-                          {playlist.map((submission, index) => {
+                          {playlist.map((trackInfo, index) => {
                             const isCurrentTrack = index === currentTrackIndex;
                             return (
                               <button
-                                key={submission._id}
-                                onClick={() => playTrack(submission, "same")}
+                                key={trackInfo.trackId}
+                                onClick={() => playTrack(trackInfo, "same")}
                                 disabled={isDisabled}
                                 className={twMerge(
                                   "w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed",
@@ -644,18 +644,18 @@ export default function MusicPlayer({
                               >
                                 <div className="relative shrink-0">
                                   <img
-                                    src={submission.trackInfo.albumImageUrl}
-                                    alt={submission.trackInfo.title}
+                                    src={trackInfo.albumImageUrl}
+                                    alt={trackInfo.title}
                                     className="w-12 h-12 rounded-lg object-cover shadow-lg border border-white/30"
                                   />
                                 </div>
 
                                 <div className="flex-1 min-w-0 text-left">
                                   <div className="font-semibold text-sm text-white truncate drop-shadow-lg">
-                                    {submission.trackInfo.title}
+                                    {trackInfo.title}
                                   </div>
                                   <div className="text-xs text-white/80 truncate drop-shadow-md">
-                                    {submission.trackInfo.artists.join(", ")}
+                                    {trackInfo.artists.join(", ")}
                                   </div>
                                 </div>
                               </button>

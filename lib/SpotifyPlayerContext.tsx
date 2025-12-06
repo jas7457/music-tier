@@ -23,13 +23,13 @@ interface SpotifyPlayerContextType {
   isPlaying: boolean;
   hasNextTrack: boolean;
   hasPreviousTrack: boolean;
-  playlist: PopulatedSubmission[];
+  playlist: Array<PopulatedSubmission["trackInfo"]>;
   currentTrackIndex: number;
   playlistRound: PopulatedRound | null;
   isDisabled: boolean;
   registerTimeUpdate: (callback: (time: number) => void) => () => void;
   playTrack: (
-    submission: PopulatedSubmission,
+    trackInfo: PopulatedSubmission["trackInfo"],
     round: PopulatedRound | "same"
   ) => Promise<void>;
   pausePlayback: () => Promise<void>;
@@ -71,7 +71,7 @@ export function SpotifyPlayerProvider({
   >([]);
   const [{ playlist, round: playlistRound }, setPlaylist] = useState<{
     round: PopulatedRound | null;
-    playlist: PopulatedSubmission[];
+    playlist: Array<PopulatedSubmission["trackInfo"]>;
   }>({ playlist: [], round: null });
   const hasInitializedRef = useRef(false);
   const hasPreviouslyPlayedRef = useRef(false);
@@ -82,11 +82,11 @@ export function SpotifyPlayerProvider({
     if (!currentTrack || playlist.length === 0) {
       return -1;
     }
-    return playlist.findIndex((submission) => {
-      if (currentTrack.id === submission.trackInfo.trackId) {
+    return playlist.findIndex((trackInfo) => {
+      if (currentTrack.id === trackInfo.trackId) {
         return true;
       }
-      if (currentTrack.linked_from?.id === submission.trackInfo.trackId) {
+      if (currentTrack.linked_from?.id === trackInfo.trackId) {
         return true;
       }
       return false;
@@ -307,12 +307,13 @@ export function SpotifyPlayerProvider({
     };
 
     const playTrack = async (
-      submission: PopulatedSubmission,
-      round: PopulatedRound | "same"
+      trackInfo: PopulatedSubmission["trackInfo"],
+      round: PopulatedRound | "same",
+      songPlaylist?: Array<PopulatedSubmission["trackInfo"]>
     ) => {
       const deviceId = await setupPlayer();
       hasPreviouslyPlayedRef.current = true;
-      if (!submission) {
+      if (!trackInfo) {
         return;
       }
       if (!deviceId) {
@@ -335,26 +336,32 @@ export function SpotifyPlayerProvider({
       }
 
       try {
-        const playlistInfo =
-          round === "same"
-            ? { playlist, round: playlistRound }
-            : {
-                playlist: getPlaylistForRound({ round, userId: user?._id }),
-                round,
-              };
+        const playlistInfo = (() => {
+          const newPlaylist = songPlaylist ?? playlist;
+          if (round === "same") {
+            return { playlist: newPlaylist, round: playlistRound };
+          }
+          if (songPlaylist) {
+            return { playlist: newPlaylist, round };
+          }
+          return {
+            playlist: getPlaylistForRound({ round, userId: user?._id }),
+            round,
+          };
+        })();
 
         const hasSong = playlistInfo.playlist.find(
-          (sub) => sub._id === submission._id
+          (playlistTrackInfo) => playlistTrackInfo.trackId === trackInfo.trackId
         );
         if (!hasSong) {
-          playlistInfo.playlist.unshift(submission);
+          playlistInfo.playlist.unshift(trackInfo);
         }
 
         const uris = playlistInfo.playlist.map(
-          (sub) => `spotify:track:${sub.trackInfo.trackId}`
+          (trackInfo) => `spotify:track:${trackInfo.trackId}`
         );
 
-        const trackUri = `spotify:track:${submission.trackInfo.trackId}`;
+        const trackUri = `spotify:track:${trackInfo.trackId}`;
         const offset = uris.indexOf(trackUri);
 
         const response = await fetch(
@@ -511,7 +518,7 @@ export function SpotifyPlayerProvider({
             playlist,
           };
         });
-        const track = playlist[0]?.trackInfo;
+        const track = playlist[0];
         if (!track) {
           return;
         }
@@ -585,16 +592,18 @@ function getPlaylistForRound({
   round: PopulatedRound;
   userId: string | undefined;
 }) {
-  return round.submissions.filter((submission) => {
-    switch (round.stage) {
-      case "completed":
-      case "voting":
-      case "currentUserVotingCompleted": {
-        return true;
+  return round.submissions
+    .filter((submission) => {
+      switch (round.stage) {
+        case "completed":
+        case "voting":
+        case "currentUserVotingCompleted": {
+          return true;
+        }
+        default: {
+          return submission.userId === userId;
+        }
       }
-      default: {
-        return submission.userId === userId;
-      }
-    }
-  });
+    })
+    .map((submission) => submission.trackInfo);
 }

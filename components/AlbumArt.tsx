@@ -90,7 +90,7 @@ export default function AlbumArt({
           } else if (isEffectivelyTheCurrentTrack) {
             await resumePlayback();
           } else {
-            await playTrack(submission, round);
+            await playTrack(submission.trackInfo, round);
           }
         }}
         disabled={isDisabled}

@@ -71,7 +71,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       return null;
     }
     return (
-      <div className="grid grid-cols-[auto_1fr_auto] gap-2 items-center bg-primary-dark text-white p-3">
+      <div className="grid grid-cols-[auto_1fr_auto] gap-2 items-center bg-linear-to-r from-primary-dark via-primary to-primary-dark text-white p-3 shadow-lg border-b-2 border-primary-light/30 backdrop-blur-sm">
         <Link href="/" className="flex items-center gap-4">
           <Image
             src={logo.src}
