@@ -272,10 +272,7 @@ export function getOnDeckInfo({
     canAdd: false,
     canSubmit: false,
   } as const;
-  if (!round._id) {
-    return hiddenResult;
-  }
-  if (round.isPending) {
+  if (!round._id || round.isPending || round.isHidden) {
     return hiddenResult;
   }
 
