@@ -93,8 +93,8 @@ export function OnDeckSubmissionsList({
         </div>
         <div className="text-xs text-gray-400">
           Add songs you may want to submit later, but aren&apos;t totally sold
-          yet. You also have the option to automatically add these to the Side
-          Playlist when the round ends.
+          yet. You can then add these to the Side Playlist when the submissions
+          end.
         </div>
       </div>
 
