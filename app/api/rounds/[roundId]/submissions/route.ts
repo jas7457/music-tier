@@ -137,6 +137,8 @@ async function handleRequest(
       "songSubmissions"
     );
 
+    const now = Date.now();
+
     const newSubmission = await (async () => {
       if (method === "ADD") {
         // Create new submission
@@ -147,7 +149,7 @@ async function handleRequest(
           userId: payload.userId,
           trackInfo,
           note,
-          submissionDate: Date.now(),
+          submissionDate: now,
         };
 
         await submissionsCollection.insertOne(newSubmission);
@@ -163,7 +165,7 @@ async function handleRequest(
             $set: {
               trackInfo,
               note,
-              submissionDate: Date.now(),
+              submissionDate: now,
             },
           },
           { returnDocument: "after" }

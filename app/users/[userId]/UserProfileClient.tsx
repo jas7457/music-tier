@@ -491,7 +491,10 @@ function SubmissionsCards({
               color="white"
               className="flex flex-col sm:flex-row items-center gap-3"
             >
-              <AlbumArt submission={detail.submission} round={detail.round} />
+              <AlbumArt
+                trackInfo={detail.submission.trackInfo}
+                round={detail.round}
+              />
               <div className="sm:flex-1 min-w-0 text-center sm:text-left">
                 <div className="font-medium truncate">
                   {detail.submission.trackInfo.title}

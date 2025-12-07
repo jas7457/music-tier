@@ -1,9 +1,17 @@
 import { getCollection } from "@/lib/mongodb";
-import { League, Round, SongSubmission, User, Vote } from "@/databaseTypes";
+import {
+  League,
+  OnDeckSongSubmission,
+  Round,
+  SongSubmission,
+  User,
+  Vote,
+} from "@/databaseTypes";
 import { ObjectId } from "mongodb";
 import { ONE_DAY_MS } from "./utils/time";
 import {
   PopulatedLeague,
+  PopulatedOnDeckSubmission,
   PopulatedRound,
   PopulatedRoundStage,
   PopulatedSubmission,
@@ -21,12 +29,14 @@ const dbPromise = (async () => {
     leaguesCollection,
     roundsCollection,
     submissionsCollection,
+    onDeckSubmissionsCollection,
     votesCollection,
   ] = await Promise.all([
     getCollection<User>("users"),
     getCollection<League>("leagues"),
     getCollection<Round>("rounds"),
     getCollection<SongSubmission>("songSubmissions"),
+    getCollection<OnDeckSongSubmission>("onDeckSongSubmissions"),
     getCollection<Vote>("votes"),
   ]);
   return {
@@ -34,6 +44,7 @@ const dbPromise = (async () => {
     leaguesCollection,
     roundsCollection,
     submissionsCollection,
+    onDeckSubmissionsCollection,
     votesCollection,
   };
 })();
@@ -46,6 +57,7 @@ export async function getUserLeagues(
     usersCollection,
     roundsCollection,
     submissionsCollection,
+    onDeckSubmissionsCollection,
     votesCollection,
   } = await dbPromise;
 
@@ -117,9 +129,12 @@ export async function getUserLeagues(
 
       const populatedRounds = await Promise.all(
         rounds.map(async (round) => {
-          const [_submissions, _votes] = await Promise.all([
+          const [_submissions, _onDeckSubmissions, _votes] = await Promise.all([
             submissionsCollection
               .find({ roundId: round._id.toString() })
+              .toArray(),
+            onDeckSubmissionsCollection
+              .find({ roundId: round._id.toString(), userId })
               .toArray(),
             votesCollection.find({ roundId: round._id.toString() }).toArray(),
           ]);
@@ -128,9 +143,16 @@ export async function getUserLeagues(
             (submission) => ({
               ...submission,
               _id: submission._id.toString(),
-              userObject: usersById[submission.userId].user,
+              userObject: usersById[submission.userId]?.user,
             })
           );
+
+          const onDeckSubmissions: PopulatedOnDeckSubmission[] =
+            _onDeckSubmissions.map((submission) => ({
+              ...submission,
+              _id: submission._id.toString(),
+              userObject: usersById[submission.userId]?.user,
+            }));
 
           const votes: PopulatedVote[] = _votes.map((vote) => ({
             ...vote,
@@ -145,6 +167,7 @@ export async function getUserLeagues(
             ...round,
             _id: round._id.toString(),
             submissions,
+            onDeckSubmissions,
             votes,
           };
         })
@@ -169,6 +192,7 @@ export async function getUserLeagues(
           title: "",
           description: "",
           submissions: [],
+          onDeckSubmissions: [],
           votes: [],
           submissionStartDate: inAWeek,
           submissionEndDate: inAWeek,

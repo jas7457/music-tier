@@ -27,9 +27,11 @@ function getPusherServer() {
 }
 
 // Helper function to trigger events
-export async function triggerRealTimeUpdate() {
+export async function triggerRealTimeUpdate({
+  userIds,
+}: { userIds?: string[] } = {}) {
   const pusher = getPusherServer();
-  await pusher.trigger(PUSHER_REAL_TIME_UPDATES, "update", {});
+  await pusher.trigger(PUSHER_REAL_TIME_UPDATES, "update", { userIds });
 }
 
 export async function triggerNotifications(notifications: Notification[]) {

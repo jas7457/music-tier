@@ -1,23 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { PopulatedSubmission } from "@/lib/types";
 import { extractTrackIdFromUrl } from "@/lib/spotify";
 import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
 import { useToast } from "@/lib/ToastContext";
 import { getTrackDetails } from "@/lib/api";
+import { TrackInfo } from "@/databaseTypes";
 
 interface SpotifySongSearchProps {
   value: string;
+  placeholder?: string;
   onChange: (value: string) => void;
-  onTrackFetched: (
-    trackInfo: PopulatedSubmission["trackInfo"],
-    trackUrl: string
-  ) => void;
-  onSongSelected: (
-    trackInfo: PopulatedSubmission["trackInfo"],
-    trackUrl: string
-  ) => void;
+  onTrackFetched: (trackInfo: TrackInfo, trackUrl: string) => void;
+  onSongSelected: (trackInfo: TrackInfo, trackUrl: string) => void;
   disabled?: boolean;
   currentTrackId?: string;
 }
@@ -29,11 +24,10 @@ export function SpotifySongSearch({
   onSongSelected,
   disabled = false,
   currentTrackId,
+  placeholder = "Search: 'Bohemian Rhapsody' or paste: https://open.spotify.com/track/...",
 }: SpotifySongSearchProps) {
   const toast = useToast();
-  const [searchResults, setSearchResults] = useState<
-    PopulatedSubmission["trackInfo"][]
-  >([]);
+  const [searchResults, setSearchResults] = useState<TrackInfo[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -96,7 +90,10 @@ export function SpotifySongSearch({
       return;
     }
 
-    if (trackId === currentTrackId || trackId === lastFetchedTrackIdRef.current) {
+    if (
+      trackId === currentTrackId ||
+      trackId === lastFetchedTrackIdRef.current
+    ) {
       return;
     }
     lastFetchedTrackIdRef.current = trackId;
@@ -164,7 +161,7 @@ export function SpotifySongSearch({
     }
   };
 
-  const handleSongSelect = (result: PopulatedSubmission["trackInfo"]) => {
+  const handleSongSelect = (result: TrackInfo) => {
     const trackUrl = `https://open.spotify.com/track/${result.trackId}`;
     onSongSelected(result, trackUrl);
     setSearchResults([]);
@@ -188,7 +185,6 @@ export function SpotifySongSearch({
       <input
         type="text"
         autoComplete="off"
-        required
         disabled={disabled || loadingPreview}
         value={value}
         onPaste={handlePaste}
@@ -204,7 +200,7 @@ export function SpotifySongSearch({
             setShowSearchResults(true);
           }
         }}
-        placeholder="Search: 'Bohemian Rhapsody' or paste: https://open.spotify.com/track/..."
+        placeholder={placeholder}
         className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100 disabled:cursor-not-allowed"
       />
 

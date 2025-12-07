@@ -63,6 +63,15 @@ async function emptyLeague() {
     });
     console.log(` Deleted ${votesResult.deletedCount} votes`);
 
+    // Delete all votes for these rounds
+    const onDeckSongSubmissions = db.collection("onDeckSongSubmissions");
+    const onDeckSongSubmissionsResult = await onDeckSongSubmissions.deleteMany({
+      roundId: { $in: roundIds },
+    });
+    console.log(
+      ` Deleted ${onDeckSongSubmissionsResult.deletedCount} on deck song submissions`
+    );
+
     // Delete all song submissions for these rounds
     const songSubmissionsCollection = db.collection("songSubmissions");
     const submissionsResult = await songSubmissionsCollection.deleteMany({

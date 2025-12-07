@@ -10,11 +10,12 @@ import {
   useMemo,
 } from "react";
 import Cookies from "js-cookie";
-import { PopulatedRound, PopulatedSubmission } from "./types";
+import { PopulatedRound } from "./types";
 import { useToast } from "./ToastContext";
 import { APP_NAME } from "./utils/constants";
 import { unknownToErrorString } from "./utils/unknownToErrorString";
 import { useAuth } from "./AuthContext";
+import { TrackInfo } from "@/databaseTypes";
 
 const SPOTIFY_PLAYER_NAME = APP_NAME;
 
@@ -23,14 +24,15 @@ interface SpotifyPlayerContextType {
   isPlaying: boolean;
   hasNextTrack: boolean;
   hasPreviousTrack: boolean;
-  playlist: Array<PopulatedSubmission["trackInfo"]>;
+  playlist: Array<TrackInfo>;
   currentTrackIndex: number;
   playlistRound: PopulatedRound | null;
   isDisabled: boolean;
   registerTimeUpdate: (callback: (time: number) => void) => () => void;
   playTrack: (
-    trackInfo: PopulatedSubmission["trackInfo"],
-    round: PopulatedRound | "same"
+    trackInfo: TrackInfo,
+    round: PopulatedRound | "same",
+    songPlaylist?: Array<TrackInfo>
   ) => Promise<void>;
   pausePlayback: () => Promise<void>;
   resumePlayback: () => Promise<void>;
@@ -71,7 +73,7 @@ export function SpotifyPlayerProvider({
   >([]);
   const [{ playlist, round: playlistRound }, setPlaylist] = useState<{
     round: PopulatedRound | null;
-    playlist: Array<PopulatedSubmission["trackInfo"]>;
+    playlist: Array<TrackInfo>;
   }>({ playlist: [], round: null });
   const hasInitializedRef = useRef(false);
   const hasPreviouslyPlayedRef = useRef(false);
@@ -307,9 +309,9 @@ export function SpotifyPlayerProvider({
     };
 
     const playTrack = async (
-      trackInfo: PopulatedSubmission["trackInfo"],
+      trackInfo: TrackInfo,
       round: PopulatedRound | "same",
-      songPlaylist?: Array<PopulatedSubmission["trackInfo"]>
+      songPlaylist?: Array<TrackInfo>
     ) => {
       const deviceId = await setupPlayer();
       hasPreviouslyPlayedRef.current = true;

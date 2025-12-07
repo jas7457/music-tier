@@ -4,6 +4,15 @@ import type { Notification } from "./lib/notifications";
 
 type NotificationCodes = Notification["code"];
 
+export type TrackInfo = {
+  // a track id from spotify
+  trackId: string;
+  title: string;
+  artists: string[];
+  albumName: string;
+  albumImageUrl: string;
+};
+
 /* "users" collection */
 export type User = {
   // a mongo ObjectId
@@ -83,17 +92,22 @@ export type SongSubmission = {
   roundId: string;
   // corresponds to the user's _id
   userId: string;
-  trackInfo: {
-    // a track id from spotify
-    trackId: string;
-    title: string;
-    artists: string[];
-    albumName: string;
-    albumImageUrl: string;
-  };
+  trackInfo: TrackInfo;
   // timestamp of when the submission was created/updated
   submissionDate: number;
   note?: string;
+};
+
+// "onDeckSongSubmissions" collection */
+export type OnDeckSongSubmission = {
+  // a mongo ObjectId
+  _id: ObjectId;
+  // corresponds to the round's _id
+  roundId: string;
+  // corresponds to the user's _id
+  userId: string;
+  trackInfo: TrackInfo;
+  isAddedToSidePlaylist: boolean;
 };
 
 /* "votes" collection */

@@ -576,7 +576,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                       <div className="flex items-start gap-3">
                                         {/* Album Art */}
                                         <AlbumArt
-                                          submission={guess.submission}
+                                          trackInfo={guess.submission.trackInfo}
                                           round={guess.round}
                                           size={60}
                                         />

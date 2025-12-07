@@ -27,7 +27,7 @@ export interface SpotifyUserProfile {
   images?: Array<{ url: string; height: number; width: number }>;
 }
 
-const CLIENT_ID = "3b4aa4f5d652435db1d08f41ea973c44";
+const CLIENT_ID = process.env.CLIENT_ID || "";
 const CLIENT_SECRET = process.env.CLIENT_SECRET || "";
 const REDIRECT_URI =
   process.env.NODE_ENV === "development"

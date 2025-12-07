@@ -298,7 +298,11 @@ export default function VotingRound({
               <div className="flex items-center gap-4">
                 {/* Album Art */}
                 {submission.trackInfo.albumImageUrl && (
-                  <AlbumArt submission={submission} size={80} round={round} />
+                  <AlbumArt
+                    trackInfo={submission.trackInfo}
+                    size={80}
+                    round={round}
+                  />
                 )}
 
                 {/* Track Info */}

@@ -70,6 +70,7 @@ export function usePusher() {
 export function useRealTimeUpdates() {
   const { refreshData } = useData();
   const { subscribe, unsubscribe } = usePusher();
+  const { user } = useAuth();
 
   useNotifications();
 
@@ -78,8 +79,14 @@ export function useRealTimeUpdates() {
     if (!channel) {
       return;
     }
-    const updateHandler = () => {
-      refreshData("pusherUpdate");
+    const updateHandler = ({ userIds }: { userIds?: string[] }) => {
+      if (
+        !userIds ||
+        userIds.length === 0 ||
+        userIds.includes(user?._id || "")
+      ) {
+        refreshData("pusherUpdate");
+      }
     };
     channel.bind("update", updateHandler);
 
@@ -87,7 +94,7 @@ export function useRealTimeUpdates() {
       channel.unbind("update", updateHandler);
       unsubscribe(PUSHER_REAL_TIME_UPDATES);
     };
-  }, [refreshData, subscribe, unsubscribe]);
+  }, [refreshData, subscribe, unsubscribe, user?._id]);
 }
 
 function useNotifications() {

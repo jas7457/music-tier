@@ -8,6 +8,8 @@ import { ToggleButton } from "./ToggleButton";
 import { RoundInfo } from "./RoundInfo";
 import { HapticButton } from "./HapticButton";
 import { useToast } from "@/lib/ToastContext";
+import { getOnDeckInfo, OnDeckSubmissionsList } from "./OnDeckSubmissions";
+import { TrackInfo } from "@/databaseTypes";
 
 export function Round({
   currentUser,
@@ -24,6 +26,12 @@ export function Round({
   const [isUpdating, setIsUpdating] = useState(false);
   const [roundTitle, setRoundTitle] = useState(round.title);
   const [roundDescription, setRoundDescription] = useState(round.description);
+  const [onDeckSubmissions, setOnDeckSubmissions] = useState<
+    Array<{
+      trackInfo: TrackInfo;
+      isAddedToSidePlaylist: boolean;
+    }>
+  >(round.onDeckSubmissions);
   const toast = useToast();
 
   const canEdit = (() => {
@@ -41,6 +49,12 @@ export function Round({
     }
     return true;
   })();
+
+  const canShowOnDeck = getOnDeckInfo({
+    round,
+    isRoundPage,
+    isGeneralRoundSlot: true,
+  }).isVisible;
 
   const bodyMarkup = useMemo(() => {
     switch (round.stage) {
@@ -72,7 +86,7 @@ export function Round({
           <Fragment
             key={round.userSubmission?.trackInfo.trackId ?? "no-submission"}
           >
-            <SongSubmission round={round} />
+            <SongSubmission round={round} isRoundPage={isRoundPage} />
             <SubmittedUsers
               submissions={round.submissions}
               users={league.users}
@@ -107,7 +121,7 @@ export function Round({
         );
       }
     }
-  }, [currentUser, league, round, showVotesView]);
+  }, [currentUser, isRoundPage, league, round, showVotesView]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -140,6 +154,15 @@ export function Round({
         </div>
       )}
       {bodyMarkup}
+
+      {canShowOnDeck && (
+        <OnDeckSubmissionsList
+          round={round}
+          isRoundPage={isRoundPage}
+          onDeckSubmissions={onDeckSubmissions}
+          onUpdate={setOnDeckSubmissions}
+        />
+      )}
 
       {canEdit && (
         <div>

@@ -13,12 +13,19 @@ import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
 import { useToast } from "@/lib/ToastContext";
 import { HapticButton } from "./HapticButton";
 import { SpotifySongSearch } from "./SpotifySongSearch";
+import { OnDeckSubmissionsList } from "./OnDeckSubmissions";
+import { TrackInfo } from "@/databaseTypes";
 
 interface SongSubmissionProps {
   round: PopulatedRound;
+  isRoundPage: boolean;
   className?: string;
 }
-export function SongSubmission({ round, className }: SongSubmissionProps) {
+export function SongSubmission({
+  round,
+  isRoundPage,
+  className,
+}: SongSubmissionProps) {
   const { user } = useAuth();
   const toast = useToast();
   const { refreshData } = useData();
@@ -29,6 +36,12 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
   );
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [onDeckSubmissions, setOnDeckSubmissions] = useState<
+    Array<{
+      trackInfo: TrackInfo;
+      isAddedToSidePlaylist: boolean;
+    }>
+  >(round.onDeckSubmissions);
 
   const isRealSubmission = submission ? submission._id !== "" : false;
 
@@ -121,10 +134,10 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
         variant="outlined"
         className={twMerge(
           fullClassName,
-          "bg-primary-lightest border-primary-light"
+          "bg-primary-lightest border-primary-light grid gap-3"
         )}
       >
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between">
           <h5 className="font-semibold text-sm text-gray-700">
             Your Submission
           </h5>
@@ -139,7 +152,11 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
         </div>
         <div className="flex items-center gap-3">
           {submission.trackInfo.albumImageUrl && (
-            <AlbumArt submission={submission} size={64} round={round} />
+            <AlbumArt
+              trackInfo={submission.trackInfo}
+              size={64}
+              round={round}
+            />
           )}
           <div className="flex-1">
             <p className="font-semibold text-sm">
@@ -159,6 +176,22 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
           <p className="text-xs text-gray-500 mt-3 italic">
             Round has ended - submissions are locked
           </p>
+        )}
+
+        {onDeckSubmissions.length > 0 && (
+          <OnDeckSubmissionsList
+            className="bg-transparent"
+            round={round}
+            isRoundPage={isRoundPage}
+            onDeckSubmissions={onDeckSubmissions}
+            onUpdate={setOnDeckSubmissions}
+            onRowClick={(submission) => {
+              setSubmission({ trackInfo: submission.trackInfo });
+              setTrackUrl(
+                getTrackUrlFromId(submission.trackInfo.trackId) || ""
+              );
+            }}
+          />
         )}
       </Card>
     );
@@ -190,7 +223,7 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
         </Card>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} className="grid gap-3">
         <div className="relative">
           <label>
             <div className="block text-xs font-medium text-gray-700 mb-1">
@@ -216,11 +249,15 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
         </div>
 
         {/* Track Preview */}
-        {submission?.trackInfo && (
+        {submission?.trackInfo?.trackId && (
           <div className="p-3 bg-primary-lightest border border-primary rounded-md">
             <div className="flex items-center gap-3">
               {submission.trackInfo.albumImageUrl && (
-                <AlbumArt submission={submission} size={56} round={round} />
+                <AlbumArt
+                  trackInfo={submission.trackInfo}
+                  size={56}
+                  round={round}
+                />
               )}
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate">
@@ -253,6 +290,17 @@ export function SongSubmission({ round, className }: SongSubmissionProps) {
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
+
+        <OnDeckSubmissionsList
+          round={round}
+          isRoundPage={isRoundPage}
+          onDeckSubmissions={onDeckSubmissions}
+          onUpdate={setOnDeckSubmissions}
+          onRowClick={(submission) => {
+            setSubmission({ trackInfo: submission.trackInfo });
+            setTrackUrl(getTrackUrlFromId(submission.trackInfo.trackId) || "");
+          }}
+        />
 
         <div className="flex gap-2">
           <HapticButton

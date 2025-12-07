@@ -1,5 +1,4 @@
-import { PopulatedLeague, PopulatedRound } from "@/lib/types";
-import { getStatusColor } from "@/lib/utils/colors";
+import { getStatusColor, StatusColor } from "@/lib/utils/colors";
 import { twMerge } from "tailwind-merge";
 
 export function Pill({
@@ -8,7 +7,7 @@ export function Pill({
   className,
 }: {
   children: React.ReactNode;
-  status: PopulatedLeague["status"] | PopulatedRound["stage"] | "error";
+  status: StatusColor;
   className?: string;
 }) {
   return (

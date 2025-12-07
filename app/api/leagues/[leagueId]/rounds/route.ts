@@ -150,7 +150,7 @@ async function handleRequest(
 
     await Promise.all([
       roundNotifications({
-        isNewRound: true,
+        isNewRound: method === "ADD",
         round: { _id: newRound._id, isBonusRound },
         before: {
           league,

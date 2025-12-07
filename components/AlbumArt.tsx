@@ -1,24 +1,27 @@
 "use client";
 
-import { PopulatedRound, PopulatedSubmission } from "@/lib/types";
+import { PopulatedRound } from "@/lib/types";
 import { PlayIcon, PauseIcon } from "./PlayerIcons";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 import { useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 import { HapticButton } from "./HapticButton";
+import type { TrackInfo } from "@/databaseTypes";
 
 interface AlbumArtProps {
-  submission: PopulatedSubmission;
+  trackInfo: TrackInfo;
   size?: number;
   className?: string;
   round: PopulatedRound;
+  playlist?: Array<TrackInfo>;
 }
 
 export default function AlbumArt({
   round,
-  submission,
+  trackInfo,
   size = 64,
   className = "",
+  playlist,
 }: AlbumArtProps) {
   const {
     initializePlaylist,
@@ -38,10 +41,10 @@ export default function AlbumArt({
     if (!currentTrack) {
       return false;
     }
-    if (currentTrack.id === submission.trackInfo.trackId) {
+    if (currentTrack.id === trackInfo.trackId) {
       return true;
     }
-    if (currentTrack.linked_from?.id === submission.trackInfo.trackId) {
+    if (currentTrack.linked_from?.id === trackInfo.trackId) {
       return true;
     }
     return false;
@@ -70,8 +73,8 @@ export default function AlbumArt({
     >
       <div className="w-full h-full">
         <img
-          src={submission.trackInfo.albumImageUrl}
-          alt={submission.trackInfo.title}
+          src={trackInfo.albumImageUrl}
+          alt={trackInfo.title}
           className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
         />
       </div>
@@ -82,7 +85,7 @@ export default function AlbumArt({
           event.stopPropagation();
           event.preventDefault();
 
-          if (isDisabled || !submission) {
+          if (isDisabled) {
             return;
           }
           if (isCurrentlyPlaying) {
@@ -90,7 +93,7 @@ export default function AlbumArt({
           } else if (isEffectivelyTheCurrentTrack) {
             await resumePlayback();
           } else {
-            await playTrack(submission.trackInfo, round);
+            await playTrack(trackInfo, round, playlist);
           }
         }}
         disabled={isDisabled}

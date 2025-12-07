@@ -1,5 +1,6 @@
 import type {
   League,
+  OnDeckSongSubmission,
   Round,
   SongSubmission,
   User,
@@ -13,6 +14,9 @@ export type PopulatedUser = WithStringId<User> & {
   canCreateBonusRound: boolean;
 };
 export type PopulatedSubmission = WithStringId<SongSubmission> & {
+  userObject: PopulatedUser | undefined;
+};
+export type PopulatedOnDeckSubmission = WithStringId<OnDeckSongSubmission> & {
   userObject: PopulatedUser | undefined;
 };
 export type PopulatedVote = WithStringId<Vote> & {
@@ -39,6 +43,7 @@ export type PopulatedRound = WithStringId<Round> & {
 
   votes: PopulatedVote[];
   submissions: PopulatedSubmission[];
+  onDeckSubmissions: PopulatedOnDeckSubmission[];
   userSubmission: PopulatedSubmission | undefined;
   creatorObject: PopulatedUser;
   isPending?: boolean;

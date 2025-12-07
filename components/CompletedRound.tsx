@@ -120,7 +120,11 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
             <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[auto_1fr_auto] gap-4 p-4 sm:p-6">
               {/* Album Art */}
               <div className="col-span-2 sm:col-span-1 flex justify-center sm:justify-start">
-                <AlbumArt submission={submission} size={120} round={round} />
+                <AlbumArt
+                  trackInfo={submission.trackInfo}
+                  size={120}
+                  round={round}
+                />
               </div>
 
               {/* Track Info */}
