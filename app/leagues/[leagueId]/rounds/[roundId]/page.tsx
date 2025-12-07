@@ -6,14 +6,15 @@ import { getAllRounds } from "@/lib/utils/getAllRounds";
 import { verifySessionToken } from "@/lib/auth";
 
 type PageProps = {
-  params: { roundId: string; leagueId: string };
+  params: Promise<{ roundId: string; leagueId: string }>;
 };
 
-export default async function RoundPage({ params }: PageProps) {
+export default async function RoundPage(props: PageProps) {
+  const params = await props.params;
   const { roundId, leagueId } = params;
 
   // Verify the session
-  const payload = verifySessionToken();
+  const payload = await verifySessionToken();
   if (!payload) {
     redirect("/");
   }
@@ -37,6 +38,7 @@ export default async function RoundPage({ params }: PageProps) {
         return currentRound;
       }
 
+      // eslint-disable-next-line react-hooks/purity
       const now = Date.now();
       const closestRound = allRounds.sort((roundA, roundB) => {
         const distA = Math.abs(now - roundA.submissionStartDate);

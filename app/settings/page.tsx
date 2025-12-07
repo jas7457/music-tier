@@ -4,7 +4,7 @@ import { UserSettingsClient } from "./UserSettingsClient";
 import { verifySessionToken } from "@/lib/auth";
 
 export default async function SettingsPage() {
-  const payload = verifySessionToken();
+  const payload = await verifySessionToken();
   if (!payload) {
     redirect("/");
   }

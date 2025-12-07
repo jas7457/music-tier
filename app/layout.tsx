@@ -39,7 +39,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   let initialUser: PopulatedUser | null = null;
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const primaryColor = cookieStore.get("primaryColor")?.value || "purple";
 
   try {

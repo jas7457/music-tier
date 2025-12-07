@@ -8,7 +8,7 @@ import { APP_NAME } from "@/lib/utils/constants";
 
 export async function POST(request: NextRequest) {
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

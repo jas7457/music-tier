@@ -17,6 +17,7 @@ const TIME_BETWEEN_REFRESH_MS = 2000;
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const routerRef = useRef(router);
+  // eslint-disable-next-line react-hooks/refs
   routerRef.current = router;
   const lastUpdateTimeRef = useRef(0);
   const contextValue: DataContextType = useMemo(() => {

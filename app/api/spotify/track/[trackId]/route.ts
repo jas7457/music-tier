@@ -6,10 +6,8 @@ export type GETReponse =
   | { error: string; track?: never }
   | { track: PopulatedTrackInfo; error?: never };
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { trackId: string } }
-): Promise<NextResponse<GETReponse>> {
+export async function GET(request: NextRequest, props: { params: Promise<{ trackId: string }> }): Promise<NextResponse<GETReponse>> {
+  const params = await props.params;
   try {
     const accessToken = request.cookies.get("spotify_access_token")?.value;
 

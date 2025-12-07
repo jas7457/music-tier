@@ -9,15 +9,17 @@ import { cookies } from "next/headers";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { roundId: string } }
+  props: { params: Promise<{ roundId: string }> }
 ) {
+  const params = await props.params;
   return handleRequest(request, { roundId: params.roundId });
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { roundId: string } }
+  props: { params: Promise<{ roundId: string }> }
 ) {
+  const params = await props.params;
   return handleRequest(request, { roundId: params.roundId });
 }
 
@@ -26,7 +28,7 @@ async function handleRequest(
   { roundId }: { roundId: string }
 ) {
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
@@ -104,7 +106,7 @@ async function handleRequest(
           );
         }
 
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         const accessToken = cookieStore.get("spotify_access_token")?.value;
 
         const res = await fetch(

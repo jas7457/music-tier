@@ -42,6 +42,15 @@ async function emptyLeague() {
       return;
     }
 
+    if (
+      league.users.includes("692b300aba9c99901e571c16") ||
+      league.users.length > 3
+    ) {
+      throw new Error(
+        "You are clearing a real league, you don't actually want to do this."
+      );
+    }
+
     // Get all rounds for this league
     const roundsCollection = db.collection("rounds");
     const rounds = await roundsCollection

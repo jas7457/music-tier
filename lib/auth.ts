@@ -21,19 +21,16 @@ export function createSessionToken(user: User): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const userDharam = {
   userId: "692722dc52eadc22aeac2cf5",
   userName: "4everevolution",
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const userKelsey = {
   userId: "692462e546422e7ee9dc0f6d",
   userName: "khappel28",
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const userJen = {
   userId: "692b4f13016f4a750237c163",
   userName: "stickyrice",
@@ -46,8 +43,8 @@ const userTest = {
 
 const users = [userDharam, userKelsey, userJen, userTest];
 
-export function verifySessionToken(): SessionPayload | null {
-  const cookieStore = cookies();
+export async function verifySessionToken(): Promise<SessionPayload | null> {
+  const cookieStore = await cookies();
   const sessionToken = cookieStore.get("session_token")?.value;
   const sessionOverride = cookieStore.get("session_override")?.value;
 

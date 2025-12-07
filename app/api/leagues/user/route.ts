@@ -5,7 +5,7 @@ import { getUserLeagues } from "@/lib/data";
 export async function GET(request: NextRequest) {
   try {
     const accessToken = request.cookies.get("spotify_access_token")?.value;
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload || !accessToken) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }

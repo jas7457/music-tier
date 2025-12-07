@@ -625,7 +625,7 @@ export async function getLeagueById(
 
 export async function getUserByCookies(leagueId: string) {
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
 
     if (!payload) {
       return null;

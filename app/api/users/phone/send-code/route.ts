@@ -12,7 +12,7 @@ function generateVerificationCode(): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

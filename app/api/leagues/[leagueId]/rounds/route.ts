@@ -11,16 +11,18 @@ import { setScheduledNotifications } from "@/lib/scheduledNotifications";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { leagueId: string } }
+  props: { params: Promise<{ leagueId: string }> }
 ) {
+  const params = await props.params;
   const { leagueId } = params;
   return handleRequest(request, { leagueId, method: "ADD" });
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { leagueId: string; roundId: string } }
+  props: { params: Promise<{ leagueId: string }> }
 ) {
+  const params = await props.params;
   const { leagueId } = params;
   return handleRequest(request, { leagueId, method: "UPDATE" });
 }
@@ -31,7 +33,7 @@ async function handleRequest(
 ) {
   const now = Date.now();
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }

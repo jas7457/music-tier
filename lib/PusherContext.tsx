@@ -44,6 +44,7 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
       cluster: PUSHER_CLUSTER,
     });
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPusher(pusherClient);
 
     return () => {

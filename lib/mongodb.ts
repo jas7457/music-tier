@@ -1,7 +1,9 @@
-import { MongoClient, Db, Collection, Document } from 'mongodb';
+import { MongoClient, Db, Collection, Document } from "mongodb";
 
 if (!process.env.MONGO_DB_URI) {
-  throw new Error('Please define the MONGO_DB_URI environment variable inside .env.local');
+  throw new Error(
+    "Please define the MONGO_DB_URI environment variable inside .env.local"
+  );
 }
 
 const uri = process.env.MONGO_DB_URI;
@@ -11,11 +13,10 @@ let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
 declare global {
-  // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   // In development mode, use a global variable so that the value
   // is preserved across module reloads caused by HMR (Hot Module Replacement).
   if (!global._mongoClientPromise) {
@@ -31,10 +32,12 @@ if (process.env.NODE_ENV === 'development') {
 
 export async function getDatabase(): Promise<Db> {
   const client = await clientPromise;
-  return client.db('music-tier');
+  return client.db("music-tier");
 }
 
-export async function getCollection<T extends Document = Document>(collectionName: string): Promise<Collection<T>> {
+export async function getCollection<T extends Document = Document>(
+  collectionName: string
+): Promise<Collection<T>> {
   const db = await getDatabase();
   return db.collection<T>(collectionName);
 }

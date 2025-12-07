@@ -8,7 +8,7 @@ import { APP_NAME, logo } from "@/lib/utils/constants";
 
 export async function POST(request: Request) {
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }

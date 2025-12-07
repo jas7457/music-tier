@@ -11,10 +11,11 @@ import { setScheduledNotifications } from "@/lib/scheduledNotifications";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { roundId: string } }
+  props: { params: Promise<{ roundId: string }> }
 ) {
+  const params = await props.params;
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }

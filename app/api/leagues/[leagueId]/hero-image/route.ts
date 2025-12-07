@@ -7,10 +7,11 @@ import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { leagueId: string } }
+  props: { params: Promise<{ leagueId: string }> }
 ) {
+  const params = await props.params;
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }

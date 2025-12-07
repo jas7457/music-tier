@@ -1,10 +1,12 @@
 import { twMerge } from "tailwind-merge";
 
+import type { JSX, FC } from "react";
+
 export interface CardProps {
   children: React.ReactNode;
   className?: string;
   variant?: "default" | "outlined" | "elevated";
-  element?: "div" | "button" | React.FC<JSX.IntrinsicElements["button"]>;
+  element?: "div" | "button" | FC<JSX.IntrinsicElements["button"]>;
   onClick?: () => void;
   title?: string;
 }

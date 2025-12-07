@@ -10,14 +10,15 @@ import { getPlaces } from "@/lib/utils/getPlaces";
 type ProfileStats = ProfileData["stats"];
 
 type PageProps = {
-  params: { userId: string };
+  params: Promise<{ userId: string }>;
 };
 
-export default async function UserProfilePage({ params }: PageProps) {
+export default async function UserProfilePage(props: PageProps) {
+  const params = await props.params;
   const { userId } = params;
 
   // Verify the session
-  const payload = verifySessionToken();
+  const payload = await verifySessionToken();
   if (!payload) {
     redirect("/");
   }

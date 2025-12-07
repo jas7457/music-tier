@@ -6,7 +6,7 @@ import { getVapidPublicKey } from "@/lib/webPush";
 import { ObjectId } from "mongodb";
 
 export async function GET() {
-  const payload = verifySessionToken();
+  const payload = await verifySessionToken();
   if (!payload) {
     return NextResponse.json({ error: "Invalid session" }, { status: 401 });
   }
@@ -25,7 +25,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const payload = verifySessionToken();
+    const payload = await verifySessionToken();
     if (!payload) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
