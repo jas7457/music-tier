@@ -1,5 +1,4 @@
 import type { PopulatedLeague, LeaguePlaybackStats } from "@/lib/types";
-import type { TrackInfo } from "@/databaseTypes";
 
 export interface PlaybackScreenProps {
   playback: LeaguePlaybackStats;
@@ -12,11 +11,7 @@ export interface PlaybackScreenProps {
 export interface PlaybackScreen {
   key: string;
   component: React.ComponentType<PlaybackScreenProps>;
-  trackInfo?: (
-    playback: LeaguePlaybackStats,
-    currentUserId?: string
-  ) => TrackInfo | null;
-  background: {
+  background?: {
     from: string;
     via: string;
     to: string;

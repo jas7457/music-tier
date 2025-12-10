@@ -20,7 +20,7 @@ import {
 } from "./types";
 import { verifySessionToken } from "./auth";
 import { seededShuffle } from "./utils/seededShuffle";
-import { UPCOMING_ROUNDS_TO_SHOW } from "./utils/constants";
+import { JASON_ID, UPCOMING_ROUNDS_TO_SHOW } from "./utils/constants";
 import { assertNever } from "./utils/never";
 import { calculatePlaybackStats } from "./playbackCalculations";
 
@@ -526,7 +526,10 @@ export async function getUserLeagues(
       };
 
       // Calculate playback stats only for completed leagues
-      const playback = calculatePlaybackStats(populatedLeague, userId);
+      const playback =
+        populatedLeague.status === "completed" || userId === JASON_ID
+          ? calculatePlaybackStats(populatedLeague, userId)
+          : null;
 
       return { ...populatedLeague, playback };
     })

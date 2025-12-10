@@ -7,6 +7,7 @@ import { twMerge } from "tailwind-merge";
 export function Guesses({
   isActive,
   guesses,
+  onPlaySong,
 }: {
   isActive: boolean;
   guesses: Array<{
@@ -16,6 +17,7 @@ export function Guesses({
     submitter: PopulatedUser;
     round: PopulatedRound;
   }>;
+  onPlaySong?: (song: TrackInfo) => void;
 }) {
   const sortedGuesses = useMemo(() => {
     return guesses.sort((a, b) =>
@@ -51,6 +53,7 @@ export function Guesses({
                     trackInfo={guess.trackInfo}
                     round={guess.round}
                     playlist={playlist}
+                    onPlaySong={onPlaySong}
                   />
                   <div className="overflow-hidden">
                     <p className="text-sm font-semibold truncate">

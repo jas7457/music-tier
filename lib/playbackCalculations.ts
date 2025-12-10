@@ -28,17 +28,15 @@ export function calculatePlaybackStats(
       userStats: null,
       biggestFan: null,
       biggestCritic: null,
-      mostWinsUser: null,
-      fastestSubmitter: null,
-      slowestSubmitter: null,
-      fastestVoter: null,
+      mostWinsUsers: [],
+      fastestSubmitters: [],
+      fastestVoters: [],
       slowestVoter: null,
       mostConsistent: null,
       conspirators: null,
       userTopSong: null,
-      bestGuesser: null,
-      worstGuesser: null,
-      mostNotedSong: null,
+      bestGuessers: [],
+      mostNotedSongs: [],
       allUserTopSongs: [],
       allUserWins: [],
     };
@@ -69,7 +67,9 @@ export function calculatePlaybackStats(
           }
         > | null;
         pointsByFriends: Record<string, LeaguePlaybackStats["biggestFan"]>;
-        guesses: NonNullable<LeaguePlaybackStats["bestGuesser"]>["guesses"];
+        guesses: NonNullable<
+          LeaguePlaybackStats["bestGuessers"]
+        >[number]["guesses"];
         points: Array<{
           trackInfo: TrackInfo;
           points: number;
@@ -335,34 +335,34 @@ export function calculatePlaybackStats(
   });
 
   const {
-    mostWinsUser,
+    mostWinsUsers,
     topSong,
-    fastestSubmitter,
-    slowestSubmitter,
-    fastestVoter,
+    fastestSubmitters,
+    fastestVoters,
     slowestVoter,
-    bestGuesser,
-    worstGuesser,
-    mostNotedSong,
+    bestGuessers,
+    mostNotedSongs,
   } = Object.values(userData).reduce(
     (acc, data) => {
-      // mostWinsUser
+      // mostWinsUsers
       (() => {
-        const userWins = data.places.filter((p) => p.place === 1).length;
-        const userObj = { user: data.user, wins: userWins };
-        if (!acc.mostWinsUser) {
-          acc.mostWinsUser = userObj;
+        const winningRounds = data.places.filter((p) => p.place === 1);
+        if (winningRounds.length === 0) {
+          return;
         }
-        if (userWins > acc.mostWinsUser.wins) {
-          acc.mostWinsUser = userObj;
-        }
-        if (userWins === acc.mostWinsUser.wins) {
-          if (
-            data.totalPoints > userData[acc.mostWinsUser.user._id].totalPoints
-          ) {
-            acc.mostWinsUser = userObj;
-          }
-        }
+        const winningSubmissions = winningRounds.map((placeInfo) => {
+          // Find the submission for this winning round
+          const pointInfo = data.points.find(
+            (p) => p.round._id === placeInfo.round._id
+          );
+          return {
+            trackInfo: pointInfo!.trackInfo,
+            points: pointInfo!.points,
+            round: placeInfo.round,
+          };
+        });
+
+        acc.mostWinsUsers.push({ user: data.user, wins: winningSubmissions });
       })();
 
       // topSong
@@ -381,7 +381,7 @@ export function calculatePlaybackStats(
         }
       })();
 
-      // slowestSubmitter, fastestSubmitter
+      // fastestSubmitters
       (() => {
         const averageSubmitTime =
           data.submissions.reduce(
@@ -389,134 +389,79 @@ export function calculatePlaybackStats(
             0
           ) / data.submissions.length;
 
-        if (
-          !acc.slowestSubmitter ||
-          averageSubmitTime > acc.slowestSubmitter.avgTime
-        ) {
-          acc.slowestSubmitter = {
-            user: data.user,
-            avgTime: averageSubmitTime,
-          };
-        }
-
-        if (
-          !acc.fastestSubmitter ||
-          averageSubmitTime < acc.fastestSubmitter.avgTime
-        ) {
-          const fastestSubmission = data.submissions.reduce(
-            (fastest, current) =>
-              current.timeToSubmit < fastest.timeToSubmit ? current : fastest
-          );
-          acc.fastestSubmitter = {
-            user: data.user,
-            avgTime: averageSubmitTime,
-            fastestSong: {
-              round: roundsById[fastestSubmission.submission.roundId],
-              time: fastestSubmission.timeToSubmit,
-              trackInfo: fastestSubmission.submission.trackInfo,
-            },
-          };
-        }
+        const fastestSubmission = data.submissions.reduce((fastest, current) =>
+          current.timeToSubmit < fastest.timeToSubmit ? current : fastest
+        );
+        acc.fastestSubmitters.push({
+          user: data.user,
+          avgTime: averageSubmitTime,
+          fastestSong: {
+            round: roundsById[fastestSubmission.submission.roundId],
+            time: fastestSubmission.timeToSubmit,
+            trackInfo: fastestSubmission.submission.trackInfo,
+          },
+        });
       })();
 
-      // slowestVoter, fastestVoter
+      // fastestVoters
       (() => {
         const averageVoteTime =
           data.votes.reduce((acc, vote) => acc + vote.timeToVote, 0) /
           data.votes.length;
 
-        if (!acc.slowestVoter || averageVoteTime > acc.slowestVoter.avgTime) {
-          acc.slowestVoter = {
-            user: data.user,
-            avgTime: averageVoteTime,
-          };
-        }
-
-        if (!acc.fastestVoter || averageVoteTime < acc.fastestVoter.avgTime) {
-          const fastestSubmission = data.submissions.reduce(
-            (fastest, current) =>
-              current.timeToSubmit < fastest.timeToSubmit ? current : fastest
-          );
-          acc.fastestVoter = {
-            user: data.user,
-            avgTime: averageVoteTime,
-            fastestSong: {
-              round: roundsById[fastestSubmission.submission.roundId],
-              time: fastestSubmission.timeToSubmit,
-              trackInfo: fastestSubmission.submission.trackInfo,
-            },
-          };
-        }
+        acc.fastestVoters.push({
+          user: data.user,
+          avgTime: averageVoteTime,
+        });
       })();
 
-      // bestGuesser, worstGuesser
+      // bestGuessers
       (() => {
+        if (data.guesses.length === 0) {
+          return;
+        }
         const guessAccuracy =
-          data.guesses.length === 0
-            ? undefined
-            : data.guesses.reduce(
-                (acc, guess) => acc + (guess.isCorrect ? 1 : 0),
-                0
-              ) / data.guesses.length;
+          data.guesses.reduce(
+            (acc, guess) => acc + (guess.isCorrect ? 1 : 0),
+            0
+          ) / data.guesses.length;
 
-        if (
-          guessAccuracy !== undefined &&
-          (!acc.bestGuesser || guessAccuracy > acc.bestGuesser.accuracy)
-        ) {
-          acc.bestGuesser = {
-            user: data.user,
-            accuracy: guessAccuracy,
-            guesses: data.guesses,
-          };
-        }
-
-        if (
-          guessAccuracy !== undefined &&
-          (!acc.worstGuesser || guessAccuracy < acc.worstGuesser.accuracy)
-        ) {
-          acc.worstGuesser = {
-            user: data.user,
-            accuracy: guessAccuracy,
-            guesses: data.guesses,
-          };
-        }
+        acc.bestGuessers.push({
+          user: data.user,
+          accuracy: guessAccuracy,
+          guesses: data.guesses,
+        });
       })();
 
-      // mostNotedSong
+      // mostNotedSongs
       (() => {
         data.submissions.forEach((submissionData) => {
           if (submissionData.notes.length === 0) {
             return;
           }
 
-          if (
-            !acc.mostNotedSong ||
-            submissionData.notes.length > acc.mostNotedSong.notes.length
-          ) {
-            acc.mostNotedSong = {
-              trackInfo: submissionData.submission.trackInfo,
-              user: usersById[submissionData.submission.userId],
-              notes: submissionData.notes.map((note) => ({
-                text: note.text,
-                user: usersById[note.user._id],
-              })),
-            };
-          }
+          acc.mostNotedSongs.push({
+            trackInfo: submissionData.submission.trackInfo,
+            user: usersById[submissionData.submission.userId],
+            points: data.points.reduce((acc, p) => acc + p.points, 0),
+            notes: submissionData.notes.map((note) => ({
+              text: note.text,
+              user: usersById[note.user._id],
+            })),
+          });
         });
       })();
 
       return acc;
     },
     {
-      mostWinsUser: null as LeaguePlaybackStats["mostWinsUser"],
+      mostWinsUsers: [] as LeaguePlaybackStats["mostWinsUsers"],
       topSong: null as LeaguePlaybackStats["topSong"],
-      fastestSubmitter: null as LeaguePlaybackStats["fastestSubmitter"],
-      slowestSubmitter: null as LeaguePlaybackStats["slowestSubmitter"],
-      fastestVoter: null as LeaguePlaybackStats["fastestVoter"],
+      fastestSubmitters: [] as LeaguePlaybackStats["fastestSubmitters"],
+      fastestVoters: [] as LeaguePlaybackStats["fastestVoters"],
       slowestVoter: null as LeaguePlaybackStats["slowestVoter"],
-      bestGuesser: null as LeaguePlaybackStats["bestGuesser"],
-      worstGuesser: null as LeaguePlaybackStats["worstGuesser"],
-      mostNotedSong: null as LeaguePlaybackStats["mostNotedSong"],
+      bestGuessers: [] as LeaguePlaybackStats["bestGuessers"],
+      mostNotedSongs: [] as LeaguePlaybackStats["mostNotedSongs"],
     }
   );
 
@@ -780,7 +725,13 @@ export function calculatePlaybackStats(
         round: data.topSong.round,
       };
     })
-    .filter((song) => song !== null);
+    .filter((song) => song !== null)
+    .sort((a, b) => {
+      if (b!.points !== a!.points) {
+        return b!.points - a!.points;
+      }
+      return b!.voters - a!.voters;
+    });
 
   const allUserWins: LeaguePlaybackStats["allUserWins"] = Object.values(
     userData
@@ -805,17 +756,34 @@ export function calculatePlaybackStats(
     userStats,
     biggestFan,
     biggestCritic,
-    mostWinsUser,
-    fastestSubmitter,
-    slowestSubmitter,
-    fastestVoter,
+    mostWinsUsers: mostWinsUsers.sort((a, b) => {
+      if (b.wins.length !== a.wins.length) {
+        return b.wins.length - a.wins.length;
+      }
+      const aPoints = a.wins.reduce((acc, win) => acc + win.points, 0);
+      const bPoints = b.wins.reduce((acc, win) => acc + win.points, 0);
+      if (bPoints !== aPoints) {
+        return bPoints - aPoints;
+      }
+      return (
+        userData[b.user._id].totalPoints - userData[a.user._id].totalPoints
+      );
+    }),
+    fastestSubmitters: fastestSubmitters.sort((a, b) => a.avgTime - b.avgTime),
+    fastestVoters: fastestVoters.sort((a, b) => a.avgTime - b.avgTime),
     slowestVoter,
     mostConsistent,
     conspirators,
     userTopSong,
-    bestGuesser,
-    worstGuesser,
-    mostNotedSong,
+    bestGuessers: bestGuessers.sort((a, b) => b.accuracy - a.accuracy),
+    mostNotedSongs: mostNotedSongs
+      .sort((a, b) => {
+        if (b.notes.length !== a.notes.length) {
+          return b.notes.length - a.notes.length;
+        }
+        return b.points - a.points;
+      })
+      .slice(0, 5),
     allUserTopSongs,
     allUserWins,
   };

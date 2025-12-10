@@ -26,7 +26,11 @@ export function MaybeLink({
 
   if (isCurrentRoute || forceNormalText) {
     // Render as a div if linking to current route
-    return <div className={className}>{children}</div>;
+    return (
+      <div className={className} style={props.style}>
+        {children}
+      </div>
+    );
   }
 
   // Render as a Link if not current route

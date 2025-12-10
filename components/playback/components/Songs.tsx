@@ -4,16 +4,19 @@ import type { PopulatedRound } from "@/lib/types";
 import AlbumArt from "@/components/AlbumArt";
 import { useMemo } from "react";
 
+type Song = {
+  trackInfo: TrackInfo;
+  points: number;
+  round: PopulatedRound;
+};
+
 interface SongsProps {
-  songs: Array<{
-    trackInfo: TrackInfo;
-    points: number;
-    round: PopulatedRound;
-  }>;
+  songs: Array<Song>;
   isActive: boolean;
+  onPlaySong?: (song: TrackInfo) => void;
 }
 
-export function Songs({ songs, isActive }: SongsProps) {
+export function Songs({ songs, isActive, onPlaySong }: SongsProps) {
   const playlist = useMemo(() => {
     return songs.map((song) => song.trackInfo);
   }, [songs]);
@@ -37,6 +40,7 @@ export function Songs({ songs, isActive }: SongsProps) {
                 size={56}
                 round={song.round}
                 playlist={playlist}
+                onPlaySong={onPlaySong}
               />
               <div className="overflow-hidden">
                 <p className="text-sm font-semibold truncate">

@@ -6,6 +6,8 @@ import type { TrackInfo } from "@/databaseTypes";
 import type { PopulatedRound, PopulatedUser } from "@/lib/types";
 import { OutlinedText } from "@/components/OutlinedText";
 import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
+import { useEffect, useRef } from "react";
+import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 
 interface SongScreenProps {
   isActive: boolean;
@@ -29,6 +31,18 @@ export function SongScreen({
   pointsStrokeColor,
   submittedBy,
 }: SongScreenProps) {
+  const { playTrack } = useSpotifyPlayer();
+  const playTrackRef = useRef(playTrack);
+  // eslint-disable-next-line react-hooks/refs
+  playTrackRef.current = playTrack;
+
+  useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+    playTrackRef.current(trackInfo, round, [trackInfo]);
+  }, [isActive, round, trackInfo]);
+
   return (
     <div className="relative h-full overflow-clip">
       <AnimatedImageBackdrop imageUrl={trackInfo.albumImageUrl} />

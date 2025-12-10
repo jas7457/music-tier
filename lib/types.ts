@@ -80,8 +80,15 @@ export interface LeaguePlaybackStats {
       round: PopulatedRound;
     }>;
   } | null;
-  mostWinsUser: { user: PopulatedUser; wins: number } | null;
-  fastestSubmitter: {
+  mostWinsUsers: Array<{
+    user: PopulatedUser;
+    wins: Array<{
+      trackInfo: TrackInfo;
+      points: number;
+      round: PopulatedRound;
+    }>;
+  }>;
+  fastestSubmitters: Array<{
     user: PopulatedUser;
     avgTime: number;
     fastestSong: {
@@ -89,17 +96,11 @@ export interface LeaguePlaybackStats {
       time: number;
       round: PopulatedRound;
     };
-  } | null;
-  slowestSubmitter: { user: PopulatedUser; avgTime: number } | null;
-  fastestVoter: {
+  }>;
+  fastestVoters: Array<{
     user: PopulatedUser;
     avgTime: number;
-    fastestSong: {
-      trackInfo: TrackInfo;
-      time: number;
-      round: PopulatedRound;
-    };
-  } | null;
+  }>;
   slowestVoter: { user: PopulatedUser; avgTime: number } | null;
   mostConsistent: {
     user: PopulatedUser;
@@ -116,7 +117,7 @@ export interface LeaguePlaybackStats {
     trackInfo: TrackInfo;
     points: number;
   } | null;
-  bestGuesser: {
+  bestGuessers: Array<{
     user: PopulatedUser;
     accuracy: number;
     guesses: Array<{
@@ -126,26 +127,16 @@ export interface LeaguePlaybackStats {
       isCorrect: boolean;
       round: PopulatedRound;
     }>;
-  } | null;
-  worstGuesser: {
-    user: PopulatedUser;
-    accuracy: number;
-    guesses: Array<{
-      trackInfo: TrackInfo;
-      submitter: PopulatedUser;
-      guessedUser: PopulatedUser;
-      isCorrect: boolean;
-      round: PopulatedRound;
-    }>;
-  } | null;
-  mostNotedSong: {
+  }>;
+  mostNotedSongs: Array<{
     trackInfo: TrackInfo;
     user: PopulatedUser;
+    points: number;
     notes: Array<{
       text: string;
       user: PopulatedUser;
     }>;
-  } | null;
+  }>;
   allUserTopSongs: Array<{
     user: PopulatedUser;
     trackInfo: TrackInfo;

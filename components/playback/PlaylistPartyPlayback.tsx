@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import type { PopulatedLeague } from "@/lib/types";
 import { useAuth } from "@/lib/AuthContext";
-import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 import { HapticButton } from "@/components/HapticButton";
 import { PLAYBACK_SCREENS } from "./screenConfig";
 
@@ -20,10 +19,6 @@ export function PlaylistPartyPlayback({
   onClose,
 }: PlaylistPartyPlaybackProps) {
   const { user } = useAuth();
-  const { playTrack } = useSpotifyPlayer();
-  const playTrackRef = useRef(playTrack);
-  // eslint-disable-next-line react-hooks/refs
-  playTrackRef.current = playTrack;
 
   // Get playback stats from server-provided data
   const playback = league.playback;
@@ -58,24 +53,6 @@ export function PlaylistPartyPlayback({
 
     return () => observer.disconnect();
   }, [isOpen, league._id]);
-
-  // Autoplay track when screen becomes active
-  useEffect(() => {
-    if (!isOpen || !playback || !user) return;
-
-    const currentScreen = PLAYBACK_SCREENS[currentScreenIndex];
-    const trackInfo = currentScreen.trackInfo?.(playback, user._id);
-
-    if (trackInfo && league.rounds.completed.length > 0) {
-      const timer = setTimeout(() => {
-        // playTrackRef.current(trackInfo, league.rounds.completed[0], [
-        //   trackInfo,
-        // ]);
-      }, 400);
-
-      return () => clearTimeout(timer);
-    }
-  }, [currentScreenIndex, isOpen, playback, user, league.rounds.completed]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -126,8 +103,6 @@ export function PlaylistPartyPlayback({
     });
   };
 
-  const currentBackground = PLAYBACK_SCREENS[currentScreenIndex].background;
-
   return (
     <div
       ref={containerRef}
@@ -145,41 +120,6 @@ export function PlaylistPartyPlayback({
           display: none;
         }
       `}</style>
-
-      {/* Animated swirling background - multiple blob layers */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Base gradient layer */}
-        <div
-          className="absolute inset-0 transition-all duration-1000 ease-in-out"
-          style={{
-            background: `linear-gradient(135deg, ${currentBackground.from}, ${currentBackground.to})`,
-          }}
-        />
-        {/* Blob 1 */}
-        <div
-          className="absolute w-[800px] h-[800px] -top-40 -left-40 opacity-50 blur-3xl transition-colors duration-1000"
-          style={{
-            background: `radial-gradient(circle, ${currentBackground.via} 0%, transparent 70%)`,
-            animation: "gradient-swirl-1 12s ease-in-out infinite",
-          }}
-        />
-        {/* Blob 2 */}
-        <div
-          className="absolute w-[600px] h-[600px] top-1/2 right-0 opacity-40 blur-3xl transition-colors duration-1000"
-          style={{
-            background: `radial-gradient(circle, ${currentBackground.from} 0%, transparent 70%)`,
-            animation: "gradient-swirl-2 15s ease-in-out infinite",
-          }}
-        />
-        {/* Blob 3 */}
-        <div
-          className="absolute w-[700px] h-[700px] bottom-0 left-1/4 opacity-30 blur-3xl transition-colors duration-1000"
-          style={{
-            background: `radial-gradient(circle, ${currentBackground.to} 0%, transparent 70%)`,
-            animation: "gradient-swirl-3 18s ease-in-out infinite",
-          }}
-        />
-      </div>
 
       {/* Close button */}
       <HapticButton

@@ -47,6 +47,7 @@ export function Avatar({
       className="relative group"
       forceNormalText={!includeLink}
       {...(includeTooltip ? { title: tooltipText } : {})}
+      style={{ width: isSizePercent ? `${size}%` : undefined }}
     >
       {user.photoUrl ? (
         <img
@@ -54,9 +55,9 @@ export function Avatar({
           alt={fullName}
           className={twMerge(
             sizeStr,
-            "rounded-full object-cover border-2 border-gray-300 aspect-square"
+            "rounded-full object-cover border-2 border-gray-300 aspect-square",
+            isSizePercent ? "w-full" : ""
           )}
-          style={{ width: isSizePercent ? `${size}%` : undefined }}
         />
       ) : (
         <div
