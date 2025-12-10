@@ -5,6 +5,7 @@ import { MaybeLink } from "./MaybeLink";
 export interface AvatarProps {
   user: PopulatedUser;
   size?: number;
+  isSizePercent?: boolean;
   includeTooltip?: boolean;
   tooltipText?: string;
   className?: string;
@@ -15,6 +16,7 @@ export function Avatar({
   className,
   user,
   size = 8,
+  isSizePercent = false,
   includeTooltip,
   tooltipText = user.userName,
   includeLink = true,
@@ -35,7 +37,7 @@ export function Avatar({
     "from-fuchsia-500 to-pink-600",
   ];
 
-  const sizeStr = `w-${size} h-${size}`;
+  const sizeStr = isSizePercent ? "" : `w-${size}`;
 
   const index = user.index === -1 ? 0 : user.index;
   const gradient = gradients[index % gradients.length];
@@ -52,15 +54,16 @@ export function Avatar({
           alt={fullName}
           className={twMerge(
             sizeStr,
-            "rounded-full object-cover border-2 border-gray-300"
+            "rounded-full object-cover border-2 border-gray-300 aspect-square"
           )}
+          style={{ width: isSizePercent ? `${size}%` : undefined }}
         />
       ) : (
         <div
           className={twMerge(
             sizeStr,
             gradient,
-            "rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-300",
+            "rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-300 aspect-square",
             className
           )}
         >
