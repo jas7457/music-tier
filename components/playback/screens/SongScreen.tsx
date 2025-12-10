@@ -8,6 +8,7 @@ import { OutlinedText } from "@/components/OutlinedText";
 import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
 import { useEffect, useRef } from "react";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
+import { useProminentColor } from "../utils";
 
 interface SongScreenProps {
   isActive: boolean;
@@ -35,6 +36,8 @@ export function SongScreen({
   const playTrackRef = useRef(playTrack);
   // eslint-disable-next-line react-hooks/refs
   playTrackRef.current = playTrack;
+
+  const glowColor = useProminentColor(trackInfo.albumImageUrl, "transparent");
 
   useEffect(() => {
     if (!isActive) {
@@ -67,6 +70,10 @@ export function SongScreen({
             "transition-all duration-500",
             isActive ? "opacity-100 scale-100 delay-200" : "opacity-0 scale-50"
           )}
+          style={{
+            // @ts-ignore
+            "--glow-color": glowColor,
+          }}
         >
           <AlbumArt
             trackInfo={trackInfo}

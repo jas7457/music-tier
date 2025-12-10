@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { TrackInfo } from "@/databaseTypes";
 import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
+import { useProminentColor } from "../utils";
 
 export function MostNotedSongScreen({
   playback,
@@ -22,6 +23,10 @@ export function MostNotedSongScreen({
   );
 
   const [screenIndex, setScreenIndex] = useState(0);
+  const glowColor = useProminentColor(
+    selectedSongs[screenIndex]?.albumImageUrl || "",
+    "transparent"
+  );
 
   const { playTrack } = useSpotifyPlayer();
   const playTrackRef = useRef(playTrack);
@@ -94,6 +99,10 @@ export function MostNotedSongScreen({
                     ? "opacity-100 scale-100 delay-200"
                     : "opacity-0 scale-50"
                 )}
+                style={{
+                  // @ts-ignore
+                  "--glow-color": glowColor,
+                }}
               >
                 <AlbumArt
                   trackInfo={song.trackInfo}
