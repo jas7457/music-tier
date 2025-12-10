@@ -20,8 +20,9 @@ import {
 } from "./types";
 import { verifySessionToken } from "./auth";
 import { seededShuffle } from "./utils/seededShuffle";
-import { UPCOMING_ROUNDS_TO_SHOW } from "./utils/constants";
+import { JASON_ID, UPCOMING_ROUNDS_TO_SHOW } from "./utils/constants";
 import { assertNever } from "./utils/never";
+import { calculatePlaybackStats } from "./playbackCalculations";
 
 const dbPromise = (async () => {
   const [
@@ -516,13 +517,21 @@ export async function getUserLeagues(
       roundsObject.pending.sort((a, b) => a.roundIndex - b.roundIndex);
       roundsObject.upcoming.sort((a, b) => a.roundIndex - b.roundIndex);
 
-      return {
+      const populatedLeague = {
         ...league,
         numberOfRounds,
         users,
         status,
         rounds: roundsObject,
       };
+
+      // Calculate playback stats only for completed leagues
+      const playback =
+        populatedLeague.status === "completed" || userId === JASON_ID
+          ? calculatePlaybackStats(populatedLeague, userId)
+          : null;
+
+      return { ...populatedLeague, playback };
     })
   );
 

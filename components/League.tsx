@@ -15,6 +15,7 @@ import { DateTime } from "./DateTime";
 import { ConfirmUploadButton } from "./UploadThing";
 import { useToast } from "@/lib/ToastContext";
 import { HapticButton } from "./HapticButton";
+import { PlaylistPartyPlayback } from "./playback/PlaylistPartyPlayback";
 
 export function League({
   league,
@@ -34,7 +35,13 @@ export function League({
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
   const [imageScale, setImageScale] = useState(1);
   const [imageTranslate, setImageTranslate] = useState({ x: 0, y: 0 });
-  const touchStartRef = useRef<{ distance: number; scale: number; x: number; y: number } | null>(null);
+  const touchStartRef = useRef<{
+    distance: number;
+    scale: number;
+    x: number;
+    y: number;
+  } | null>(null);
+  const [playbackOpen, setPlaybackOpen] = useState(false);
 
   // Reset zoom when closing full-screen
   useEffect(() => {
@@ -70,7 +77,12 @@ export function League({
       );
       const centerX = (touch1.clientX + touch2.clientX) / 2;
       const centerY = (touch1.clientY + touch2.clientY) / 2;
-      touchStartRef.current = { distance, scale: imageScale, x: centerX, y: centerY };
+      touchStartRef.current = {
+        distance,
+        scale: imageScale,
+        x: centerX,
+        y: centerY,
+      };
     } else if (e.touches.length === 1 && imageScale > 1) {
       // Single touch for panning when zoomed
       e.preventDefault();
@@ -95,7 +107,9 @@ export function League({
         touch2.clientX - touch1.clientX,
         touch2.clientY - touch1.clientY
       );
-      const scale = (distance / touchStartRef.current.distance) * touchStartRef.current.scale;
+      const scale =
+        (distance / touchStartRef.current.distance) *
+        touchStartRef.current.scale;
       // Limit scale between 1x and 5x
       const newScale = Math.min(Math.max(scale, 1), 5);
       setImageScale(newScale);
@@ -297,8 +311,8 @@ export function League({
             onTouchEnd={handleTouchEnd}
             style={{
               transform: `scale(${imageScale}) translate(${imageTranslate.x}px, ${imageTranslate.y}px)`,
-              transition: imageScale === 1 ? 'transform 0.3s ease-out' : 'none',
-              touchAction: 'none',
+              transition: imageScale === 1 ? "transform 0.3s ease-out" : "none",
+              touchAction: "none",
             }}
           />
         </div>
@@ -420,6 +434,18 @@ export function League({
         </div>
       </div>
 
+      {/* Playlist Party Playback Button */}
+      {league.playback && (
+        <div className="mb-4">
+          <HapticButton
+            onClick={() => setPlaybackOpen(true)}
+            className="w-full px-6 py-4 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 border-2 border-white/40 text-white font-bold text-lg transition-all hover:scale-105 shadow-lg"
+          >
+            🎵 View Playlist Party Playback
+          </HapticButton>
+        </div>
+      )}
+
       {/* Create Round */}
       {userHasCreatedRound ? null : (
         <CreateRound leagueId={league._id} isBonusRound={false} />
@@ -435,6 +461,15 @@ export function League({
         <LeagueStandings league={league} />
       ) : (
         <LeagueRounds league={league} />
+      )}
+
+      {/* Playlist Party Playback Modal */}
+      {playbackOpen && (
+        <PlaylistPartyPlayback
+          league={league}
+          isOpen={playbackOpen}
+          onClose={() => setPlaybackOpen(false)}
+        />
       )}
     </div>
   );

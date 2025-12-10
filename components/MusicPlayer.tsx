@@ -6,6 +6,7 @@ import { PlayIcon, PauseIcon, NextIcon, PreviousIcon } from "./PlayerIcons";
 import Link from "next/link";
 import { twMerge } from "tailwind-merge";
 import { HapticButton } from "./HapticButton";
+import { AnimatedImageBackdrop } from "./AnimatedImageBackdrop";
 
 export default function MusicPlayer({
   isExpanded,
@@ -336,18 +337,7 @@ export default function MusicPlayer({
         onTouchEnd={isExpanded ? handleTouchEnd : undefined}
       >
         {/* Animated Background Album Art */}
-        <div className="absolute inset-0">
-          <div
-            className={twMerge(
-              "absolute inset-[-20%] bg-cover bg-center animate-[subtle-zoom_20s_ease-in-out_infinite]"
-            )}
-            style={{
-              backgroundImage: `url(${currentTrack.album.images[0]?.url})`,
-              filter: "blur(40px)",
-            }}
-          />
-          <div className="absolute inset-0 bg-black/60" />
-        </div>
+        <AnimatedImageBackdrop imageUrl={currentTrack.album.images[0]?.url} />
 
         <div className="relative flex flex-col h-full p-6">
           {/* Header */}

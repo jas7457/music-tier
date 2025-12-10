@@ -14,6 +14,7 @@ interface AlbumArtProps {
   className?: string;
   round: PopulatedRound;
   playlist?: Array<TrackInfo>;
+  onPlaySong?: (song: TrackInfo, round: PopulatedRound) => void;
 }
 
 export default function AlbumArt({
@@ -22,6 +23,7 @@ export default function AlbumArt({
   size = 64,
   className = "",
   playlist,
+  onPlaySong,
 }: AlbumArtProps) {
   const {
     initializePlaylist,
@@ -95,6 +97,7 @@ export default function AlbumArt({
           } else {
             await playTrack(trackInfo, round, playlist);
           }
+          onPlaySong?.(trackInfo, round);
         }}
         disabled={isDisabled}
         className={twMerge(

@@ -337,6 +337,10 @@ export function SpotifyPlayerProvider({
         return;
       }
 
+      if (trackInfo.trackId === currentTrack?.id && isPlaying) {
+        return;
+      }
+
       try {
         const playlistInfo = (() => {
           const newPlaylist = songPlaylist ?? playlist;

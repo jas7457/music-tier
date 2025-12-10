@@ -1,0 +1,15 @@
+export const NEON_COLORS = {
+  Yellow: "#F2EA02",
+  LimeGreen: "#D9FF36",
+  BrightGreen: "#00FF33",
+  YellowGreen: "#33FF00",
+  MintyGreen: "#00FEB6",
+  Pink: "#FF3198",
+  BrightPink: "#FF66CC",
+  BrightBlue: "#0099FF",
+  LightBlue: "#90FFFC",
+  BrightOrange: "#FF6600",
+  VividRed: "#FD1C03",
+  ElectricPurple: "#CC00FF",
+  DeepViolet: "#9D00FF",
+};
