@@ -29,11 +29,12 @@ interface SpotifyPlayerContextType {
   playlistRound: PopulatedRound | null;
   isDisabled: boolean;
   registerTimeUpdate: (callback: (time: number) => void) => () => void;
-  playTrack: (
-    trackInfo: TrackInfo,
-    round: PopulatedRound | "same",
-    songPlaylist?: Array<TrackInfo>
-  ) => Promise<void>;
+  playTrack: (options: {
+    trackInfo: TrackInfo;
+    round: PopulatedRound | "same";
+    playlist?: Array<TrackInfo>;
+    startTime?: number;
+  }) => Promise<void>;
   pausePlayback: () => Promise<void>;
   resumePlayback: () => Promise<void>;
   nextTrack: () => Promise<void>;
@@ -308,11 +309,17 @@ export function SpotifyPlayerProvider({
       return setupPromise;
     };
 
-    const playTrack = async (
-      trackInfo: TrackInfo,
-      round: PopulatedRound | "same",
-      songPlaylist?: Array<TrackInfo>
-    ) => {
+    const playTrack = async ({
+      trackInfo,
+      round,
+      playlist: songPlaylist,
+      startTime,
+    }: {
+      trackInfo: TrackInfo;
+      round: PopulatedRound | "same";
+      playlist?: Array<TrackInfo>;
+      startTime?: number;
+    }) => {
       const deviceId = await setupPlayer();
       hasPreviouslyPlayedRef.current = true;
       if (!trackInfo) {
@@ -380,7 +387,10 @@ export function SpotifyPlayerProvider({
             },
             body: JSON.stringify({
               uris,
-              offset: { position: offset === -1 ? 0 : offset },
+              offset: {
+                position: offset === -1 ? 0 : offset,
+              },
+              ...(startTime && { position_ms: startTime }),
             }),
           }
         );
@@ -441,7 +451,10 @@ export function SpotifyPlayerProvider({
       },
       resumePlayback: async () => {
         if (!hasPreviouslyPlayedRef.current) {
-          return playTrack(playlist[currentTrackIndexRef.current], "same");
+          return playTrack({
+            trackInfo: playlist[currentTrackIndexRef.current],
+            round: "same",
+          });
         }
         const accessToken = Cookies.get("spotify_access_token");
         if (!accessToken) {
@@ -470,13 +483,13 @@ export function SpotifyPlayerProvider({
       nextTrack: async () => {
         const nextTrack = playlist[currentTrackIndexRef.current + 1];
         if (nextTrack) {
-          playTrack(nextTrack, "same");
+          playTrack({ trackInfo: nextTrack, round: "same" });
         }
       },
       previousTrack: async () => {
         const previousTrack = playlist[currentTrackIndexRef.current - 1];
         if (previousTrack) {
-          playTrack(previousTrack, "same");
+          playTrack({ trackInfo: previousTrack, round: "same" });
         }
       },
       seekToPosition: async (position: number) => {

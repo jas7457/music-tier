@@ -40,7 +40,12 @@ export function SongScreen({
     if (!isActive) {
       return;
     }
-    playTrackRef.current(trackInfo, round, [trackInfo]);
+    playTrackRef.current({
+      trackInfo,
+      round,
+      playlist: [trackInfo],
+      startTime: 15_000,
+    });
   }, [isActive, round, trackInfo]);
 
   return (
@@ -66,7 +71,7 @@ export function SongScreen({
           <AlbumArt
             trackInfo={trackInfo}
             round={round}
-            size={200}
+            size={300}
             className="animate-[pulse-glow_2s_ease-in-out_infinite]"
           />
         </div>

@@ -10,6 +10,7 @@ export interface AvatarProps {
   tooltipText?: string;
   className?: string;
   includeLink?: boolean;
+  maxWidth?: string;
 }
 
 export function Avatar({
@@ -20,6 +21,7 @@ export function Avatar({
   includeTooltip,
   tooltipText = user.userName,
   includeLink = true,
+  maxWidth,
 }: AvatarProps) {
   const fullName = `${user.firstName} ${user.lastName}`;
   const initial = user.userName.charAt(0).toUpperCase();
@@ -47,7 +49,7 @@ export function Avatar({
       className="relative group"
       forceNormalText={!includeLink}
       {...(includeTooltip ? { title: tooltipText } : {})}
-      style={{ width: isSizePercent ? `${size}%` : undefined }}
+      style={{ width: isSizePercent ? `${size}%` : undefined, maxWidth }}
     >
       {user.photoUrl ? (
         <img
@@ -55,8 +57,9 @@ export function Avatar({
           alt={fullName}
           className={twMerge(
             sizeStr,
-            "rounded-full object-cover border-2 border-gray-300 aspect-square",
-            isSizePercent ? "w-full" : ""
+            "rounded-full object-cover border-2 border-gray-300 aspect-square max-w-full",
+            isSizePercent ? "w-full" : "",
+            className
           )}
         />
       ) : (
@@ -64,7 +67,7 @@ export function Avatar({
           className={twMerge(
             sizeStr,
             gradient,
-            "rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-300 aspect-square",
+            "rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-300 aspect-square max-w-full",
             className
           )}
         >

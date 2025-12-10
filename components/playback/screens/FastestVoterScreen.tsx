@@ -40,7 +40,9 @@ export function FastestVoterScreen({
                   isItemActive ? "opacity-100 delay-0" : "opacity-0"
                 )}
               >
-                <h2 className="text-center">Did you even listen to the songs?</h2>
+                <h2 className="text-center">
+                  Did you even listen to the songs?
+                </h2>
                 <p className="text-2xl text-purple-300 text-center">
                   {stat.length > 1
                     ? `#${index + 1} Fastest Voter`
@@ -59,9 +61,10 @@ export function FastestVoterScreen({
               >
                 <Avatar
                   user={voter.user}
-                  size={60}
+                  size={70}
                   includeLink={false}
                   isSizePercent
+                  maxWidth="300px"
                 />
                 <div className="text-center">
                   <p className="text-2xl md:text-3xl font-bold mb-2">

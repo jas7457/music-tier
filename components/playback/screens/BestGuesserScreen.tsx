@@ -79,6 +79,7 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                     size={75}
                     includeLink={false}
                     isSizePercent
+                    maxWidth="300px"
                   />
                   <div className="text-center">
                     <p className="text-2xl md:text-3xl font-bold mb-2">

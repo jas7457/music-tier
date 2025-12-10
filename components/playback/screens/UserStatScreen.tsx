@@ -73,7 +73,13 @@ export function UserStatScreen({
             isActive ? "opacity-100 scale-100 delay-200" : "opacity-0 scale-50"
           )}
         >
-          <Avatar user={user} size={60} includeLink={false} isSizePercent />
+          <Avatar
+            user={user}
+            size={70}
+            includeLink={false}
+            isSizePercent
+            maxWidth="300px"
+          />
         </div>
 
         <div

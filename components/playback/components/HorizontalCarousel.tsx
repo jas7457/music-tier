@@ -20,7 +20,9 @@ export function HorizontalCarousel<T>({
   className,
   onItemChange,
 }: HorizontalCarouselProps<T>) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState<number | undefined>(
+    isActive ? 0 : undefined
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -28,6 +30,9 @@ export function HorizontalCarousel<T>({
   // eslint-disable-next-line react-hooks/refs
   onItemChangeRef.current = onItemChange;
   useEffect(() => {
+    if (currentIndex === undefined) {
+      return;
+    }
     onItemChangeRef.current?.(currentIndex);
   }, [currentIndex]);
 
@@ -66,6 +71,9 @@ export function HorizontalCarousel<T>({
   const isAtEnd = currentIndex === items.length - 1;
 
   const handlePrevious = () => {
+    if (currentIndex === undefined) {
+      return;
+    }
     if (!isAtStart && containerRef.current) {
       containerRef.current.scrollTo({
         left: (currentIndex - 1) * window.innerWidth,
@@ -75,6 +83,9 @@ export function HorizontalCarousel<T>({
   };
 
   const handleNext = () => {
+    if (currentIndex === undefined) {
+      return;
+    }
     if (!isAtEnd && containerRef.current) {
       containerRef.current.scrollTo({
         left: (currentIndex + 1) * window.innerWidth,

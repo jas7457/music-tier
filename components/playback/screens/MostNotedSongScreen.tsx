@@ -34,7 +34,12 @@ export function MostNotedSongScreen({
     }
     const track = selectedSongs[screenIndex];
     if (track) {
-      playTrackRef.current(track, "same", [track]);
+      playTrackRef.current({
+        trackInfo: track,
+        round: "same",
+        playlist: [track],
+        startTime: 15_000,
+      });
     }
   }, [isActive, screenIndex, selectedSongs]);
 
@@ -93,7 +98,7 @@ export function MostNotedSongScreen({
                 <AlbumArt
                   trackInfo={song.trackInfo}
                   round={league.rounds.completed[0]}
-                  size={140}
+                  size={300}
                   className="animate-[pulse-glow_2s_ease-in-out_infinite]"
                   onPlaySong={(song) =>
                     setSelectedSongs((prev) => {

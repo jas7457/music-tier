@@ -21,7 +21,9 @@ export function FastestSubmitterScreen({
     return (
       <Screen background={{ from: "#06b6d4", via: "#10b981", to: "#8b5cf6" }}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-white">
-          <p className="text-2xl text-purple-300">No submission data available</p>
+          <p className="text-2xl text-purple-300">
+            No submission data available
+          </p>
         </div>
       </Screen>
     );
@@ -65,9 +67,10 @@ export function FastestSubmitterScreen({
               >
                 <Avatar
                   user={submitter.user}
-                  size={60}
+                  size={70}
                   includeLink={false}
                   isSizePercent
+                  maxWidth="300px"
                 />
                 <div className="text-center">
                   <p className="text-2xl md:text-3xl font-bold mb-2">

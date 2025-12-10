@@ -202,7 +202,7 @@ export default function MusicPlayer({
                     return (
                       <button
                         key={trackInfo.trackId}
-                        onClick={() => playTrack(trackInfo, "same")}
+                        onClick={() => playTrack({ trackInfo, round: "same" })}
                         disabled={isDisabled}
                         className={twMerge(
                           "w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed",
@@ -625,7 +625,9 @@ export default function MusicPlayer({
                             return (
                               <button
                                 key={trackInfo.trackId}
-                                onClick={() => playTrack(trackInfo, "same")}
+                                onClick={() =>
+                                  playTrack({ trackInfo, round: "same" })
+                                }
                                 disabled={isDisabled}
                                 className={twMerge(
                                   "w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed",

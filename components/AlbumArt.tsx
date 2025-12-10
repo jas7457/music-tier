@@ -95,7 +95,7 @@ export default function AlbumArt({
           } else if (isEffectivelyTheCurrentTrack) {
             await resumePlayback();
           } else {
-            await playTrack(trackInfo, round, playlist);
+            await playTrack({ trackInfo, round, playlist });
           }
           onPlaySong?.(trackInfo, round);
         }}
