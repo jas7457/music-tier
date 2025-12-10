@@ -71,7 +71,7 @@ export function SongScreen({
           <AlbumArt
             trackInfo={trackInfo}
             round={round}
-            size={300}
+            size={250}
             className="animate-[pulse-glow_2s_ease-in-out_infinite]"
           />
         </div>
