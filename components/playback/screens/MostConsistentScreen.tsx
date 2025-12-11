@@ -10,7 +10,7 @@ export function MostConsistentScreen({
   playback,
   isActive,
 }: PlaybackScreenProps) {
-  const stat = playback.mostConsistent;
+  const stat = playback.mostConsistent[0];
 
   return (
     <Screen background={{ from: "#ec4899", via: "#f97316", to: "#a855f7" }}>

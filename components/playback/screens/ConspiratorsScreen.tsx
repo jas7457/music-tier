@@ -16,13 +16,15 @@ export function ConspiratorsScreen({
     return (
       <Screen background={{ from: "#a855f7", via: "#1e1b4b", to: "#f97316" }}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-white">
-          <p className="text-2xl text-purple-300">No conspiracy data available</p>
+          <p className="text-2xl text-purple-300">
+            No conspiracy data available
+          </p>
         </div>
       </Screen>
     );
   }
 
-  const { userId1, userId2, totalPoints } = playback.conspirators;
+  const { userId1, userId2, totalPoints } = playback.conspirators[0];
   const user1 = league.users.find((u) => u._id === userId1);
   const user2 = league.users.find((u) => u._id === userId2);
 
@@ -46,7 +48,9 @@ export function ConspiratorsScreen({
           )}
         >
           <h2 className="text-center">You must be working together.</h2>
-          <p className="text-2xl text-purple-300 text-center">The Conspirators</p>
+          <p className="text-2xl text-purple-300 text-center">
+            The Conspirators
+          </p>
         </div>
 
         <div

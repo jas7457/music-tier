@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 import { StatBounce } from "../components/Animations";
 import { ThreeDSong } from "../components/3DSong";
+import { Screen } from "../components/Screen";
 
 interface SongScreenProps {
   isActive: boolean;
@@ -50,7 +51,7 @@ export function SongScreen({
   }, [isActive, round, trackInfo]);
 
   return (
-    <div className="relative h-full overflow-clip">
+    <Screen>
       <AnimatedImageBackdrop imageUrl={trackInfo.albumImageUrl} />
       <div className="flex flex-col items-center justify-center text-white gap-8 w-full h-full relative p-8">
         <div
@@ -110,6 +111,6 @@ export function SongScreen({
           </StatBounce>
         </div>
       </div>
-    </div>
+    </Screen>
   );
 }

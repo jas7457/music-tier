@@ -1,0 +1,33 @@
+@keyframes shooting-star {
+  0% {
+    opacity: 0;
+    transform: translateX(0) translateY(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(300px) translateY(200px);
+  }
+}
+
+@keyframes float-note {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}

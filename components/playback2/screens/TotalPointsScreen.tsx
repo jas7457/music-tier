@@ -25,9 +25,11 @@ export function TotalPointsScreen({ playback, isActive }: PlaybackScreenProps) {
 
   if (!userStats) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 text-white">
-        <p className="text-2xl text-purple-300">No stats data available</p>
-      </div>
+      <Screen>
+        <div className="h-full flex flex-col items-center justify-center p-8 text-white">
+          <p className="text-2xl text-purple-300">No stats data available</p>
+        </div>
+      </Screen>
     );
   }
 
