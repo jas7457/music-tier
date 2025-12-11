@@ -83,6 +83,10 @@ export default function AlbumArt({
 
       <HapticButton
         type="button"
+        style={{
+          width: "clamp(40px, 60%, 100px)",
+          aspectRatio: "1 / 1",
+        }}
         onClick={async (event) => {
           event.stopPropagation();
           event.preventDefault();
@@ -101,7 +105,7 @@ export default function AlbumArt({
         }}
         disabled={isDisabled}
         className={twMerge(
-          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm pointer-events-auto z-10",
+          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm pointer-events-auto z-10",
           playButtonExtraClasses
         )}
         title={

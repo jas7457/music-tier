@@ -6,7 +6,13 @@ import { twMerge } from "tailwind-merge";
 interface HapticButtonProps
   extends Pick<
     JSX.IntrinsicElements["button"],
-    "className" | "children" | "onClick" | "disabled" | "title" | "type"
+    | "className"
+    | "children"
+    | "onClick"
+    | "disabled"
+    | "title"
+    | "type"
+    | "style"
   > {}
 
 export function HapticButton({

@@ -8,6 +8,8 @@ type Song = {
   trackInfo: TrackInfo;
   points: number;
   round: PopulatedRound;
+  leftText?: string;
+  className?: string;
 };
 
 interface SongsProps {
@@ -32,9 +34,20 @@ export function Songs({ songs, isActive, onPlaySong }: SongsProps) {
         {songs.map((song, index) => (
           <div
             key={index}
-            className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20"
+            className={twMerge(
+              "bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20",
+              song.className
+            )}
           >
-            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+            <div
+              className={twMerge(
+                "grid items-center gap-3",
+                song.leftText
+                  ? "grid-cols-[auto_auto_1fr_auto]"
+                  : "grid-cols-[auto_1fr_auto]"
+              )}
+            >
+              {song.leftText && <div className="text-2xl">{song.leftText}</div>}
               <AlbumArt
                 trackInfo={song.trackInfo}
                 size={56}

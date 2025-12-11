@@ -36,6 +36,39 @@ export function HorizontalCarousel<T>({
     onItemChangeRef.current?.(currentIndex);
   }, [currentIndex]);
 
+  // Keyboard navigation for horizontal carousel
+  useEffect(() => {
+    if (!isActive || !containerRef.current) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (currentIndex === undefined) return;
+
+      switch (e.key) {
+        case "ArrowLeft":
+          e.preventDefault();
+          if (currentIndex > 0 && containerRef.current) {
+            containerRef.current.scrollTo({
+              left: (currentIndex - 1) * window.innerWidth,
+              behavior: "smooth",
+            });
+          }
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          if (currentIndex < items.length - 1 && containerRef.current) {
+            containerRef.current.scrollTo({
+              left: (currentIndex + 1) * window.innerWidth,
+              behavior: "smooth",
+            });
+          }
+          break;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isActive, currentIndex, items.length]);
+
   // IntersectionObserver to detect active item
   useEffect(() => {
     if (!isActive || !containerRef.current || !items || items.length === 0)

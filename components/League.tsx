@@ -15,7 +15,8 @@ import { DateTime } from "./DateTime";
 import { ConfirmUploadButton } from "./UploadThing";
 import { useToast } from "@/lib/ToastContext";
 import { HapticButton } from "./HapticButton";
-import { PlaylistPartyPlayback } from "./playback/PlaylistPartyPlayback";
+import { PlaylistPartyPlayback } from "./playback2/PlaylistPartyPlayback";
+import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 
 export function League({
   league,
@@ -25,6 +26,7 @@ export function League({
   user: PopulatedUser;
 }) {
   const toast = useToast();
+  const { playTrack } = useSpotifyPlayer();
   const [showStandings, setShowStandings] = useState(
     league.status === "completed"
   );
@@ -438,7 +440,15 @@ export function League({
       {league.playback && (
         <div className="mb-4">
           <HapticButton
-            onClick={() => setPlaybackOpen(true)}
+            onClick={() => {
+              if (league.playback?.topSong) {
+                playTrack({
+                  trackInfo: league.playback.topSong.trackInfo,
+                  round: "same",
+                });
+              }
+              setPlaybackOpen(true);
+            }}
             className="w-full px-6 py-4 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 border-2 border-white/40 text-white font-bold text-lg transition-all hover:scale-105 shadow-lg"
           >
             🎵 View Playlist Party Playback
