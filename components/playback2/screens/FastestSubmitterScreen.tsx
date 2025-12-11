@@ -112,7 +112,8 @@ export function FastestSubmitterScreen({
               strokeColor={NEON_COLORS.MintyGreen}
               autoSelectFirstSong
               stat={{
-                value: `⚡ ${formatTime(submitter.avgTime)}`,
+                value: formatTime(submitter.avgTime),
+                icon: "⚡",
                 label: "average time",
                 songPrefix: (
                   <div className="text-center">Fastest submission:</div>

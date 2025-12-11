@@ -37,9 +37,9 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
             user={winner.user}
             strokeColor={NEON_COLORS.BrightBlue}
             stat={{
-              value: `🥇${winner.wins.length}`,
+              value: winner.wins.length,
               label: winner.wins.length === 1 ? "win" : "wins",
-              icon: "",
+              icon: "🥇",
               songs: winner.wins,
             }}
             noDataMessage="No wins data available"

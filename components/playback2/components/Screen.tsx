@@ -136,17 +136,7 @@ export function Screen({
       </div>
 
       {/* Content with parallax */}
-      <div
-        className="relative z-10 h-full"
-        style={{
-          transform: `translate(${mousePosition.x * -0.3}px, ${
-            mousePosition.y * -0.3
-          }px)`,
-          transition: "transform 0.3s ease-out",
-        }}
-      >
-        {children}
-      </div>
+      <div className="relative z-10 h-full">{children}</div>
 
       {/* CSS animations */}
       <style jsx>{`

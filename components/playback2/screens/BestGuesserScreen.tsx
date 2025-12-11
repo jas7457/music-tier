@@ -42,11 +42,9 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
               }
               autoSelectFirstSong
               stat={{
-                value: `${isGoodGuesser ? "🎯" : "🎲"} ${(
-                  guesser.accuracy * 100
-                ).toFixed(0)}%`,
+                value: `${(guesser.accuracy * 100).toFixed(0)}%`,
                 label: "vote accuracy",
-                icon: "",
+                icon: isGoodGuesser ? "🎯" : "🎲",
                 songs: guesser.guesses
                   .sort((a, b) =>
                     a.isCorrect === b.isCorrect ? 0 : a.isCorrect ? -1 : 1

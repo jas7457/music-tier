@@ -87,9 +87,9 @@ export function FastestVoterScreen({
               user={voter.user}
               strokeColor={NEON_COLORS.ElectricPurple}
               stat={{
-                value: `⚡ ${formatTime(voter.avgTime)}`,
+                value: formatTime(voter.avgTime),
                 label: "average time",
-                icon: "",
+                icon: "⚡",
               }}
               noDataMessage="No voting data available"
             />

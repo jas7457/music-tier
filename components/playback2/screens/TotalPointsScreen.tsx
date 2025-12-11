@@ -60,7 +60,7 @@ export function TotalPointsScreen({ playback, isActive }: PlaybackScreenProps) {
         >
           <OutlinedText
             strokeColor={NEON_COLORS.LightBlue}
-            strokeWidth={10}
+            strokeWidth={6}
             className="text-9xl md:text-[12rem] font-black"
           >
             {userStats.totalPoints}

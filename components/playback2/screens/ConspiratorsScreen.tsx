@@ -147,7 +147,7 @@ export function ConspiratorsScreen({
           )}
         >
           <h2 className="text-center drop-shadow-lg">
-            You two be working together
+            You two must be working together
           </h2>
           <p className="text-4xl text-purple-300 text-center drop-shadow-lg">
             The Conspirators

@@ -117,9 +117,9 @@ export default function AlbumArt({
         }
       >
         {isCurrentlyPlaying ? (
-          <PauseIcon size={16} className="text-white" />
+          <PauseIcon size="50%" className="text-white" />
         ) : (
-          <PlayIcon size={16} className="text-white" />
+          <PlayIcon size="50%" className="text-white" />
         )}
       </HapticButton>
     </div>

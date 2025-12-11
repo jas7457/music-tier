@@ -150,7 +150,16 @@ export function UserStatScreen({
         </div>
 
         <div className="grid gap-2 overflow-hidden">
-          {stat.songPrefix}
+          <div
+            className={twMerge(
+              "transition-all duration-700 transform",
+              isActive
+                ? "opacity-100 translate-y-0 delay-600"
+                : "opacity-0 translate-y-10"
+            )}
+          >
+            {stat.songPrefix}
+          </div>
 
           {/* Songs with slide-up animation */}
           {stat.songs && (
