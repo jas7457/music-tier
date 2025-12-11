@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 // Generate random values outside component
 const generateShootingStars = () =>
@@ -26,23 +26,9 @@ export function Screen({
   background?: { from: string; via: string; to: string };
   children: React.ReactNode;
 }) {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
   // Use useState with initializer function - only runs once
   const [shootingStars] = useState(generateShootingStars);
   const [floatingNotes] = useState(generateFloatingNotes);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth - 0.5) * 20,
-        y: (e.clientY / window.innerHeight - 0.5) * 20,
-      });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -55,9 +41,6 @@ export function Screen({
             ...(background && {
               background: `linear-gradient(135deg, ${background.from}, ${background.to})`,
             }),
-            transform: `translate(${mousePosition.x * 0.5}px, ${
-              mousePosition.y * 0.5
-            }px) scale(1.1)`,
           }}
         />
 
@@ -69,9 +52,6 @@ export function Screen({
               background: `radial-gradient(circle, ${background.via} 0%, transparent 70%)`,
             }),
             animation: "gradient-swirl-1 12s ease-in-out infinite",
-            transform: `translate(${mousePosition.x * 1.2}px, ${
-              mousePosition.y * 1.2
-            }px)`,
           }}
         />
         <div
@@ -81,9 +61,6 @@ export function Screen({
               background: `radial-gradient(circle, ${background.from} 0%, transparent 70%)`,
             }),
             animation: "gradient-swirl-2 15s ease-in-out infinite",
-            transform: `translate(${mousePosition.x * 0.8}px, ${
-              mousePosition.y * 0.8
-            }px)`,
           }}
         />
         <div
@@ -93,9 +70,6 @@ export function Screen({
               background: `radial-gradient(circle, ${background.to} 0%, transparent 70%)`,
             }),
             animation: "gradient-swirl-3 18s ease-in-out infinite",
-            transform: `translate(${mousePosition.x * 1}px, ${
-              mousePosition.y * 1
-            }px)`,
           }}
         />
 
@@ -122,7 +96,7 @@ export function Screen({
           {floatingNotes.map((note, i) => (
             <div
               key={i}
-              className="absolute text-white/20 text-2xl"
+              className="absolute text-white text-2xl"
               style={{
                 left: `${note.left}%`,
                 animation: `float-note ${note.duration}s ease-in-out infinite`,

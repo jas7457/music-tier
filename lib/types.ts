@@ -102,17 +102,17 @@ export interface LeaguePlaybackStats {
     avgTime: number;
   }>;
   slowestVoter: { user: PopulatedUser; avgTime: number } | null;
-  mostConsistent: {
+  mostConsistent: Array<{
     user: PopulatedUser;
     variance: number;
     avgPoints: number;
     place: number;
-  } | null;
-  conspirators: {
+  }>;
+  conspirators: Array<{
     userId1: string;
     userId2: string;
     totalPoints: number;
-  } | null;
+  }>;
   userTopSong: {
     trackInfo: TrackInfo;
     points: number;

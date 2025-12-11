@@ -26,6 +26,7 @@ interface UserStatScreenProps {
   };
   noDataMessage?: string;
   className?: string;
+  statClassName?: string;
 }
 
 export function UserStatScreen({
@@ -38,6 +39,7 @@ export function UserStatScreen({
   noDataMessage = "No data available",
   autoSelectFirstSong = false,
   className,
+  statClassName,
 }: UserStatScreenProps) {
   const [currentSong, setCurrentSong] = useState<TrackInfo | null>(
     autoSelectFirstSong && stat.songs?.[0] ? stat.songs[0].trackInfo : null
@@ -140,7 +142,10 @@ export function UserStatScreen({
           <StatBounce
             isActive={isActive}
             delay={1}
-            className="text-6xl md:text-7xl font-bold wrap-break-word break-all"
+            className={twMerge(
+              "text-6xl md:text-7xl font-bold wrap-break-word break-all",
+              statClassName
+            )}
           >
             {stat.icon && <span className="mr-2">{stat.icon}</span>}
             <OutlinedText strokeColor={strokeColor} strokeWidth={3}>

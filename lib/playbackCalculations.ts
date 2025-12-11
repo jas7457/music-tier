@@ -32,8 +32,8 @@ export function calculatePlaybackStats(
       fastestSubmitters: [],
       fastestVoters: [],
       slowestVoter: null,
-      mostConsistent: null,
-      conspirators: null,
+      mostConsistent: [],
+      conspirators: [],
       userTopSong: null,
       bestGuessers: [],
       mostNotedSongs: [],
@@ -549,27 +549,28 @@ export function calculatePlaybackStats(
     });
   });
 
-  let mostConsistent: LeaguePlaybackStats["mostConsistent"] = null;
-  pointsByUserByRound.forEach((data, userId) => {
-    if (data.points.length < 2) {
-      return;
-    }
-
-    const mean = data.totalPoints / data.points.length;
-    const variance =
-      data.points.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) /
-      data.points.length;
-
-    if (!mostConsistent || variance < mostConsistent.variance) {
-      const place = userStats?.place || 0;
-      mostConsistent = {
+  const mostConsistent: LeaguePlaybackStats["mostConsistent"] = Array.from(
+    pointsByUserByRound.entries()
+  )
+    .filter(([, data]) => data.points.length >= 2)
+    .map(([userId, data]) => {
+      const mean = data.totalPoints / data.points.length;
+      const variance =
+        data.points.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) /
+        data.points.length;
+      const userPlace =
+        userPoints.findIndex((u) => u.user._id === userId) !== -1
+          ? userPlaces[userPoints.findIndex((u) => u.user._id === userId)]
+          : 0;
+      return {
         user: usersById[userId],
         variance,
         avgPoints: mean,
-        place,
+        place: userPlace,
       };
-    }
-  });
+    })
+    .sort((a, b) => a.variance - b.variance)
+    .slice(0, 5);
 
   // 11. Conspirators
   const mutualPoints = new Map<string, number>();
@@ -598,13 +599,15 @@ export function calculatePlaybackStats(
     });
   });
 
-  let conspirators: LeaguePlaybackStats["conspirators"] = null;
-  mutualPoints.forEach((points, pairKey) => {
-    if (!conspirators || points > conspirators.totalPoints) {
+  const conspirators: LeaguePlaybackStats["conspirators"] = Array.from(
+    mutualPoints.entries()
+  )
+    .map(([pairKey, points]) => {
       const [userId1, userId2] = pairKey.split(":");
-      conspirators = { userId1, userId2, totalPoints: points };
-    }
-  });
+      return { userId1, userId2, totalPoints: points };
+    })
+    .sort((a, b) => b.totalPoints - a.totalPoints)
+    .slice(0, 5);
 
   // 12. User top song (highest scoring submission per user)
   const userTopSong: LeaguePlaybackStats["userTopSong"] = yourInfo.topSong;

@@ -6,13 +6,15 @@ import type { PlaybackScreenProps } from "../types";
 import { Avatar } from "@/components/Avatar";
 import { OutlinedText } from "@/components/OutlinedText";
 import { NEON_COLORS } from "../constants";
+import { HorizontalCarousel } from "../components/HorizontalCarousel";
+import { StatBounce } from "../components/Animations";
 
 export function ConspiratorsScreen({
   playback,
   league,
   isActive,
 }: PlaybackScreenProps) {
-  if (!playback.conspirators) {
+  if (!playback.conspirators || playback.conspirators.length === 0) {
     return (
       <Screen background={{ from: "#a855f7", via: "#1e1b4b", to: "#f97316" }}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-white">
@@ -24,23 +26,9 @@ export function ConspiratorsScreen({
     );
   }
 
-  const { userId1, userId2, totalPoints } = playback.conspirators;
-  const user1 = league.users.find((u) => u._id === userId1);
-  const user2 = league.users.find((u) => u._id === userId2);
-
-  if (!user1 || !user2) {
-    return (
-      <Screen background={{ from: "#a855f7", via: "#1e1b4b", to: "#f97316" }}>
-        <div className="h-full flex flex-col items-center justify-center p-8 text-white">
-          <p className="text-2xl text-purple-300">Users not found</p>
-        </div>
-      </Screen>
-    );
-  }
-
   return (
     <Screen background={{ from: "#a855f7", via: "#1e1b4b", to: "#f97316" }}>
-      <div className="h-full flex flex-col items-center justify-center p-8 text-white gap-8 relative overflow-hidden">
+      <div className="h-full flex flex-col items-center text-white gap-4 relative overflow-hidden">
         {/* Animated mystery/conspiracy elements in background */}
         {isActive && (
           <>
@@ -140,154 +128,190 @@ export function ConspiratorsScreen({
           </>
         )}
 
-        <div
-          className={twMerge(
-            "transition-all duration-700 transform relative z-10",
-            isActive ? "opacity-100 delay-0 scale-100" : "opacity-0 scale-95"
-          )}
-        >
-          <h2 className="text-center drop-shadow-lg">
-            You two must be working together
-          </h2>
-          <p className="text-4xl text-purple-300 text-center drop-shadow-lg">
-            The Conspirators
-          </p>
-        </div>
+        <div className="flex-1 w-full relative z-10 min-h-0">
+          <HorizontalCarousel
+            isActive={isActive}
+            items={playback.conspirators}
+            buttonPosition="bottom"
+            renderItem={(conspirator, index, isItemActive) => {
+              const user1 = league.users.find(
+                (u) => u._id === conspirator.userId1
+              );
+              const user2 = league.users.find(
+                (u) => u._id === conspirator.userId2
+              );
 
-        <div
-          className={twMerge(
-            "flex items-center gap-8 transition-all duration-700 relative z-10",
-            isActive ? "opacity-100 scale-100 delay-200" : "opacity-0 scale-50"
-          )}
-        >
-          {/* User 1 with mysterious glow */}
-          <div className="relative">
-            <div
-              className="absolute inset-0 rounded-full opacity-50 z-0"
-              style={{
-                background: "radial-gradient(circle, #a855f7, #6366f1)",
-                filter: "blur(40px)",
-                animation: isActive
-                  ? "pulse-mysterious 3s ease-in-out infinite"
-                  : "none",
-              }}
-            />
-            <div
-              style={{
-                animation: isActive
-                  ? "avatar-bump-right 5s ease-in-out infinite"
-                  : "none",
-              }}
-            >
-              <Avatar
-                user={user1}
-                size={100}
-                includeLink={false}
-                isSizePercent
-                className="relative z-10"
-              />
-            </div>
-          </div>
+              if (!user1 || !user2) {
+                return null;
+              }
 
-          {/* Animated handshake with connecting line */}
-          <div className="relative flex items-center gap-2">
-            {/* Glowing connection line */}
-            <div
-              className="absolute top-1/2 left-0 right-0 h-1 -z-10"
-              style={{
-                background: "linear-gradient(90deg, #a855f7, #f97316)",
-                animation: isActive
-                  ? "pulse-line 2s ease-in-out infinite"
-                  : "none",
-                transform: "translateY(-50%)",
-                filter: "blur(2px)",
-              }}
-            />
-            <div
-              className="text-6xl"
-              style={{
-                animation: isActive
-                  ? "handshake-pulse 2s ease-in-out infinite"
-                  : "none",
-              }}
-            >
-              🤝
-            </div>
-          </div>
+              return (
+                <div className="flex flex-col p-8 items-center justify-center gap-8 min-w-full h-full">
+                  {/* Titles */}
+                  <div
+                    className={twMerge(
+                      "transition-all duration-700 transform relative z-10",
+                      isItemActive
+                        ? "opacity-100 delay-0 scale-100"
+                        : "opacity-0 scale-95"
+                    )}
+                  >
+                    <h2 className="text-center drop-shadow-lg">
+                      You two must be working together
+                    </h2>
+                    <p className="text-4xl text-purple-300 text-center drop-shadow-lg">
+                      The Conspirators
+                    </p>
+                  </div>
 
-          {/* User 2 with mysterious glow */}
-          <div className="relative">
-            <div
-              className="absolute inset-0 rounded-full opacity-50 z-0"
-              style={{
-                background: "radial-gradient(circle, #f97316, #fbbf24)",
-                filter: "blur(40px)",
-                animation: isActive
-                  ? "pulse-mysterious 3s ease-in-out 0.5s infinite"
-                  : "none",
-              }}
-            />
-            <div
-              style={{
-                animation: isActive
-                  ? "avatar-bump-left 5s ease-in-out infinite"
-                  : "none",
-              }}
-            >
-              <Avatar
-                user={user2}
-                size={100}
-                includeLink={false}
-                isSizePercent
-                className="relative z-10"
-              />
-            </div>
-          </div>
-        </div>
+                  {/* User 1 with mysterious glow */}
+                  <div
+                    className={twMerge(
+                      "flex items-center gap-8 transition-all duration-700 relative z-10",
+                      isItemActive
+                        ? "opacity-100 scale-100 delay-200"
+                        : "opacity-0 scale-50"
+                    )}
+                  >
+                    {/* User 1 with mysterious glow */}
+                    <div className="relative">
+                      <div
+                        className="absolute inset-0 rounded-full opacity-50 z-0"
+                        style={{
+                          background:
+                            "radial-gradient(circle, #a855f7, #6366f1)",
+                          filter: "blur(40px)",
+                          animation: isItemActive
+                            ? "pulse-mysterious 3s ease-in-out infinite"
+                            : "none",
+                        }}
+                      />
+                      <div
+                        style={{
+                          animation: isItemActive
+                            ? "avatar-bump-right 5s ease-in-out infinite"
+                            : "none",
+                        }}
+                      >
+                        <Avatar
+                          user={user1}
+                          size={100}
+                          includeLink={false}
+                          isSizePercent
+                          className="relative z-10"
+                        />
+                      </div>
+                    </div>
 
-        <div
-          className={twMerge(
-            "text-center transition-all duration-700 transform relative z-10",
-            isActive
-              ? "opacity-100 delay-400 translate-y-0"
-              : "opacity-0 translate-y-10"
-          )}
-        >
-          <p
-            className="text-2xl md:text-3xl font-bold mb-2 drop-shadow-lg"
-            style={{
-              animation: isActive
-                ? "fade-in-bounce 0.6s ease-out 0.6s both"
-                : "none",
+                    {/* Animated handshake with connecting line */}
+                    <div className="relative flex items-center gap-2">
+                      {/* Glowing connection line */}
+                      <div
+                        className="absolute top-1/2 left-0 right-0 h-1 -z-10"
+                        style={{
+                          background:
+                            "linear-gradient(90deg, #a855f7, #f97316)",
+                          animation: isItemActive
+                            ? "pulse-line 2s ease-in-out infinite"
+                            : "none",
+                          transform: "translateY(-50%)",
+                          filter: "blur(2px)",
+                        }}
+                      />
+                      <div
+                        className="text-6xl"
+                        style={{
+                          animation: isItemActive
+                            ? "handshake-pulse 2s ease-in-out infinite"
+                            : "none",
+                        }}
+                      >
+                        🤝
+                      </div>
+                    </div>
+
+                    {/* User 2 with mysterious glow */}
+                    <div className="relative">
+                      <div
+                        className="absolute inset-0 rounded-full opacity-50 z-0"
+                        style={{
+                          background:
+                            "radial-gradient(circle, #f97316, #fbbf24)",
+                          filter: "blur(40px)",
+                          animation: isItemActive
+                            ? "pulse-mysterious 3s ease-in-out 0.5s infinite"
+                            : "none",
+                        }}
+                      />
+                      <div
+                        style={{
+                          animation: isItemActive
+                            ? "avatar-bump-left 5s ease-in-out infinite"
+                            : "none",
+                        }}
+                      >
+                        <Avatar
+                          user={user2}
+                          size={100}
+                          includeLink={false}
+                          isSizePercent
+                          className="relative z-10"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={twMerge(
+                      "text-center transition-all duration-700 transform relative z-10",
+                      isItemActive
+                        ? "opacity-100 delay-400 translate-y-0"
+                        : "opacity-0 translate-y-10"
+                    )}
+                  >
+                    <p
+                      className="text-2xl md:text-3xl font-bold mb-2 drop-shadow-lg"
+                      style={{
+                        animation: isItemActive
+                          ? "fade-in-bounce 0.6s ease-out 0.6s both"
+                          : "none",
+                      }}
+                    >
+                      {user1.firstName} & {user2.firstName}
+                    </p>
+                    <p
+                      className="text-xl text-purple-200 mb-4 drop-shadow-md"
+                      style={{
+                        animation: isItemActive
+                          ? "fade-in-bounce 0.6s ease-out 0.8s both"
+                          : "none",
+                      }}
+                    >
+                      exchanged a total of
+                    </p>
+
+                    <StatBounce isActive={isItemActive}>
+                      <div
+                        style={{
+                          animation: isItemActive
+                            ? "points-explode 0.8s ease-out 1s both"
+                            : "none",
+                        }}
+                      >
+                        <OutlinedText
+                          className="text-6xl md:text-8xl font-bold"
+                          strokeColor={NEON_COLORS.DeepViolet}
+                          strokeWidth={3}
+                        >
+                          {conspirator.totalPoints} points
+                        </OutlinedText>
+                      </div>
+                    </StatBounce>
+                  </div>
+                </div>
+              );
             }}
-          >
-            {user1.firstName} & {user2.firstName}
-          </p>
-          <p
-            className="text-xl text-purple-200 mb-4 drop-shadow-md"
-            style={{
-              animation: isActive
-                ? "fade-in-bounce 0.6s ease-out 0.8s both"
-                : "none",
-            }}
-          >
-            exchanged the most points
-          </p>
-          <div
-            style={{
-              animation: isActive
-                ? "points-explode 0.8s ease-out 1s both"
-                : "none",
-            }}
-          >
-            <OutlinedText
-              className="text-6xl md:text-8xl font-bold"
-              strokeColor={NEON_COLORS.DeepViolet}
-              strokeWidth={3}
-            >
-              {totalPoints} points
-            </OutlinedText>
-          </div>
+          />
         </div>
 
         {/* Custom animations */}
