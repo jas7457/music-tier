@@ -7,7 +7,7 @@ import { Screen } from "../components/Screen";
 export function IntroScreen({ isActive, league }: PlaybackScreenProps) {
   return (
     <Screen background={{ from: "#1e1b4b", via: "#7c3aed", to: "#000000" }}>
-      <div className="h-full flex flex-col items-center justify-center p-8 text-white relative">
+      <div className="h-full flex flex-col items-center justify-center p-8 pb-16 text-white relative">
         {/* League title with elegant styling */}
         <div
           className={twMerge(

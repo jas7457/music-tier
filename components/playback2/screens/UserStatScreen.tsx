@@ -61,7 +61,7 @@ export function UserStatScreen({
       {currentSong && (
         <AnimatedImageBackdrop imageUrl={currentSong.albumImageUrl} />
       )}
-      <div className="w-full flex flex-col gap-8 max-h-full relative z-10">
+      <div className="w-full flex flex-col gap-6 max-h-full relative z-10">
         {/* Header with parallax effect */}
         <div
           className={twMerge(
@@ -131,7 +131,7 @@ export function UserStatScreen({
               : "opacity-0 translate-y-10"
           )}
         >
-          <p className="text-3xl md:text-5xl font-bold mb-6 drop-shadow-lg">
+          <p className="text-3xl md:text-5xl font-bold mb-2 drop-shadow-lg">
             {user.firstName} {user.lastName}
           </p>
           <p className="text-xl md:text-2xl text-purple-200 mb-4">

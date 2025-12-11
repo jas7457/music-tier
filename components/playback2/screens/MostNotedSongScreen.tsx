@@ -3,7 +3,6 @@
 import { twMerge } from "tailwind-merge";
 import { Screen } from "../components/Screen";
 import type { PlaybackScreenProps } from "../types";
-import AlbumArt from "@/components/AlbumArt";
 import { Avatar } from "@/components/Avatar";
 import { MultiLine } from "@/components/MultiLine";
 import { HorizontalCarousel } from "../components/HorizontalCarousel";
@@ -11,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { TrackInfo } from "@/databaseTypes";
 import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
-import { useProminentColor } from "../utils";
+import { ThreeDSong } from "../components/3DSong";
 
 export function MostNotedSongScreen({
   playback,
@@ -23,10 +22,6 @@ export function MostNotedSongScreen({
   );
 
   const [screenIndex, setScreenIndex] = useState(0);
-  const glowColor = useProminentColor(
-    selectedSongs[screenIndex]?.albumImageUrl || "",
-    "transparent"
-  );
 
   const { playTrack } = useSpotifyPlayer();
   const playTrackRef = useRef(playTrack);
@@ -147,44 +142,21 @@ export function MostNotedSongScreen({
                     ? "opacity-100 scale-100 delay-200 translate-y-0"
                     : "opacity-0 scale-50 translate-y-10"
                 )}
-                style={{
-                  // @ts-ignore
-                  "--glow-color": glowColor,
-                }}
               >
-                <div
-                  className="relative"
-                  style={{
-                    animation: isItemActive
-                      ? "album-float 3s ease-in-out infinite"
-                      : "none",
-                  }}
-                >
-                  {/* Enhanced pulsing glow ring */}
-                  <div
-                    className="absolute inset-0 rounded-lg blur-xl opacity-60"
-                    style={{
-                      background: glowColor || "transparent",
-                      animation: isItemActive
-                        ? "pulse-glow 2s ease-in-out infinite"
-                        : "none",
-                      transform: "scale(1.1)",
-                    }}
-                  />
-                  <AlbumArt
-                    trackInfo={song.trackInfo}
-                    round={league.rounds.completed[0]}
-                    size={300}
-                    className="relative z-10"
-                    onPlaySong={(song) =>
-                      setSelectedSongs((prev) => {
-                        const newSelected = [...prev];
-                        newSelected[index] = song;
-                        return newSelected;
-                      })
-                    }
-                  />
-                </div>
+                <ThreeDSong
+                  trackInfo={song.trackInfo}
+                  round={league.rounds.completed[0]}
+                  size={300}
+                  isActive={isItemActive}
+                  onPlaySong={(selectedSong) =>
+                    setSelectedSongs((prev) => {
+                      const newSelected = [...prev];
+                      newSelected[index] = selectedSong;
+                      return newSelected;
+                    })
+                  }
+                  playlist={[song.trackInfo]}
+                />
                 <div
                   className="text-center"
                   style={{
@@ -262,41 +234,6 @@ export function MostNotedSongScreen({
             {/* Custom animations */}
             <style jsx>{`
               @keyframes float-bubble {
-                0%,
-                100% {
-                  transform: translateY(0) rotate(0deg);
-                }
-                25% {
-                  transform: translateY(-15px) rotate(-5deg);
-                }
-                75% {
-                  transform: translateY(15px) rotate(5deg);
-                }
-              }
-
-              @keyframes album-float {
-                0%,
-                100% {
-                  transform: translateY(0);
-                }
-                50% {
-                  transform: translateY(-10px);
-                }
-              }
-
-              @keyframes pulse-glow {
-                0%,
-                100% {
-                  transform: scale(1.1);
-                  opacity: 0.4;
-                }
-                50% {
-                  transform: scale(1.2);
-                  opacity: 0.7;
-                }
-              }
-
-              @keyframes fade-in-up {
                 0% {
                   opacity: 0;
                   transform: translateY(20px);
