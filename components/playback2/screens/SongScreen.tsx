@@ -19,7 +19,7 @@ interface SongScreenProps {
   round: PopulatedRound;
   points: number;
   pointsStrokeColor: string;
-  submittedBy?: PopulatedUser;
+  submittedBy: PopulatedUser;
   noDataMessage?: string;
 }
 
@@ -80,6 +80,7 @@ export function SongScreen({
             size={300}
             isActive={isActive}
             playlist={[trackInfo]}
+            submittedBy={submittedBy}
           />
         </div>
 

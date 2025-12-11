@@ -116,6 +116,7 @@ export interface LeaguePlaybackStats {
   userTopSong: {
     trackInfo: TrackInfo;
     points: number;
+    user: PopulatedUser;
   } | null;
   bestGuessers: Array<{
     user: PopulatedUser;

@@ -148,6 +148,7 @@ export function MostNotedSongScreen({
                   round={league.rounds.completed[0]}
                   size={300}
                   isActive={isItemActive}
+                  submittedBy={song.user}
                   onPlaySong={(selectedSong) =>
                     setSelectedSongs((prev) => {
                       const newSelected = [...prev];

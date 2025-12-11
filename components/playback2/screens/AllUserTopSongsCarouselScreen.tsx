@@ -76,6 +76,7 @@ export function AllUserTopSongsCarouselScreen({
               round={song.round}
               points={song.points}
               pointsStrokeColor={NEON_COLORS.BrightPink}
+              submittedBy={song.user}
             />
 
             {/* Custom animations */}

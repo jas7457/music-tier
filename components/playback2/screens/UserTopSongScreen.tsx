@@ -17,7 +17,7 @@ export function UserTopSongScreen({
     );
   }
 
-  const { trackInfo, points } = playback.userTopSong;
+  const { trackInfo, points, user } = playback.userTopSong;
 
   return (
     <SongScreen
@@ -28,6 +28,7 @@ export function UserTopSongScreen({
       round={league.rounds.completed[0]}
       points={points}
       pointsStrokeColor={NEON_COLORS.Yellow}
+      submittedBy={user}
     />
   );
 }
