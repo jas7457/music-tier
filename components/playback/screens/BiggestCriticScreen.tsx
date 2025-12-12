@@ -22,7 +22,11 @@ export function BiggestCriticScreen({
         stat={{
           value: biggestCritic ? `${biggestCritic.points} points` : "",
           label: "only gave you",
-          songs: biggestCritic?.songs,
+          songs:
+            biggestCritic?.songs.map((song) => ({
+              ...song,
+              rightText: `+${song.points} pts`,
+            })) || [],
         }}
         noDataMessage="No critic data available"
       />

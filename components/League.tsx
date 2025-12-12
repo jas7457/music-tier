@@ -15,7 +15,7 @@ import { DateTime } from "./DateTime";
 import { ConfirmUploadButton } from "./UploadThing";
 import { useToast } from "@/lib/ToastContext";
 import { HapticButton } from "./HapticButton";
-import { PlaylistPartyPlayback } from "./playback2/PlaylistPartyPlayback";
+import { PlaylistPartyPlayback } from "./playback/PlaylistPartyPlayback";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 
 export function League({

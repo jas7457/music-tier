@@ -19,66 +19,27 @@ export function PlaylistPartyPlayback({
   onClose,
 }: PlaylistPartyPlaybackProps) {
   const { user } = useAuth();
-
-  // Get playback stats from server-provided data
   const playback = league.playback;
-
-  // Navigation state
   const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const screenRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  // IntersectionObserver to detect active screen
-  useEffect(() => {
-    if (!isOpen || !containerRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            const index = Number(entry.target.getAttribute("data-index"));
-            setCurrentScreenIndex(index);
-          }
-        });
-      },
-      {
-        root: containerRef.current,
-        threshold: 0.5,
-      }
-    );
-
-    screenRefs.current.forEach((screen) => {
-      if (screen) observer.observe(screen);
-    });
-
-    return () => observer.disconnect();
-  }, [isOpen, league._id]);
 
   // Keyboard navigation
   useEffect(() => {
-    if (!isOpen || !containerRef.current) return;
+    if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!containerRef.current) return;
-
       switch (e.key) {
         case "ArrowDown":
         case " ": // Spacebar
           e.preventDefault();
           if (currentScreenIndex < PLAYBACK_SCREENS.length - 1) {
-            containerRef.current.scrollTo({
-              top: (currentScreenIndex + 1) * window.innerHeight,
-              behavior: "smooth",
-            });
+            setCurrentScreenIndex((prev) => prev + 1);
           }
           break;
         case "ArrowUp":
           e.preventDefault();
           if (currentScreenIndex > 0) {
-            containerRef.current.scrollTo({
-              top: (currentScreenIndex - 1) * window.innerHeight,
-              behavior: "smooth",
-            });
+            setCurrentScreenIndex((prev) => prev - 1);
           }
           break;
         case "Escape":
@@ -91,30 +52,68 @@ export function PlaylistPartyPlayback({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, currentScreenIndex, onClose]);
 
-  // Don't render if not open or no playback data or no user
+  // Sync scroll position when currentScreenIndex changes
+  useEffect(() => {
+    if (!isOpen || !containerRef.current) return;
+
+    const targetScrollTop = currentScreenIndex * window.innerHeight;
+    containerRef.current.scrollTo({
+      top: targetScrollTop,
+      behavior: "smooth",
+    });
+  }, [isOpen, currentScreenIndex]);
+
+  // Scroll handling with snap
+  useEffect(() => {
+    if (!isOpen || !containerRef.current) return;
+
+    let isScrolling = false;
+    let scrollTimeout: NodeJS.Timeout;
+
+    const handleScroll = () => {
+      if (isScrolling) return;
+
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        if (!containerRef.current) return;
+
+        const scrollTop = containerRef.current.scrollTop;
+        const screenHeight = window.innerHeight;
+        const newIndex = Math.round(scrollTop / screenHeight);
+
+        if (newIndex !== currentScreenIndex) {
+          setCurrentScreenIndex(newIndex);
+        }
+      }, 50);
+    };
+
+    const container = containerRef.current;
+    container.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [isOpen, currentScreenIndex]);
+
   if (!isOpen || !playback || !user) return null;
 
   const currentUserId = user._id;
 
   const scrollToScreen = (index: number) => {
-    containerRef.current?.scrollTo({
-      top: index * window.innerHeight,
-      behavior: "smooth",
-    });
+    setCurrentScreenIndex(index);
   };
 
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-200 bg-black overflow-y-scroll snap-y snap-mandatory"
+      className="fixed inset-0 z-200 bg-black overflow-y-scroll snap-y snap-mandatory scroll-smooth"
       style={{
         scrollbarWidth: "none",
         msOverflowStyle: "none",
-        touchAction: "pan-y",
         WebkitOverflowScrolling: "touch",
       }}
     >
-      {/* Hide scrollbar with style tag */}
       <style jsx>{`
         div::-webkit-scrollbar {
           display: none;
@@ -124,7 +123,7 @@ export function PlaylistPartyPlayback({
       {/* Close button */}
       <HapticButton
         onClick={onClose}
-        className="fixed top-4 right-4 z-210 w-12 h-12 rounded-full backdrop-blur-xl bg-white/20 border-2 border-white/40 text-white flex items-center justify-center hover:bg-white/30 transition-all"
+        className="fixed top-4 right-4 z-210 w-12 h-12 rounded-full backdrop-blur-xl bg-white/20 border-2 border-white/40 text-white flex items-center justify-center hover:bg-white/30 transition-all hover:scale-110"
         aria-label="Close Playlist Party Playback"
       >
         <svg
@@ -159,32 +158,54 @@ export function PlaylistPartyPlayback({
         ))}
       </div>
 
-      {/* Screens with scroll snap */}
+      {/* Screens with stacking and scroll-driven animations */}
       {PLAYBACK_SCREENS.map((screen, index) => {
         const Screen = screen.component;
         const isActive = index === currentScreenIndex;
-        const isExiting =
-          index === currentScreenIndex - 1 || index === currentScreenIndex + 1;
+        const isExiting = index === currentScreenIndex - 1;
 
         return (
           <div
             key={screen.key}
-            ref={(el) => {
-              screenRefs.current[index] = el;
-            }}
-            data-index={index}
             className="h-screen w-screen snap-start snap-always relative"
           >
-            <Screen
-              playback={playback}
-              league={league}
-              currentUserId={currentUserId}
-              isActive={isActive}
-              isExiting={isExiting}
-            />
+            <div className="h-full w-full">
+              <Screen
+                playback={playback}
+                league={league}
+                currentUserId={currentUserId}
+                isActive={isActive}
+                isExiting={isExiting}
+              />
+            </div>
           </div>
         );
       })}
+
+      {/* CSS animations for screen transitions */}
+      <style jsx>{`
+        @keyframes screen-enter {
+          from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes screen-exit {
+          from {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+          to {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.95);
+          }
+        }
+      `}</style>
     </div>
   );
 }

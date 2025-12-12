@@ -2,12 +2,13 @@
 
 import { twMerge } from "tailwind-merge";
 import { Avatar } from "@/components/Avatar";
-import type { PopulatedRound, PopulatedUser } from "@/lib/types";
+import type { PopulatedUser } from "@/lib/types";
 import { OutlinedText } from "@/components/OutlinedText";
 import { TrackInfo } from "@/databaseTypes";
-import { Songs } from "../components/Songs";
+import { Songs, SongsProps } from "../components/Songs";
 import { useState } from "react";
 import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
+import { StatBounce } from "../components/Animations";
 
 interface UserStatScreenProps {
   isActive: boolean;
@@ -20,13 +21,12 @@ interface UserStatScreenProps {
     value: string | number;
     label: string;
     icon?: string;
-    songs?: Array<{
-      trackInfo: TrackInfo;
-      points: number;
-      round: PopulatedRound;
-    }>;
+    songPrefix?: React.ReactNode;
+    songs?: SongsProps["songs"];
   };
   noDataMessage?: string;
+  className?: string;
+  statClassName?: string;
 }
 
 export function UserStatScreen({
@@ -38,6 +38,8 @@ export function UserStatScreen({
   strokeColor,
   noDataMessage = "No data available",
   autoSelectFirstSong = false,
+  className,
+  statClassName,
 }: UserStatScreenProps) {
   const [currentSong, setCurrentSong] = useState<TrackInfo | null>(
     autoSelectFirstSong && stat.songs?.[0] ? stat.songs[0].trackInfo : null
@@ -52,68 +54,167 @@ export function UserStatScreen({
   }
 
   return (
-    <div className="h-full flex items-center justify-center p-8 text-white overflow-hidden relative">
+    <div
+      className={twMerge(
+        "h-full flex items-center justify-center px-8 py-12 text-white overflow-hidden relative",
+        className
+      )}
+    >
       {currentSong && (
         <AnimatedImageBackdrop imageUrl={currentSong.albumImageUrl} />
       )}
-      <div className="w-full flex flex-col gap-8 max-h-full relative z-10">
+      <div className="w-full flex flex-col gap-6 max-h-full relative z-10">
+        {/* Header with parallax effect */}
         <div
           className={twMerge(
-            "transition-all duration-500",
-            isActive ? "opacity-100 delay-0" : "opacity-0"
+            "transition-all duration-700 transform",
+            isActive ? "translate-y-0" : "-translate-y-10"
           )}
         >
-          <h2 className="text-center">{kicker}</h2>
-          <p className="text-2xl text-purple-300 text-center">{title}</p>
+          <h2 className="text-center font-bold">{kicker}</h2>
+          <p className="text-4xl text-purple-300 text-center">{title}</p>
         </div>
 
+        {/* Avatar with floating animation */}
         <div
           className={twMerge(
-            "transition-all duration-500 flex justify-center",
-            isActive ? "opacity-100 scale-100 delay-200" : "opacity-0 scale-50"
+            "transition-all duration-700 transform flex justify-center relative mx-auto",
+            isActive ? "scale-100 rotate-0 delay-400" : "scale-75 rotate-48"
           )}
+          style={{
+            width: "clamp(200px, 60%, 300px)",
+          }}
         >
-          <Avatar
-            user={user}
-            size={70}
-            includeLink={false}
-            isSizePercent
-            maxWidth="300px"
-          />
-        </div>
-
-        <div
-          className={twMerge(
-            "text-center transition-all duration-500",
-            isActive ? "opacity-100 delay-400" : "opacity-0"
-          )}
-        >
-          <p className="text-3xl md:text-4xl font-bold mb-4">
-            {user.firstName} {user.lastName}
-          </p>
-          <p className="text-xl text-purple-200 mb-2">{stat.label}</p>
-          <div className="text-6xl font-bold wrap-break-word break-all">
-            {stat.icon && <span className="mr-1">{stat.icon}</span>}
-            <OutlinedText strokeColor={strokeColor} strokeWidth={2}>
-              {stat.value}
-            </OutlinedText>
-          </div>
-        </div>
-        {/* Scrollable Songs List */}
-        {stat.songs && (
-          <Songs
-            songs={stat.songs}
-            isActive={isActive}
-            onPlaySong={(song) => {
-              if (isActive) {
-                setCurrentSong(song);
-              } else {
-                setCurrentSong(null);
-              }
+          {/* Glowing ring behind avatar */}
+          <div
+            className="absolute inset-0 rounded-full opacity-60 aspect-square"
+            style={{
+              background: strokeColor,
+              filter: "blur(40px)",
+              animation: isActive
+                ? "pulse-glow 3s ease-in-out infinite"
+                : "none",
             }}
           />
-        )}
+          <div
+            className="relative flex justify-center aspect-square w-full"
+            style={{
+              animation: isActive
+                ? "float-avatar 4s ease-in-out infinite"
+                : "none",
+            }}
+          >
+            <Avatar user={user} size={100} includeLink={false} isSizePercent />
+            {/* Question mark overlay */}
+            <div
+              className={twMerge(
+                "absolute inset-0 flex items-center justify-center bg-pink-600 rounded-full transition-opacity duration-700 pointer-events-none",
+                isActive ? "opacity-0" : "opacity-100"
+              )}
+              style={{
+                aspectRatio: "1",
+                transitionDelay: isActive ? "0.5s" : "0s",
+              }}
+            >
+              <span className="text-6xl md:text-8xl font-bold text-white drop-shadow-2xl">
+                ?
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* User name and stat with staggered entrance */}
+        <div
+          className={twMerge(
+            "text-center transition-all duration-700 transform",
+            isActive
+              ? "opacity-100 translate-y-0 delay-600"
+              : "opacity-0 translate-y-10"
+          )}
+        >
+          <p className="text-3xl md:text-5xl font-bold mb-2 drop-shadow-lg">
+            {user.firstName} {user.lastName}
+          </p>
+          <p className="text-xl md:text-2xl text-purple-200 mb-4">
+            {stat.label}
+          </p>
+          <StatBounce
+            isActive={isActive}
+            delay={1}
+            className={twMerge(
+              "text-6xl md:text-7xl font-bold wrap-break-word break-all",
+              statClassName
+            )}
+          >
+            {stat.icon && <span className="mr-2">{stat.icon}</span>}
+            <OutlinedText strokeColor={strokeColor} strokeWidth={3}>
+              {stat.value}
+            </OutlinedText>
+          </StatBounce>
+        </div>
+
+        <div className="grid gap-2 overflow-hidden">
+          <div
+            className={twMerge(
+              "transition-all duration-700 transform",
+              isActive
+                ? "opacity-100 translate-y-0 delay-600"
+                : "opacity-0 translate-y-10"
+            )}
+          >
+            {stat.songPrefix}
+          </div>
+
+          {/* Songs with slide-up animation */}
+          {stat.songs && (
+            <Songs
+              className={twMerge(
+                "transition-all duration-700 delay-600 transform",
+                isActive
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-10"
+              )}
+              songs={stat.songs}
+              isActive={isActive}
+              onPlaySong={(song) => {
+                if (isActive) {
+                  setCurrentSong(song);
+                } else {
+                  setCurrentSong(null);
+                }
+              }}
+            />
+          )}
+        </div>
       </div>
+
+      {/* Custom animations */}
+      <style jsx>{`
+        @keyframes pulse-glow {
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.4;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 0.7;
+          }
+        }
+
+        @keyframes float-avatar {
+          0%,
+          100% {
+            transform: translateY(0) rotate(0deg);
+          }
+          25% {
+            transform: translateY(-10px) rotate(2deg);
+          }
+          75% {
+            transform: translateY(-5px) rotate(-2deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }

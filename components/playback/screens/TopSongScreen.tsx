@@ -3,6 +3,7 @@
 import { NEON_COLORS } from "../constants";
 import type { PlaybackScreenProps } from "../types";
 import { SongScreen } from "./SongScreen";
+import { Screen } from "../components/Screen";
 
 export function TopSongScreen({
   playback,
@@ -11,9 +12,11 @@ export function TopSongScreen({
 }: PlaybackScreenProps) {
   if (!playback.topSong) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 text-white">
-        <p className="text-2xl text-purple-300">No song data available</p>
-      </div>
+      <Screen>
+        <div className="h-full flex flex-col items-center justify-center p-8 text-white">
+          <p className="text-2xl text-purple-300">No song data available</p>
+        </div>
+      </Screen>
     );
   }
 

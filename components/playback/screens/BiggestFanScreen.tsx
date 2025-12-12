@@ -19,7 +19,11 @@ export function BiggestFanScreen({ playback, isActive }: PlaybackScreenProps) {
         stat={{
           value: biggestFan ? `${biggestFan.points} points` : "",
           label: "gave you",
-          songs: biggestFan?.songs,
+          songs:
+            biggestFan?.songs.map((song) => ({
+              ...song,
+              rightText: `+${song.points} pts`,
+            })) || [],
         }}
         noDataMessage="No fan data available"
       />

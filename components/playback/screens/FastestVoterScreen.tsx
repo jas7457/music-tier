@@ -1,13 +1,11 @@
 "use client";
 
-import { twMerge } from "tailwind-merge";
 import { Screen } from "../components/Screen";
 import { NEON_COLORS } from "../constants";
 import type { PlaybackScreenProps } from "../types";
-import { Avatar } from "@/components/Avatar";
-import { OutlinedText } from "@/components/OutlinedText";
-import { formatTime } from "./utils";
+import { UserStatScreen } from "./UserStatScreen";
 import { HorizontalCarousel } from "../components/HorizontalCarousel";
+import { formatTime } from "./utils";
 
 export function FastestVoterScreen({
   playback,
@@ -31,58 +29,94 @@ export function FastestVoterScreen({
         items={stat}
         isActive={isActive}
         renderItem={(voter, index, isItemActive) => (
-          <div className="h-full flex items-center p-8 text-white">
-            <div className="w-full flex flex-col gap-4 max-h-full">
-              {/* Title */}
-              <div
-                className={twMerge(
-                  "transition-all duration-500",
-                  isItemActive ? "opacity-100 delay-0" : "opacity-0"
-                )}
-              >
-                <h2 className="text-center">
-                  Did you even listen to the songs?
-                </h2>
-                <p className="text-2xl text-purple-300 text-center">
-                  {stat.length > 1
-                    ? `#${index + 1} Fastest Voter`
-                    : "Fastest Voter"}
-                </p>
-              </div>
-
-              {/* User Info */}
-              <div
-                className={twMerge(
-                  "flex flex-col items-center gap-3 transition-all duration-500",
-                  isItemActive
-                    ? "opacity-100 scale-100 delay-200"
-                    : "opacity-0 scale-50"
-                )}
-              >
-                <Avatar
-                  user={voter.user}
-                  size={70}
-                  includeLink={false}
-                  isSizePercent
-                  maxWidth="300px"
-                />
-                <div className="text-center">
-                  <p className="text-2xl md:text-3xl font-bold mb-2">
-                    {voter.user.firstName} {voter.user.lastName}
-                  </p>
-                  <p className="text-lg text-purple-200 mb-2">average time</p>
-                  <div className="text-4xl font-bold">
-                    <OutlinedText
-                      strokeColor={NEON_COLORS.ElectricPurple}
-                      strokeWidth={2}
-                    >
-                      ⚡ {formatTime(voter.avgTime)}
-                    </OutlinedText>
-                  </div>
+          <>
+            {/* Floating checkmark badges - only for first place */}
+            {index === 0 && isItemActive && isActive && (
+              <>
+                <div
+                  className="absolute top-[20%] left-[10%] text-6xl opacity-60 z-0"
+                  style={{
+                    animation: "float-check 3s ease-in-out infinite",
+                  }}
+                >
+                  ✓
                 </div>
-              </div>
-            </div>
-          </div>
+                <div
+                  className="absolute top-[30%] right-[15%] text-5xl opacity-50 z-0"
+                  style={{
+                    animation: "float-check 3.5s ease-in-out 0.5s infinite",
+                  }}
+                >
+                  ✓
+                </div>
+                <div
+                  className="absolute bottom-[35%] left-[20%] text-7xl opacity-40 z-0"
+                  style={{
+                    animation: "float-check 3.2s ease-in-out 1s infinite",
+                  }}
+                >
+                  ✓
+                </div>
+                <div
+                  className="absolute bottom-[20%] right-[10%] text-5xl opacity-55 z-0"
+                  style={{
+                    animation: "float-check 3.8s ease-in-out 1.5s infinite",
+                  }}
+                >
+                  ✓
+                </div>
+                <div
+                  className="absolute top-[50%] right-[25%] text-4xl opacity-45 z-0"
+                  style={{
+                    animation: "float-check 3.3s ease-in-out 2s infinite",
+                  }}
+                >
+                  ✓
+                </div>
+              </>
+            )}
+
+            <UserStatScreen
+              isActive={isItemActive}
+              kicker="Did you even listen to the songs?"
+              title={
+                stat.length > 1
+                  ? `#${index + 1} Fastest Voter`
+                  : "Fastest Voter"
+              }
+              user={voter.user}
+              strokeColor={NEON_COLORS.ElectricPurple}
+              stat={{
+                value: formatTime(voter.avgTime),
+                label: "average time",
+                icon: "⚡",
+              }}
+              noDataMessage="No voting data available"
+            />
+
+            {/* Custom animations */}
+            <style jsx>{`
+              @keyframes float-check {
+                0%,
+                100% {
+                  transform: translateY(0) rotate(0deg) scale(1);
+                  opacity: 0.6;
+                }
+                25% {
+                  transform: translateY(-15px) rotate(-5deg) scale(1.05);
+                  opacity: 0.8;
+                }
+                50% {
+                  transform: translateY(-25px) rotate(0deg) scale(1.1);
+                  opacity: 0.9;
+                }
+                75% {
+                  transform: translateY(-15px) rotate(5deg) scale(1.05);
+                  opacity: 0.8;
+                }
+              }
+            `}</style>
+          </>
         )}
       />
     </Screen>

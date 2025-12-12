@@ -1,55 +1,5 @@
 import { useEffect, useState } from "react";
 
-/*
-function getProminentColor(imageUrl: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "Anonymous"; // Important for external images
-
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d")!;
-
-      canvas.width = img.width;
-      canvas.height = img.height;
-
-      ctx.drawImage(img, 0, 0);
-
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const pixels = imageData.data;
-
-      // Count color occurrences
-      const colorCounts: Record<string, number> = {};
-
-      for (let i = 0; i < pixels.length; i += 4) {
-        const r = pixels[i];
-        const g = pixels[i + 1];
-        const b = pixels[i + 2];
-        const rgb = `${r},${g},${b}`;
-
-        colorCounts[rgb] = (colorCounts[rgb] || 0) + 1;
-      }
-
-      // Find most common color
-      let maxCount = 0;
-      let prominentColor: string | null = null;
-
-      for (const [color, count] of Object.entries(colorCounts)) {
-        if (count > maxCount) {
-          maxCount = count;
-          prominentColor = color;
-        }
-      }
-
-      resolve(`rgb(${prominentColor})`);
-    };
-
-    img.onerror = reject;
-    img.src = imageUrl;
-  });
-}
-*/
-
 const colorCache: Record<string, Promise<string | undefined>> = {};
 
 async function getAverageRGB(imageUrl: string): Promise<string | undefined> {

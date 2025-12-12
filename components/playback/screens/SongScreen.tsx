@@ -1,14 +1,15 @@
 "use client";
 
 import { twMerge } from "tailwind-merge";
-import AlbumArt from "@/components/AlbumArt";
 import type { TrackInfo } from "@/databaseTypes";
 import type { PopulatedRound, PopulatedUser } from "@/lib/types";
 import { OutlinedText } from "@/components/OutlinedText";
 import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
 import { useEffect, useRef } from "react";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
-import { useProminentColor } from "../utils";
+import { StatBounce } from "../components/Animations";
+import { ThreeDSong } from "../components/3DSong";
+import { Screen } from "../components/Screen";
 
 interface SongScreenProps {
   isActive: boolean;
@@ -18,7 +19,7 @@ interface SongScreenProps {
   round: PopulatedRound;
   points: number;
   pointsStrokeColor: string;
-  submittedBy?: PopulatedUser;
+  submittedBy: PopulatedUser;
   noDataMessage?: string;
 }
 
@@ -37,8 +38,6 @@ export function SongScreen({
   // eslint-disable-next-line react-hooks/refs
   playTrackRef.current = playTrack;
 
-  const glowColor = useProminentColor(trackInfo.albumImageUrl, "transparent");
-
   useEffect(() => {
     if (!isActive) {
       return;
@@ -52,63 +51,65 @@ export function SongScreen({
   }, [isActive, round, trackInfo]);
 
   return (
-    <div className="relative h-full overflow-clip">
+    <Screen>
       <AnimatedImageBackdrop imageUrl={trackInfo.albumImageUrl} />
-      <div className="flex flex-col items-center justify-center text-white gap-6 w-full h-full relative p-8">
+      <div className="flex flex-col items-center justify-center text-white gap-8 w-full h-full relative px-8 py-10">
         <div
           className={twMerge(
-            "transition-all duration-500",
-            isActive ? "opacity-100 delay-0" : "opacity-0"
+            "transition-all duration-700 transform",
+            isActive ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"
           )}
         >
-          <h2 className="text-center">{title}</h2>
-          <p className="text-2xl text-purple-300 text-center">{subtitle}</p>
+          <h2 className="text-center font-bold">{title}</h2>
+          <p className="text-4xl text-purple-300 text-center">{subtitle}</p>
         </div>
 
         <div
           className={twMerge(
-            "transition-all duration-500",
-            isActive ? "opacity-100 scale-100 delay-200" : "opacity-0 scale-50"
+            "transition-all duration-700 delay-200 transform",
+            isActive
+              ? "opacity-100 scale-100 rotate-0"
+              : "opacity-0 scale-75 rotate-12"
           )}
-          style={{
-            // @ts-ignore
-            "--glow-color": glowColor,
-          }}
         >
-          <AlbumArt
+          <ThreeDSong
             trackInfo={trackInfo}
             round={round}
-            size={250}
-            className="animate-[pulse-glow_2s_ease-in-out_infinite]"
+            size={300}
+            isActive={isActive}
+            playlist={[trackInfo]}
+            submittedBy={submittedBy}
           />
         </div>
 
         <div
           className={twMerge(
-            "text-center transition-all duration-500",
-            isActive ? "opacity-100 delay-400" : "opacity-0"
+            "text-center transition-all duration-700 delay-400 transform",
+            isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           )}
         >
-          <p className="text-3xl md:text-4xl font-bold mb-2">
+          <p className="text-3xl md:text-5xl font-bold mb-3">
             {trackInfo.title}
           </p>
-          <p className="text-xl md:text-2xl text-purple-200 mb-4">
+          <p className="text-xl md:text-2xl text-purple-200 mb-6">
             {trackInfo.artists.join(", ")}
           </p>
           {submittedBy && (
-            <p className="text-lg text-purple-300 mb-2">
+            <p className="text-lg md:text-xl text-purple-300 mb-4">
               Submitted by {submittedBy.firstName} {submittedBy.lastName}
             </p>
           )}
-          <OutlinedText
-            className="text-6xl font-bold"
-            strokeColor={pointsStrokeColor}
-            strokeWidth={2}
-          >
-            {points} points
-          </OutlinedText>
+          <StatBounce isActive={isActive}>
+            <OutlinedText
+              className="text-6xl md:text-7xl font-bold"
+              strokeColor={pointsStrokeColor}
+              strokeWidth={3}
+            >
+              {points} points
+            </OutlinedText>
+          </StatBounce>
         </div>
       </div>
-    </div>
+    </Screen>
   );
 }
