@@ -1,6 +1,6 @@
 import { SongSubmission } from "./SongSubmission";
 import { SubmittedUsers, UnsubmittedUsers } from "./SubmittedUsers";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import VotingRound from "./VotingRound";
 import CompletedRound from "./CompletedRound";
 import { PopulatedLeague, PopulatedRound, PopulatedUser } from "@/lib/types";
@@ -32,6 +32,11 @@ export function Round({
       isAddedToSidePlaylist: boolean;
     }>
   >(round.onDeckSubmissions);
+
+  useEffect(() => {
+    setOnDeckSubmissions(round.onDeckSubmissions);
+  }, [round.onDeckSubmissions]);
+
   const toast = useToast();
 
   const canEdit = (() => {

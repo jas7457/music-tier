@@ -350,17 +350,22 @@ export function calculatePlaybackStats(
         if (winningRounds.length === 0) {
           return;
         }
-        const winningSubmissions = winningRounds.map((placeInfo) => {
-          // Find the submission for this winning round
-          const pointInfo = data.points.find(
-            (p) => p.round._id === placeInfo.round._id
-          );
-          return {
-            trackInfo: pointInfo!.trackInfo,
-            points: pointInfo!.points,
-            round: placeInfo.round,
-          };
-        });
+        const winningSubmissions = winningRounds
+          .map((placeInfo) => {
+            // Find the submission for this winning round
+            const pointInfo = data.points.find(
+              (p) => p.round._id === placeInfo.round._id
+            );
+            if (!pointInfo) {
+              return null;
+            }
+            return {
+              trackInfo: pointInfo!.trackInfo,
+              points: pointInfo!.points,
+              round: placeInfo.round,
+            };
+          })
+          .filter((item) => item !== null);
 
         acc.mostWinsUsers.push({ user: data.user, wins: winningSubmissions });
       })();
@@ -389,18 +394,28 @@ export function calculatePlaybackStats(
             0
           ) / data.submissions.length;
 
-        const fastestSubmission = data.submissions.reduce((fastest, current) =>
-          current.timeToSubmit < fastest.timeToSubmit ? current : fastest
-        );
-        acc.fastestSubmitters.push({
-          user: data.user,
-          avgTime: averageSubmitTime,
-          fastestSong: {
-            round: roundsById[fastestSubmission.submission.roundId],
-            time: fastestSubmission.timeToSubmit,
-            trackInfo: fastestSubmission.submission.trackInfo,
+        const fastestSubmission = data.submissions.reduce(
+          (fastest, current) => {
+            if (!fastest) {
+              return current;
+            }
+            return current.timeToSubmit < fastest.timeToSubmit
+              ? current
+              : fastest;
           },
-        });
+          null as null | (typeof data.submissions)[number]
+        );
+        if (fastestSubmission) {
+          acc.fastestSubmitters.push({
+            user: data.user,
+            avgTime: averageSubmitTime,
+            fastestSong: {
+              round: roundsById[fastestSubmission.submission.roundId],
+              time: fastestSubmission.timeToSubmit,
+              trackInfo: fastestSubmission.submission.trackInfo,
+            },
+          });
+        }
       })();
 
       // fastestVoters

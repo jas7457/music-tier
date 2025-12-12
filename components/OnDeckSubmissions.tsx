@@ -1,12 +1,13 @@
 import { PopulatedOnDeckSubmission, PopulatedRound } from "@/lib/types";
 import { HapticButton } from "./HapticButton";
 import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useToast } from "@/lib/ToastContext";
 import { SpotifySongSearch } from "./SpotifySongSearch";
 import AlbumArt from "./AlbumArt";
 import { twMerge } from "tailwind-merge";
 import { Pill } from "./Pill";
+import { useAuth } from "@/lib/AuthContext";
 
 type SubmissionPartial = Pick<
   PopulatedOnDeckSubmission,
@@ -31,6 +32,13 @@ export function OnDeckSubmissionsList({
   const [isSaving, setIsSaving] = useState(false);
   const [onDeckSearchInput, setOnDeckSearchInput] = useState("");
   const toast = useToast();
+  const { user } = useAuth();
+
+  const yourSubmission = useMemo(() => {
+    return round.submissions.find(
+      (submission) => submission.userId === user?._id
+    );
+  }, [round.submissions, user?._id]);
 
   const saveOnDeckToDatabase = useCallback(
     async (newOnDecks: typeof onDeckSubmissions) => {
@@ -83,7 +91,19 @@ export function OnDeckSubmissionsList({
 
   const allSaved =
     onDeckSubmissions.length > 0 &&
-    onDeckSubmissions.every((submission) => submission.isAddedToSidePlaylist);
+    onDeckSubmissions.every((submission) => {
+      if (submission.isAddedToSidePlaylist) {
+        return true;
+      }
+
+      const isYourSubmission =
+        yourSubmission?.trackInfo.trackId === submission.trackInfo.trackId;
+      if (isYourSubmission) {
+        return true;
+      }
+
+      return false;
+    });
 
   return (
     <div className="grid gap-2">
@@ -99,6 +119,21 @@ export function OnDeckSubmissionsList({
       </div>
 
       {onDeckSubmissions.map((submission, index) => {
+        const pillMarkup = (() => {
+          if (onDeckInfo.canAdd) {
+            return null;
+          }
+          if (
+            yourSubmission?.trackInfo.trackId === submission.trackInfo.trackId
+          ) {
+            return <Pill status="info">Your submission</Pill>;
+          }
+          if (submission.isAddedToSidePlaylist) {
+            return <Pill status="info">Added to SP</Pill>;
+          }
+          return null;
+        })();
+
         const Component = onRowClick ? "button" : "div";
         return (
           <div
@@ -174,9 +209,7 @@ export function OnDeckSubmissionsList({
               </HapticButton>
             )}
 
-            {!onDeckInfo.canAdd && submission.isAddedToSidePlaylist && (
-              <Pill status="info">Added to SP</Pill>
-            )}
+            {pillMarkup}
           </div>
         );
       })}

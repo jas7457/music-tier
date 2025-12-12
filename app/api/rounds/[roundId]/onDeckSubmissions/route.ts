@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken } from "@/lib/auth";
 import { getCollection } from "@/lib/mongodb";
-import { OnDeckSongSubmission } from "@/databaseTypes";
+import { OnDeckSongSubmission, SongSubmission } from "@/databaseTypes";
 import { ObjectId } from "mongodb";
 import { triggerRealTimeUpdate } from "@/lib/pusher-server";
 import { SIDE_PLAYLIST_ID } from "@/lib/utils/constants";
@@ -106,8 +106,38 @@ async function handleRequest(
           );
         }
 
+        // Get real submissions for this round to filter them out
+        const songSubmissions = await getCollection<SongSubmission>(
+          "songSubmissions"
+        );
+        const realSubmissions = await songSubmissions
+          .find({ roundId })
+          .toArray();
+
+        const realSubmissionTrackIds = new Set(
+          realSubmissions.map((s) => s.trackInfo.trackId)
+        );
+
         const cookieStore = await cookies();
         const accessToken = cookieStore.get("spotify_access_token")?.value;
+
+        // Filter out submissions that are already added to playlist OR are real submissions
+        const tracksToAdd = currentSubmissions
+          .filter(
+            (submission) =>
+              !submission.isAddedToSidePlaylist &&
+              !realSubmissionTrackIds.has(submission.trackInfo.trackId)
+          )
+          .map((submission) => `spotify:track:${submission.trackInfo.trackId}`);
+
+        if (tracksToAdd.length === 0) {
+          triggerRealTimeUpdate({ userIds: [payload.userId] });
+
+          return NextResponse.json({
+            success: true,
+            message: "No new tracks to add",
+          });
+        }
 
         const res = await fetch(
           `https://api.spotify.com/v1/playlists/${SIDE_PLAYLIST_ID}/tracks`,
@@ -118,12 +148,7 @@ async function handleRequest(
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              uris: currentSubmissions
-                .filter((submission) => !submission.isAddedToSidePlaylist)
-                .map(
-                  (submission) =>
-                    `spotify:track:${submission.trackInfo.trackId}`
-                ),
+              uris: tracksToAdd,
             }),
           }
         );
@@ -134,10 +159,14 @@ async function handleRequest(
           );
         }
 
+        // Only mark as added the ones we actually added (excluding real submissions)
         await onDeckSongSubmissions.updateMany(
           {
             roundId,
             userId: payload.userId,
+            "trackInfo.trackId": {
+              $nin: Array.from(realSubmissionTrackIds),
+            },
           },
           {
             $set: {

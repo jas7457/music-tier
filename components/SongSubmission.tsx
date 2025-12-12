@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import AlbumArt from "./AlbumArt";
 import { PopulatedRound, PopulatedSubmission } from "@/lib/types";
 import { getTrackUrlFromId } from "@/lib/spotify";
@@ -42,6 +42,10 @@ export function SongSubmission({
       isAddedToSidePlaylist: boolean;
     }>
   >(round.onDeckSubmissions);
+
+  useEffect(() => {
+    setOnDeckSubmissions(round.onDeckSubmissions);
+  }, [round.onDeckSubmissions]);
 
   const isRealSubmission = submission ? submission._id !== "" : false;
 
