@@ -29,7 +29,7 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
             <>
               {/* Animated trophy background - only for first place */}
               {index === 0 && isItemActive && isActive && (
-                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl opacity-10 transition-all duration-1000 transform z-0 animate-[float-trophy_6s_ease-in-out_infinite]">
+                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl opacity-10 transition-all duration-1000 transform z-10 animate-[float-trophy_6s_ease-in-out_infinite]">
                   🏆
                 </div>
               )}
@@ -38,13 +38,13 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
               {index === 0 && isItemActive && isActive && (
                 <>
                   <div
-                    className="absolute -top-20 left-1/4 text-5xl z-0 pointer-events-none"
+                    className="absolute -top-20 left-1/4 text-5xl pointer-events-none z-10"
                     style={{ animation: "fall-confetti 4s linear infinite" }}
                   >
                     🎉
                   </div>
                   <div
-                    className="absolute -top-20 right-1/4 text-5xl z-0 pointer-events-none"
+                    className="absolute -top-20 right-1/4 text-5xl z-10 pointer-events-none"
                     style={{
                       animation: "fall-confetti 4.5s linear 0.5s infinite",
                     }}
@@ -52,7 +52,7 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
                     ✨
                   </div>
                   <div
-                    className="absolute -top-20 left-1/3 text-4xl z-0 pointer-events-none"
+                    className="absolute -top-20 left-1/3 text-4xl z-10 pointer-events-none"
                     style={{
                       animation: "fall-confetti 5s linear 1s infinite",
                     }}
@@ -60,7 +60,7 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
                     🎊
                   </div>
                   <div
-                    className="absolute -top-20 right-1/3 text-4xl z-0 pointer-events-none"
+                    className="absolute -top-20 right-1/3 text-4xl z-10 pointer-events-none"
                     style={{
                       animation: "fall-confetti 4.8s linear 1.5s infinite",
                     }}
@@ -68,7 +68,7 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
                     ⭐
                   </div>
                   <div
-                    className="absolute -top-20 left-1/2 text-5xl z-0 pointer-events-none"
+                    className="absolute -top-20 left-1/2 text-5xl z-10 pointer-events-none"
                     style={{
                       animation: "fall-confetti 4.2s linear 2s infinite",
                     }}
@@ -76,7 +76,7 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
                     🎊
                   </div>
                   <div
-                    className="absolute -top-20 left-[15%] text-4xl z-0 pointer-events-none"
+                    className="absolute -top-20 left-[15%] text-4xl z-10 pointer-events-none"
                     style={{
                       animation: "fall-confetti 4.6s linear 2.5s infinite",
                     }}

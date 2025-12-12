@@ -25,112 +25,117 @@ export function MostConsistentScreen({
   return (
     <Screen background={{ from: "#ec4899", via: "#f97316", to: "#a855f7" }}>
       <div className="h-full flex flex-col items-center text-white gap-4 relative overflow-hidden">
-        {/* Animated background elements - metronome/rhythm theme */}
-        {isActive && (
-          <>
-            {/* Pulsing circles radiating outward - consistency waves */}
-            <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-pink-400/30"
-              style={{
-                animation: "pulse-ring 3s ease-in-out infinite",
-              }}
-            />
-            <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-orange-400/30"
-              style={{
-                animation: "pulse-ring 3s ease-in-out 1s infinite",
-              }}
-            />
-            <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-purple-400/30"
-              style={{
-                animation: "pulse-ring 3s ease-in-out 2s infinite",
-              }}
-            />
-
-            {/* Floating metronome/pendulum indicators */}
-            <div
-              className="absolute top-[15%] left-[12%] text-4xl opacity-30"
-              style={{
-                animation: "metronome-swing 2s ease-in-out infinite",
-              }}
-            >
-              ⏱️
-            </div>
-            <div
-              className="absolute top-[20%] right-[15%] text-3xl opacity-25"
-              style={{
-                animation: "metronome-swing 2s ease-in-out 0.5s infinite",
-              }}
-            >
-              ⏱️
-            </div>
-            <div
-              className="absolute bottom-[20%] left-[10%] text-5xl opacity-20"
-              style={{
-                animation: "metronome-swing 2s ease-in-out 1s infinite",
-              }}
-            >
-              ⏱️
-            </div>
-
-            {/* Floating checkmarks - consistency marks */}
-            <div
-              className="absolute top-[35%] right-[8%] text-4xl opacity-25"
-              style={{
-                animation: "check-bounce 2.5s ease-in-out infinite",
-              }}
-            >
-              ✓
-            </div>
-            <div
-              className="absolute bottom-[35%] left-[15%] text-3xl opacity-30"
-              style={{
-                animation: "check-bounce 2.5s ease-in-out 1.2s infinite",
-              }}
-            >
-              ✓
-            </div>
-            <div
-              className="absolute top-[55%] left-[8%] text-4xl opacity-20"
-              style={{
-                animation: "check-bounce 2.5s ease-in-out 0.8s infinite",
-              }}
-            >
-              ✓
-            </div>
-            <div
-              className="absolute bottom-[50%] right-[12%] text-3xl opacity-25"
-              style={{
-                animation: "check-bounce 2.5s ease-in-out 1.8s infinite",
-              }}
-            >
-              ✓
-            </div>
-
-            {/* Horizontal lines representing consistency/stability */}
-            <div
-              className="absolute top-[25%] left-0 w-full h-0.5 bg-linear-to-r from-transparent via-pink-400/20 to-transparent"
-              style={{
-                animation: "line-slide 4s ease-in-out infinite",
-              }}
-            />
-            <div
-              className="absolute top-[75%] left-0 w-full h-0.5 bg-linear-to-r from-transparent via-orange-400/20 to-transparent"
-              style={{
-                animation: "line-slide 4s ease-in-out 2s infinite",
-              }}
-            />
-          </>
-        )}
-
         <div className="flex-1 w-full relative z-10 min-h-0">
           <HorizontalCarousel
             isActive={isActive}
             items={playback.mostConsistent}
             renderItem={(consistent, index, isItemActive) => {
               return (
-                <div className="min-w-full h-full">
+                <>
+                  {/* Animated background elements - metronome/rhythm theme */}
+                  {index === 0 && isItemActive && (
+                    <>
+                      {/* Pulsing circles radiating outward - consistency waves */}
+                      <div
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-pink-400/30"
+                        style={{
+                          animation: "pulse-ring 3s ease-in-out infinite",
+                        }}
+                      />
+                      <div
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-orange-400/30"
+                        style={{
+                          animation: "pulse-ring 3s ease-in-out 1s infinite",
+                        }}
+                      />
+                      <div
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-purple-400/30"
+                        style={{
+                          animation: "pulse-ring 3s ease-in-out 2s infinite",
+                        }}
+                      />
+
+                      {/* Floating metronome/pendulum indicators */}
+                      <div
+                        className="absolute top-[15%] left-[12%] text-4xl opacity-30"
+                        style={{
+                          animation: "metronome-swing 2s ease-in-out infinite",
+                        }}
+                      >
+                        ⏱️
+                      </div>
+                      <div
+                        className="absolute top-[20%] right-[15%] text-3xl opacity-25"
+                        style={{
+                          animation:
+                            "metronome-swing 2s ease-in-out 0.5s infinite",
+                        }}
+                      >
+                        ⏱️
+                      </div>
+                      <div
+                        className="absolute bottom-[20%] left-[10%] text-5xl opacity-20"
+                        style={{
+                          animation:
+                            "metronome-swing 2s ease-in-out 1s infinite",
+                        }}
+                      >
+                        ⏱️
+                      </div>
+
+                      {/* Floating checkmarks - consistency marks */}
+                      <div
+                        className="absolute top-[35%] right-[8%] text-4xl opacity-25"
+                        style={{
+                          animation: "check-bounce 2.5s ease-in-out infinite",
+                        }}
+                      >
+                        ✓
+                      </div>
+                      <div
+                        className="absolute bottom-[35%] left-[15%] text-3xl opacity-30"
+                        style={{
+                          animation:
+                            "check-bounce 2.5s ease-in-out 1.2s infinite",
+                        }}
+                      >
+                        ✓
+                      </div>
+                      <div
+                        className="absolute top-[55%] left-[8%] text-4xl opacity-20"
+                        style={{
+                          animation:
+                            "check-bounce 2.5s ease-in-out 0.8s infinite",
+                        }}
+                      >
+                        ✓
+                      </div>
+                      <div
+                        className="absolute bottom-[50%] right-[12%] text-3xl opacity-25"
+                        style={{
+                          animation:
+                            "check-bounce 2.5s ease-in-out 1.8s infinite",
+                        }}
+                      >
+                        ✓
+                      </div>
+
+                      {/* Horizontal lines representing consistency/stability */}
+                      <div
+                        className="absolute top-[25%] left-0 w-full h-0.5 bg-linear-to-r from-transparent via-pink-400/20 to-transparent"
+                        style={{
+                          animation: "line-slide 4s ease-in-out infinite",
+                        }}
+                      />
+                      <div
+                        className="absolute top-[75%] left-0 w-full h-0.5 bg-linear-to-r from-transparent via-orange-400/20 to-transparent"
+                        style={{
+                          animation: "line-slide 4s ease-in-out 2s infinite",
+                        }}
+                      />
+                    </>
+                  )}
+
                   <UserStatScreen
                     isActive={isItemActive}
                     kicker="Steady as she goes!"
@@ -144,7 +149,7 @@ export function MostConsistentScreen({
                       icon: "",
                     }}
                   />
-                </div>
+                </>
               );
             }}
           />

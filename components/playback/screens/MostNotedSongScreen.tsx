@@ -71,7 +71,7 @@ export function MostNotedSongScreen({
             {index === 0 && isItemActive && isActive && (
               <>
                 <div
-                  className="absolute top-[10%] left-[8%] text-5xl opacity-30 z-0"
+                  className="absolute top-[10%] left-[8%] text-5xl opacity-30 z-10"
                   style={{
                     animation: "float-bubble 4s ease-in-out infinite",
                   }}
@@ -79,7 +79,7 @@ export function MostNotedSongScreen({
                   💬
                 </div>
                 <div
-                  className="absolute top-[25%] right-[12%] text-4xl opacity-40 z-0"
+                  className="absolute top-[25%] right-[12%] text-4xl opacity-40 z-10"
                   style={{
                     animation: "float-bubble 3.5s ease-in-out 0.5s infinite",
                   }}
@@ -87,7 +87,7 @@ export function MostNotedSongScreen({
                   💭
                 </div>
                 <div
-                  className="absolute bottom-[20%] left-[15%] text-6xl opacity-25 z-0"
+                  className="absolute bottom-[20%] left-[15%] text-6xl opacity-25 z-10"
                   style={{
                     animation: "float-bubble 4.5s ease-in-out 1s infinite",
                   }}
@@ -95,7 +95,7 @@ export function MostNotedSongScreen({
                   💬
                 </div>
                 <div
-                  className="absolute top-[60%] right-[10%] text-5xl opacity-35 z-0"
+                  className="absolute top-[60%] right-[10%] text-5xl opacity-35 z-10"
                   style={{
                     animation: "float-bubble 3.8s ease-in-out 1.5s infinite",
                   }}
@@ -103,7 +103,7 @@ export function MostNotedSongScreen({
                   💭
                 </div>
                 <div
-                  className="absolute bottom-[35%] right-[20%] text-4xl opacity-30 z-0"
+                  className="absolute bottom-[35%] right-[20%] text-4xl opacity-30 z-10"
                   style={{
                     animation: "float-bubble 4.2s ease-in-out 2s infinite",
                   }}

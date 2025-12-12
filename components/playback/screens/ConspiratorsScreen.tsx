@@ -29,105 +29,6 @@ export function ConspiratorsScreen({
   return (
     <Screen background={{ from: "#a855f7", via: "#1e1b4b", to: "#f97316" }}>
       <div className="h-full flex flex-col items-center text-white gap-4 relative overflow-hidden">
-        {/* Animated mystery/conspiracy elements in background */}
-        {isActive && (
-          <>
-            {/* Floating eyes watching */}
-            <div
-              className="absolute top-[8%] left-[10%] text-5xl opacity-25 z-0"
-              style={{
-                animation: "eye-blink 5s ease-in-out infinite",
-              }}
-            >
-              👁️
-            </div>
-            <div
-              className="absolute top-[15%] right-[12%] text-4xl opacity-30 z-0"
-              style={{
-                animation: "eye-blink 4.5s ease-in-out 1s infinite",
-              }}
-            >
-              👁️
-            </div>
-            <div
-              className="absolute bottom-[25%] left-[8%] text-6xl opacity-20 z-0"
-              style={{
-                animation: "eye-blink 5.5s ease-in-out 2s infinite",
-              }}
-            >
-              👁️
-            </div>
-            <div
-              className="absolute bottom-[15%] right-[15%] text-5xl opacity-25 z-0"
-              style={{
-                animation: "eye-blink 4.8s ease-in-out 0.5s infinite",
-              }}
-            >
-              👁️
-            </div>
-
-            {/* Mysterious sparkles/stars */}
-            <div
-              className="absolute top-[30%] left-[20%] text-3xl opacity-40 z-0"
-              style={{
-                animation: "sparkle-twinkle 3s ease-in-out infinite",
-              }}
-            >
-              ✨
-            </div>
-            <div
-              className="absolute top-[70%] right-[25%] text-4xl opacity-35 z-0"
-              style={{
-                animation: "sparkle-twinkle 3.5s ease-in-out 0.8s infinite",
-              }}
-            >
-              ✨
-            </div>
-            <div
-              className="absolute top-[45%] right-[10%] text-3xl opacity-30 z-0"
-              style={{
-                animation: "sparkle-twinkle 3.2s ease-in-out 1.5s infinite",
-              }}
-            >
-              ⭐
-            </div>
-            <div
-              className="absolute bottom-[40%] left-[15%] text-4xl opacity-35 z-0"
-              style={{
-                animation: "sparkle-twinkle 3.8s ease-in-out 2.2s infinite",
-              }}
-            >
-              ⭐
-            </div>
-
-            {/* Question marks floating around */}
-            <div
-              className="absolute top-[20%] right-[20%] text-4xl opacity-20 z-0"
-              style={{
-                animation: "float-spin 6s ease-in-out infinite",
-              }}
-            >
-              ❓
-            </div>
-            <div
-              className="absolute bottom-[30%] right-[8%] text-5xl opacity-25 z-0"
-              style={{
-                animation: "float-spin 5.5s ease-in-out 1.5s infinite",
-              }}
-            >
-              ❓
-            </div>
-            <div
-              className="absolute top-[50%] left-[5%] text-4xl opacity-20 z-0"
-              style={{
-                animation: "float-spin 6.5s ease-in-out 3s infinite",
-              }}
-            >
-              ❓
-            </div>
-          </>
-        )}
-
         <div className="flex-1 w-full relative z-10 min-h-0">
           <HorizontalCarousel
             isActive={isActive}
@@ -147,6 +48,109 @@ export function ConspiratorsScreen({
 
               return (
                 <div className="flex flex-col p-8 items-center justify-center gap-8 min-w-full h-full">
+                  {/* Animated mystery/conspiracy elements in background */}
+                  {index === 0 && isItemActive && (
+                    <>
+                      {/* Floating eyes watching */}
+                      <div
+                        className="absolute top-[8%] left-[10%] text-5xl opacity-25 z-10"
+                        style={{
+                          animation: "eye-blink 5s ease-in-out infinite",
+                        }}
+                      >
+                        👁️
+                      </div>
+                      <div
+                        className="absolute top-[15%] right-[12%] text-4xl opacity-30 z-10"
+                        style={{
+                          animation: "eye-blink 4.5s ease-in-out 1s infinite",
+                        }}
+                      >
+                        👁️
+                      </div>
+                      <div
+                        className="absolute bottom-[25%] left-[8%] text-6xl opacity-20 z-10"
+                        style={{
+                          animation: "eye-blink 5.5s ease-in-out 2s infinite",
+                        }}
+                      >
+                        👁️
+                      </div>
+                      <div
+                        className="absolute bottom-[15%] right-[15%] text-5xl opacity-25 z-10"
+                        style={{
+                          animation: "eye-blink 4.8s ease-in-out 0.5s infinite",
+                        }}
+                      >
+                        👁️
+                      </div>
+
+                      {/* Mysterious sparkles/stars */}
+                      <div
+                        className="absolute top-[30%] left-[20%] text-3xl opacity-40 z-10"
+                        style={{
+                          animation: "sparkle-twinkle 3s ease-in-out infinite",
+                        }}
+                      >
+                        ✨
+                      </div>
+                      <div
+                        className="absolute top-[70%] right-[25%] text-4xl opacity-35 z-10"
+                        style={{
+                          animation:
+                            "sparkle-twinkle 3.5s ease-in-out 0.8s infinite",
+                        }}
+                      >
+                        ✨
+                      </div>
+                      <div
+                        className="absolute top-[45%] right-[10%] text-3xl opacity-30 z-10"
+                        style={{
+                          animation:
+                            "sparkle-twinkle 3.2s ease-in-out 1.5s infinite",
+                        }}
+                      >
+                        ⭐
+                      </div>
+                      <div
+                        className="absolute bottom-[40%] left-[15%] text-4xl opacity-35 z-10"
+                        style={{
+                          animation:
+                            "sparkle-twinkle 3.8s ease-in-out 2.2s infinite",
+                        }}
+                      >
+                        ⭐
+                      </div>
+
+                      {/* Question marks floating around */}
+                      <div
+                        className="absolute top-[20%] right-[20%] text-4xl opacity-20 z-10"
+                        style={{
+                          animation: "float-spin 6s ease-in-out infinite",
+                        }}
+                      >
+                        ❓
+                      </div>
+                      <div
+                        className="absolute bottom-[30%] right-[8%] text-5xl opacity-25 z-10"
+                        style={{
+                          animation:
+                            "float-spin 5.5s ease-in-out 1.5s infinite",
+                        }}
+                      >
+                        ❓
+                      </div>
+                      <div
+                        className="absolute top-[50%] left-[5%] text-4xl opacity-20 z-10"
+                        style={{
+                          animation: "float-spin 6.5s ease-in-out 3s infinite",
+                        }}
+                      >
+                        ❓
+                      </div>
+                    </>
+                  )}
+
                   {/* Titles */}
                   <div
                     className={twMerge(

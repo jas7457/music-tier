@@ -31,10 +31,10 @@ export function FastestVoterScreen({
         renderItem={(voter, index, isItemActive) => (
           <>
             {/* Floating checkmark badges - only for first place */}
-            {index === 0 && isItemActive && isActive && (
+            {index === 0 && isItemActive && (
               <>
                 <div
-                  className="absolute top-[20%] left-[10%] text-6xl opacity-60 z-0"
+                  className="absolute top-[20%] left-[10%] text-6xl opacity-60 z-10"
                   style={{
                     animation: "float-check 3s ease-in-out infinite",
                   }}
@@ -42,7 +42,7 @@ export function FastestVoterScreen({
                   ✓
                 </div>
                 <div
-                  className="absolute top-[30%] right-[15%] text-5xl opacity-50 z-0"
+                  className="absolute top-[30%] right-[15%] text-5xl opacity-50 z-10"
                   style={{
                     animation: "float-check 3.5s ease-in-out 0.5s infinite",
                   }}
@@ -50,7 +50,7 @@ export function FastestVoterScreen({
                   ✓
                 </div>
                 <div
-                  className="absolute bottom-[35%] left-[20%] text-7xl opacity-40 z-0"
+                  className="absolute bottom-[35%] left-[20%] text-7xl opacity-40 z-10"
                   style={{
                     animation: "float-check 3.2s ease-in-out 1s infinite",
                   }}
@@ -58,7 +58,7 @@ export function FastestVoterScreen({
                   ✓
                 </div>
                 <div
-                  className="absolute bottom-[20%] right-[10%] text-5xl opacity-55 z-0"
+                  className="absolute bottom-[20%] right-[10%] text-5xl opacity-55 z-10"
                   style={{
                     animation: "float-check 3.8s ease-in-out 1.5s infinite",
                   }}
@@ -66,7 +66,7 @@ export function FastestVoterScreen({
                   ✓
                 </div>
                 <div
-                  className="absolute top-[50%] right-[25%] text-4xl opacity-45 z-0"
+                  className="absolute top-[50%] right-[25%] text-4xl opacity-45 z-10"
                   style={{
                     animation: "float-check 3.3s ease-in-out 2s infinite",
                   }}

@@ -37,35 +37,35 @@ export function FastestSubmitterScreen({
               <>
                 {/* Horizontal speed lines */}
                 <div
-                  className="absolute top-1/4 left-0 h-1 bg-linear-to-r from-transparent via-cyan-400 to-transparent opacity-40 z-0"
+                  className="absolute top-1/4 left-0 h-1 bg-linear-to-r from-transparent via-cyan-400 to-transparent opacity-40 z-10"
                   style={{
                     width: "100%",
                     animation: "speed-line 1.5s ease-in-out infinite",
                   }}
                 />
                 <div
-                  className="absolute top-1/3 left-0 h-1 bg-linear-to-r from-transparent via-green-400 to-transparent opacity-40 z-0"
+                  className="absolute top-1/3 left-0 h-1 bg-linear-to-r from-transparent via-green-400 to-transparent opacity-40 z-10"
                   style={{
                     width: "100%",
                     animation: "speed-line 1.8s ease-in-out 0.3s infinite",
                   }}
                 />
                 <div
-                  className="absolute top-1/2 left-0 h-1 bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-40 z-0"
+                  className="absolute top-1/2 left-0 h-1 bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-40 z-10"
                   style={{
                     width: "100%",
                     animation: "speed-line 1.6s ease-in-out 0.6s infinite",
                   }}
                 />
                 <div
-                  className="absolute top-2/3 left-0 h-1 bg-linear-to-r from-transparent via-cyan-400 to-transparent opacity-40 z-0"
+                  className="absolute top-2/3 left-0 h-1 bg-linear-to-r from-transparent via-cyan-400 to-transparent opacity-40 z-10"
                   style={{
                     width: "100%",
                     animation: "speed-line 1.7s ease-in-out 0.9s infinite",
                   }}
                 />
                 <div
-                  className="absolute top-3/4 left-0 h-1 bg-linear-to-r from-transparent via-green-400 to-transparent opacity-40 z-0"
+                  className="absolute top-3/4 left-0 h-1 bg-linear-to-r from-transparent via-green-400 to-transparent opacity-40 z-10"
                   style={{
                     width: "100%",
                     animation: "speed-line 1.9s ease-in-out 1.2s infinite",
@@ -74,7 +74,7 @@ export function FastestSubmitterScreen({
 
                 {/* Lightning bolt emojis */}
                 <div
-                  className="absolute top-[15%] right-[20%] text-6xl opacity-50 z-0"
+                  className="absolute top-[15%] right-[20%] text-6xl opacity-50 z-10"
                   style={{
                     animation: "pulse-lightning 2s ease-in-out infinite",
                   }}
@@ -82,7 +82,7 @@ export function FastestSubmitterScreen({
                   ⚡
                 </div>
                 <div
-                  className="absolute bottom-[12%] left-[15%] text-5xl opacity-50 z-0"
+                  className="absolute bottom-[12%] left-[15%] text-5xl opacity-50 z-10"
                   style={{
                     animation: "pulse-lightning 2s ease-in-out 0.5s infinite",
                   }}
@@ -90,7 +90,7 @@ export function FastestSubmitterScreen({
                   ⚡
                 </div>
                 <div
-                  className="absolute top-[60%] right-[15%] text-4xl opacity-40 z-0"
+                  className="absolute top-[60%] right-[15%] text-4xl opacity-40 z-10"
                   style={{
                     animation: "pulse-lightning 2.2s ease-in-out 1s infinite",
                   }}
