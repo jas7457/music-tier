@@ -133,6 +133,7 @@ export interface LeaguePlaybackStats {
     trackInfo: TrackInfo;
     user: PopulatedUser;
     points: number;
+    round: PopulatedRound;
     notes: Array<{
       text: string;
       user: PopulatedUser;

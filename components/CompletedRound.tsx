@@ -54,13 +54,18 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
 
     // Sort by total points descending
     return results.sort((a, b) => {
-      if (a.totalPoints === b.totalPoints) {
-        return (
-          b.voters.filter((voter) => voter.points > 0).length -
-          a.voters.filter((voter) => voter.points > 0).length
-        );
+      if (a.totalPoints !== b.totalPoints) {
+        return b.totalPoints - a.totalPoints;
       }
-      return b.totalPoints - a.totalPoints;
+      const aVoters = a.voters.filter((voter) => voter.points > 0).length;
+      const bVoters = b.voters.filter((voter) => voter.points > 0).length;
+      if (aVoters !== bVoters) {
+        return bVoters - aVoters;
+      }
+      return (
+        (a.submission.userObject?.index ?? 0) -
+        (b.submission.userObject?.index ?? 0)
+      );
     });
   }, [round.submissions, round.votes, usersById]);
 

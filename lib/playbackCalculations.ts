@@ -459,6 +459,7 @@ export function calculatePlaybackStats(
             trackInfo: submissionData.submission.trackInfo,
             user: usersById[submissionData.submission.userId],
             points: data.points.reduce((acc, p) => acc + p.points, 0),
+            round: roundsById[submissionData.submission.roundId],
             notes: submissionData.notes.map((note) => ({
               text: note.text,
               user: usersById[note.user._id],
@@ -584,8 +585,7 @@ export function calculatePlaybackStats(
         place: userPlace,
       };
     })
-    .sort((a, b) => a.variance - b.variance)
-    .slice(0, 5);
+    .sort((a, b) => a.variance - b.variance);
 
   // 11. Conspirators
   const mutualPoints = new Map<string, number>();
