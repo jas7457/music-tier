@@ -735,7 +735,6 @@ export function SummaryScreen({
           };
         })
         .sort((a, b) => b.avgVotesPerRound - a.avgVotesPerRound);
-      debugger;
 
       if (userVotingPatterns.length > 0) {
         // Most Even Distributor (votes for most songs on average)

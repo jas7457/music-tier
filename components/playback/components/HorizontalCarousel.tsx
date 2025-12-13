@@ -148,6 +148,10 @@ export function HorizontalCarousel<T>({
               }}
               data-index={index}
               className="w-screen h-full shrink-0 snap-center snap-always"
+              style={{
+                contentVisibility: "auto",
+                containIntrinsicSize: "100vw 100vh",
+              }}
             >
               {renderItem(item, index, currentIndex === index)}
             </div>

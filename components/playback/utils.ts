@@ -39,7 +39,6 @@ async function getAverageRGB(imageUrl: string): Promise<string | undefined> {
         data = context.getImageData(0, 0, width, height);
       } catch (error) {
         console.log(error);
-        debugger;
         /* security error, img on diff domain */
         return resolve(undefined);
       }
