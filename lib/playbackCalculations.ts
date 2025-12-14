@@ -27,10 +27,14 @@ export function calculatePlaybackStats(
       topSong: null,
       userStats: null,
       biggestFan: null,
+      biggestStan: null,
       biggestCritic: null,
+      hardestSell: null,
       mostWinsUsers: [],
       fastestSubmitters: [],
+      fastestSubmission: null,
       fastestVoters: [],
+      fastestVote: null,
       slowestVoter: null,
       mostConsistent: [],
       conspirators: [],
@@ -44,13 +48,24 @@ export function calculatePlaybackStats(
 
   const userData = league.users.reduce(
     (acc, user) => {
+      const createEmpty = () => {
+        return league.users.reduce((acc, user) => {
+          if (user._id === userId) {
+            return acc;
+          }
+          acc[user._id] = { points: 0, votes: 0, songs: [], user };
+          return acc;
+        }, {} as Record<string, LeaguePlaybackStats["biggestFan"]>);
+      };
+
       acc[user._id] = {
         user,
         places: [],
         points: [],
         submissions: [],
         votes: [],
-        pointsByFriends: {},
+        pointsByFriends: createEmpty(),
+        pointsForFriends: createEmpty(),
         topSong: null,
         totalPoints: 0,
         guesses: [],
@@ -67,6 +82,7 @@ export function calculatePlaybackStats(
           }
         > | null;
         pointsByFriends: Record<string, LeaguePlaybackStats["biggestFan"]>;
+        pointsForFriends: Record<string, LeaguePlaybackStats["biggestStan"]>;
         guesses: NonNullable<
           LeaguePlaybackStats["bestGuessers"]
         >[number]["guesses"];
@@ -145,6 +161,7 @@ export function calculatePlaybackStats(
           songs: [],
           user: usersById[vote.userId],
         };
+
         pointsByFriend.points += vote.points;
         pointsByFriend.votes += 1;
         pointsByFriend.songs.push({
@@ -153,6 +170,23 @@ export function calculatePlaybackStats(
           round,
         });
         submissionUser.pointsByFriends[vote.userId] = pointsByFriend;
+
+        const pointsForFriend = voteUser.pointsForFriends[
+          submissionUser.user._id
+        ] ?? {
+          points: 0,
+          votes: 0,
+          songs: [],
+          user: usersById[submissionUser.user._id],
+        };
+        pointsForFriend.points += vote.points;
+        pointsForFriend.votes += 1;
+        pointsForFriend.songs.push({
+          trackInfo: submission.trackInfo,
+          points: vote.points,
+          round,
+        });
+        voteUser.pointsForFriends[submissionUser.user._id] = pointsForFriend;
       }
 
       if (!currentPointInfo) {
@@ -277,6 +311,21 @@ export function calculatePlaybackStats(
   const biggestFan = fans[0];
   const biggestCritic = fans[fans.length - 1];
 
+  const yourLoves = Object.values(yourInfo.pointsForFriends).sort((a, b) => {
+    if (a === null || b === null) {
+      return 0;
+    }
+    if (b.points !== a.points) {
+      return b.points - a.points;
+    }
+    if (b.votes !== a.votes) {
+      return b.votes - a.votes;
+    }
+    return a.user.index - b.user.index;
+  });
+  const biggestStan = yourLoves[0];
+  const hardestSell = yourLoves[yourLoves.length - 1];
+
   const pointsGiven = new Map<
     string,
     {
@@ -348,6 +397,8 @@ export function calculatePlaybackStats(
     slowestVoter,
     bestGuessers,
     mostNotedSongs,
+    fastestVote,
+    fastestSubmission,
   } = Object.values(userData).reduce(
     (acc, data) => {
       // mostWinsUsers
@@ -421,6 +472,18 @@ export function calculatePlaybackStats(
               trackInfo: fastestSubmission.submission.trackInfo,
             },
           });
+
+          if (
+            !acc.fastestSubmission ||
+            fastestSubmission.timeToSubmit < acc.fastestSubmission.time
+          ) {
+            acc.fastestSubmission = {
+              user: data.user,
+              time: fastestSubmission.timeToSubmit,
+              trackInfo: fastestSubmission.submission.trackInfo,
+              round: roundsById[fastestSubmission.submission.roundId],
+            };
+          }
         }
       })();
 
@@ -434,6 +497,22 @@ export function calculatePlaybackStats(
           user: data.user,
           avgTime: averageVoteTime,
         });
+
+        const fastestVote = [...data.votes].sort(
+          (a, b) => a.timeToVote - b.timeToVote
+        )[0];
+        if (!fastestVote) {
+          return;
+        }
+        const submission = submissionsById[fastestVote.vote.submissionId];
+
+        if (!acc.fastestVote || fastestVote.timeToVote < acc.fastestVote.time) {
+          acc.fastestVote = {
+            user: data.user,
+            time: fastestVote.timeToVote,
+            round: roundsById[submission.roundId],
+          };
+        }
       })();
 
       // bestGuessers
@@ -480,7 +559,9 @@ export function calculatePlaybackStats(
       mostWinsUsers: [] as LeaguePlaybackStats["mostWinsUsers"],
       topSong: null as LeaguePlaybackStats["topSong"],
       fastestSubmitters: [] as LeaguePlaybackStats["fastestSubmitters"],
+      fastestSubmission: null as LeaguePlaybackStats["fastestSubmission"],
       fastestVoters: [] as LeaguePlaybackStats["fastestVoters"],
+      fastestVote: null as LeaguePlaybackStats["fastestVote"],
       slowestVoter: null as LeaguePlaybackStats["slowestVoter"],
       bestGuessers: [] as LeaguePlaybackStats["bestGuessers"],
       mostNotedSongs: [] as LeaguePlaybackStats["mostNotedSongs"],
@@ -627,7 +708,13 @@ export function calculatePlaybackStats(
   )
     .map(([pairKey, points]) => {
       const [userId1, userId2] = pairKey.split(":");
-      return { userId1, userId2, totalPoints: points };
+      return {
+        userId1,
+        userId2,
+        totalPoints: points,
+        user1: usersById[userId1],
+        user2: usersById[userId2],
+      };
     })
     .sort((a, b) => b.totalPoints - a.totalPoints);
 
@@ -783,7 +870,9 @@ export function calculatePlaybackStats(
     topSong,
     userStats,
     biggestFan,
+    biggestStan,
     biggestCritic,
+    hardestSell,
     mostWinsUsers: mostWinsUsers.sort((a, b) => {
       if (b.wins.length !== a.wins.length) {
         return b.wins.length - a.wins.length;
@@ -798,7 +887,9 @@ export function calculatePlaybackStats(
       );
     }),
     fastestSubmitters: fastestSubmitters.sort((a, b) => a.avgTime - b.avgTime),
+    fastestSubmission,
     fastestVoters: fastestVoters.sort((a, b) => a.avgTime - b.avgTime),
+    fastestVote,
     slowestVoter,
     mostConsistent,
     conspirators,

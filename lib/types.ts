@@ -72,7 +72,26 @@ export interface LeaguePlaybackStats {
       round: PopulatedRound;
     }>;
   } | null;
+  biggestStan: {
+    user: PopulatedUser;
+    points: number;
+    votes: number;
+    songs: Array<{
+      trackInfo: TrackInfo;
+      points: number;
+      round: PopulatedRound;
+    }>;
+  } | null;
   biggestCritic: {
+    user: PopulatedUser;
+    points: number;
+    songs: Array<{
+      trackInfo: TrackInfo;
+      points: number;
+      round: PopulatedRound;
+    }>;
+  } | null;
+  hardestSell: {
     user: PopulatedUser;
     points: number;
     songs: Array<{
@@ -98,10 +117,21 @@ export interface LeaguePlaybackStats {
       round: PopulatedRound;
     };
   }>;
+  fastestSubmission: {
+    user: PopulatedUser;
+    time: number;
+    trackInfo: TrackInfo;
+    round: PopulatedRound;
+  } | null;
   fastestVoters: Array<{
     user: PopulatedUser;
     avgTime: number;
   }>;
+  fastestVote: {
+    user: PopulatedUser;
+    time: number;
+    round: PopulatedRound;
+  } | null;
   slowestVoter: { user: PopulatedUser; avgTime: number } | null;
   mostConsistent: Array<{
     user: PopulatedUser;
@@ -112,6 +142,8 @@ export interface LeaguePlaybackStats {
   conspirators: Array<{
     userId1: string;
     userId2: string;
+    user1: PopulatedUser;
+    user2: PopulatedUser;
     totalPoints: number;
   }>;
   userTopSong: {
