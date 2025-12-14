@@ -65,6 +65,7 @@ export interface LeaguePlaybackStats {
   biggestFan: {
     user: PopulatedUser;
     points: number;
+    votes: number;
     songs: Array<{
       trackInfo: TrackInfo;
       points: number;

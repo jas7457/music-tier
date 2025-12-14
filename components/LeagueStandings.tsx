@@ -165,9 +165,9 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
     }
 
     const userPointsById = league.users.reduce((acc, user) => {
-      acc[user._id] = { user, points: 0 };
+      acc[user._id] = { user, points: 0, votes: 0 };
       return acc;
-    }, {} as Record<string, { user: PopulatedUser; points: number }>);
+    }, {} as Record<string, { user: PopulatedUser; points: number; votes: number }>);
 
     league.rounds.completed.forEach((round) => {
       const submissionsById = round.submissions.reduce((acc, submission) => {
@@ -180,11 +180,20 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
           return;
         }
         userPointsById[vote.userId].points += vote.points;
+        userPointsById[vote.userId].votes += 1;
       });
     });
 
     const sortedUsers = Object.values(userPointsById)
-      .sort((a, b) => b.points - a.points)
+      .sort((a, b) => {
+        if (b.points !== a.points) {
+          return b.points - a.points;
+        }
+        if (b.votes !== a.votes) {
+          return b.votes - a.votes;
+        }
+        return a.user.index - b.user.index;
+      })
       .filter((item) => item.user._id !== user?._id);
 
     const biggestFan = sortedUsers[0];

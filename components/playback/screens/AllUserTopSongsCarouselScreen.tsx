@@ -23,7 +23,7 @@ export function AllUserTopSongsCarouselScreen({
   }
 
   return (
-    <Screen background={{ from: "#f97316", via: "#ec4899", to: "#8b5cf6" }}>
+    <Screen>
       <HorizontalCarousel
         items={songs}
         isActive={isActive}

@@ -21,126 +21,124 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
 
   return (
     <Screen>
-      <div className="h-full w-full relative overflow-hidden">
-        <HorizontalCarousel
-          items={stat}
-          isActive={isActive}
-          renderItem={(winner, index, isItemActive) => (
-            <>
-              {/* Animated trophy background - only for first place */}
-              {index === 0 && isItemActive && isActive && (
-                <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl opacity-10 transition-all duration-1000 transform z-10 animate-[float-trophy_6s_ease-in-out_infinite]">
-                  🏆
+      <HorizontalCarousel
+        items={stat}
+        isActive={isActive}
+        renderItem={(winner, index, isItemActive) => (
+          <>
+            {/* Animated trophy background - only for first place */}
+            {index === 0 && isItemActive && isActive && (
+              <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl opacity-10 transition-all duration-1000 transform z-10 animate-[float-trophy_6s_ease-in-out_infinite]">
+                🏆
+              </div>
+            )}
+
+            {/* Confetti elements - only for first place */}
+            {index === 0 && isItemActive && isActive && (
+              <>
+                <div
+                  className="absolute -top-20 left-1/4 text-5xl pointer-events-none z-10"
+                  style={{ animation: "fall-confetti 4s linear infinite" }}
+                >
+                  🎉
                 </div>
-              )}
+                <div
+                  className="absolute -top-20 right-1/4 text-5xl z-10 pointer-events-none"
+                  style={{
+                    animation: "fall-confetti 4.5s linear 0.5s infinite",
+                  }}
+                >
+                  ✨
+                </div>
+                <div
+                  className="absolute -top-20 left-1/3 text-4xl z-10 pointer-events-none"
+                  style={{
+                    animation: "fall-confetti 5s linear 1s infinite",
+                  }}
+                >
+                  🎊
+                </div>
+                <div
+                  className="absolute -top-20 right-1/3 text-4xl z-10 pointer-events-none"
+                  style={{
+                    animation: "fall-confetti 4.8s linear 1.5s infinite",
+                  }}
+                >
+                  ⭐
+                </div>
+                <div
+                  className="absolute -top-20 left-1/2 text-5xl z-10 pointer-events-none"
+                  style={{
+                    animation: "fall-confetti 4.2s linear 2s infinite",
+                  }}
+                >
+                  🎊
+                </div>
+                <div
+                  className="absolute -top-20 left-[15%] text-4xl z-10 pointer-events-none"
+                  style={{
+                    animation: "fall-confetti 4.6s linear 2.5s infinite",
+                  }}
+                >
+                  🎉
+                </div>
+              </>
+            )}
+            <UserStatScreen
+              isActive={isItemActive}
+              kicker="Impressive!"
+              autoSelectFirstSong
+              title={`#${index + 1} Most 1st Place Wins`}
+              user={winner.user}
+              strokeColor={NEON_COLORS.BrightBlue}
+              stat={{
+                value: winner.wins.length,
+                label: winner.wins.length === 1 ? "win" : "wins",
+                icon: "🥇",
+                songs: winner.wins.map((win) => ({
+                  ...win,
+                  rightText: `${win.points} pts`,
+                })),
+              }}
+              noDataMessage="No wins data available"
+            />
+          </>
+        )}
+      />
 
-              {/* Confetti elements - only for first place */}
-              {index === 0 && isItemActive && isActive && (
-                <>
-                  <div
-                    className="absolute -top-20 left-1/4 text-5xl pointer-events-none z-10"
-                    style={{ animation: "fall-confetti 4s linear infinite" }}
-                  >
-                    🎉
-                  </div>
-                  <div
-                    className="absolute -top-20 right-1/4 text-5xl z-10 pointer-events-none"
-                    style={{
-                      animation: "fall-confetti 4.5s linear 0.5s infinite",
-                    }}
-                  >
-                    ✨
-                  </div>
-                  <div
-                    className="absolute -top-20 left-1/3 text-4xl z-10 pointer-events-none"
-                    style={{
-                      animation: "fall-confetti 5s linear 1s infinite",
-                    }}
-                  >
-                    🎊
-                  </div>
-                  <div
-                    className="absolute -top-20 right-1/3 text-4xl z-10 pointer-events-none"
-                    style={{
-                      animation: "fall-confetti 4.8s linear 1.5s infinite",
-                    }}
-                  >
-                    ⭐
-                  </div>
-                  <div
-                    className="absolute -top-20 left-1/2 text-5xl z-10 pointer-events-none"
-                    style={{
-                      animation: "fall-confetti 4.2s linear 2s infinite",
-                    }}
-                  >
-                    🎊
-                  </div>
-                  <div
-                    className="absolute -top-20 left-[15%] text-4xl z-10 pointer-events-none"
-                    style={{
-                      animation: "fall-confetti 4.6s linear 2.5s infinite",
-                    }}
-                  >
-                    🎉
-                  </div>
-                </>
-              )}
-              <UserStatScreen
-                isActive={isItemActive}
-                kicker="Impressive!"
-                autoSelectFirstSong
-                title={`#${index + 1} Most 1st Place Wins`}
-                user={winner.user}
-                strokeColor={NEON_COLORS.BrightBlue}
-                stat={{
-                  value: winner.wins.length,
-                  label: winner.wins.length === 1 ? "win" : "wins",
-                  icon: "🥇",
-                  songs: winner.wins.map((win) => ({
-                    ...win,
-                    rightText: `${win.points} pts`,
-                  })),
-                }}
-                noDataMessage="No wins data available"
-              />
-            </>
-          )}
-        />
-
-        {/* Custom animations */}
-        <style jsx>{`
-          @keyframes float-trophy {
-            0%,
-            100% {
-              transform: translate(-50%, -50%) translateY(0) rotate(0deg);
-            }
-            25% {
-              transform: translate(-50%, -50%) translateY(-20px) rotate(-5deg);
-            }
-            75% {
-              transform: translate(-50%, -50%) translateY(20px) rotate(5deg);
-            }
+      {/* Custom animations */}
+      <style jsx>{`
+        @keyframes float-trophy {
+          0%,
+          100% {
+            transform: translate(-50%, -50%) translateY(0) rotate(0deg);
           }
-
-          @keyframes fall-confetti {
-            0% {
-              transform: translateY(0) translateX(0) rotate(0deg);
-              opacity: 0;
-            }
-            10% {
-              opacity: 1;
-            }
-            90% {
-              opacity: 1;
-            }
-            100% {
-              transform: translateY(110vh) translateX(var(--sway, 0))
-                rotate(720deg);
-              opacity: 0;
-            }
+          25% {
+            transform: translate(-50%, -50%) translateY(-20px) rotate(-5deg);
           }
-        `}</style>
-      </div>
+          75% {
+            transform: translate(-50%, -50%) translateY(20px) rotate(5deg);
+          }
+        }
+
+        @keyframes fall-confetti {
+          0% {
+            transform: translateY(0) translateX(0) rotate(0deg);
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(110vh) translateX(var(--sway, 0))
+              rotate(720deg);
+            opacity: 0;
+          }
+        }
+      `}</style>
     </Screen>
   );
 }

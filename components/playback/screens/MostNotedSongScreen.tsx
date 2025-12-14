@@ -54,7 +54,7 @@ export function MostNotedSongScreen({
   }
 
   return (
-    <Screen background={{ from: "#f97316", via: "#a855f7", to: "#10b981" }}>
+    <Screen>
       <HorizontalCarousel
         items={playback.mostNotedSongs}
         isActive={isActive}

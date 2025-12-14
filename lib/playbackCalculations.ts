@@ -141,10 +141,12 @@ export function calculatePlaybackStats(
 
         const pointsByFriend = submissionUser.pointsByFriends[vote.userId] ?? {
           points: 0,
+          votes: 0,
           songs: [],
           user: usersById[vote.userId],
         };
         pointsByFriend.points += vote.points;
+        pointsByFriend.votes += 1;
         pointsByFriend.songs.push({
           trackInfo: submission.trackInfo,
           points: vote.points,
@@ -247,29 +249,20 @@ export function calculatePlaybackStats(
   };
 
   // 3. Biggest fans (per user)
-  const { biggestFan, biggestCritic } = Object.values(
-    yourInfo.pointsByFriends
-  ).reduce(
-    (acc, data) => {
-      if (!data) {
-        return acc;
-      }
-
-      if (!acc.biggestFan || data.points > acc.biggestFan.points) {
-        acc.biggestFan = data;
-      }
-
-      if (!acc.biggestCritic || data.points < acc.biggestCritic.points) {
-        acc.biggestCritic = data;
-      }
-
-      return acc;
-    },
-    {
-      biggestFan: null as LeaguePlaybackStats["biggestFan"],
-      biggestCritic: null as LeaguePlaybackStats["biggestFan"],
+  const fans = Object.values(yourInfo.pointsByFriends).sort((a, b) => {
+    if (a === null || b === null) {
+      return 0;
     }
-  );
+    if (b.points !== a.points) {
+      return b.points - a.points;
+    }
+    if (b.votes !== a.votes) {
+      return b.votes - a.votes;
+    }
+    return a.user.index - b.user.index;
+  });
+  const biggestFan = fans[0];
+  const biggestCritic = fans[fans.length - 1];
 
   const pointsGiven = new Map<
     string,
@@ -606,7 +599,9 @@ export function calculatePlaybackStats(
       }
 
       const pairKey =
-        voterId < receiverId
+        submission.userObject &&
+        vote.userObject &&
+        submission.userObject.index < vote.userObject.index
           ? `${voterId}:${receiverId}`
           : `${receiverId}:${voterId}`;
       const current = mutualPoints.get(pairKey) || 0;
@@ -621,8 +616,7 @@ export function calculatePlaybackStats(
       const [userId1, userId2] = pairKey.split(":");
       return { userId1, userId2, totalPoints: points };
     })
-    .sort((a, b) => b.totalPoints - a.totalPoints)
-    .slice(0, 5);
+    .sort((a, b) => b.totalPoints - a.totalPoints);
 
   // 12. User top song (highest scoring submission per user)
   const userTopSong: LeaguePlaybackStats["userTopSong"] = yourInfo.topSong;
@@ -745,10 +739,13 @@ export function calculatePlaybackStats(
     })
     .filter((song) => song !== null)
     .sort((a, b) => {
-      if (b!.points !== a!.points) {
-        return b!.points - a!.points;
+      if (b.points !== a.points) {
+        return b.points - a.points;
       }
-      return b!.voters - a!.voters;
+      if (b.voters !== a.voters) {
+        return b.voters - a.voters;
+      }
+      return a.user.index - b.user.index;
     });
 
   const allUserWins: LeaguePlaybackStats["allUserWins"] = Object.values(
@@ -794,14 +791,12 @@ export function calculatePlaybackStats(
     conspirators,
     userTopSong,
     bestGuessers: bestGuessers.sort((a, b) => b.accuracy - a.accuracy),
-    mostNotedSongs: mostNotedSongs
-      .sort((a, b) => {
-        if (b.notes.length !== a.notes.length) {
-          return b.notes.length - a.notes.length;
-        }
-        return b.points - a.points;
-      })
-      .slice(0, 5),
+    mostNotedSongs: mostNotedSongs.sort((a, b) => {
+      if (b.notes.length !== a.notes.length) {
+        return b.notes.length - a.notes.length;
+      }
+      return b.points - a.points;
+    }),
     allUserTopSongs,
     allUserWins,
   };

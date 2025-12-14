@@ -21,12 +21,12 @@ export const PLAYBACK_SCREENS: PlaybackScreen[] = [
     component: IntroScreen,
   },
   {
-    key: "top-song",
-    component: TopSongScreen,
-  },
-  {
     key: "total-points",
     component: TotalPointsScreen,
+  },
+  {
+    key: "top-song",
+    component: TopSongScreen,
   },
   {
     key: "biggest-fan",

@@ -849,8 +849,8 @@ export function SummaryScreen({
                   {/* Avatar(s) */}
                   {card.user && (
                     <div className="flex gap-1 shrink-0">
-                      <Avatar user={card.user} size={20} includeLink={false} />
-                      {card.user2 && <Avatar user={card.user2} size={20} />}
+                      <Avatar user={card.user} size={12} includeLink={false} />
+                      {card.user2 && <Avatar user={card.user2} size={12} />}
                     </div>
                   )}
 

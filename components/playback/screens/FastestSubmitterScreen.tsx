@@ -26,7 +26,7 @@ export function FastestSubmitterScreen({
   }
 
   return (
-    <Screen background={{ from: "#06b6d4", via: "#10b981", to: "#8b5cf6" }}>
+    <Screen>
       <HorizontalCarousel
         items={stat}
         isActive={isActive}
