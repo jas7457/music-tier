@@ -116,6 +116,11 @@ export interface LeaguePlaybackStats {
       time: number;
       round: PopulatedRound;
     };
+    submissions: Array<{
+      trackInfo: TrackInfo;
+      time: number;
+      round: PopulatedRound;
+    }>;
   }>;
   fastestSubmission: {
     user: PopulatedUser;
@@ -126,6 +131,10 @@ export interface LeaguePlaybackStats {
   fastestVoters: Array<{
     user: PopulatedUser;
     avgTime: number;
+    votes: Array<{
+      time: number;
+      round: PopulatedRound;
+    }>;
   }>;
   fastestVote: {
     user: PopulatedUser;

@@ -16,6 +16,7 @@ import { getPlaceString } from "@/lib/utils/getPlaces";
 import { TrackInfo } from "@/databaseTypes";
 import Link from "next/link";
 import { useAuth } from "@/lib/AuthContext";
+import { BlockQuote } from "@/components/BlockQuote";
 
 type SummaryCard = {
   id: string;
@@ -88,7 +89,7 @@ export function SummaryScreen({
 
       cards.push({
         id: "quickest-submission-round",
-        icon: "⚡",
+        icon: "⏱️",
         title: "Quickest Submission Round",
         value: timeDisplay,
         color: NEON_COLORS.ElectricPurple,
@@ -99,7 +100,7 @@ export function SummaryScreen({
 
       cards.push({
         id: "slowest-submission-round",
-        icon: "🐢",
+        icon: "🕐",
         title: "Slowest Submission Round",
         value: slowTimeDisplay,
         color: NEON_COLORS.DeepViolet,
@@ -137,7 +138,7 @@ export function SummaryScreen({
 
       cards.push({
         id: "quickest-voting-round",
-        icon: "🚀",
+        icon: "⏩",
         title: "Quickest Voting Round",
         value: timeDisplay,
         color: NEON_COLORS.YellowGreen,
@@ -148,10 +149,10 @@ export function SummaryScreen({
 
       cards.push({
         id: "slowest-voting-round",
-        icon: "🐌",
+        icon: "⏳",
         title: "Slowest Voting Round",
         value: slowTimeDisplay,
-        color: NEON_COLORS.BrightOrange,
+        color: NEON_COLORS.Yellow,
         subtitle: slowestRound.round.title,
         moreDetailsLink: getRoundLink(slowestRound.round, league._id),
         description: `${slowestRound.round.title} saw the slowest average voting time, with players taking an average of ${slowTimeDisplay} to cast their votes.`,
@@ -191,8 +192,16 @@ export function SummaryScreen({
         subtitle: playback.biggestFan.user.userName,
         value: `${playback.biggestFan.points.toString()} pts`,
         color: NEON_COLORS.LightBlue,
-        description:
-          "The player who gave the most points to you. True appreciation!",
+        description: (
+          <FullTrackInfoDisplay
+            preamble="The player who gave the most points to you. True appreciation!"
+            entries={playback.biggestFan.songs.map((song) => ({
+              trackInfo: song.trackInfo,
+              round: song.round,
+              rightText: `${song.points} pts`,
+            }))}
+          />
+        ),
       });
     }
 
@@ -200,27 +209,21 @@ export function SummaryScreen({
     if (playback.biggestStan) {
       cards.push({
         id: "biggest-stan",
-        icon: "🎵",
+        icon: "🤩",
         title: "Biggest Stan",
         user: playback.biggestStan.user,
         subtitle: playback.biggestStan.user.userName,
         value: `${playback.biggestStan.points.toString()} pts`,
         color: NEON_COLORS.Pink,
         description: (
-          <div>
-            <p>The player whose music you liked the most. You stan for them.</p>
-
-            <div className="grid gap-2 w-full overflow-hidden">
-              {playback.biggestStan.songs.map((song) => (
-                <TrackInfoDisplay
-                  key={song.trackInfo.trackId}
-                  trackInfo={song.trackInfo}
-                  round={song.round}
-                  rightText={`${song.points} pts`}
-                />
-              ))}
-            </div>
-          </div>
+          <FullTrackInfoDisplay
+            preamble="The player whose songs you loved the most. You stan for them!"
+            entries={playback.biggestStan.songs.map((song) => ({
+              trackInfo: song.trackInfo,
+              round: song.round,
+              rightText: `${song.points} pts`,
+            }))}
+          />
         ),
       });
     }
@@ -236,12 +239,12 @@ export function SummaryScreen({
 
         cards.push({
           id: "musical-soulmate",
-          icon: "🎵",
+          icon: "💖",
           title: "Musical Soulmate",
           user: otherUser,
           subtitle: otherUser.userName,
           value: `${firstTake.totalPoints.toString()} pts`,
-          color: NEON_COLORS.Pink,
+          color: NEON_COLORS.BrightPink,
           description: (
             <div>
               <p>
@@ -264,8 +267,16 @@ export function SummaryScreen({
         subtitle: playback.biggestCritic.user.userName,
         value: `${playback.biggestCritic.points.toString()} pts`,
         color: NEON_COLORS.VividRed,
-        description:
-          "The player who gave the fewest points to you. Perhaps their musical tastes don't align.",
+        description: (
+          <FullTrackInfoDisplay
+            preamble="The player who gave the fewest points to you. Perhaps their musical tastes don't align."
+            entries={playback.biggestCritic.songs.map((song) => ({
+              trackInfo: song.trackInfo,
+              round: song.round,
+              rightText: `${song.points} pts`,
+            }))}
+          />
+        ),
       });
     }
 
@@ -278,22 +289,16 @@ export function SummaryScreen({
         user: playback.hardestSell.user,
         subtitle: playback.hardestSell.user.userName,
         value: `${playback.hardestSell.points.toString()} pts`,
-        color: NEON_COLORS.VividRed,
+        color: NEON_COLORS.BrightOrange,
         description: (
-          <div>
-            <p>The player whose songs received the lowest points from you.</p>
-
-            <div className="grid gap-2 w-full overflow-hidden">
-              {playback.hardestSell.songs.map((song) => (
-                <TrackInfoDisplay
-                  key={song.trackInfo.trackId}
-                  trackInfo={song.trackInfo}
-                  round={song.round}
-                  rightText={`${song.points} pts`}
-                />
-              ))}
-            </div>
-          </div>
+          <FullTrackInfoDisplay
+            preamble="The player whose songs received the lowest points from you."
+            entries={playback.hardestSell.songs.map((song) => ({
+              trackInfo: song.trackInfo,
+              round: song.round,
+              rightText: `${song.points} pts`,
+            }))}
+          />
         ),
       });
     }
@@ -309,12 +314,12 @@ export function SummaryScreen({
 
         cards.push({
           id: "musical-lets-just-be-friends",
-          icon: "🎵",
+          icon: "💔",
           title: "Musical Let's Just Be Friends",
           user: otherUser,
           subtitle: otherUser.userName,
           value: `${firstTake.totalPoints.toString()} pts`,
-          color: NEON_COLORS.Pink,
+          color: NEON_COLORS.LightBlue,
           description: `You and ${otherUser.userName} gave each other the least points. Maybe it's best to just be friends, not soulmates.`,
         });
       }
@@ -335,8 +340,12 @@ export function SummaryScreen({
         description: (
           <FullTrackInfoDisplay
             preamble="The song that received the highest total points from all voters. This represents the most loved submission overall."
-            trackInfo={topSong.trackInfo}
-            round={topSong.round}
+            entries={[
+              {
+                trackInfo: topSong.trackInfo,
+                round: topSong.round,
+              },
+            ]}
           />
         ),
       });
@@ -387,7 +396,7 @@ export function SummaryScreen({
         playback.bestGuessers[playback.bestGuessers.length - 1];
       cards.push({
         id: "worst-guesser",
-        icon: "🎭",
+        icon: "❓",
         title: "Most Surprised",
         user: worstGuesser.user,
         subtitle: worstGuesser.user.userName,
@@ -403,13 +412,22 @@ export function SummaryScreen({
       const fastest = playback.fastestSubmitters[0];
       cards.push({
         id: "fastest-submitter",
-        icon: "⚡",
+        icon: "⏱️",
         title: "Fastest Submitter",
         user: fastest.user,
         subtitle: fastest.user.userName,
         value: formatTime(fastest.avgTime),
-        color: NEON_COLORS.ElectricPurple,
-        description: `The player who submits their songs the quickest on average. Speed demon of submissions!`,
+        color: NEON_COLORS.BrightBlue,
+        description: (
+          <FullTrackInfoDisplay
+            preamble="The player who submits their songs the quickest on average. Speed demon of submissions!"
+            entries={fastest.submissions.map((submission) => ({
+              trackInfo: submission.trackInfo,
+              round: submission.round,
+              rightText: formatTime(submission.time),
+            }))}
+          />
+        ),
       });
     }
 
@@ -421,7 +439,7 @@ export function SummaryScreen({
         user: playback.fastestSubmission.user,
         subtitle: playback.fastestSubmission.user.userName,
         value: formatTime(playback.fastestSubmission.time),
-        color: NEON_COLORS.ElectricPurple,
+        color: NEON_COLORS.DeepViolet,
         moreDetailsLink: getRoundLink(
           playback.fastestSubmission.round,
           league._id
@@ -433,8 +451,12 @@ export function SummaryScreen({
             )} during ${
               playback.fastestSubmission.round.title
             }. Quick on the draw!`}
-            trackInfo={playback.fastestSubmission.trackInfo}
-            round={playback.fastestSubmission.round}
+            entries={[
+              {
+                trackInfo: playback.fastestSubmission.trackInfo,
+                round: playback.fastestSubmission.round,
+              },
+            ]}
           />
         ),
       });
@@ -501,18 +523,22 @@ export function SummaryScreen({
     if (mostObvious) {
       cards.push({
         id: "most-obvious",
-        icon: "🎯",
+        icon: "✅",
         title: "Most Obvious",
         user: mostObvious.user,
         subtitle: mostObvious.user.userName,
         value: `${mostObvious.correctGuesses}/${mostObvious.totalGuesses} correct`,
-        color: NEON_COLORS.BrightGreen,
+        color: NEON_COLORS.LimeGreen,
         moreDetailsLink: getRoundLink(mostObvious.round, league._id),
         description: (
           <FullTrackInfoDisplay
             preamble={`Everyone saw this coming! ${mostObvious.correctGuesses} out of ${mostObvious.totalGuesses} voters correctly guessed who submitted this song.`}
-            trackInfo={mostObvious.submission.trackInfo}
-            round={mostObvious.round}
+            entries={[
+              {
+                trackInfo: mostObvious.submission.trackInfo,
+                round: mostObvious.round,
+              },
+            ]}
           />
         ),
       });
@@ -525,7 +551,7 @@ export function SummaryScreen({
           user: biggestSurprise.user,
           subtitle: biggestSurprise.user.userName,
           value: `${biggestSurprise.incorrectGuesses}/${biggestSurprise.totalGuesses} wrong`,
-          color: NEON_COLORS.VividRed,
+          color: NEON_COLORS.Pink,
           moreDetailsLink: getRoundLink(biggestSurprise.round, league._id),
           description: (
             <FullTrackInfoDisplay
@@ -543,8 +569,12 @@ export function SummaryScreen({
                   &apos;s!
                 </>
               }
-              trackInfo={biggestSurprise.submission.trackInfo}
-              round={biggestSurprise.round}
+              entries={[
+                {
+                  trackInfo: biggestSurprise.submission.trackInfo,
+                  round: biggestSurprise.round,
+                },
+              ]}
             />
           ),
         });
@@ -556,18 +586,35 @@ export function SummaryScreen({
       const notedSong = playback.mostNotedSongs[0];
       cards.push({
         id: "most-noted-song",
-        icon: "💬",
+        icon: "💭",
         title: "Most Talked About",
         user: notedSong.user,
         subtitle: notedSong.user.userName,
         value: `${notedSong.notes.length.toString()} notes`,
-        color: NEON_COLORS.BrightBlue,
+        color: NEON_COLORS.MintyGreen,
         moreDetailsLink: getRoundLink(notedSong.round, league._id),
         description: (
           <FullTrackInfoDisplay
             preamble="The song that received the most comments from voters. It sparked the most conversation."
-            trackInfo={notedSong.trackInfo}
-            round={notedSong.round}
+            end={
+              <div className="mt-2 text-sm text-gray-400">
+                {notedSong.notes.map((note, idx) => (
+                  <div key={idx} className="mb-4">
+                    <div className="flex gap-2 font-semibold text-white mb-1">
+                      <Avatar user={note.user} size={5} includeLink={false} />
+                      {note.user.userName}
+                    </div>
+                    <BlockQuote className="ml-4">{note.text}</BlockQuote>
+                  </div>
+                ))}
+              </div>
+            }
+            entries={[
+              {
+                trackInfo: notedSong.trackInfo,
+                round: notedSong.round,
+              },
+            ]}
           />
         ),
       });
@@ -603,14 +650,28 @@ export function SummaryScreen({
       const fastVoter = playback.fastestVoters[0];
       cards.push({
         id: "fastest-voter",
-        icon: "🚀",
+        icon: "⚡",
         title: "Fastest Voter",
         user: fastVoter.user,
         subtitle: fastVoter.user.userName,
         value: formatTime(fastVoter.avgTime),
         color: NEON_COLORS.YellowGreen,
-        description:
-          "The player who casts their votes the quickest on average. Always first to respond!",
+        description: (
+          <div className="grid gap-2">
+            <p>
+              The player who casts their votes the quickest on average. Always
+              first to respond!
+            </p>
+
+            <div>
+              {fastVoter.votes.map((vote) => (
+                <div key={vote.round._id}>
+                  <strong>{vote.round.title}:</strong> {formatTime(vote.time)}
+                </div>
+              ))}
+            </div>
+          </div>
+        ),
       });
     }
 
@@ -619,16 +680,20 @@ export function SummaryScreen({
       const timeDisplay = formatTime(fastVote.time);
       cards.push({
         id: "fastest-vote",
-        icon: "⚡",
+        icon: "⏰",
         title: "Fastest Vote",
         user: fastVote.user,
         subtitle: fastVote.user.userName,
         value: timeDisplay,
         color: NEON_COLORS.ElectricPurple,
         moreDetailsLink: getRoundLink(fastVote.round, league._id),
-        description: `The fastest vote for a round happened in ${formatTime(
-          fastVote.time
-        )} for ${fastVote.round.title}. Quick on the draw!`,
+        description: (
+          <div>
+            The fastest vote for a round happened in {formatTime(fastVote.time)}{" "}
+            for <span className="font-bold">{fastVote.round.title}</span>. Quick
+            on the draw!
+          </div>
+        ),
       });
     }
 
@@ -649,12 +714,12 @@ export function SummaryScreen({
 
       cards.push({
         id: "slowest-voter",
-        icon: "🐌",
+        icon: "🐢",
         title: "The Procrastinator",
         user: slowVoter.user,
         subtitle: slowVoter.user.userName,
         value: timeDisplay,
-        color: NEON_COLORS.DeepViolet,
+        color: NEON_COLORS.Pink,
         description:
           "The player who takes the longest to vote. Better late than never!",
       });
@@ -707,15 +772,20 @@ export function SummaryScreen({
       if (scrappyWin) {
         cards.push({
           id: "scrappy-win",
-          icon: "🥉",
+          icon: "🏅",
           title: "Scrappy Victory",
           user: scrappyWin.user,
           subtitle: scrappyWin.user.userName,
-          value: scrappyWin.points.toString(),
-          color: NEON_COLORS.YellowGreen,
+          value: `${scrappyWin.points.toString()} pts`,
+          color: NEON_COLORS.BrightGreen,
           moreDetailsLink: getRoundLink(scrappyWin.round, league._id),
-          description:
-            "The lowest scoring round to still secure a victory. A tight competition where every point mattered.",
+          description: (
+            <div>
+              The lowest scoring round to still secure a victory happened in{" "}
+              <span className="font-bold">{scrappyWin.round.title}</span>. A
+              tight competition where every point mattered.
+            </div>
+          ),
         });
       }
     }
@@ -742,13 +812,17 @@ export function SummaryScreen({
           user: mostVoters.user,
           subtitle: mostVoters.user.userName,
           value: `${mostVoters.voters.toString()} voters`,
-          color: NEON_COLORS.LightBlue,
+          color: NEON_COLORS.Yellow,
           moreDetailsLink: getRoundLink(mostVoters.round, league._id),
           description: (
             <FullTrackInfoDisplay
               preamble="The song that received votes from the most people. Broad appeal across the league."
-              trackInfo={mostVoters.trackInfo}
-              round={mostVoters.round}
+              entries={[
+                {
+                  trackInfo: mostVoters.trackInfo,
+                  round: mostVoters.round,
+                },
+              ]}
             />
           ),
         });
@@ -780,12 +854,12 @@ export function SummaryScreen({
         if (topCommenter && topCommenter.user) {
           cards.push({
             id: "comment-king",
-            icon: "💭",
+            icon: "✍️",
             title: "Comment King",
             user: topCommenter.user,
             subtitle: topCommenter.user.userName,
             value: topCommenter.count.toString(),
-            color: NEON_COLORS.MintyGreen,
+            color: NEON_COLORS.LimeGreen,
             description:
               "The player who left the most comments on other people's songs. Most engaged with feedback!",
           });
@@ -801,12 +875,12 @@ export function SummaryScreen({
 
       cards.push({
         id: "consistent",
-        icon: "🎯",
+        icon: "📊",
         title: "Most Consistent",
         user: consistent.user,
         subtitle: consistent.user.userName,
         value: `±${consistent.variance.toFixed(1)}`,
-        color: NEON_COLORS.LimeGreen,
+        color: NEON_COLORS.YellowGreen,
         description: (
           <div className="grid gap-2">
             <p>
@@ -830,7 +904,7 @@ export function SummaryScreen({
         user: mostWild.user,
         subtitle: mostWild.user.userName,
         value: `±${mostWild.variance.toFixed(1)}`,
-        color: NEON_COLORS.ElectricPurple,
+        color: NEON_COLORS.Pink,
         description: (
           <div className="grid gap-2">
             <p>
@@ -885,7 +959,7 @@ export function SummaryScreen({
           user: evenDistributor.user,
           subtitle: evenDistributor.user.userName,
           value: `${evenDistributor.avgVotesPerRound.toFixed(1)} songs`,
-          color: NEON_COLORS.MintyGreen,
+          color: NEON_COLORS.BrightGreen,
           description: `The player who spreads their points across the most songs on average. They voted for an average of ${evenDistributor.avgVotesPerRound.toFixed(
             1
           )} different songs per round, averaging ${(
@@ -902,7 +976,7 @@ export function SummaryScreen({
           user: selectiveVoter.user,
           subtitle: selectiveVoter.user.userName,
           value: `${selectiveVoter.avgVotesPerRound.toFixed(1)} songs`,
-          color: NEON_COLORS.BrightOrange,
+          color: NEON_COLORS.Yellow,
           description: `The player who concentrates their points on fewer songs. They voted for an average of ${selectiveVoter.avgVotesPerRound.toFixed(
             1
           )} different songs per round, averaging ${(
@@ -1087,12 +1161,16 @@ export function SummaryScreen({
 
 function FullTrackInfoDisplay({
   preamble,
-  trackInfo,
-  round,
+  end,
+  entries,
 }: {
   preamble: React.ReactNode;
-  trackInfo: TrackInfo;
-  round: PopulatedRound;
+  end?: React.ReactNode;
+  entries: Array<{
+    trackInfo: TrackInfo;
+    round: PopulatedRound;
+    rightText?: string;
+  }>;
 }) {
   const preambleMarkup =
     typeof preamble === "string" ? <p>{preamble}</p> : preamble;
@@ -1101,7 +1179,16 @@ function FullTrackInfoDisplay({
     <div className="space-y-3 max-w-full overflow-hidden">
       {preambleMarkup}
 
-      <TrackInfoDisplay trackInfo={trackInfo} round={round} />
+      {entries.map(({ trackInfo, round, rightText }) => (
+        <TrackInfoDisplay
+          key={trackInfo.trackId}
+          trackInfo={trackInfo}
+          round={round}
+          rightText={rightText}
+        />
+      ))}
+
+      {end && <div>{end}</div>}
     </div>
   );
 }

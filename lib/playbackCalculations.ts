@@ -106,6 +106,7 @@ export function calculatePlaybackStats(
         }>;
         votes: Array<{
           vote: PopulatedVote;
+          round: PopulatedRound;
           timeToVote: number;
         }>;
       };
@@ -132,6 +133,7 @@ export function calculatePlaybackStats(
       voteUser.votes.push({
         vote,
         timeToVote: vote.voteDate - round.votingStartDate,
+        round,
       });
 
       const submission = submissionsById[vote.submissionId];
@@ -471,6 +473,13 @@ export function calculatePlaybackStats(
               time: fastestSubmission.timeToSubmit,
               trackInfo: fastestSubmission.submission.trackInfo,
             },
+            submissions: data.submissions
+              .filter((submission) => submission.user._id === data.user._id)
+              .map((submission) => ({
+                trackInfo: submission.submission.trackInfo,
+                time: submission.timeToSubmit,
+                round: roundsById[submission.submission.roundId],
+              })),
           });
 
           if (
@@ -493,9 +502,18 @@ export function calculatePlaybackStats(
           data.votes.reduce((acc, vote) => acc + vote.timeToVote, 0) /
           data.votes.length;
 
+        const votesForRound = data.votes.reduce((acc, vote) => {
+          const hasRound = acc.find((v) => v.round._id === vote.round._id);
+          if (!hasRound) {
+            acc.push({ round: vote.round, time: vote.timeToVote });
+          }
+          return acc;
+        }, [] as Array<{ round: PopulatedRound; time: number }>);
+
         acc.fastestVoters.push({
           user: data.user,
           avgTime: averageVoteTime,
+          votes: votesForRound,
         });
 
         const fastestVote = [...data.votes].sort(
