@@ -189,7 +189,7 @@ export function MostNotedSongScreen({
                   {song.notes.map((note, noteIndex) => (
                     <div
                       key={noteIndex}
-                      className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 transform transition-all duration-500 hover:bg-white/20 hover:scale-102 hover:border-white/40"
+                      className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 transform transition-all duration-500"
                       style={{
                         animation: isItemActive
                           ? `note-slide-in 0.5s ease-out ${

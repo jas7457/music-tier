@@ -23,6 +23,10 @@ export function HorizontalCarousel<T>({
   const [currentIndex, setCurrentIndex] = useState<number | undefined>(
     isActive ? 0 : undefined
   );
+  const [previousIndex, setPreviousIndex] = useState<number | undefined>(
+    undefined
+  );
+  const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -79,7 +83,13 @@ export function HorizontalCarousel<T>({
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
             const index = Number(entry.target.getAttribute("data-index"));
-            setCurrentIndex(index);
+            setCurrentIndex((prev) => {
+              if (prev !== undefined && prev !== index) {
+                setPreviousIndex(prev);
+                setDirection(index > prev ? "forward" : "backward");
+              }
+              return index;
+            });
           }
         });
       },
@@ -129,6 +139,56 @@ export function HorizontalCarousel<T>({
 
   return (
     <div className={twMerge("relative h-full", className)}>
+      {/* Page Counter */}
+      {isActive && currentIndex !== undefined && (
+        <div className="absolute top-4 left-4 z-20 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-white/20">
+          <div className="flex items-center gap-1 text-white font-semibold">
+            <div
+              className="relative inline-block overflow-hidden"
+              style={{
+                width: `${(currentIndex + 1).toString().length}ch`,
+                height: "1.2em",
+              }}
+            >
+              {/* Previous number sliding out */}
+              {previousIndex !== undefined &&
+                previousIndex !== currentIndex && (
+                  <span
+                    key={`prev-${previousIndex}`}
+                    className="absolute top-0 left-0 tabular-nums w-full h-full flex justify-end items-center pointer-events-none"
+                    style={{
+                      animation:
+                        direction === "forward"
+                          ? "slideUpOut 400ms ease-out forwards"
+                          : "slideDown 400ms ease-out forwards",
+                    }}
+                  >
+                    {previousIndex + 1}
+                  </span>
+                )}
+              {/* Current number sliding in */}
+              <span
+                key={currentIndex}
+                className="absolute top-0 left-0 tabular-nums w-full h-full flex justify-end items-center pointer-events-none"
+                style={{
+                  animation:
+                    previousIndex !== undefined &&
+                    previousIndex !== currentIndex
+                      ? direction === "forward"
+                        ? "slideUp 400ms ease-out forwards"
+                        : "slideDownIn 400ms ease-out forwards"
+                      : "none",
+                }}
+              >
+                {currentIndex + 1}
+              </span>
+            </div>
+            <span className="text-white/60">/</span>
+            <span className="text-white/80 tabular-nums">{items.length}</span>
+          </div>
+        </div>
+      )}
+
       {/* Horizontal scroll container */}
       <div
         ref={containerRef}
@@ -221,6 +281,50 @@ export function HorizontalCarousel<T>({
           </svg>
         </button>
       </div>
+
+      {/* Animation styles */}
+      <style jsx>{`
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes slideDown {
+          from {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          to {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+        }
+        @keyframes slideUpOut {
+          from {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          to {
+            opacity: 0;
+            transform: translateY(-16px);
+          }
+        }
+        @keyframes slideDownIn {
+          from {
+            opacity: 0;
+            transform: translateY(-16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }

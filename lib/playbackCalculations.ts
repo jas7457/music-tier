@@ -195,9 +195,17 @@ export function calculatePlaybackStats(
 
     const usersByPoints = league.users
       .map((user) => {
-        const userPoints = userData[user._id].points.reduce(
+        const votesForUser = round.votes.filter((vote) => {
+          const submission = round.submissions.find(
+            (s) => s._id === vote.submissionId
+          );
+          return submission?.userId === user._id;
+        });
+        const userPoints = votesForUser.reduce(
           (acc, points) => {
-            acc.points += points.points;
+            if (points.points > 0) {
+              acc.points += points.points;
+            }
             return acc;
           },
           {
@@ -208,7 +216,12 @@ export function calculatePlaybackStats(
 
         return userPoints;
       })
-      .sort((a, b) => b.points - a.points);
+      .sort((a, b) => {
+        if (b.points !== a.points) {
+          return b.points - a.points;
+        }
+        return a.user.index - b.user.index;
+      });
 
     const userPlaces = getPlaces(usersByPoints.map((u) => u.points));
     usersByPoints.forEach((userPointData, index) => {
@@ -602,8 +615,8 @@ export function calculatePlaybackStats(
         submission.userObject &&
         vote.userObject &&
         submission.userObject.index < vote.userObject.index
-          ? `${voterId}:${receiverId}`
-          : `${receiverId}:${voterId}`;
+          ? `${receiverId}:${voterId}`
+          : `${voterId}:${receiverId}`;
       const current = mutualPoints.get(pairKey) || 0;
       mutualPoints.set(pairKey, current + vote.points);
     });
