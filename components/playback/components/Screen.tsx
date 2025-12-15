@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import "./Screen.css";
+import { twMerge } from "tailwind-merge";
 
 // Generate random values outside component
 const generateShootingStars = () =>
@@ -24,9 +25,11 @@ const generateFloatingNotes = () =>
 export function Screen({
   background,
   children,
+  className,
 }: {
   background?: { from: string; via: string; to: string };
   children: React.ReactNode;
+  className?: string;
 }) {
   // Use useState with initializer function - only runs once
   const [shootingStars] = useState(generateShootingStars);
@@ -34,7 +37,7 @@ export function Screen({
 
   return (
     <div
-      className="relative h-full w-full overflow-hidden"
+      className={twMerge("relative h-full w-full overflow-hidden", className)}
       style={{ contentVisibility: "auto", containIntrinsicSize: "100vw 100vh" }}
     >
       {background && (

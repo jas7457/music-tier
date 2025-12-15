@@ -21,7 +21,7 @@ export type PopulatedOnDeckSubmission = WithStringId<OnDeckSongSubmission> & {
   userObject: PopulatedUser | undefined;
 };
 export type PopulatedVote = WithStringId<Vote> & {
-  userObject: PopulatedUser | undefined;
+  userObject: PopulatedUser;
   userGuessObject: PopulatedUser | undefined;
 };
 export type PopulatedTrackInfo = PopulatedSubmission["trackInfo"];
@@ -57,6 +57,7 @@ export interface LeaguePlaybackStats {
     points: number;
     voters: number;
     user: PopulatedUser;
+    votes: PopulatedVote[];
   } | null;
   userStats: {
     totalPoints: number;
@@ -111,11 +112,11 @@ export interface LeaguePlaybackStats {
   fastestSubmitters: Array<{
     user: PopulatedUser;
     avgTime: number;
-    fastestSong: {
+    fastestSongs: Array<{
       trackInfo: TrackInfo;
       time: number;
       round: PopulatedRound;
-    };
+    }>;
     submissions: Array<{
       trackInfo: TrackInfo;
       time: number;
@@ -147,6 +148,11 @@ export interface LeaguePlaybackStats {
     variance: number;
     avgPoints: number;
     place: number;
+    rounds: Array<{
+      round: PopulatedRound;
+      points: number;
+      submission: PopulatedSubmission;
+    }>;
   }>;
   conspirators: Array<{
     userId1: string;
@@ -159,6 +165,7 @@ export interface LeaguePlaybackStats {
     trackInfo: TrackInfo;
     points: number;
     user: PopulatedUser;
+    votes: PopulatedVote[];
   } | null;
   bestGuessers: Array<{
     user: PopulatedUser;
@@ -186,6 +193,7 @@ export interface LeaguePlaybackStats {
     trackInfo: TrackInfo;
     points: number;
     voters: number;
+    votes: PopulatedVote[];
     round: PopulatedRound;
   }>;
   allUserWins: Array<{

@@ -10,6 +10,8 @@ import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 import { StatBounce } from "../components/Animations";
 import { ThreeDSong } from "../components/3DSong";
 import { Screen } from "../components/Screen";
+import { DualScreen } from "../components/DualScreen";
+import { UserList } from "../components/UserList";
 
 interface SongScreenProps {
   isActive: boolean;
@@ -18,6 +20,10 @@ interface SongScreenProps {
   trackInfo: TrackInfo;
   round: PopulatedRound;
   points: number;
+  voters: Array<{
+    user: PopulatedUser;
+    rightText: string;
+  }>;
   pointsStrokeColor: string;
   submittedBy: PopulatedUser;
   noDataMessage?: string;
@@ -32,6 +38,7 @@ export function SongScreen({
   points,
   pointsStrokeColor,
   submittedBy,
+  voters,
 }: SongScreenProps) {
   const { playTrack } = useSpotifyPlayer();
   const playTrackRef = useRef(playTrack);
@@ -51,65 +58,85 @@ export function SongScreen({
   }, [isActive, round, trackInfo]);
 
   return (
-    <Screen>
-      <AnimatedImageBackdrop imageUrl={trackInfo.albumImageUrl} />
-      <div className="flex flex-col items-center justify-center text-white gap-8 w-full h-full relative px-8 py-10">
-        <div
-          className={twMerge(
-            "transition-all duration-700 transform",
-            isActive ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"
-          )}
-        >
-          <h2 className="text-center font-bold">{title}</h2>
-          <p className="text-4xl text-purple-300 text-center">{subtitle}</p>
-        </div>
+    <DualScreen
+      isActive={isActive}
+      backFace={(isFlipped) => (
+        <UserList
+          isActive={isActive && isFlipped}
+          users={[...voters].sort((a, b) => {
+            const pointsA = parseInt(a.rightText);
+            const pointsB = parseInt(b.rightText);
+            return pointsB - pointsA;
+          })}
+          background={{ from: "#8b5cf6", via: "#ec4899", to: "#f97316" }}
+          title="Voters"
+        />
+      )}
+    >
+      <Screen>
+        <AnimatedImageBackdrop imageUrl={trackInfo.albumImageUrl} />
+        <div className="flex flex-col items-center justify-center text-white gap-8 w-full h-full relative px-8 py-10">
+          <div
+            className={twMerge(
+              "transition-all duration-700 transform",
+              isActive
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 -translate-y-10"
+            )}
+          >
+            <h2 className="text-center font-bold">{title}</h2>
+            <p className="text-4xl text-purple-300 text-center">{subtitle}</p>
+          </div>
 
-        <div
-          className={twMerge(
-            "transition-all duration-700 delay-200 transform",
-            isActive
-              ? "opacity-100 scale-100 rotate-0"
-              : "opacity-0 scale-75 rotate-12"
-          )}
-        >
-          <ThreeDSong
-            trackInfo={trackInfo}
-            round={round}
-            size={300}
-            isActive={isActive}
-            playlist={[trackInfo]}
-            submittedBy={submittedBy}
-          />
-        </div>
+          <div
+            className={twMerge(
+              "transition-all duration-700 delay-200 transform",
+              isActive
+                ? "opacity-100 scale-100 rotate-0"
+                : "opacity-0 scale-75 rotate-12"
+            )}
+          >
+            <ThreeDSong
+              trackInfo={trackInfo}
+              round={round}
+              size={300}
+              isActive={isActive}
+              playlist={[trackInfo]}
+              submittedBy={submittedBy}
+            />
+          </div>
 
-        <div
-          className={twMerge(
-            "text-center transition-all duration-700 delay-400 transform",
-            isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          )}
-        >
-          <p className="text-3xl md:text-5xl font-bold mb-3">
-            {trackInfo.title}
-          </p>
-          <p className="text-xl md:text-2xl text-purple-200 mb-6">
-            {trackInfo.artists.join(", ")}
-          </p>
-          {submittedBy && (
-            <p className="text-lg md:text-xl text-purple-300 mb-4">
-              Submitted by {submittedBy.firstName} {submittedBy.lastName}
+          <div
+            className={twMerge(
+              "text-center transition-all duration-700 delay-400 transform",
+              isActive
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
+            )}
+          >
+            <p className="text-3xl md:text-5xl font-bold mb-3">
+              {trackInfo.title}
             </p>
-          )}
-          <StatBounce isActive={isActive}>
-            <OutlinedText
-              className="text-6xl md:text-7xl font-bold"
-              strokeColor={pointsStrokeColor}
-              strokeWidth={3}
-            >
-              {points} points
-            </OutlinedText>
-          </StatBounce>
+            <p className="text-xl md:text-2xl text-purple-200 mb-6">
+              {trackInfo.artists.join(", ")}
+            </p>
+            {submittedBy && (
+              <p className="text-lg md:text-xl text-purple-300 mb-4">
+                Submitted by {submittedBy.firstName} {submittedBy.lastName}
+              </p>
+            )}
+            <StatBounce isActive={isActive}>
+              <OutlinedText
+                className="text-6xl md:text-7xl font-bold"
+                strokeColor={pointsStrokeColor}
+                strokeWidth={3}
+              >
+                {points} points
+              </OutlinedText>
+            </StatBounce>
+          </div>
         </div>
-      </div>
-    </Screen>
+      </Screen>
+    </DualScreen>
   );
 }

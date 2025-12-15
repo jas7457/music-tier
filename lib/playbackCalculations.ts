@@ -93,6 +93,7 @@ export function calculatePlaybackStats(
           user: PopulatedUser;
           submission: PopulatedSubmission;
           round: PopulatedRound;
+          votes: PopulatedVote[];
         }>;
         totalPoints: number;
         submissions: Array<{
@@ -149,6 +150,7 @@ export function calculatePlaybackStats(
         voters: 0,
         round,
         user: usersById[submission.userId],
+        votes: [],
       };
 
       pointInfo.points += vote.points;
@@ -156,6 +158,7 @@ export function calculatePlaybackStats(
 
       if (vote.points > 0) {
         pointInfo.voters += 1;
+        pointInfo.votes.push(vote);
 
         const pointsByFriend = submissionUser.pointsByFriends[vote.userId] ?? {
           points: 0,
@@ -468,11 +471,13 @@ export function calculatePlaybackStats(
           acc.fastestSubmitters.push({
             user: data.user,
             avgTime: averageSubmitTime,
-            fastestSong: {
-              round: roundsById[fastestSubmission.submission.roundId],
-              time: fastestSubmission.timeToSubmit,
-              trackInfo: fastestSubmission.submission.trackInfo,
-            },
+            fastestSongs: data.submissions
+              .map((submission) => ({
+                trackInfo: submission.submission.trackInfo,
+                time: submission.timeToSubmit,
+                round: roundsById[submission.submission.roundId],
+              }))
+              .sort((a, b) => a.time - b.time),
             submissions: data.submissions
               .filter((submission) => submission.user._id === data.user._id)
               .map((submission) => ({
@@ -673,7 +678,6 @@ export function calculatePlaybackStats(
   const mostConsistent: LeaguePlaybackStats["mostConsistent"] = Array.from(
     pointsByUserByRound.entries()
   )
-    .filter(([, data]) => data.points.length >= 2)
     .map(([userId, data]) => {
       const mean = data.totalPoints / data.points.length;
       const variance =
@@ -688,6 +692,22 @@ export function calculatePlaybackStats(
         variance,
         avgPoints: mean,
         place: userPlace,
+        rounds: userData[userId].places
+          .map((placeInfo) => {
+            const pointInfo = userData[userId].points.find(
+              (p) => p.round._id === placeInfo.round._id
+            );
+            if (!pointInfo) {
+              return null;
+            }
+            return {
+              round: placeInfo.round,
+              points: pointInfo.points,
+              submission: pointInfo.submission,
+            };
+          })
+          .filter((r) => r !== null)
+          .sort((a, b) => b.points - a.points),
       };
     })
     .sort((a, b) => a.variance - b.variance);
@@ -851,6 +871,7 @@ export function calculatePlaybackStats(
         user: data.user,
         trackInfo: data.topSong.trackInfo,
         points: data.topSong.points,
+        votes: data.topSong.votes,
         voters: data.topSong.voters,
         round: data.topSong.round,
       };

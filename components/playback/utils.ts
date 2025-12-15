@@ -75,7 +75,6 @@ export function useProminentColor(imageUrl: string, defaultColor?: string) {
     (async () => {
       try {
         const color = await getAverageRGB(imageUrl);
-        console.log({ color });
         if (color) {
           setColor(color);
         } else {

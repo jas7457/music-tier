@@ -5,6 +5,7 @@ import { NEON_COLORS } from "../constants";
 import type { PlaybackScreenProps } from "../types";
 import { HorizontalCarousel } from "../components/HorizontalCarousel";
 import { UserStatScreen } from "./UserStatScreen";
+import { Avatar } from "@/components/Avatar";
 
 export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
   const stat = playback.bestGuessers;
@@ -150,6 +151,13 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                       points: 0,
                       round: guess.round,
                       leftText: guess.isCorrect ? "✓" : "✗",
+                      rightText: (
+                        <div className="flex gap-2">
+                          <Avatar size={6} user={guess.guessedUser} />
+                          /
+                          <Avatar size={6} user={guess.submitter} />
+                        </div>
+                      ),
                       className: guess.isCorrect
                         ? "border-green-400/50 bg-green-500/10"
                         : "border-red-400/50 bg-red-500/10",

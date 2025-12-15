@@ -20,7 +20,12 @@ export function TopSongScreen({
     );
   }
 
-  const { trackInfo, points, user } = playback.topSong;
+  const { trackInfo, points, user, votes } = playback.topSong;
+
+  const voters = votes.map((vote) => ({
+    user: vote.userObject!,
+    rightText: `+${vote.points} pts`,
+  }));
 
   return (
     <SongScreen
@@ -32,6 +37,7 @@ export function TopSongScreen({
       points={points}
       submittedBy={user}
       pointsStrokeColor={NEON_COLORS.ElectricPurple}
+      voters={voters}
     />
   );
 }

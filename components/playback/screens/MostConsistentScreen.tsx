@@ -140,6 +140,11 @@ export function MostConsistentScreen({
                   value: `± ${consistent.variance.toFixed(1)} points`,
                   label: `Average ${consistent.avgPoints.toFixed(1)} pts/round`,
                   icon: "",
+                  songs: consistent.rounds.map((round) => ({
+                    trackInfo: round.submission.trackInfo,
+                    round: round.round,
+                    rightText: `${round.points} pts`,
+                  })),
                 }}
               />
             </>

@@ -9,8 +9,8 @@ import { useMemo, useState } from "react";
 type Song = {
   trackInfo: TrackInfo;
   round: PopulatedRound;
-  rightText?: string;
-  leftText?: string;
+  rightText?: React.ReactNode;
+  leftText?: React.ReactNode;
   className?: string;
 };
 
@@ -21,6 +21,8 @@ export interface SongsProps {
   className?: string;
 }
 
+const delay = 300;
+
 export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
   const playlist = useMemo(() => {
     return songs.map((song) => song.trackInfo);
@@ -30,8 +32,8 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
   const shimmerDelays = useState(() => songs.map(() => Math.random() * 4))[0];
 
   return (
-    <div className={twMerge("flex-1 w-full overflow-y-auto mb-8", className)}>
-      <div className="space-y-3 pb-4">
+    <div className={twMerge("flex-1 w-full", className)}>
+      <div className="space-y-3">
         {songs.map((song, index) => (
           <div
             key={index}
@@ -43,9 +45,9 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
               song.className
             )}
             style={{
-              transitionDelay: isActive ? `${index * 100}ms` : "0ms",
+              transitionDelay: isActive ? `${index * delay}ms` : "0ms",
               animation: isActive
-                ? `slide-in-bounce 0.6s ease-out ${index * 100}ms both`
+                ? `slide-in-bounce 0.6s ease-out ${index * delay}ms both`
                 : "none",
             }}
           >
@@ -71,22 +73,13 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
               )}
             >
               {song.leftText && <div className="text-2xl">{song.leftText}</div>}
-              <div
-                className="transform transition-transform duration-300 hover:rotate-3"
-                style={{
-                  animation: isActive
-                    ? `album-pop 0.5s ease-out ${index * 100 + 200}ms both`
-                    : "none",
-                }}
-              >
-                <AlbumArt
-                  trackInfo={song.trackInfo}
-                  size={56}
-                  round={song.round}
-                  playlist={playlist}
-                  onPlaySong={onPlaySong}
-                />
-              </div>
+              <AlbumArt
+                trackInfo={song.trackInfo}
+                size={56}
+                round={song.round}
+                playlist={playlist}
+                onPlaySong={onPlaySong}
+              />
               <div className="overflow-hidden">
                 <p className="text-sm font-semibold truncate drop-shadow-lg">
                   {song.trackInfo.title}
@@ -100,7 +93,7 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
                   className="text-right"
                   style={{
                     animation: isActive
-                      ? `points-pop 0.4s ease-out ${index * 100 + 300}ms both`
+                      ? `points-pop 0.4s ease-out ${index * delay + 300}ms both`
                       : "none",
                   }}
                 >
@@ -128,20 +121,6 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
           100% {
             opacity: 1;
             transform: translateX(0);
-          }
-        }
-
-        @keyframes album-pop {
-          0% {
-            opacity: 0;
-            transform: scale(0.5) rotate(-10deg);
-          }
-          50% {
-            transform: scale(1.1) rotate(5deg);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1) rotate(0deg);
           }
         }
 

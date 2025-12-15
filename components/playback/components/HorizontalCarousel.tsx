@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, ReactNode } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  ReactNode,
+  createContext,
+  useMemo,
+} from "react";
 import { twMerge } from "tailwind-merge";
 
 interface HorizontalCarouselProps<T> {
@@ -26,6 +33,7 @@ export function HorizontalCarousel<T>({
   const [previousIndex, setPreviousIndex] = useState<number | undefined>(
     undefined
   );
+  const [shouldShowButtons, setShouldShowButtons] = useState(true);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -138,193 +146,235 @@ export function HorizontalCarousel<T>({
   };
 
   return (
-    <div className={twMerge("relative h-full", className)}>
-      {/* Page Counter */}
-      {isActive && currentIndex !== undefined && (
-        <div className="absolute top-4 left-4 z-20 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-white/20">
-          <div className="flex items-center gap-1 text-white font-semibold">
-            <div
-              className="relative inline-block overflow-hidden"
-              style={{
-                width: `${(currentIndex + 1).toString().length}ch`,
-                height: "1.2em",
-              }}
-            >
-              {/* Previous number sliding out */}
-              {previousIndex !== undefined &&
-                previousIndex !== currentIndex && (
-                  <span
-                    key={`prev-${previousIndex}`}
-                    className="absolute top-0 left-0 tabular-nums w-full h-full flex justify-end items-center pointer-events-none"
-                    style={{
-                      animation:
-                        direction === "forward"
-                          ? "slideUpOut 400ms ease-out forwards"
-                          : "slideDown 400ms ease-out forwards",
-                    }}
-                  >
-                    {previousIndex + 1}
-                  </span>
-                )}
-              {/* Current number sliding in */}
-              <span
-                key={currentIndex}
-                className="absolute top-0 left-0 tabular-nums w-full h-full flex justify-end items-center pointer-events-none"
+    <CarouselContextProvider onShowButtonsChange={setShouldShowButtons}>
+      <div className={twMerge("relative h-full", className)}>
+        {/* Page Counter */}
+        {isActive && currentIndex !== undefined && (
+          <div className="absolute top-4 left-4 z-20 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-white/20">
+            <div className="flex items-center gap-1 text-white font-semibold">
+              <div
+                className="relative inline-block overflow-hidden"
                 style={{
-                  animation:
-                    previousIndex !== undefined &&
-                    previousIndex !== currentIndex
-                      ? direction === "forward"
-                        ? "slideUp 400ms ease-out forwards"
-                        : "slideDownIn 400ms ease-out forwards"
-                      : "none",
+                  width: `${(currentIndex + 1).toString().length}ch`,
+                  height: "1.2em",
                 }}
               >
-                {currentIndex + 1}
-              </span>
+                {/* Previous number sliding out */}
+                {previousIndex !== undefined &&
+                  previousIndex !== currentIndex && (
+                    <span
+                      key={`prev-${previousIndex}`}
+                      className="absolute top-0 left-0 tabular-nums w-full h-full flex justify-end items-center pointer-events-none"
+                      style={{
+                        animation:
+                          direction === "forward"
+                            ? "slideUpOut 400ms ease-out forwards"
+                            : "slideDown 400ms ease-out forwards",
+                      }}
+                    >
+                      {previousIndex + 1}
+                    </span>
+                  )}
+                {/* Current number sliding in */}
+                <span
+                  key={currentIndex}
+                  className="absolute top-0 left-0 tabular-nums w-full h-full flex justify-end items-center pointer-events-none"
+                  style={{
+                    animation:
+                      previousIndex !== undefined &&
+                      previousIndex !== currentIndex
+                        ? direction === "forward"
+                          ? "slideUp 400ms ease-out forwards"
+                          : "slideDownIn 400ms ease-out forwards"
+                        : "none",
+                  }}
+                >
+                  {currentIndex + 1}
+                </span>
+              </div>
+              <span className="text-white/60">/</span>
+              <span className="text-white/80 tabular-nums">{items.length}</span>
             </div>
-            <span className="text-white/60">/</span>
-            <span className="text-white/80 tabular-nums">{items.length}</span>
+          </div>
+        )}
+
+        {/* Horizontal scroll container */}
+        <div
+          ref={containerRef}
+          className="h-full overflow-x-scroll snap-x snap-mandatory"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          <div className="flex h-full">
+            {items.map((item, index) => (
+              <div
+                key={index}
+                ref={(el) => {
+                  itemRefs.current[index] = el;
+                }}
+                data-index={index}
+                className="w-screen h-full shrink-0 snap-center snap-always"
+                style={{
+                  contentVisibility: "auto",
+                  containIntrinsicSize: "100vw 100vh",
+                }}
+              >
+                {renderItem(item, index, currentIndex === index)}
+              </div>
+            ))}
           </div>
         </div>
-      )}
 
-      {/* Horizontal scroll container */}
-      <div
-        ref={containerRef}
-        className="h-full overflow-x-scroll snap-x snap-mandatory"
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
-        <div className="flex h-full">
-          {items.map((item, index) => (
-            <div
-              key={index}
-              ref={(el) => {
-                itemRefs.current[index] = el;
-              }}
-              data-index={index}
-              className="w-screen h-full shrink-0 snap-center snap-always"
-              style={{
-                contentVisibility: "auto",
-                containIntrinsicSize: "100vw 100vh",
-              }}
+        {/* Navigation Buttons */}
+        <div
+          className={twMerge(
+            "absolute inset-x-0 flex justify-between items-center px-4 pointer-events-none z-10",
+            buttonPosition === "center" && "top-1/2 -translate-y-1/2",
+            buttonPosition === "bottom" && "bottom-20"
+          )}
+        >
+          <button
+            onClick={handlePrevious}
+            disabled={isAtStart}
+            className={twMerge(
+              "pointer-events-auto bg-white/10 backdrop-blur-sm text-white rounded-full p-4 transition-all duration-300 border border-white/80",
+              !isActive && "opacity-0",
+              isActive &&
+                !isAtStart &&
+                "opacity-100 delay-600 hover:bg-white/20",
+              isActive &&
+                isAtStart &&
+                "opacity-30 delay-600 cursor-not-allowed",
+              shouldShowButtons ? "" : "opacity-0"
+            )}
+            aria-label="Previous item"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              {renderItem(item, index, currentIndex === index)}
-            </div>
-          ))}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+
+          <button
+            onClick={handleNext}
+            disabled={isAtEnd}
+            className={twMerge(
+              "pointer-events-auto bg-white/10 backdrop-blur-sm text-white rounded-full p-4 transition-all duration-300 border border-white/80",
+              !isActive && "opacity-0",
+              isActive && !isAtEnd && "opacity-100 delay-600 hover:bg-white/20",
+              isActive && isAtEnd && "opacity-30 delay-600 cursor-not-allowed",
+              shouldShowButtons ? "" : "opacity-0"
+            )}
+            aria-label="Next item"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
         </div>
+
+        {/* Animation styles */}
+        <style jsx>{`
+          @keyframes slideUp {
+            from {
+              opacity: 0;
+              transform: translateY(16px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          @keyframes slideDown {
+            from {
+              opacity: 1;
+              transform: translateY(0);
+            }
+            to {
+              opacity: 0;
+              transform: translateY(16px);
+            }
+          }
+          @keyframes slideUpOut {
+            from {
+              opacity: 1;
+              transform: translateY(0);
+            }
+            to {
+              opacity: 0;
+              transform: translateY(-16px);
+            }
+          }
+          @keyframes slideDownIn {
+            from {
+              opacity: 0;
+              transform: translateY(-16px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
       </div>
+    </CarouselContextProvider>
+  );
+}
 
-      {/* Navigation Buttons */}
-      <div
-        className={twMerge(
-          "absolute inset-x-0 flex justify-between items-center px-4 pointer-events-none z-10",
-          buttonPosition === "center" && "top-1/2 -translate-y-1/2",
-          buttonPosition === "bottom" && "bottom-20"
-        )}
-      >
-        <button
-          onClick={handlePrevious}
-          disabled={isAtStart}
-          className={twMerge(
-            "pointer-events-auto bg-white/10 backdrop-blur-sm text-white rounded-full p-4 transition-all duration-300 border border-white/80",
-            !isActive && "opacity-0",
-            isActive && !isAtStart && "opacity-100 delay-600 hover:bg-white/20",
-            isActive && isAtStart && "opacity-30 delay-600 cursor-not-allowed"
-          )}
-          aria-label="Previous item"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
+interface CarouselContext {
+  showButtons: (shouldShow: boolean) => void;
+}
 
-        <button
-          onClick={handleNext}
-          disabled={isAtEnd}
-          className={twMerge(
-            "pointer-events-auto bg-white/10 backdrop-blur-sm text-white rounded-full p-4 transition-all duration-300 border border-white/80",
-            !isActive && "opacity-0",
-            isActive && !isAtEnd && "opacity-100 delay-600 hover:bg-white/20",
-            isActive && isAtEnd && "opacity-30 delay-600 cursor-not-allowed"
-          )}
-          aria-label="Next item"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
-      </div>
+export const CarouselContext = createContext<CarouselContext>({
+  showButtons: () => {},
+});
 
-      {/* Animation styles */}
-      <style jsx>{`
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(16px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes slideDown {
-          from {
-            opacity: 1;
-            transform: translateY(0);
-          }
-          to {
-            opacity: 0;
-            transform: translateY(16px);
-          }
-        }
-        @keyframes slideUpOut {
-          from {
-            opacity: 1;
-            transform: translateY(0);
-          }
-          to {
-            opacity: 0;
-            transform: translateY(-16px);
-          }
-        }
-        @keyframes slideDownIn {
-          from {
-            opacity: 0;
-            transform: translateY(-16px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-    </div>
+export function CarouselContextProvider({
+  children,
+  onShowButtonsChange,
+}: {
+  children: ReactNode;
+  onShowButtonsChange?: (shouldShow: boolean) => void;
+}) {
+  const showButtonsRef = useRef(onShowButtonsChange);
+  // eslint-disable-next-line react-hooks/refs
+  showButtonsRef.current = onShowButtonsChange;
+
+  const value = useMemo(() => {
+    return {
+      showButtons: (shouldShow: boolean) => {
+        showButtonsRef.current?.(shouldShow);
+      },
+    };
+  }, []);
+
+  return (
+    <CarouselContext.Provider value={value}>
+      {children}
+    </CarouselContext.Provider>
   );
 }

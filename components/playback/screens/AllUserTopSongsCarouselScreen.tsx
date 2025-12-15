@@ -77,6 +77,10 @@ export function AllUserTopSongsCarouselScreen({
               points={song.points}
               pointsStrokeColor={NEON_COLORS.BrightPink}
               submittedBy={song.user}
+              voters={song.votes.map((vote) => ({
+                user: vote.userObject,
+                rightText: `+${vote.points} pts`,
+              }))}
             />
 
             {/* Custom animations */}

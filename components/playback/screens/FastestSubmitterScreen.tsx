@@ -118,12 +118,10 @@ export function FastestSubmitterScreen({
                 songPrefix: (
                   <div className="text-center">Fastest submission:</div>
                 ),
-                songs: [
-                  {
-                    ...submitter.fastestSong,
-                    rightText: formatTime(submitter.fastestSong.time),
-                  },
-                ],
+                songs: submitter.fastestSongs.map((song) => ({
+                  ...song,
+                  rightText: formatTime(song.time),
+                })),
               }}
               noDataMessage="No submission data available"
             />
