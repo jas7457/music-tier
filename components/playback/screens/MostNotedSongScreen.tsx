@@ -156,24 +156,22 @@ export function MostNotedSongScreen({
                 </>
               )}
 
-              <div className="w-full flex flex-col gap-4 max-h-full relative z-10">
+              <div className="w-full flex flex-col gap-6 max-h-full relative z-10">
                 {/* Title */}
                 <div
                   className={twMerge(
-                    "transition-all duration-500 transform",
+                    "transition-all duration-500 transform z-10",
                     isItemActive
                       ? "opacity-100 delay-0 translate-y-0"
                       : "opacity-0 -translate-y-4"
                   )}
                 >
-                  <h2 className="text-center drop-shadow-lg">
-                    {playback.mostNotedSongs.length > 1
-                      ? `#${index + 1} Most Discussed`
-                      : "Most Discussed"}
-                  </h2>
-                  <p className="text-2xl text-purple-300 text-center drop-shadow-lg">
+                  <h2 className="text-center">
                     {song.notes.length}{" "}
-                    {song.notes.length === 1 ? "note" : "notes"}
+                    {song.notes.length === 1 ? "Note" : "Notes"}
+                  </h2>
+                  <p className="text-4xl text-purple-300 text-center">
+                    Most Discussed
                   </p>
                 </div>
 

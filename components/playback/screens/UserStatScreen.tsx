@@ -111,7 +111,7 @@ export function UserStatScreen({
           {/* Header with parallax effect */}
           <div
             className={twMerge(
-              "transition-all duration-700 transform",
+              "transition-all duration-700 transform z-10",
               isActive ? "translate-y-0" : "-translate-y-10"
             )}
           >

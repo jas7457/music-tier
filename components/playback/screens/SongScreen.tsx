@@ -78,7 +78,7 @@ export function SongScreen({
         <div className="flex flex-col items-center justify-center text-white gap-8 w-full h-full relative px-8 py-10">
           <div
             className={twMerge(
-              "transition-all duration-700 transform",
+              "transition-all duration-700 transform z-10",
               isActive
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 -translate-y-10"
