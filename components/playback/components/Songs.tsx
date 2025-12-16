@@ -97,9 +97,9 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
                       : "none",
                   }}
                 >
-                  <p className="text-lg font-bold text-green-400 drop-shadow-lg">
+                  <div className="text-lg font-bold text-green-400 drop-shadow-lg">
                     {song.rightText}
-                  </p>
+                  </div>
                 </div>
               )}
             </div>

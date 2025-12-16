@@ -14,66 +14,67 @@ import { MostNotedSongScreen } from "./screens/MostNotedSongScreen";
 import { ConspiratorsScreen } from "./screens/ConspiratorsScreen";
 import { AllUserTopSongsCarouselScreen } from "./screens/AllUserTopSongsCarouselScreen";
 import { SummaryScreen } from "./screens/SummaryScreen";
+import { memo } from "react";
 
 export const PLAYBACK_SCREENS: PlaybackScreen[] = [
   {
     key: "intro",
-    component: IntroScreen,
+    component: memo(IntroScreen),
   },
   {
     key: "total-points",
-    component: TotalPointsScreen,
+    component: memo(TotalPointsScreen),
   },
   {
     key: "top-song",
-    component: TopSongScreen,
+    component: memo(TopSongScreen),
   },
   {
     key: "biggest-fan",
-    component: BiggestFanScreen,
+    component: memo(BiggestFanScreen),
   },
   {
     key: "biggest-critic",
-    component: BiggestCriticScreen,
+    component: memo(BiggestCriticScreen),
   },
   {
     key: "user-top-song",
-    component: UserTopSongScreen,
+    component: memo(UserTopSongScreen),
   },
   {
     key: "most-wins",
-    component: MostWinsScreen,
+    component: memo(MostWinsScreen),
   },
   {
     key: "fastest-submitter",
-    component: FastestSubmitterScreen,
+    component: memo(FastestSubmitterScreen),
   },
   {
     key: "fastest-voter",
-    component: FastestVoterScreen,
+    component: memo(FastestVoterScreen),
   },
   {
     key: "most-consistent",
-    component: MostConsistentScreen,
+    component: memo(MostConsistentScreen),
   },
   {
     key: "best-guesser",
-    component: BestGuesserScreen,
+    component: memo(BestGuesserScreen),
   },
   {
     key: "most-noted-song",
-    component: MostNotedSongScreen,
+    component: memo(MostNotedSongScreen),
   },
   {
     key: "conspirators",
-    component: ConspiratorsScreen,
+    component: memo(ConspiratorsScreen),
   },
   {
     key: "all-user-top-songs-carousel",
-    component: AllUserTopSongsCarouselScreen,
+    component: memo(AllUserTopSongsCarouselScreen),
   },
   {
     key: "summary",
-    component: SummaryScreen,
+    component: memo(SummaryScreen),
   },
 ];
