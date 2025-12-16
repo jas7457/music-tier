@@ -1,18 +1,17 @@
 "use client";
 
-import { Avatar } from "@/components/Avatar";
-import { PopulatedUser } from "@/lib/types";
+import { PopulatedRound } from "@/lib/types";
 import { Screen } from "./Screen";
 
-interface UserListItem {
-  user: PopulatedUser;
+interface RoundListItem {
+  round: PopulatedRound;
   subtitle?: string;
   rightText?: string;
 }
 
-interface UserListProps {
+interface RoundListProps {
   isActive: boolean;
-  users: UserListItem[];
+  rounds: RoundListItem[];
   background?: {
     from: string;
     via: string;
@@ -21,12 +20,12 @@ interface UserListProps {
   title?: string;
 }
 
-export function UserList({
-  users,
+export function RoundList({
+  rounds,
   background,
   title,
   isActive,
-}: UserListProps) {
+}: RoundListProps) {
   return (
     <Screen background={background}>
       <div className="h-full grid items-center text-white py-14">
@@ -39,29 +38,19 @@ export function UserList({
 
           <div className="flex-1 overflow-y-auto px-4 pb-4">
             <div className="bg-white/10 rounded-xl border border-white/20 max-w-2xl mx-auto space-y-2">
-              {users.map((item, index) => (
+              {rounds.map((item, index) => (
                 <div
-                  key={item.user._id}
+                  key={item.round._id}
                   className="flex items-center gap-3 py-3 px-3 rounded-lg transition-all duration-300"
                   style={{
                     animation: isActive
-                      ? `slide-in-user 0.4s ease-out ${index * 80}ms both`
+                      ? `slide-in-round 0.4s ease-out ${index * 80}ms both`
                       : "none",
                   }}
                 >
-                  <div
-                    style={{
-                      animation: isActive
-                        ? `avatar-pop 0.5s ease-out ${index * 80 + 100}ms both`
-                        : "none",
-                    }}
-                  >
-                    <Avatar user={item.user} size={16} includeLink={false} />
-                  </div>
-
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold text-white drop-shadow-md">
-                      {item.user.userName}
+                      {item.round.title}
                     </div>
                     {item.subtitle && (
                       <div className="text-xs text-white/70">
@@ -103,7 +92,7 @@ export function UserList({
 
       {/* Animation styles */}
       <style jsx>{`
-        @keyframes slide-in-user {
+        @keyframes slide-in-round {
           0% {
             opacity: 0;
             transform: translateX(-20px);
@@ -114,7 +103,7 @@ export function UserList({
           }
         }
 
-        @keyframes avatar-pop {
+        @keyframes round-pop {
           0% {
             opacity: 0;
             transform: scale(0) rotate(-180deg);
@@ -151,18 +140,6 @@ export function UserList({
           }
           12.5% {
             transform: scale(1.15);
-          }
-        }
-
-        @keyframes glow-pulse {
-          0%,
-          100% {
-            opacity: 0.3;
-            transform: scale(0.8);
-          }
-          50% {
-            opacity: 0.6;
-            transform: scale(1.2);
           }
         }
       `}</style>

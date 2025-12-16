@@ -136,6 +136,10 @@ export interface LeaguePlaybackStats {
       time: number;
       round: PopulatedRound;
     }>;
+    rounds: Array<{
+      round: PopulatedRound;
+      time: number;
+    }>;
   }>;
   fastestVote: {
     user: PopulatedUser;

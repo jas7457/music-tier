@@ -510,15 +510,21 @@ export function calculatePlaybackStats(
         const votesForRound = data.votes.reduce((acc, vote) => {
           const hasRound = acc.find((v) => v.round._id === vote.round._id);
           if (!hasRound) {
-            acc.push({ round: vote.round, time: vote.timeToVote });
+            acc.push({
+              round: vote.round,
+              time: vote.timeToVote,
+              points: vote.vote.points,
+              trackInfo: submissionsById[vote.vote.submissionId].trackInfo,
+            });
           }
           return acc;
-        }, [] as Array<{ round: PopulatedRound; time: number }>);
+        }, [] as Array<{ round: PopulatedRound; time: number; points: number; trackInfo: TrackInfo }>);
 
         acc.fastestVoters.push({
           user: data.user,
           avgTime: averageVoteTime,
           votes: votesForRound,
+          rounds: votesForRound.map((v) => ({ round: v.round, time: v.time })),
         });
 
         const fastestVote = [...data.votes].sort(

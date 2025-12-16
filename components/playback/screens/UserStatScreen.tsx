@@ -63,16 +63,18 @@ export function UserStatScreen({
         renderBackface ??
         ((isActive) =>
           stat.songs ? (
-            <div className="h-full bg-linear-to-br from-purple-900 via-pink-900 to-purple-800 text-white py-8 px-4 grid items-center">
-              <div>
-                <div className="text-center py-3 shrink-0">
-                  <h2 className="text-2xl font-bold drop-shadow-lg">{title}</h2>
-                  <p className="text-lg text-purple-200 mt-1">
-                    {user.userName}
-                  </p>
-                </div>
+            <div className="h-full bg-linear-to-br from-purple-900 via-pink-900 to-purple-800 text-white py-14 px-4">
+              <div className="grid items-center h-full overflow-y-auto overflow-x-hidden">
+                <div>
+                  <div className="text-center py-3 shrink-0">
+                    <h2 className="text-2xl font-bold drop-shadow-lg">
+                      {title}
+                    </h2>
+                    <p className="text-lg text-purple-200 mt-1">
+                      {user.userName}
+                    </p>
+                  </div>
 
-                <div className="overflow-y-auto px-2">
                   <Songs
                     className={twMerge(
                       "transition-all duration-700 delay-600 transform",

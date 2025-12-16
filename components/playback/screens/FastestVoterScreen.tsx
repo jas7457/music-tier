@@ -6,6 +6,7 @@ import type { PlaybackScreenProps } from "../types";
 import { UserStatScreen } from "./UserStatScreen";
 import { HorizontalCarousel } from "../components/HorizontalCarousel";
 import { formatTime } from "./utils";
+import { RoundList } from "../components/RoundList";
 
 export function FastestVoterScreen({
   playback,
@@ -91,6 +92,16 @@ export function FastestVoterScreen({
                 label: "average time",
                 icon: "⚡",
               }}
+              renderBackface={(isBackfaceActive) => (
+                <RoundList
+                  title="Voting Times"
+                  isActive={isActive && isBackfaceActive}
+                  rounds={stat[index].rounds.map((vote) => ({
+                    round: vote.round,
+                    rightText: formatTime(vote.time),
+                  }))}
+                />
+              )}
               noDataMessage="No voting data available"
             />
 

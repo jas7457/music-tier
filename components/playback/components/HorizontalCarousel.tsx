@@ -248,7 +248,7 @@ export function HorizontalCarousel<T>({
               isActive &&
                 isAtStart &&
                 "opacity-30 delay-600 cursor-not-allowed",
-              shouldShowButtons ? "" : "opacity-0"
+              shouldShowButtons ? "" : "opacity-0 pointer-events-none"
             )}
             aria-label="Previous item"
           >
@@ -276,7 +276,7 @@ export function HorizontalCarousel<T>({
               !isActive && "opacity-0",
               isActive && !isAtEnd && "opacity-100 delay-600 hover:bg-white/20",
               isActive && isAtEnd && "opacity-30 delay-600 cursor-not-allowed",
-              shouldShowButtons ? "" : "opacity-0"
+              shouldShowButtons ? "" : "opacity-0 pointer-events-none"
             )}
             aria-label="Next item"
           >
