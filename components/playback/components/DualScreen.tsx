@@ -27,7 +27,6 @@ export function DualScreen({
   }, [carouselContext, isFlipped]);
 
   useEffect(() => {
-    console.log({ isActive, isFlipped });
     if (!isActive && isFlipped) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       handleFlip();
@@ -86,6 +85,7 @@ export function DualScreen({
           className="relative w-full h-full transition-transform duration-700"
           style={{
             transformStyle: "preserve-3d",
+            WebkitTransformStyle: "preserve-3d",
             transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
           }}
         >
@@ -95,6 +95,8 @@ export function DualScreen({
             style={{
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
+              transform: "rotateY(0deg)",
+              WebkitTransform: "rotateY(0deg)",
               pointerEvents: isFlipped ? "none" : "auto",
             }}
           >
@@ -108,6 +110,7 @@ export function DualScreen({
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
+              WebkitTransform: "rotateY(180deg)",
               pointerEvents: isFlipped ? "auto" : "none",
             }}
           >
