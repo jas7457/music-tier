@@ -687,12 +687,10 @@ export function calculatePlaybackStats(
     .map(([userId, data]) => {
       const mean = data.totalPoints / data.points.length;
       const variance =
-        data.points.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) /
+        data.points.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
         data.points.length;
-      const userPlace =
-        userPoints.findIndex((u) => u.user._id === userId) !== -1
-          ? userPlaces[userPoints.findIndex((u) => u.user._id === userId)]
-          : 0;
+      const userPlaceIndex = userPoints.findIndex((u) => u.user._id === userId);
+      const userPlace = userPlaceIndex !== -1 ? userPlaces[userPlaceIndex] : 0;
       return {
         user: usersById[userId],
         variance,

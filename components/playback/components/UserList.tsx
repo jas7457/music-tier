@@ -6,7 +6,6 @@ import { Screen } from "./Screen";
 
 interface UserListItem {
   user: PopulatedUser;
-  subtitle?: string;
   rightText?: string;
 }
 
@@ -38,11 +37,11 @@ export function UserList({
           )}
 
           <div className="flex-1 overflow-y-auto px-4 pb-4">
-            <div className="bg-white/10 rounded-xl border border-white/20 max-w-2xl mx-auto space-y-2">
+            <div className="bg-white/10 rounded-xl border border-white/20 max-w-2xl mx-auto divide-y divide-white/20">
               {users.map((item, index) => (
                 <div
                   key={item.user._id}
-                  className="flex items-center gap-3 py-3 px-3 rounded-lg transition-all duration-300"
+                  className="flex items-center gap-3 py-3 px-3 transition-all duration-300"
                   style={{
                     animation: isActive
                       ? `slide-in-user 0.4s ease-out ${index * 80}ms both`
@@ -60,14 +59,12 @@ export function UserList({
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-white drop-shadow-md">
+                    <div className="text-lg font-semibold text-white drop-shadow-md text-shadow-md">
+                      {item.user.firstName} {item.user.lastName}
+                    </div>
+                    <div className="text-md text-white/70">
                       {item.user.userName}
                     </div>
-                    {item.subtitle && (
-                      <div className="text-xs text-white/70">
-                        {item.subtitle}
-                      </div>
-                    )}
                   </div>
 
                   {item.rightText && (
@@ -83,13 +80,7 @@ export function UserList({
                           : "none",
                       }}
                     >
-                      <div
-                        className="text-lg font-bold text-white drop-shadow-lg transition-all duration-300"
-                        style={{
-                          textShadow:
-                            "0 0 10px rgba(251, 191, 36, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3)",
-                        }}
-                      >
+                      <div className="text-lg font-bold text-green-400 drop-shadow-md transition-all duration-300 text-shadow-lg">
                         {item.rightText}
                       </div>
                     </div>

@@ -137,8 +137,10 @@ export function MostConsistentScreen({
                 strokeColor={NEON_COLORS.LimeGreen}
                 statClassName="text-5xl"
                 stat={{
-                  value: `± ${consistent.variance.toFixed(1)} points`,
-                  label: `Average ${consistent.avgPoints.toFixed(1)} pts/round`,
+                  value: `± ${consistent.variance.toFixed(1)} variance`,
+                  label: `Averaged ${consistent.avgPoints.toFixed(
+                    1
+                  )} pts/round`,
                   icon: "",
                   songs: consistent.rounds.map((round) => ({
                     trackInfo: round.submission.trackInfo,
