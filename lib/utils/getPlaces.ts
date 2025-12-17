@@ -1,16 +1,29 @@
-export function getPlaces(points: number[]) {
-  const inOrder = [...points].sort((a, b) => b - a);
+import { PopulatedUser } from "../types";
 
-  let currentHighScore = inOrder[0];
+export function getPlaces<
+  TEntry extends { user: PopulatedUser; points: number; wins: number }
+>(entries: Array<TEntry>) {
+  const sortedEntries = [...entries].sort((a, b) => {
+    if (a.points !== b.points) {
+      return b.points - a.points;
+    }
+    if (a.wins !== b.wins) {
+      return b.wins - a.wins;
+    }
+    return a.user.index - b.user.index;
+  });
+
+  let currentHighScore = sortedEntries[0].points;
   let currentPlace = 1;
 
-  return points.map((point, index) => {
-    const thisPlace = point === currentHighScore ? currentPlace : index + 1;
-    if (point < currentHighScore) {
+  return sortedEntries.map((entry, index) => {
+    const thisPlace =
+      entry.points === currentHighScore ? currentPlace : index + 1;
+    if (entry.points < currentHighScore) {
       currentPlace = thisPlace;
-      currentHighScore = point;
+      currentHighScore = entry.points;
     }
-    return thisPlace;
+    return { ...entry, place: thisPlace };
   });
 }
 

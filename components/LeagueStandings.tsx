@@ -203,9 +203,9 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
       (standing) => standing.user._id === user?._id
     );
 
-    const places = getPlaces(standings.map((s) => s.points));
+    const places = getPlaces(standings);
     const yourStanding = standings[yourStandingIndex];
-    const yourPlace = places[yourStandingIndex];
+    const yourPlace = places[yourStandingIndex].place;
 
     const suffix = (() => {
       const lastDigit = yourPlace % 10;
@@ -337,10 +337,10 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
   }
 
   const standingsMarkup = (() => {
-    const places = getPlaces(standings.map((s) => s.points));
+    const places = getPlaces(standings);
 
-    return standings.map((standing, index) => {
-      const currentPlace = places[index];
+    return places.map((standing, index) => {
+      const currentPlace = places[index].place;
       const isFirst = currentPlace === 1;
       const isSecond = currentPlace === 2;
       const isThird = currentPlace === 3;

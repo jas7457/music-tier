@@ -12,7 +12,18 @@ export const PUSHER_NOTIFICATIONS = "pusher_notifications";
 export const APP_NAME = "Playlist Party";
 export const PRODUCTION_URL = "https://music-tier.vercel.app";
 
-export const JASON_ID = "6924608790c0b7c51ab5aec9";
+export const USER_IDS = {
+  JASON: "6924608790c0b7c51ab5aec9",
+  KELSEY: "692462e546422e7ee9dc0f6d",
+  TJ: "6924743e2f3d26e1e94e889b",
+  CODY: "6925a5f5c862b83683fbb9ea",
+  DHARAM: "692722dc52eadc22aeac2cf5",
+  KAYLA: "692b300aba9c99901e571c16",
+  JEN: "692b4f13016f4a750237c163",
+  JAMES: "692c2c9653d0e0f0ed40264e",
+};
+
+export const JASON_ID = USER_IDS.JASON;
 
 export const SIDE_PLAYLIST_ID = "4H61DjOnkWyw3b1jqcvoAP";
 

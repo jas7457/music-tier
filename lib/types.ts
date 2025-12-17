@@ -151,7 +151,6 @@ export interface LeaguePlaybackStats {
     user: PopulatedUser;
     variance: number;
     avgPoints: number;
-    place: number;
     rounds: Array<{
       round: PopulatedRound;
       points: number;
@@ -203,6 +202,25 @@ export interface LeaguePlaybackStats {
   allUserWins: Array<{
     user: PopulatedUser;
     wins: number;
+    totalPoints: number;
+  }>;
+  leagueWinner: {
+    user: PopulatedUser;
+    totalPoints: number;
+    firstPlaceRounds: number;
+    submissions: Array<{
+      trackInfo: TrackInfo;
+      round: PopulatedRound;
+      points: number;
+      votes: Array<{
+        user: PopulatedUser;
+        points: number;
+        note?: string;
+      }>;
+    }>;
+  } | null;
+  otherUsers: Array<{
+    user: PopulatedUser;
     totalPoints: number;
   }>;
 }

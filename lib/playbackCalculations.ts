@@ -43,6 +43,8 @@ export function calculatePlaybackStats(
       mostNotedSongs: [],
       allUserTopSongs: [],
       allUserWins: [],
+      leagueWinner: null,
+      otherUsers: [],
     };
   }
 
@@ -232,40 +234,36 @@ export function calculatePlaybackStats(
       });
     });
 
-    const usersByPoints = league.users
-      .map((user) => {
-        const votesForUser = round.votes.filter((vote) => {
-          const submission = round.submissions.find(
-            (s) => s._id === vote.submissionId
-          );
-          return submission?.userId === user._id;
-        });
-        const userPoints = votesForUser.reduce(
-          (acc, points) => {
-            if (points.points > 0) {
-              acc.points += points.points;
-            }
-            return acc;
-          },
-          {
-            points: 0,
-            user: usersById[user._id],
-          }
+    const usersByPoints = league.users.map((user) => {
+      const votesForUser = round.votes.filter((vote) => {
+        const submission = round.submissions.find(
+          (s) => s._id === vote.submissionId
         );
-
-        return userPoints;
-      })
-      .sort((a, b) => {
-        if (b.points !== a.points) {
-          return b.points - a.points;
-        }
-        return a.user.index - b.user.index;
+        return submission?.userId === user._id;
       });
+      const userPoints = votesForUser.reduce(
+        (acc, points) => {
+          if (points.points > 0) {
+            acc.points += points.points;
+          }
+          return acc;
+        },
+        {
+          points: 0,
+          user: usersById[user._id],
+        }
+      );
 
-    const userPlaces = getPlaces(usersByPoints.map((u) => u.points));
-    usersByPoints.forEach((userPointData, index) => {
+      return userPoints;
+    });
+
+    const userPlaces = getPlaces(usersByPoints.map((u) => ({ ...u, wins: 0 })));
+    usersByPoints.forEach((userPointData) => {
+      const userIndex = userPlaces.findIndex(
+        (u) => u.user._id === userPointData.user._id
+      );
       userData[userPointData.user._id].places.push({
-        place: userPlaces[index],
+        place: userPlaces[userIndex].place,
         round,
       });
     });
@@ -287,17 +285,18 @@ export function calculatePlaybackStats(
     });
   });
 
-  const userPoints = Object.values(userData).sort((a, b) => {
-    if (b.totalPoints !== a.totalPoints) {
-      return b.totalPoints - a.totalPoints;
-    }
-    return b.votes.length - a.votes.length;
-  });
-  const userPlaces = getPlaces(userPoints.map((u) => u.totalPoints));
+  const userPoints = Object.values(userData);
+  const userPlaces = getPlaces(
+    userPoints.map((u) => ({
+      ...u,
+      points: u.totalPoints,
+      wins: u.votes.length,
+    }))
+  );
   const userIndex = userPoints.findIndex((u) => u.user._id === userId);
   const userStats: LeaguePlaybackStats["userStats"] = {
     totalPoints: yourInfo.totalPoints,
-    place: userPlaces[userIndex],
+    place: userPlaces[userIndex].place,
   };
 
   // 3. Biggest fans (per user)
@@ -377,15 +376,20 @@ export function calculatePlaybackStats(
       return;
     }
 
-    const submissionIds = round.submissions.map((s) => s._id);
-    const points = submissionIds.map((id) => submissionPoints.get(id) || 0);
-    const places = getPlaces(points);
+    const places = getPlaces(
+      round.submissions.map((submission) => {
+        return {
+          user: usersById[submission.userId],
+          points: submissionPoints.get(submission._id) || 0,
+          wins: 0,
+          submission,
+        };
+      })
+    );
 
-    submissionIds.forEach((submissionId, index) => {
-      if (places[index] === 1) {
-        const submission = round.submissions.find(
-          (s) => s._id === submissionId
-        );
+    places.forEach((place) => {
+      if (place.place === 1) {
+        const submission = place.submission;
         if (submission) {
           const current = winsByUser.get(submission.userId) || 0;
           winsByUser.set(submission.userId, current + 1);
@@ -689,13 +693,10 @@ export function calculatePlaybackStats(
       const variance =
         data.points.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
         data.points.length;
-      const userPlaceIndex = userPoints.findIndex((u) => u.user._id === userId);
-      const userPlace = userPlaceIndex !== -1 ? userPlaces[userPlaceIndex] : 0;
       return {
         user: usersById[userId],
         variance,
         avgPoints: mean,
-        place: userPlace,
         rounds: userData[userId].places
           .map((placeInfo) => {
             const pointInfo = userData[userId].points.find(
@@ -909,6 +910,67 @@ export function calculatePlaybackStats(
       return b.totalPoints - a.totalPoints;
     });
 
+  // Calculate league winner (highest total points)
+  const sortedByPoints = getPlaces(
+    Object.values(userData).map((data) => {
+      return {
+        ...data,
+        points: data.totalPoints,
+        pointsArray: data.points,
+        wins: data.places.filter((p) => p.place === 1).length,
+      };
+    })
+  );
+  /*
+  .sort((a, b) => {
+    if (b.totalPoints !== a.totalPoints) {
+      return b.totalPoints - a.totalPoints;
+    }
+    return b.votes.length - a.votes.length;
+  });
+  */
+
+  const leagueWinner: LeaguePlaybackStats["leagueWinner"] =
+    sortedByPoints.length > 0
+      ? {
+          user: sortedByPoints[0].user,
+          totalPoints: sortedByPoints[0].totalPoints,
+          firstPlaceRounds: sortedByPoints[0].places.filter(
+            (p) => p.place === 1
+          ).length,
+          submissions: sortedByPoints[0].pointsArray.map((pointInfo) => {
+            const round = completedRounds.find(
+              (r) => r._id === pointInfo.round._id
+            )!;
+            const votes = round.votes
+              .filter(
+                (vote) =>
+                  vote.submissionId === pointInfo.submission._id &&
+                  (vote.points > 0 || vote.note)
+              )
+              .map((vote) => ({
+                user: usersById[vote.userId],
+                points: vote.points,
+                note: vote.note,
+              }));
+            return {
+              trackInfo: pointInfo.trackInfo,
+              round: pointInfo.round,
+              points: pointInfo.points,
+              votes,
+            };
+          }),
+        }
+      : null;
+
+  // Calculate other users (non-winners) sorted by points
+  const otherUsers = sortedByPoints
+    .slice(1) // Skip the winner (first element)
+    .map((data) => ({
+      user: data.user,
+      totalPoints: data.totalPoints,
+    }));
+
   return {
     topSong,
     userStats,
@@ -946,5 +1008,7 @@ export function calculatePlaybackStats(
     }),
     allUserTopSongs,
     allUserWins,
+    leagueWinner,
+    otherUsers,
   };
 }

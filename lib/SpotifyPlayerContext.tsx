@@ -35,6 +35,7 @@ interface SpotifyPlayerContextType {
     playlist?: Array<TrackInfo>;
     startTime?: number;
   }) => Promise<void>;
+  setVolume: (volume: number) => Promise<void>;
   pausePlayback: () => Promise<void>;
   resumePlayback: () => Promise<void>;
   nextTrack: () => Promise<void>;
@@ -429,6 +430,7 @@ export function SpotifyPlayerProvider({
       playlistRound,
       isDisabled: false,
       playTrack,
+      setVolume,
       pausePlayback: async () => {
         const accessToken = Cookies.get("spotify_access_token");
         if (!accessToken) return;
@@ -625,4 +627,25 @@ function getPlaylistForRound({
       }
     })
     .map((submission) => submission.trackInfo);
+}
+
+async function setVolume(volume: number): Promise<void> {
+  const accessToken = Cookies.get("spotify_access_token");
+  if (!accessToken) {
+    return;
+  }
+
+  try {
+    await fetch(
+      `https://api.spotify.com/v1/me/player/volume?volume_percent=${Math.floor(
+        volume * 100
+      )}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+  } catch {}
 }

@@ -239,21 +239,19 @@ function calculateUserStats(
       });
     });
 
-    const userPointsConfigs = league.users
-      .map((user) => ({
+    const places = getPlaces(
+      league.users.map((user) => ({
         user,
         points: userPoints[user._id] || 0,
+        wins: 0,
       }))
-      .sort((a, b) => b.points - a.points);
-    const places = getPlaces(userPointsConfigs.map((up) => up.points));
-    const userIndex = userPointsConfigs.findIndex(
-      (up) => up.user._id === userId
     );
+    const userIndex = places.findIndex((up) => up.user._id === userId);
     if (userIndex === -1 || userIndex > places.length - 1) {
       return;
     }
 
-    const userPlacement = places[userIndex];
+    const userPlacement = places[userIndex].place;
     if (userPlacement === 1) {
       firstPlaceLeagues.push({
         ...league,

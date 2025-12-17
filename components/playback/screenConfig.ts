@@ -14,12 +14,17 @@ import { MostNotedSongScreen } from "./screens/MostNotedSongScreen";
 import { ConspiratorsScreen } from "./screens/ConspiratorsScreen";
 import { AllUserTopSongsCarouselScreen } from "./screens/AllUserTopSongsCarouselScreen";
 import { SummaryScreen } from "./screens/SummaryScreen";
+import { LeagueChampionScreen } from "./screens/LeagueChampionScreen";
 import { memo } from "react";
 
 export const PLAYBACK_SCREENS: PlaybackScreen[] = [
   {
     key: "intro",
     component: memo(IntroScreen),
+  },
+  {
+    key: "league-champion",
+    component: memo(LeagueChampionScreen),
   },
   {
     key: "total-points",
