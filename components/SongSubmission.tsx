@@ -15,6 +15,7 @@ import { HapticButton } from "./HapticButton";
 import { SpotifySongSearch } from "./SpotifySongSearch";
 import { OnDeckSubmissionsList } from "./OnDeckSubmissions";
 import { TrackInfo } from "@/databaseTypes";
+import { assertNever } from "@/lib/utils/never";
 
 interface SongSubmissionProps {
   round: PopulatedRound;
@@ -35,6 +36,11 @@ export function SongSubmission({
     submission ? getTrackUrlFromId(submission.trackInfo.trackId) : ""
   );
   const [error, setError] = useState<string | null>(null);
+  const [warningInfo, setWarningInfo] = useState<
+    | { code: "ARTIST_MATCH"; artist: string }
+    | { code: "TITLE_AND_ARTIST_MATCH"; trackInfo: TrackInfo }
+    | null
+  >(null);
   const [isEditing, setIsEditing] = useState(false);
   const [onDeckSubmissions, setOnDeckSubmissions] = useState<
     Array<{
@@ -83,6 +89,7 @@ export function SongSubmission({
       return;
     }
     setError(null);
+    setWarningInfo(null);
     setIsSubmitting(true);
 
     try {
@@ -95,6 +102,7 @@ export function SongSubmission({
         body: JSON.stringify({
           trackInfo: submission.trackInfo,
           note: submission.note,
+          force: warningInfo !== null,
         }),
       });
 
@@ -107,6 +115,22 @@ export function SongSubmission({
         );
         setIsSubmitting(false);
         return;
+      }
+
+      if (data.success === false) {
+        if (data.code === "TITLE_AND_ARTIST_MATCH") {
+          setWarningInfo({
+            code: "TITLE_AND_ARTIST_MATCH",
+            trackInfo: data.trackInfo,
+          });
+          setIsSubmitting(false);
+          return;
+        }
+        if (data.code === "ARTIST_MATCH") {
+          setWarningInfo({ code: "ARTIST_MATCH", artist: data.artist });
+          setIsSubmitting(false);
+          return;
+        }
       }
 
       setIsEditing(false);
@@ -211,6 +235,48 @@ export function SongSubmission({
     );
   }
 
+  const warningMarkup = (() => {
+    if (!warningInfo) {
+      return null;
+    }
+
+    const warningCode = warningInfo.code;
+    switch (warningCode) {
+      case "ARTIST_MATCH": {
+        return (
+          <Card
+            className={
+              "bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded text-sm mb-3"
+            }
+          >
+            It looks like there was another submission with this artist already.
+            You can still submit by clicking the button again.
+          </Card>
+        );
+      }
+      case "TITLE_AND_ARTIST_MATCH": {
+        return (
+          <Card
+            className={
+              "bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded text-sm mb-3"
+            }
+          >
+            It looks like there was another submission that was very similar to
+            yours. The song{" "}
+            <span className="font-semibold">{`${
+              warningInfo.trackInfo.title
+            } by ${warningInfo.trackInfo.artists.join(", ")}`}</span>{" "}
+            has already been submitted. You can still submit by clicking the
+            button again.
+          </Card>
+        );
+      }
+      default: {
+        assertNever(warningCode);
+      }
+    }
+  })();
+
   return (
     <Card variant="outlined" className={fullClassName}>
       <h5 className="font-semibold text-sm mb-3 text-gray-700">
@@ -227,6 +293,8 @@ export function SongSubmission({
         </Card>
       )}
 
+      {warningMarkup}
+
       <form onSubmit={handleSubmit} className="grid gap-3">
         <div className="relative">
           <label>
@@ -241,11 +309,13 @@ export function SongSubmission({
                 setSubmission({ trackInfo });
                 setTrackUrl(trackUrl);
                 setError(null);
+                setWarningInfo(null);
               }}
               onSongSelected={(trackInfo, trackUrl) => {
                 setSubmission({ trackInfo });
                 setTrackUrl(trackUrl);
                 setError(null);
+                setWarningInfo(null);
               }}
               currentTrackId={submission?.trackInfo.trackId}
             />
