@@ -288,7 +288,7 @@ export async function getUserLeagues(
         })();
         const submissionEndDate = (() => {
           const normalEnd = getEndOfDay(
-            submissionStartDate + league.daysForSubmission * ONE_DAY_MS
+            submissionStartDate + league.daysForSubmission * ONE_DAY_MS - 60_000
           );
 
           const allSubmitted = round.submissions.length >= league.users.length;
@@ -315,7 +315,7 @@ export async function getUserLeagues(
             return submissionEndDate;
           }
           const normalEnd = getEndOfDay(
-            votingStartDate + league.daysForVoting * ONE_DAY_MS
+            votingStartDate + league.daysForVoting * ONE_DAY_MS - 60_000
           );
           const roundPoints = round.votes.reduce(
             (acc, vote) => acc + vote.points,
