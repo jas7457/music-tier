@@ -23,6 +23,7 @@ interface SongScreenProps {
   voters: Array<{
     user: PopulatedUser;
     rightText: string;
+    note: string | undefined;
   }>;
   pointsStrokeColor: string;
   submittedBy: PopulatedUser;

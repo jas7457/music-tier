@@ -146,6 +146,7 @@ export function MostConsistentScreen({
                     trackInfo: round.submission.trackInfo,
                     round: round.round,
                     rightText: `${round.points} pts`,
+                    note: round.submission.note,
                   })),
                 }}
               />

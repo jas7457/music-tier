@@ -80,6 +80,7 @@ export function AllUserTopSongsCarouselScreen({
               voters={song.votes.map((vote) => ({
                 user: vote.userObject,
                 rightText: `+${vote.points} pts`,
+                note: vote.note,
               }))}
             />
 

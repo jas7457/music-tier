@@ -11,9 +11,10 @@ export interface PlaybackScreenProps {
 export interface PlaybackScreen {
   key: string;
   component: React.ComponentType<PlaybackScreenProps>;
-  background?: {
-    from: string;
-    via: string;
-    to: string;
-  };
+  viewType:
+    | "IntroScreen"
+    | "SummaryScreen"
+    | "SongScreen"
+    | "UserScreen"
+    | "CustomScreen";
 }

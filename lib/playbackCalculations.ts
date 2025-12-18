@@ -158,8 +158,10 @@ export function calculatePlaybackStats(
       pointInfo.points += vote.points;
       submissionUser.totalPoints += vote.points;
 
-      if (vote.points > 0) {
-        pointInfo.voters += 1;
+      if (vote.points > 0 || vote.note) {
+        if (vote.points > 0) {
+          pointInfo.voters += 1;
+        }
         pointInfo.votes.push(vote);
 
         const pointsByFriend = submissionUser.pointsByFriends[vote.userId] ?? {
@@ -170,11 +172,14 @@ export function calculatePlaybackStats(
         };
 
         pointsByFriend.points += vote.points;
-        pointsByFriend.votes += 1;
+        if (vote.points > 0) {
+          pointsByFriend.votes += 1;
+        }
         pointsByFriend.songs.push({
           trackInfo: submission.trackInfo,
           points: vote.points,
           round,
+          note: vote.note,
         });
         submissionUser.pointsByFriends[vote.userId] = pointsByFriend;
 
@@ -187,11 +192,14 @@ export function calculatePlaybackStats(
           user: usersById[submissionUser.user._id],
         };
         pointsForFriend.points += vote.points;
-        pointsForFriend.votes += 1;
+        if (vote.points > 0) {
+          pointsForFriend.votes += 1;
+        }
         pointsForFriend.songs.push({
           trackInfo: submission.trackInfo,
           points: vote.points,
           round,
+          note: vote.note,
         });
         voteUser.pointsForFriends[submissionUser.user._id] = pointsForFriend;
       }
@@ -258,12 +266,9 @@ export function calculatePlaybackStats(
     });
 
     const userPlaces = getPlaces(usersByPoints.map((u) => ({ ...u, wins: 0 })));
-    usersByPoints.forEach((userPointData) => {
-      const userIndex = userPlaces.findIndex(
-        (u) => u.user._id === userPointData.user._id
-      );
+    userPlaces.forEach((userPointData) => {
       userData[userPointData.user._id].places.push({
-        place: userPlaces[userIndex].place,
+        place: userPointData.place,
         round,
       });
     });
@@ -285,18 +290,17 @@ export function calculatePlaybackStats(
     });
   });
 
-  const userPoints = Object.values(userData);
   const userPlaces = getPlaces(
-    userPoints.map((u) => ({
+    Object.values(userData).map((u) => ({
       ...u,
       points: u.totalPoints,
-      wins: u.votes.length,
+      wins: u.places.filter((p) => p.place === 1).length,
     }))
   );
-  const userIndex = userPoints.findIndex((u) => u.user._id === userId);
+  const userPlace = userPlaces.find((u) => u.user._id === userId);
   const userStats: LeaguePlaybackStats["userStats"] = {
     totalPoints: yourInfo.totalPoints,
-    place: userPlaces[userIndex].place,
+    place: userPlace?.place ?? 800,
   };
 
   // 3. Biggest fans (per user)
@@ -390,10 +394,8 @@ export function calculatePlaybackStats(
     places.forEach((place) => {
       if (place.place === 1) {
         const submission = place.submission;
-        if (submission) {
-          const current = winsByUser.get(submission.userId) || 0;
-          winsByUser.set(submission.userId, current + 1);
-        }
+        const current = winsByUser.get(submission.userId) || 0;
+        winsByUser.set(submission.userId, current + 1);
       }
     });
   });
@@ -429,6 +431,7 @@ export function calculatePlaybackStats(
               trackInfo: pointInfo!.trackInfo,
               points: pointInfo!.points,
               round: placeInfo.round,
+              note: undefined,
             };
           })
           .filter((item) => item !== null);
@@ -480,6 +483,7 @@ export function calculatePlaybackStats(
                 trackInfo: submission.submission.trackInfo,
                 time: submission.timeToSubmit,
                 round: roundsById[submission.submission.roundId],
+                note: submission.submission.note,
               }))
               .sort((a, b) => a.time - b.time),
             submissions: data.submissions
@@ -488,6 +492,9 @@ export function calculatePlaybackStats(
                 trackInfo: submission.submission.trackInfo,
                 time: submission.timeToSubmit,
                 round: roundsById[submission.submission.roundId],
+                note: submission.notes.find(
+                  (note) => note.user._id === data.user._id
+                )?.text,
               })),
           });
 
@@ -718,7 +725,10 @@ export function calculatePlaybackStats(
     .sort((a, b) => a.variance - b.variance);
 
   // 11. Conspirators
-  const mutualPoints = new Map<string, number>();
+  const mutualPoints = new Map<
+    string,
+    { points: number; user1Points: number; user2Points: number }
+  >();
   completedRounds.forEach((round) => {
     round.votes.forEach((vote) => {
       const submission = round.submissions.find(
@@ -735,14 +745,35 @@ export function calculatePlaybackStats(
         return;
       }
 
-      const pairKey =
-        submission.userObject &&
-        vote.userObject &&
-        submission.userObject.index < vote.userObject.index
-          ? `${receiverId}:${voterId}`
-          : `${voterId}:${receiverId}`;
-      const current = mutualPoints.get(pairKey) || 0;
-      mutualPoints.set(pairKey, current + vote.points);
+      const pairs = (() => {
+        if (!submission.userObject || !vote.userObject) {
+          return null;
+        }
+
+        if (submission.userObject.index < vote.userObject.index) {
+          return { userId1: receiverId, userId2: voterId };
+        }
+        return { userId1: voterId, userId2: receiverId };
+      })();
+      if (!pairs) {
+        return;
+      }
+
+      const { userId1, userId2 } = pairs;
+      const pairKey2 = `${userId1}:${userId2}`;
+      const config = mutualPoints.get(pairKey2) || {
+        points: 0,
+        user1Points: 0,
+        user2Points: 0,
+      };
+
+      config.points += vote.points;
+      if (vote.userId === userId1) {
+        config.user1Points += vote.points;
+      } else {
+        config.user2Points += vote.points;
+      }
+      mutualPoints.set(pairKey2, config);
     });
   });
 
@@ -752,11 +783,22 @@ export function calculatePlaybackStats(
     .map(([pairKey, points]) => {
       const [userId1, userId2] = pairKey.split(":");
       return {
-        userId1,
-        userId2,
-        totalPoints: points,
-        user1: usersById[userId1],
-        user2: usersById[userId2],
+        totalPoints: points.points,
+        ...(points.user1Points > points.user2Points ||
+        (points.user1Points === points.user2Points &&
+          usersById[userId1].index < usersById[userId2].index)
+          ? {
+              user1: usersById[userId1],
+              user2: usersById[userId2],
+              user1Points: points.user1Points,
+              user2Points: points.user2Points,
+            }
+          : {
+              user2: usersById[userId1],
+              user1: usersById[userId2],
+              user2Points: points.user1Points,
+              user1Points: points.user2Points,
+            }),
       };
     })
     .sort((a, b) => b.totalPoints - a.totalPoints);
@@ -921,14 +963,6 @@ export function calculatePlaybackStats(
       };
     })
   );
-  /*
-  .sort((a, b) => {
-    if (b.totalPoints !== a.totalPoints) {
-      return b.totalPoints - a.totalPoints;
-    }
-    return b.votes.length - a.votes.length;
-  });
-  */
 
   const leagueWinner: LeaguePlaybackStats["leagueWinner"] =
     sortedByPoints.length > 0

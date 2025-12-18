@@ -30,7 +30,7 @@ export function FastestVoterScreen({
         items={stat}
         isActive={isActive}
         renderItem={(voter, index, isItemActive) => (
-          <>
+          <div className="relative w-full h-full">
             {/* Floating checkmark badges - only for first place */}
             {index === 0 && isItemActive && (
               <>
@@ -127,7 +127,7 @@ export function FastestVoterScreen({
                 }
               }
             `}</style>
-          </>
+          </div>
         )}
       />
     </Screen>

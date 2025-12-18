@@ -231,11 +231,11 @@ export function SummaryScreen({
     // Musical Soulmate
     if (playback.conspirators.length > 0) {
       const firstTake = playback.conspirators.find(
-        (c) => c.userId1 === user?._id || c.userId2 === user?._id
+        (c) => c.user1._id === user?._id || c.user2._id === user?._id
       );
       if (firstTake) {
         const otherUser =
-          firstTake.userId1 === user?._id ? firstTake.user2 : firstTake.user1;
+          firstTake.user1._id === user?._id ? firstTake.user2 : firstTake.user1;
 
         cards.push({
           id: "musical-soulmate",
@@ -307,10 +307,10 @@ export function SummaryScreen({
     if (playback.conspirators.length > 0) {
       const firstTake = [...playback.conspirators]
         .reverse()
-        .find((c) => c.userId1 === user?._id || c.userId2 === user?._id);
+        .find((c) => c.user1._id === user?._id || c.user2._id === user?._id);
       if (firstTake) {
         const otherUser =
-          firstTake.userId1 === user?._id ? firstTake.user2 : firstTake.user1;
+          firstTake.user1._id === user?._id ? firstTake.user2 : firstTake.user1;
 
         cards.push({
           id: "musical-lets-just-be-friends",
@@ -623,12 +623,7 @@ export function SummaryScreen({
     // Conspirators (mutual point giving)
     if (playback.conspirators && playback.conspirators.length > 0) {
       const conspiracy = playback.conspirators[0];
-      const user1 = league.users.find(
-        (u: PopulatedUser) => u._id === conspiracy.userId1
-      );
-      const user2 = league.users.find(
-        (u: PopulatedUser) => u._id === conspiracy.userId2
-      );
+      const { user1, user2 } = conspiracy;
       if (user1 && user2) {
         cards.push({
           id: "conspirators",

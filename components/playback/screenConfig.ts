@@ -21,65 +21,82 @@ export const PLAYBACK_SCREENS: PlaybackScreen[] = [
   {
     key: "intro",
     component: memo(IntroScreen),
+    viewType: "IntroScreen",
   },
   {
     key: "league-champion",
     component: memo(LeagueChampionScreen),
+    viewType: "CustomScreen",
   },
   {
     key: "total-points",
     component: memo(TotalPointsScreen),
+    viewType: "CustomScreen",
   },
   {
     key: "top-song",
     component: memo(TopSongScreen),
+    viewType: "SongScreen",
   },
   {
     key: "biggest-fan",
     component: memo(BiggestFanScreen),
+    viewType: "UserScreen",
   },
   {
     key: "biggest-critic",
     component: memo(BiggestCriticScreen),
-  },
-  {
-    key: "user-top-song",
-    component: memo(UserTopSongScreen),
+    viewType: "UserScreen",
   },
   {
     key: "most-wins",
     component: memo(MostWinsScreen),
+    viewType: "UserScreen",
   },
+  {
+    key: "user-top-song",
+    component: memo(UserTopSongScreen),
+    viewType: "SongScreen",
+  },
+
   {
     key: "fastest-submitter",
     component: memo(FastestSubmitterScreen),
+    viewType: "UserScreen",
   },
   {
     key: "fastest-voter",
     component: memo(FastestVoterScreen),
-  },
-  {
-    key: "most-consistent",
-    component: memo(MostConsistentScreen),
-  },
-  {
-    key: "best-guesser",
-    component: memo(BestGuesserScreen),
-  },
-  {
-    key: "most-noted-song",
-    component: memo(MostNotedSongScreen),
+    viewType: "UserScreen",
   },
   {
     key: "conspirators",
     component: memo(ConspiratorsScreen),
+    viewType: "CustomScreen",
+  },
+  {
+    key: "most-consistent",
+    component: memo(MostConsistentScreen),
+    viewType: "UserScreen",
+  },
+  {
+    key: "best-guesser",
+    component: memo(BestGuesserScreen),
+    viewType: "UserScreen",
+  },
+  {
+    key: "most-noted-song",
+    component: memo(MostNotedSongScreen),
+    viewType: "SongScreen",
   },
   {
     key: "all-user-top-songs-carousel",
     component: memo(AllUserTopSongsCarouselScreen),
+    viewType: "SongScreen",
   },
   {
     key: "summary",
     component: memo(SummaryScreen),
+    viewType: "SummaryScreen",
   },
 ];

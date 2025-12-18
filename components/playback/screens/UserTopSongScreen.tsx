@@ -24,6 +24,7 @@ export function UserTopSongScreen({
   const voters = votes.map((vote) => ({
     user: vote.userObject,
     rightText: `+${vote.points} pts`,
+    note: vote.note,
   }));
 
   return (

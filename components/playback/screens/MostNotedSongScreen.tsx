@@ -81,7 +81,7 @@ export function MostNotedSongScreen({
                         key={noteIndex}
                         className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20"
                       >
-                        <div className="grid items-center gap-3 grid-cols-[auto_1fr]">
+                        <div className="grid gap-3 grid-cols-[auto_1fr]">
                           <Avatar
                             user={note.user}
                             size={16}

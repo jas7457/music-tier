@@ -3,10 +3,12 @@
 import { Avatar } from "@/components/Avatar";
 import { PopulatedUser } from "@/lib/types";
 import { Screen } from "./Screen";
+import { BlockQuote } from "@/components/BlockQuote";
 
 interface UserListItem {
   user: PopulatedUser;
   rightText?: string;
+  note: string | undefined;
 }
 
 interface UserListProps {
@@ -39,51 +41,56 @@ export function UserList({
           <div className="flex-1 overflow-y-auto px-4 pb-4">
             <div className="bg-white/10 rounded-xl border border-white/20 max-w-2xl mx-auto divide-y divide-white/20">
               {users.map((item, index) => (
-                <div
-                  key={item.user._id}
-                  className="flex items-center gap-3 py-3 px-3 transition-all duration-300"
-                  style={{
-                    animation: isActive
-                      ? `slide-in-user 0.4s ease-out ${index * 80}ms both`
-                      : "none",
-                  }}
-                >
+                <div key={item.user._id} className="py-3 px-3">
                   <div
+                    className="flex items-center gap-3 transition-all duration-300"
                     style={{
                       animation: isActive
-                        ? `avatar-pop 0.5s ease-out ${index * 80 + 100}ms both`
+                        ? `slide-in-user 0.4s ease-out ${index * 80}ms both`
                         : "none",
                     }}
                   >
-                    <Avatar user={item.user} size={16} includeLink={false} />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="text-lg font-semibold text-white drop-shadow-md text-shadow-md">
-                      {item.user.firstName} {item.user.lastName}
-                    </div>
-                    <div className="text-md text-white/70">
-                      {item.user.userName}
-                    </div>
-                  </div>
-
-                  {item.rightText && (
                     <div
-                      className="shrink-0 relative"
                       style={{
                         animation: isActive
-                          ? `points-fade-in 0.5s ease-out ${
-                              index * 80 + 200
-                            }ms both, points-bounce 3.6s ease-in-out ${
-                              index * 80 + 3200
-                            }ms infinite`
+                          ? `avatar-pop 0.5s ease-out ${
+                              index * 80 + 100
+                            }ms both`
                           : "none",
                       }}
                     >
-                      <div className="text-lg font-bold text-green-400 drop-shadow-md transition-all duration-300 text-shadow-lg">
-                        {item.rightText}
+                      <Avatar user={item.user} size={16} includeLink={false} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-lg font-semibold text-white drop-shadow-md text-shadow-md">
+                        {item.user.firstName} {item.user.lastName}
+                      </div>
+                      <div className="text-md text-white/70">
+                        {item.user.userName}
                       </div>
                     </div>
+                    {item.rightText && (
+                      <div
+                        className="shrink-0 relative"
+                        style={{
+                          animation: isActive
+                            ? `points-fade-in 0.5s ease-out ${
+                                index * 80 + 200
+                              }ms both, points-bounce 3.6s ease-in-out ${
+                                index * 80 + 3200
+                              }ms infinite`
+                            : "none",
+                        }}
+                      >
+                        <div className="text-lg font-bold text-green-400 drop-shadow-md transition-all duration-300 text-shadow-lg">
+                          {item.rightText}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {item.note && (
+                    <BlockQuote className="ml-8">{item.note}</BlockQuote>
                   )}
                 </div>
               ))}

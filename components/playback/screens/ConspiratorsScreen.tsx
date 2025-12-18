@@ -11,7 +11,6 @@ import { StatBounce } from "../components/Animations";
 
 export function ConspiratorsScreen({
   playback,
-  league,
   isActive,
 }: PlaybackScreenProps) {
   if (!playback.conspirators || playback.conspirators.length === 0) {
@@ -33,12 +32,7 @@ export function ConspiratorsScreen({
         items={playback.conspirators}
         buttonPosition="bottom"
         renderItem={(conspirator, index, isItemActive) => {
-          const user1 = league.users.find((u) => u._id === conspirator.userId1);
-          const user2 = league.users.find((u) => u._id === conspirator.userId2);
-
-          if (!user1 || !user2) {
-            return null;
-          }
+          const { user1, user2 } = conspirator;
 
           return (
             <div className="flex flex-col p-8 items-center justify-center gap-8 min-w-full h-full">
@@ -197,6 +191,21 @@ export function ConspiratorsScreen({
                       className="relative z-10"
                     />
                   </div>
+
+                  {/* User 1 Points Animation */}
+                  <div
+                    className="absolute top-0 left-0 w-full h-full text-6xl font-bold"
+                    style={{
+                      animation: isItemActive
+                        ? "points-flow-to-handshake 5s ease-in infinite"
+                        : "none",
+                      color: "#a855f7",
+                      textShadow: "0px 2px 5px rgba(0, 0, 0, 1)",
+                      transformOrigin: "center",
+                    }}
+                  >
+                    +{conspirator.user1Points}
+                  </div>
                 </div>
 
                 {/* Animated handshake with connecting line */}
@@ -251,6 +260,21 @@ export function ConspiratorsScreen({
                       isSizePercent
                       className="relative z-10"
                     />
+                  </div>
+
+                  {/* User 2 Points Animation */}
+                  <div
+                    className="absolute top-0 left-0 w-full h-full text-right text-6xl font-bold"
+                    style={{
+                      animation: isItemActive
+                        ? "points-flow-to-handshake-left 5s ease-in infinite"
+                        : "none",
+                      color: "#f97316",
+                      textShadow: "0px 2px 5px rgba(0, 0, 0, 1)",
+                      transformOrigin: "center left",
+                    }}
+                  >
+                    +{conspirator.user2Points}
                   </div>
                 </div>
               </div>
@@ -458,6 +482,60 @@ export function ConspiratorsScreen({
           100% {
             opacity: 1;
             transform: scale(1) rotate(0deg);
+          }
+        }
+
+        @keyframes points-flow-to-handshake {
+          0% {
+            opacity: 1;
+            transform: translateX(0) translateY(0);
+            scale: 1;
+          }
+          20% {
+            opacity: 1;
+            transform: translateX(0) translateY(0);
+          }
+          25% {
+            opacity: 1;
+            transform: translateX(80%) translateY(22%);
+            scale: 0.5;
+          }
+          30% {
+            opacity: 0;
+            transform: translateX(80%) translateY(22%);
+            scale: 0.5;
+          }
+          100% {
+            opacity: 0;
+            transform: translateX(80%) translateY(22%);
+            scale: 0.5;
+          }
+        }
+
+        @keyframes points-flow-to-handshake-left {
+          0% {
+            opacity: 1;
+            transform: translateX(0) translateY(0);
+            scale: 1;
+          }
+          20% {
+            opacity: 1;
+            transform: translateX(0) translateY(0);
+          }
+          25% {
+            opacity: 1;
+            transform: translateX(-80%) translateY(22%);
+            scale: 0.5;
+          }
+          30% {
+            opacity: 0;
+            transform: translateX(-80%) translateY(22%);
+            scale: 0.5;
+          }
+          100% {
+            opacity: 0;
+            transform: translateX(-80%) translateY(22%);
+            scale: 0.5;
           }
         }
       `}</style>

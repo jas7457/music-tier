@@ -150,6 +150,7 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                       trackInfo: guess.trackInfo,
                       points: 0,
                       round: guess.round,
+                      note: undefined,
                       leftText: guess.isCorrect ? "✓" : "✗",
                       rightText: (
                         <div className="flex gap-2">

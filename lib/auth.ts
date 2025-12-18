@@ -26,6 +26,16 @@ const userDharam = {
   userName: "4everevolution",
 };
 
+const userTJ = {
+  userId: "6924743e2f3d26e1e94e889b",
+  userName: "TJ",
+};
+
+const userCody = {
+  userId: "6925a5f5c862b83683fbb9ea",
+  userName: "codeman9090",
+};
+
 const userKelsey = {
   userId: "692462e546422e7ee9dc0f6d",
   userName: "khappel28",
@@ -41,7 +51,7 @@ const userTest = {
   userName: "testuser",
 };
 
-const users = [userDharam, userKelsey, userJen, userTest];
+const users = [userDharam, userKelsey, userJen, userTest, userTJ, userCody];
 
 export async function verifySessionToken(): Promise<SessionPayload | null> {
   const cookieStore = await cookies();

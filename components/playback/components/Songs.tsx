@@ -5,6 +5,7 @@ import type { TrackInfo } from "@/databaseTypes";
 import type { PopulatedRound } from "@/lib/types";
 import AlbumArt from "@/components/AlbumArt";
 import { useMemo, useState } from "react";
+import { BlockQuote } from "@/components/BlockQuote";
 
 type Song = {
   trackInfo: TrackInfo;
@@ -12,6 +13,7 @@ type Song = {
   rightText?: React.ReactNode;
   leftText?: React.ReactNode;
   className?: string;
+  note: string | undefined;
 };
 
 export interface SongsProps {
@@ -63,7 +65,6 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
                 }}
               />
             )}
-
             <div
               className={twMerge(
                 "grid items-center gap-3",
@@ -103,6 +104,7 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
                 </div>
               )}
             </div>
+            {song.note && <BlockQuote className="ml-6">{song.note}</BlockQuote>}
           </div>
         ))}
       </div>

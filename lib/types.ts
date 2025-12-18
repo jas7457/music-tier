@@ -71,6 +71,7 @@ export interface LeaguePlaybackStats {
       trackInfo: TrackInfo;
       points: number;
       round: PopulatedRound;
+      note: string | undefined;
     }>;
   } | null;
   biggestStan: {
@@ -81,6 +82,7 @@ export interface LeaguePlaybackStats {
       trackInfo: TrackInfo;
       points: number;
       round: PopulatedRound;
+      note: string | undefined;
     }>;
   } | null;
   biggestCritic: {
@@ -90,6 +92,7 @@ export interface LeaguePlaybackStats {
       trackInfo: TrackInfo;
       points: number;
       round: PopulatedRound;
+      note: string | undefined;
     }>;
   } | null;
   hardestSell: {
@@ -99,6 +102,7 @@ export interface LeaguePlaybackStats {
       trackInfo: TrackInfo;
       points: number;
       round: PopulatedRound;
+      note: string | undefined;
     }>;
   } | null;
   mostWinsUsers: Array<{
@@ -107,6 +111,7 @@ export interface LeaguePlaybackStats {
       trackInfo: TrackInfo;
       points: number;
       round: PopulatedRound;
+      note: string | undefined;
     }>;
   }>;
   fastestSubmitters: Array<{
@@ -116,11 +121,13 @@ export interface LeaguePlaybackStats {
       trackInfo: TrackInfo;
       time: number;
       round: PopulatedRound;
+      note: string | undefined;
     }>;
     submissions: Array<{
       trackInfo: TrackInfo;
       time: number;
       round: PopulatedRound;
+      note: string | undefined;
     }>;
   }>;
   fastestSubmission: {
@@ -158,10 +165,10 @@ export interface LeaguePlaybackStats {
     }>;
   }>;
   conspirators: Array<{
-    userId1: string;
-    userId2: string;
     user1: PopulatedUser;
     user2: PopulatedUser;
+    user1Points: number;
+    user2Points: number;
     totalPoints: number;
   }>;
   userTopSong: {
