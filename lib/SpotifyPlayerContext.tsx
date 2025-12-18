@@ -34,6 +34,7 @@ interface SpotifyPlayerContextType {
     round: PopulatedRound | "same";
     playlist?: Array<TrackInfo>;
     startTime?: number;
+    skipErrors?: boolean;
   }) => Promise<void>;
   setVolume: (volume: number) => Promise<void>;
   pausePlayback: () => Promise<void>;
@@ -198,7 +199,9 @@ export function SpotifyPlayerProvider({
         return listeners;
       });
     };
-    const setupPlayer = async (): Promise<string> => {
+    const setupPlayer = async ({
+      skipErrors,
+    }: { skipErrors?: boolean } = {}): Promise<string> => {
       // we've already set it up...
       if (setupPromiseRef.current) {
         return setupPromiseRef.current;
@@ -244,25 +247,31 @@ export function SpotifyPlayerProvider({
           // Not Ready event - device has gone offline
           spotifyPlayer.addListener("not_ready", () => {
             const errorMessage = "Spotify Player went offline";
-            toast.show({ message: errorMessage, variant: "error" });
+            if (!skipErrors) {
+              toast.show({ message: errorMessage, variant: "error" });
+            }
             resolveWithNothing();
           });
 
           spotifyPlayer.addListener("initialization_error", ({ message }) => {
-            const errorMessage = unknownToErrorString(
-              message,
-              "Spotify Initialization Error"
-            );
-            toast.show({ message: errorMessage, variant: "error" });
+            if (!skipErrors) {
+              const errorMessage = unknownToErrorString(
+                message,
+                "Spotify Initialization Error"
+              );
+              toast.show({ message: errorMessage, variant: "error" });
+            }
             resolveWithNothing();
           });
 
           spotifyPlayer.addListener("authentication_error", ({ message }) => {
-            const errorMessage = unknownToErrorString(
-              message,
-              "Spotify Authentication Error"
-            );
-            toast.show({ message: errorMessage, variant: "error" });
+            if (!skipErrors) {
+              const errorMessage = unknownToErrorString(
+                message,
+                "Spotify Authentication Error"
+              );
+              toast.show({ message: errorMessage, variant: "error" });
+            }
             resolveWithNothing();
           });
 
@@ -282,10 +291,12 @@ export function SpotifyPlayerProvider({
           spotifyPlayer.connect().then((success: boolean) => {
             if (!success) {
               resolveWithNothing();
-              toast.show({
-                message: "Failed to connect to Spotify Player",
-                variant: "error",
-              });
+              if (!skipErrors) {
+                toast.show({
+                  message: "Failed to connect to Spotify Player",
+                  variant: "error",
+                });
+              }
             }
           });
 
@@ -315,18 +326,23 @@ export function SpotifyPlayerProvider({
       round,
       playlist: songPlaylist,
       startTime,
+      skipErrors,
     }: {
       trackInfo: TrackInfo;
       round: PopulatedRound | "same";
       playlist?: Array<TrackInfo>;
       startTime?: number;
+      skipErrors?: boolean;
     }) => {
-      const deviceId = await setupPlayer();
+      const deviceId = await setupPlayer({ skipErrors });
       hasPreviouslyPlayedRef.current = true;
       if (!trackInfo) {
         return;
       }
       if (!deviceId) {
+        if (skipErrors) {
+          return;
+        }
         const errorMessage = "No Spotify device available";
         toast.show({
           message: errorMessage,
@@ -337,6 +353,9 @@ export function SpotifyPlayerProvider({
 
       const accessToken = Cookies.get("spotify_access_token");
       if (!accessToken) {
+        if (skipErrors) {
+          return;
+        }
         const errorMessage = "No Spotify access token";
         toast.show({
           message: errorMessage,
@@ -410,6 +429,9 @@ export function SpotifyPlayerProvider({
         setIsPlaying(true);
         setPlaylist(playlistInfo);
       } catch (error) {
+        if (skipErrors) {
+          return;
+        }
         const message = unknownToErrorString(
           error,
           "Failed to play track. Make sure you have Spotify Premium."

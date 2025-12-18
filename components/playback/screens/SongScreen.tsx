@@ -60,6 +60,7 @@ export function SongScreen({
       round,
       playlist: [trackInfo],
       startTime: 15_000,
+      skipErrors: true,
     });
   }, [isActive, round, trackInfo]);
 
@@ -120,7 +121,7 @@ export function SongScreen({
                 : "opacity-0 translate-y-10"
             )}
           >
-            <p className="text-3xl md:text-5xl font-bold mb-3">
+            <p className="text-3xl md:text-5xl font-bold mb-1">
               {trackInfo.title}
             </p>
             <p className="text-xl md:text-2xl text-purple-200 mb-6">
