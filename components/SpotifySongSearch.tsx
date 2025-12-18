@@ -120,6 +120,7 @@ export function SpotifySongSearch({
       });
     } finally {
       setLoadingPreview(false);
+      lastFetchedTrackIdRef.current = null;
     }
   };
 

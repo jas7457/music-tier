@@ -221,7 +221,15 @@ export function OnDeckSubmissionsList({
             value={onDeckSearchInput}
             disabled={isSaving}
             onChange={setOnDeckSearchInput}
-            onTrackFetched={() => {}}
+            onTrackFetched={async (trackInfo) => {
+              setOnDeckSearchInput("");
+              const newOnDecks = [
+                ...onDeckSubmissions,
+                { trackInfo, isAddedToSidePlaylist: false },
+              ];
+              onUpdate(newOnDecks);
+              await saveOnDeckToDatabase(newOnDecks);
+            }}
             onSongSelected={async (trackInfo) => {
               setOnDeckSearchInput("");
               const newOnDecks = [
