@@ -4,6 +4,7 @@ import { NEON_COLORS } from "../constants";
 import type { PlaybackScreenProps } from "../types";
 import { SongScreen } from "./SongScreen";
 import { Screen } from "../components/Screen";
+import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
 
 export function TopSongScreen({
   playback,
@@ -29,16 +30,19 @@ export function TopSongScreen({
   }));
 
   return (
-    <SongScreen
-      isActive={isActive}
-      title="Fan Favorite"
-      subtitle="Song with Most Points"
-      trackInfo={trackInfo}
-      round={league.rounds.completed[0]}
-      points={points}
-      submittedBy={user}
-      pointsStrokeColor={NEON_COLORS.ElectricPurple}
-      voters={voters}
-    />
+    <div className="relative w-full h-full overflow-hidden">
+      <AnimatedImageBackdrop imageUrl={trackInfo.albumImageUrl} />
+      <SongScreen
+        isActive={isActive}
+        title="Fan Favorite"
+        subtitle="Song with Most Points"
+        trackInfo={trackInfo}
+        round={league.rounds.completed[0]}
+        points={points}
+        submittedBy={user}
+        pointsStrokeColor={NEON_COLORS.ElectricPurple}
+        voters={voters}
+      />
+    </div>
   );
 }

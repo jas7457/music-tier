@@ -31,10 +31,10 @@
       transform: scale(1) rotate(0deg);
     }
     33% {
-      transform: scale(2) rotate(20deg);
+      transform: scale(1.5) rotate(20deg);
     }
     66% {
-      transform: scale(2) rotate(-20deg);
+      transform: scale(1.5) rotate(-20deg);
     }
     100% {
       transform: scale(1) rotate(0deg);

@@ -13,10 +13,11 @@ export function FastestVoterScreen({
   isActive,
 }: PlaybackScreenProps) {
   const stat = playback.fastestVoters;
+  const background = { from: "#3b82f6", via: "#a855f7", to: "#10b981" };
 
   if (stat.length === 0) {
     return (
-      <Screen background={{ from: "#3b82f6", via: "#a855f7", to: "#10b981" }}>
+      <Screen background={background}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-white">
           <p className="text-2xl text-purple-300">No voting data available</p>
         </div>
@@ -78,6 +79,7 @@ export function FastestVoterScreen({
             )}
 
             <UserStatScreen
+              background={background}
               isActive={isItemActive}
               kicker="Did you even listen to the songs?"
               title={

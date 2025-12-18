@@ -9,10 +9,11 @@ import { Avatar } from "@/components/Avatar";
 
 export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
   const stat = playback.bestGuessers;
+  const background = { from: "#10b981", via: "#ef4444", to: "#f97316" };
 
   if (stat.length === 0) {
     return (
-      <Screen background={{ from: "#10b981", via: "#ef4444", to: "#f97316" }}>
+      <Screen background={background}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-white">
           <p className="text-2xl text-purple-300">No voting data available</p>
         </div>
@@ -32,7 +33,7 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
             <>
               {/* Animated background elements - target/accuracy theme */}
               {index === 0 && isItemActive && (
-                <>
+                <div className="absolute h-full w-full pointer-events-none">
                   {/* Concentric target rings */}
                   <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-4 border-green-400/20 z-10"
@@ -120,52 +121,58 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                       transformOrigin: "center center",
                     }}
                   />
-                </>
+                </div>
               )}
 
-              <UserStatScreen
-                isActive={isItemActive}
-                kicker={
-                  isGoodGuesser ? "Are you a psychic?" : "Better luck next time"
-                }
-                title={
-                  stat.length > 1
-                    ? `#${index + 1} Best Guesser`
-                    : "Best Guesser"
-                }
-                user={guesser.user}
-                strokeColor={
-                  isGoodGuesser ? NEON_COLORS.BrightGreen : NEON_COLORS.VividRed
-                }
-                autoSelectFirstSong
-                stat={{
-                  value: `${(guesser.accuracy * 100).toFixed(0)}%`,
-                  label: "guess accuracy",
-                  icon: isGoodGuesser ? "🎯" : "🎲",
-                  songs: guesser.guesses
-                    .sort((a, b) =>
-                      a.isCorrect === b.isCorrect ? 0 : a.isCorrect ? -1 : 1
-                    )
-                    .map((guess) => ({
-                      trackInfo: guess.trackInfo,
-                      points: 0,
-                      round: guess.round,
-                      note: undefined,
-                      leftText: guess.isCorrect ? "✓" : "✗",
-                      rightText: (
-                        <div className="flex gap-2">
-                          <Avatar size={6} user={guess.guessedUser} />
-                          /
-                          <Avatar size={6} user={guess.submitter} />
-                        </div>
-                      ),
-                      className: guess.isCorrect
-                        ? "border-green-400/50 bg-green-500/10"
-                        : "border-red-400/50 bg-red-500/10",
-                    })),
-                }}
-                noDataMessage="No voting data available"
-              />
+              <div className="relative w-full h-full">
+                <UserStatScreen
+                  background={background}
+                  isActive={isItemActive}
+                  kicker={
+                    isGoodGuesser
+                      ? "Are you a psychic?"
+                      : "Better luck next time"
+                  }
+                  title={
+                    stat.length > 1
+                      ? `#${index + 1} Best Guesser`
+                      : "Best Guesser"
+                  }
+                  user={guesser.user}
+                  strokeColor={
+                    isGoodGuesser
+                      ? NEON_COLORS.BrightGreen
+                      : NEON_COLORS.VividRed
+                  }
+                  stat={{
+                    value: `${(guesser.accuracy * 100).toFixed(0)}%`,
+                    label: "guess accuracy",
+                    icon: isGoodGuesser ? "🎯" : "🎲",
+                    songs: guesser.guesses
+                      .sort((a, b) =>
+                        a.isCorrect === b.isCorrect ? 0 : a.isCorrect ? -1 : 1
+                      )
+                      .map((guess) => ({
+                        trackInfo: guess.trackInfo,
+                        points: 0,
+                        round: guess.round,
+                        note: undefined,
+                        leftText: guess.isCorrect ? "✓" : "✗",
+                        rightText: (
+                          <div className="flex gap-2">
+                            <Avatar size={6} user={guess.guessedUser} />
+                            /
+                            <Avatar size={6} user={guess.submitter} />
+                          </div>
+                        ),
+                        className: guess.isCorrect
+                          ? "border-green-400/50 bg-green-500/10"
+                          : "border-red-400/50 bg-red-500/10",
+                      })),
+                  }}
+                  noDataMessage="No voting data available"
+                />
+              </div>
             </>
           );
         }}

@@ -4,7 +4,6 @@ import { twMerge } from "tailwind-merge";
 import type { TrackInfo } from "@/databaseTypes";
 import type { PopulatedRound, PopulatedUser } from "@/lib/types";
 import { OutlinedText } from "@/components/OutlinedText";
-import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
 import { useEffect, useRef } from "react";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 import { StatBounce } from "../components/Animations";
@@ -42,14 +41,20 @@ export function SongScreen({
   voters,
 }: SongScreenProps) {
   const { playTrack } = useSpotifyPlayer();
+  const lastPlayedTrackRef = useRef<TrackInfo | null>(null);
   const playTrackRef = useRef(playTrack);
   // eslint-disable-next-line react-hooks/refs
   playTrackRef.current = playTrack;
 
   useEffect(() => {
     if (!isActive) {
+      lastPlayedTrackRef.current = null;
       return;
     }
+    if (lastPlayedTrackRef.current === trackInfo) {
+      return;
+    }
+    lastPlayedTrackRef.current = trackInfo;
     playTrackRef.current({
       trackInfo,
       round,
@@ -62,20 +67,20 @@ export function SongScreen({
     <DualScreen
       isActive={isActive}
       backFace={(isFlipped) => (
-        <UserList
-          isActive={isActive && isFlipped}
-          users={[...voters].sort((a, b) => {
-            const pointsA = parseInt(a.rightText);
-            const pointsB = parseInt(b.rightText);
-            return pointsB - pointsA;
-          })}
-          background={{ from: "#8b5cf6", via: "#ec4899", to: "#f97316" }}
-          title="Voters"
-        />
+        <>
+          <UserList
+            isActive={isActive && isFlipped}
+            users={[...voters].sort((a, b) => {
+              const pointsA = parseInt(a.rightText);
+              const pointsB = parseInt(b.rightText);
+              return pointsB - pointsA;
+            })}
+            title="Voters"
+          />
+        </>
       )}
     >
       <Screen>
-        <AnimatedImageBackdrop imageUrl={trackInfo.albumImageUrl} />
         <div className="flex flex-col items-center justify-center text-white gap-8 w-full h-full relative px-8 py-10">
           <div
             className={twMerge(

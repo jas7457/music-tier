@@ -5,6 +5,7 @@ import type { PlaybackScreenProps } from "../types";
 import { SongScreen } from "./SongScreen";
 import { DualScreen } from "../components/DualScreen";
 import { UserList } from "../components/UserList";
+import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
 
 export function UserTopSongScreen({
   playback,
@@ -28,28 +29,31 @@ export function UserTopSongScreen({
   }));
 
   return (
-    <DualScreen
-      isActive={isActive}
-      backFace={(isFlipped) => (
-        <UserList
-          isActive={isActive && isFlipped}
-          users={voters}
-          background={{ from: "#a855f7", via: "#ec4899", to: "#f97316" }}
-          title="Voters"
-        />
-      )}
-    >
-      <SongScreen
+    <div className="relative w-full h-full overflow-hidden">
+      <AnimatedImageBackdrop imageUrl={trackInfo.albumImageUrl} />
+
+      <DualScreen
         isActive={isActive}
-        title="People really dig this one"
-        subtitle="Your Top Song"
-        trackInfo={trackInfo}
-        round={league.rounds.completed[0]}
-        points={points}
-        pointsStrokeColor={NEON_COLORS.Yellow}
-        submittedBy={user}
-        voters={voters}
-      />
-    </DualScreen>
+        backFace={(isFlipped) => (
+          <UserList
+            isActive={isActive && isFlipped}
+            users={voters}
+            title="Voters"
+          />
+        )}
+      >
+        <SongScreen
+          isActive={isActive}
+          title="People really dig this one"
+          subtitle="Your Top Song"
+          trackInfo={trackInfo}
+          round={league.rounds.completed[0]}
+          points={points}
+          pointsStrokeColor={NEON_COLORS.Yellow}
+          submittedBy={user}
+          voters={voters}
+        />
+      </DualScreen>
+    </div>
   );
 }

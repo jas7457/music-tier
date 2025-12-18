@@ -9,8 +9,9 @@ export function BiggestFanScreen({ playback, isActive }: PlaybackScreenProps) {
   const biggestFan = playback.biggestFan;
 
   return (
-    <Screen background={{ from: "#f59e0b", via: "#ef4444", to: "#d946ef" }}>
+    <Screen>
       <UserStatScreen
+        background={{ from: "#f59e0b", via: "#ef4444", to: "#d946ef" }}
         isActive={isActive}
         kicker="You two must really like each other"
         title="Your Biggest Fan"

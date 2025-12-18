@@ -169,7 +169,7 @@ export function PlaylistPartyPlayback({
             key={screen.key}
             className="h-screen w-screen snap-start snap-always relative"
           >
-            <div className="h-full w-full">
+            <div className="h-full w-full overflow-hidden">
               <Screen
                 playback={playback}
                 league={league}

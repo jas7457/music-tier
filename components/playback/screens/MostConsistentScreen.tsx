@@ -10,9 +10,10 @@ export function MostConsistentScreen({
   playback,
   isActive,
 }: PlaybackScreenProps) {
+  const background = { from: "#ec4899", via: "#f97316", to: "#a855f7" };
   if (!playback.mostConsistent || playback.mostConsistent.length === 0) {
     return (
-      <Screen background={{ from: "#ec4899", via: "#f97316", to: "#a855f7" }}>
+      <Screen background={background}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-white">
           <p className="text-2xl text-pink-300">
             No consistency data available
@@ -23,7 +24,7 @@ export function MostConsistentScreen({
   }
 
   return (
-    <Screen background={{ from: "#ec4899", via: "#f97316", to: "#a855f7" }}>
+    <Screen>
       <HorizontalCarousel
         isActive={isActive}
         items={playback.mostConsistent}
@@ -32,7 +33,7 @@ export function MostConsistentScreen({
             <>
               {/* Animated background elements - metronome/rhythm theme */}
               {index === 0 && isItemActive && (
-                <>
+                <div className="absolute h-full w-full pointer-events-none z-10">
                   {/* Pulsing circles radiating outward - consistency waves */}
                   <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-pink-400/30"
@@ -126,10 +127,11 @@ export function MostConsistentScreen({
                       animation: "line-slide 4s ease-in-out 2s infinite",
                     }}
                   />
-                </>
+                </div>
               )}
 
               <UserStatScreen
+                background={background}
                 isActive={isItemActive}
                 kicker="Steady as she goes!"
                 title={`#${index + 1} Most Consistent`}

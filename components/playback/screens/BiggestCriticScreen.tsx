@@ -12,8 +12,9 @@ export function BiggestCriticScreen({
   const biggestCritic = playback.biggestCritic;
 
   return (
-    <Screen background={{ from: "#ef4444", via: "#8b5cf6", to: "#f59e0b" }}>
+    <Screen>
       <UserStatScreen
+        background={{ from: "#ef4444", via: "#8b5cf6", to: "#f59e0b" }}
         isActive={isActive}
         kicker="You two have beef?"
         title="Your Biggest Critic"

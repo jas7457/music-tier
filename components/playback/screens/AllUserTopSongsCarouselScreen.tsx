@@ -5,6 +5,7 @@ import type { PlaybackScreenProps } from "../types";
 import { SongScreen } from "./SongScreen";
 import { NEON_COLORS } from "../constants";
 import { HorizontalCarousel } from "../components/HorizontalCarousel";
+import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
 
 export function AllUserTopSongsCarouselScreen({
   playback,
@@ -29,6 +30,7 @@ export function AllUserTopSongsCarouselScreen({
         isActive={isActive}
         renderItem={(song, index, isItemActive) => (
           <>
+            <AnimatedImageBackdrop imageUrl={song.trackInfo.albumImageUrl} />
             {/* Celebration elements for top 3 songs */}
             {index === 0 && isItemActive && isActive && (
               <>

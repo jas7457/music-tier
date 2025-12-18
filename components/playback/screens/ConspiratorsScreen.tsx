@@ -318,7 +318,7 @@ export function ConspiratorsScreen({
                   >
                     <OutlinedText
                       className="text-6xl md:text-8xl font-bold"
-                      strokeColor={NEON_COLORS.DeepViolet}
+                      strokeColor={NEON_COLORS.Yellow}
                       strokeWidth={3}
                     >
                       {conspirator.totalPoints} points

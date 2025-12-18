@@ -12,10 +12,11 @@ export function FastestSubmitterScreen({
   isActive,
 }: PlaybackScreenProps) {
   const stat = playback.fastestSubmitters;
+  const background = { from: "#06b6d4", via: "#10b981", to: "#8b5cf6" };
 
   if (stat.length === 0) {
     return (
-      <Screen background={{ from: "#06b6d4", via: "#10b981", to: "#8b5cf6" }}>
+      <Screen background={background}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-white">
           <p className="text-2xl text-purple-300">
             No submission data available
@@ -101,6 +102,7 @@ export function FastestSubmitterScreen({
             )}
 
             <UserStatScreen
+              background={background}
               isActive={isItemActive}
               kicker="You plan ahead, don't you?"
               title={
@@ -110,7 +112,6 @@ export function FastestSubmitterScreen({
               }
               user={submitter.user}
               strokeColor={NEON_COLORS.MintyGreen}
-              autoSelectFirstSong
               stat={{
                 value: formatTime(submitter.avgTime),
                 icon: "⚡",

@@ -8,10 +8,11 @@ import { HorizontalCarousel } from "../components/HorizontalCarousel";
 
 export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
   const stat = playback.mostWinsUsers;
+  const background = { from: "#8b5cf6", via: "#06b6d4", to: "#ef4444" };
 
   if (stat.length === 0) {
     return (
-      <Screen background={{ from: "#8b5cf6", via: "#06b6d4", to: "#ef4444" }}>
+      <Screen background={background}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-white">
           <p className="text-2xl text-purple-300">No wins data available</p>
         </div>
@@ -85,9 +86,9 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
               </>
             )}
             <UserStatScreen
+              background={background}
               isActive={isItemActive}
               kicker="Impressive!"
-              autoSelectFirstSong
               title={`#${index + 1} Most 1st Place Wins`}
               user={winner.user}
               strokeColor={NEON_COLORS.BrightBlue}
