@@ -142,7 +142,7 @@ export function PlaylistPartyPlayback({
       </HapticButton>
 
       {/* Progress indicator */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-210 flex gap-2">
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-210 flex gap-2 pr-6">
         {PLAYBACK_SCREENS.map((screen, index) => (
           <button
             key={screen.key}
