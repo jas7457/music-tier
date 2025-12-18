@@ -58,7 +58,6 @@ export const PLAYBACK_SCREENS: PlaybackScreen[] = [
     component: memo(UserTopSongScreen),
     viewType: "SongScreen",
   },
-
   {
     key: "fastest-submitter",
     component: memo(FastestSubmitterScreen),
@@ -80,14 +79,14 @@ export const PLAYBACK_SCREENS: PlaybackScreen[] = [
     viewType: "UserScreen",
   },
   {
-    key: "best-guesser",
-    component: memo(BestGuesserScreen),
-    viewType: "UserScreen",
-  },
-  {
     key: "most-noted-song",
     component: memo(MostNotedSongScreen),
     viewType: "SongScreen",
+  },
+  {
+    key: "best-guesser",
+    component: memo(BestGuesserScreen),
+    viewType: "UserScreen",
   },
   {
     key: "all-user-top-songs-carousel",
