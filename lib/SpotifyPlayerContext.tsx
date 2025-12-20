@@ -78,10 +78,22 @@ export function SpotifyPlayerProvider({
     round: PopulatedRound | null;
     playlist: Array<TrackInfo>;
   }>({ playlist: [], round: null });
+  const playlistRoundRef = useRef<PopulatedRound | null>(playlistRound);
+  playlistRoundRef.current = playlistRound;
   const hasInitializedRef = useRef(false);
   const hasPreviouslyPlayedRef = useRef(false);
   const deviceIdRef = useRef<string | null>(null);
   const setupPromiseRef = useRef<Promise<string> | null>(null);
+  const listeningSongInfoRef = useRef<{
+    id: string | null;
+    isSaving: boolean;
+    lastUpdatedTime: number | null;
+    listenStartTime: number;
+    songStartTime: number;
+    listenTime: number;
+    songDuration: number;
+    trackInfo: Spotify.WebPlaybackTrack;
+  } | null>(null);
   const toast = useToast();
   const currentTrackIndex = useMemo(() => {
     if (!currentTrack || playlist.length === 0) {
@@ -198,6 +210,99 @@ export function SpotifyPlayerProvider({
         listeners.forEach((callback) => callback(state.position));
         return listeners;
       });
+
+      const sendUpdate = async (
+        data: NonNullable<typeof listeningSongInfoRef.current>,
+        forceUpdate = false
+      ) => {
+        const now = Date.now();
+
+        const timeDifference = now - data.listenStartTime;
+        if (timeDifference < 10_000) {
+          return;
+        }
+
+        if (
+          !forceUpdate &&
+          data.lastUpdatedTime &&
+          now - data.lastUpdatedTime < 5_000
+        ) {
+          return;
+        }
+
+        if (!forceUpdate && data.isSaving) {
+          return;
+        }
+
+        if (!forceUpdate && state.paused) {
+          data.lastUpdatedTime = now;
+          return;
+        }
+
+        const playlistRound = playlistRoundRef.current;
+        if (!playlistRound) {
+          return;
+        }
+
+        const submission = playlistRound.submissions.find(
+          (sub) => sub.trackInfo.trackId === data.trackInfo.id
+        );
+
+        // this is likely an onDeckSubmission or something
+        if (!submission) {
+          return;
+        }
+
+        data.isSaving = true;
+        const listenTime =
+          data.listenTime +
+          (now - (data.lastUpdatedTime ?? data.listenStartTime));
+        data.lastUpdatedTime = now;
+        data.listenTime = listenTime;
+
+        try {
+          const response = await fetch(
+            `/api/rounds/${playlistRound._id}/submissions/${submission._id}/songListens`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                id: data.id,
+                listenTime,
+                songDuration: data.songDuration,
+              }),
+            }
+          );
+          if (!response.ok) {
+            throw new Error("Does not matter");
+          }
+          const responseData = await response.json();
+          data.id = responseData.data.id;
+        } catch {
+        } finally {
+          data.isSaving = false;
+        }
+      };
+
+      if (listeningSongInfoRef.current?.trackInfo.id === newTrack.id) {
+        sendUpdate(listeningSongInfoRef.current);
+      } else {
+        if (listeningSongInfoRef.current) {
+          sendUpdate(listeningSongInfoRef.current, true);
+        }
+        listeningSongInfoRef.current = {
+          id: null,
+          trackInfo: newTrack,
+          isSaving: false,
+          listenStartTime: Date.now(),
+          lastUpdatedTime: null,
+          listenTime: 0,
+          songDuration: newTrack.duration_ms,
+          songStartTime: state.position,
+        };
+      }
     };
     const setupPlayer = async ({
       skipErrors,

@@ -126,6 +126,20 @@ export type Vote = {
   userGuessId?: string;
 };
 
+/* "songListens" collection */
+export type SongListen = {
+  // a mongo ObjectId
+  _id: ObjectId;
+  // corresponds to the user's _id
+  userId: string;
+  // corresponds to the RoundSubmission's _id
+  submissionId: string;
+  roundId: string;
+  listenDate: number;
+  listenTime: number;
+  songDuration: number;
+};
+
 /* "scheduledNotifications" collection */
 export type ScheduledNotification = {
   _id: ObjectId;
