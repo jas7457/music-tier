@@ -10,6 +10,14 @@ import { ObjectId } from "mongodb";
 
 export type Notification =
   | {
+      code: "NOTIFICATION.FORCE";
+      userIds: string[];
+      title: string;
+      message: string;
+      additionalHTML?: string;
+      link?: string;
+    }
+  | {
       code: "VOTING.STARTED";
       userIds: string[];
       title: string;
@@ -414,7 +422,13 @@ export async function sendNotifications(
         }
 
         const preferences = user.notificationSettings;
-        if (!preferences || !preferences[notification.code]) {
+        if (!preferences) {
+          return;
+        }
+        if (
+          notification.code !== "NOTIFICATION.FORCE" &&
+          !preferences[notification.code]
+        ) {
           return;
         }
 
