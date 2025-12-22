@@ -11,6 +11,16 @@ import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
 import { StatBounce } from "../components/Animations";
 import { DualScreen } from "../components/DualScreen";
 
+import codyImage from "../images/codyfinal.jpg";
+import dharamImage from "../images/dharamfinal.png";
+import jamesImage from "../images/jamesfinal.jpg";
+import jasonImage from "../images/jasonfinal.jpg";
+import jenImage from "../images/jenfinal.jpg";
+import kaylaImage from "../images/kaylafinal.jpg";
+import kelseyImage from "../images/kelseyfinal.jpg";
+import tjImage from "../images/tjfinal.jpg";
+import { USER_IDS } from "@/lib/utils/constants";
+
 interface UserStatScreenProps {
   isActive: boolean;
   kicker: string;
@@ -55,6 +65,18 @@ export function UserStatScreen({
       </div>
     );
   }
+
+  const backfaceImage =
+    {
+      [USER_IDS.CODY]: codyImage.src,
+      [USER_IDS.DHARAM]: dharamImage.src,
+      [USER_IDS.JAMES]: jamesImage.src,
+      [USER_IDS.JASON]: jasonImage.src,
+      [USER_IDS.JEN]: jenImage.src,
+      [USER_IDS.KAYLA]: kaylaImage.src,
+      [USER_IDS.KELSEY]: kelseyImage.src,
+      [USER_IDS.TJ]: tjImage.src,
+    }[user._id] || user.photoUrl;
 
   return (
     <>
@@ -163,12 +185,59 @@ export function UserStatScreen({
                     : "none",
                 }}
               >
-                <Avatar
-                  user={user}
-                  size={100}
-                  includeLink={false}
-                  isSizePercent
-                />
+                {/* 3D container for flip animation */}
+                <div
+                  className="w-full h-full"
+                  style={{
+                    perspective: "1200px",
+                    perspectiveOrigin: "center center",
+                  }}
+                >
+                  <div
+                    className="relative w-full h-full"
+                    style={{
+                      animation: isActive
+                        ? "avatar-3d-spin-with-flip 21s ease-in-out infinite"
+                        : "none",
+                      transformStyle: "preserve-3d",
+                    }}
+                  >
+                    {/* Front face - Avatar */}
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        transform: "translateZ(0) rotateY(0deg)",
+                        backfaceVisibility: "hidden",
+                      }}
+                    >
+                      <Avatar
+                        user={user}
+                        size={100}
+                        includeLink={false}
+                        isSizePercent
+                      />
+                    </div>
+
+                    {/* Back face - Image */}
+                    <div
+                      className="absolute inset-0 rounded-full overflow-hidden"
+                      style={{
+                        transform:
+                          "translateZ(0) rotateY(180deg) rotate(180deg)",
+                        backfaceVisibility: "hidden",
+                      }}
+                    >
+                      <div className="h-full w-full grid items-center justify-items-center">
+                        <img
+                          alt=""
+                          src={backfaceImage}
+                          className="w-full h-full aspect-square object-cover border-2 rounded-full border-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Question mark overlay */}
                 <div
                   className={twMerge(
@@ -243,6 +312,66 @@ export function UserStatScreen({
             }
             75% {
               transform: translateY(-5px) rotate(-2deg);
+            }
+          }
+
+          @keyframes avatar-3d-spin-with-flip {
+            /* First 5 seconds: normal subtle 3D rotation on front face */
+            0% {
+              transform: rotateY(-15deg) rotateX(5deg) rotateZ(0deg);
+            }
+            9.5% {
+              transform: rotateY(0deg) rotateX(10deg) rotateZ(2deg);
+            }
+            19% {
+              transform: rotateY(15deg) rotateX(5deg) rotateZ(0deg);
+            }
+            23.8% {
+              transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg);
+            }
+
+            /* Twirl to backface (1 full spin + 180deg) = 540deg to show back */
+            28.5% {
+              transform: rotateY(540deg) rotateX(0deg) rotateZ(180deg);
+            }
+
+            /* Backface showing: subtle 3D rotation for 5 seconds (around 540deg = 180deg equivalent) */
+            33.3% {
+              transform: rotateY(525deg) rotateX(5deg) rotateZ(180deg);
+            }
+            38.1% {
+              transform: rotateY(540deg) rotateX(10deg) rotateZ(182deg);
+            }
+            42.9% {
+              transform: rotateY(555deg) rotateX(5deg) rotateZ(180deg);
+            }
+            47.6% {
+              transform: rotateY(540deg) rotateX(0deg) rotateZ(180deg);
+            }
+
+            /* Twirl back to front in REVERSE (subtract 540deg) = back to 0deg */
+            52.4% {
+              transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg);
+            }
+
+            /* Front face: back to starting subtle rotations */
+            57.1% {
+              transform: rotateY(-15deg) rotateX(-5deg) rotateZ(-2deg);
+            }
+            66.7% {
+              transform: rotateY(0deg) rotateX(-10deg) rotateZ(0deg);
+            }
+            76.2% {
+              transform: rotateY(15deg) rotateX(-5deg) rotateZ(2deg);
+            }
+            85.7% {
+              transform: rotateY(15deg) rotateX(0deg) rotateZ(0deg);
+            }
+            95.2% {
+              transform: rotateY(10deg) rotateX(8deg) rotateZ(-2deg);
+            }
+            100% {
+              transform: rotateY(-15deg) rotateX(5deg) rotateZ(0deg);
             }
           }
         `}</style>

@@ -48,6 +48,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   const [notificationSettings, setNotificationSettings] = useState<
     NonNullable<User["notificationSettings"]>
   >({
+    "NOTIFICATION.FORCE": true,
     "VOTING.STARTED": false,
     "VOTING.REMINDER": false,
     "SUBMISSION.REMINDER": false,
