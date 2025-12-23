@@ -82,6 +82,12 @@ export type Round = {
   isBonusRound: boolean;
   submissionDate: number;
   lastUpdatedDate: number;
+
+  // optionally allow for custom submission and voting dates
+  submissionStartDate?: number;
+  submissionEndDate?: number;
+  votingStartDate?: number;
+  votingEndDate?: number;
 };
 
 // "songSubmissions" collection */

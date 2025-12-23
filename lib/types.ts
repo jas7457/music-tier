@@ -34,7 +34,13 @@ export type PopulatedRoundStage =
   | "submission"
   | "unknown";
 
-export type PopulatedRound = WithStringId<Round> & {
+export type PopulatedRound = Omit<
+  WithStringId<Round>,
+  | "submissionStartDate"
+  | "submissionEndDate"
+  | "votingStartDate"
+  | "votingEndDate"
+> & {
   roundIndex: number;
   submissionStartDate: number;
   submissionEndDate: number;

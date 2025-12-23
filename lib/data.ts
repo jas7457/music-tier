@@ -182,7 +182,14 @@ export async function getUserLeagues(
         roundIndex: number;
         userId: string;
         isBonusRound: boolean;
-      }): Omit<PopulatedRound, "isHidden"> => {
+      }): Omit<
+        PopulatedRound,
+        | "isHidden"
+        | "submissionStartDate"
+        | "submissionEndDate"
+        | "votingStartDate"
+        | "votingEndDate"
+      > => {
         const inAWeek = now + 7 * ONE_DAY_MS;
 
         return {
@@ -195,10 +202,6 @@ export async function getUserLeagues(
           submissions: [],
           onDeckSubmissions: [],
           votes: [],
-          submissionStartDate: inAWeek,
-          submissionEndDate: inAWeek,
-          votingStartDate: inAWeek,
-          votingEndDate: inAWeek,
           roundIndex,
           creatorObject: usersById[userId]?.user,
           stage: "upcoming" as const,
@@ -281,12 +284,20 @@ export async function getUserLeagues(
         const lastVote = sortedVotes[sortedVotes.length - 1];
 
         const submissionStartDate = (() => {
+          if (round.submissionStartDate) {
+            return round.submissionStartDate;
+          }
+
           if (firstSubmission) {
             return Math.min(currentStartDate, firstSubmission.submissionDate);
           }
           return currentStartDate;
         })();
         const submissionEndDate = (() => {
+          if (round.submissionEndDate) {
+            return round.submissionEndDate;
+          }
+
           const normalEnd = getEndOfDay(
             submissionStartDate + league.daysForSubmission * ONE_DAY_MS - 60_000
           );
@@ -302,6 +313,10 @@ export async function getUserLeagues(
           round.submissions.length === 0 && now > submissionEndDate;
 
         const votingStartDate = (() => {
+          if (round.votingStartDate) {
+            return round.votingStartDate;
+          }
+
           if (hadNoSubmissions) {
             return submissionEndDate;
           }
@@ -311,6 +326,10 @@ export async function getUserLeagues(
           return submissionEndDate;
         })();
         const votingEndDate = (() => {
+          if (round.votingEndDate) {
+            return round.votingEndDate;
+          }
+
           if (hadNoSubmissions) {
             return submissionEndDate;
           }
