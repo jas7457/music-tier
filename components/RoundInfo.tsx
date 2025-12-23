@@ -146,7 +146,7 @@ export function RoundInfo({
     );
   })();
 
-  const statusPills = (() => {
+  const statusPillsMarkup = (() => {
     const pills: Array<{ key: string; pill: React.ReactNode }> = [
       {
         key: "normal",
@@ -180,7 +180,17 @@ export function RoundInfo({
       });
     }
 
-    return pills.map(({ key, pill }) => <Fragment key={key}>{pill}</Fragment>);
+    if (pills.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="inline-flex gap-1">
+        {pills.map(({ key, pill }) => (
+          <Fragment key={key}>{pill}</Fragment>
+        ))}
+      </div>
+    );
   })();
 
   const descriptionMarkup = (() => {
@@ -229,7 +239,7 @@ export function RoundInfo({
 
             {spotifyMarkup}
 
-            {statusPills}
+            {statusPillsMarkup}
           </InlineGap>
         </div>
 

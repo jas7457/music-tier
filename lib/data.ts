@@ -385,11 +385,15 @@ export async function getUserLeagues(
           }
         })();
 
+        const usersThatVoted = new Set(round.votes.map((vote) => vote.userId));
+
         const submissionsSorted = (() => {
           switch (roundStage) {
             case "completed": {
               // Return in original order for completed rounds
-              return populatedRound.submissions;
+              return populatedRound.submissions.filter((submission) => {
+                return usersThatVoted.has(submission.userId);
+              });
             }
             default: {
               // Return in shuffled order for all other rounds
@@ -398,9 +402,17 @@ export async function getUserLeagues(
           }
         })();
 
+        const submissionsById = submissionsSorted.reduce((acc, submission) => {
+          acc[submission._id] = submission;
+          return acc;
+        }, {} as Record<string, PopulatedSubmission>);
+
         return {
           ...populatedRound,
           submissions: submissionsSorted,
+          votes: populatedRound.votes.filter((vote) =>
+            Boolean(submissionsById[vote.submissionId])
+          ),
           stage: roundStage,
           isHidden,
         };

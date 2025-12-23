@@ -196,13 +196,21 @@ export default function VotingRound({
   const { usersThatHaveVoted, usersThatHaveNotVoted } = useMemo(() => {
     return league.users.reduce(
       (acc, user) => {
-        const userVotes = round.votes.reduce((acc, vote) => {
-          if (vote.userId === user._id) {
-            return acc + vote.points;
+        const hasVoted = (() => {
+          if (round.stage === "completed") {
+            return round.votes.some(
+              (vote) => vote.userId === user._id && vote.points > 0
+            );
           }
-          return acc;
-        }, 0);
-        const hasVoted = userVotes >= league.votesPerRound;
+
+          const userVotes = round.votes.reduce((acc, vote) => {
+            if (vote.userId === user._id) {
+              return acc + vote.points;
+            }
+            return acc;
+          }, 0);
+          return userVotes >= league.votesPerRound;
+        })();
         if (hasVoted) {
           acc.usersThatHaveVoted.push(user);
           acc.usersThatHaveVoted.sort((userA, userB) => {
