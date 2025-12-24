@@ -234,6 +234,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             backgroundPosition: "center",
             zIndex: 0,
             opacity: 0.2,
+            pointerEvents: "none",
           }}
         ></div>
       )}

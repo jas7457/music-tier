@@ -16,9 +16,9 @@ export async function POST() {
     [
       {
         code: "NOTIFICATION.FORCE",
-        title: "Hi friend!",
+        title: "Merry Christmas! 🎄",
         message:
-          "Gotcha. No real notification, I just wanted to say hi and have a good day! :)",
+          "It's me, Mariah Carey! I've taken over PP for the next 32 hours. Enjoy some festive tunes and happy holidays!",
         userIds: league.users.map((user) => user._id),
       },
     ],
