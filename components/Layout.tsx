@@ -13,6 +13,7 @@ import { HapticButton } from "./HapticButton";
 import { usePullToRefresh } from "@/lib/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "./PullToRefreshIndicator";
 import { useRouter } from "next/navigation";
+import { isChristmas } from "@/lib/utils/isChristmas";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -224,6 +225,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
         shouldTriggerRefresh={shouldTriggerRefresh}
       />
       {userHeader}
+      {isChristmas() && (
+        <div
+          className="fixed top-0 left-0 w-screen h-screen"
+          style={{
+            backgroundImage: `url('https://media.cnn.com/api/v1/images/stellar/prod/201204114813-mariah-carey-christmas-special.jpg?q=w_3000,h_2000,x_0,y_0,c_fill')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            zIndex: 0,
+            opacity: 0.2,
+          }}
+        ></div>
+      )}
       <div className="p-2 md:p-4">{children}</div>
       {hasSpotifyAccess && (
         <MusicPlayer

@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 import { HapticButton } from "./HapticButton";
 import type { TrackInfo } from "@/databaseTypes";
+import { isChristmas } from "@/lib/utils/isChristmas";
 
 interface AlbumArtProps {
   trackInfo: TrackInfo;
@@ -19,7 +20,7 @@ interface AlbumArtProps {
 
 export default function AlbumArt({
   round,
-  trackInfo,
+  trackInfo: trackInfoProp,
   size = 64,
   className = "",
   playlist,
@@ -38,6 +39,18 @@ export default function AlbumArt({
   useEffect(() => {
     initializePlaylist(round);
   }, [initializePlaylist, round]);
+
+  const trackInfo = isChristmas()
+    ? {
+        ...trackInfoProp,
+        trackId: "0bYg9bo50gSsH3LtXe2SQn",
+        title: "All I Want for Christmas Is You",
+        artists: ["Mariah Carey"],
+        albumName: "Merry Christmas",
+        albumImageUrl:
+          "https://i.scdn.co/image/ab67616d0000b273c0862332847213b151ffab31",
+      }
+    : trackInfoProp;
 
   const isEffectivelyTheCurrentTrack = (() => {
     if (!currentTrack) {
