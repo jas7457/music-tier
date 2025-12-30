@@ -244,7 +244,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                 {(() => {
                   const correctGuesses = submission.guesses
                     .filter((guess) => guess.guessee._id === submission.userId)
-                    .sort((a, b) => a.guessee.index - b.guessee.index);
+                    .sort((a, b) => a.guesser.index - b.guesser.index);
 
                   const incorrectGuesses = submission.guesses
                     .filter((guess) => guess.guessee._id !== submission.userId)
