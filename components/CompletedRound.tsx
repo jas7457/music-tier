@@ -246,9 +246,33 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                     .filter((guess) => guess.guessee._id === submission.userId)
                     .sort((a, b) => a.guesser.index - b.guesser.index);
 
+                  const incorrectByGuessee = submission.guesses.reduce(
+                    (acc, guess) => {
+                      if (guess.guessee._id === submission.userId) {
+                        return acc;
+                      }
+                      acc[guess.guessee._id] =
+                        (acc[guess.guessee._id] || 0) + 1;
+                      return acc;
+                    },
+                    {} as Record<string, number>
+                  );
+
                   const incorrectGuesses = submission.guesses
                     .filter((guess) => guess.guessee._id !== submission.userId)
-                    .sort((a, b) => a.guessee.index - b.guessee.index);
+                    .sort((a, b) => {
+                      if (
+                        incorrectByGuessee[b.guessee._id] !==
+                        incorrectByGuessee[a.guessee._id]
+                      ) {
+                        return (
+                          incorrectByGuessee[b.guessee._id] -
+                          incorrectByGuessee[a.guessee._id]
+                        );
+                      }
+
+                      return a.guessee.index - b.guessee.index;
+                    });
 
                   return (
                     <>
