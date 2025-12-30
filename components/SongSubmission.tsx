@@ -68,6 +68,7 @@ export function SongSubmission({
           submissionDate: Date.now(),
           note: "",
           userObject: user || undefined,
+          guesses: null,
           trackInfo: {
             trackId: "",
             title: "",
