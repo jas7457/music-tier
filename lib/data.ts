@@ -140,21 +140,6 @@ export async function getUserLeagues(
             votesCollection.find({ roundId: round._id.toString() }).toArray(),
           ]);
 
-          const submissions: PopulatedSubmission[] = _submissions.map(
-            (submission) => ({
-              ...submission,
-              _id: submission._id.toString(),
-              userObject: usersById[submission.userId]?.user,
-            })
-          );
-
-          const onDeckSubmissions: PopulatedOnDeckSubmission[] =
-            _onDeckSubmissions.map((submission) => ({
-              ...submission,
-              _id: submission._id.toString(),
-              userObject: usersById[submission.userId]?.user,
-            }));
-
           const votes: PopulatedVote[] = _votes.map((vote) => ({
             ...vote,
             _id: vote._id.toString(),
@@ -163,6 +148,35 @@ export async function getUserLeagues(
               ? usersById[vote.userGuessId]?.user
               : undefined,
           }));
+
+          const submissions: PopulatedSubmission[] = _submissions.map(
+            (submission) => {
+              const submissionId = submission._id.toString();
+              const guesses = votes
+                .filter(
+                  (vote) =>
+                    vote.submissionId === submissionId && vote.userGuessId
+                )
+                .map((vote) => ({
+                  guesser: vote.userObject,
+                  guessee: vote.userGuessObject!,
+                }));
+
+              return {
+                ...submission,
+                _id: submissionId,
+                userObject: usersById[submission.userId]?.user,
+                guesses: guesses.length > 0 ? guesses : null,
+              };
+            }
+          );
+
+          const onDeckSubmissions: PopulatedOnDeckSubmission[] =
+            _onDeckSubmissions.map((submission) => ({
+              ...submission,
+              _id: submission._id.toString(),
+              userObject: usersById[submission.userId]?.user,
+            }));
 
           return {
             ...round,

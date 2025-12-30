@@ -16,6 +16,10 @@ export type PopulatedUser = WithStringId<User> & {
 };
 export type PopulatedSubmission = WithStringId<SongSubmission> & {
   userObject: PopulatedUser | undefined;
+  guesses: Array<{
+    guesser: PopulatedUser;
+    guessee: PopulatedUser;
+  }> | null;
 };
 export type PopulatedOnDeckSubmission = WithStringId<OnDeckSongSubmission> & {
   userObject: PopulatedUser | undefined;

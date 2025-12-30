@@ -235,6 +235,56 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                 ))}
             </div>
           )}
+
+          {/* Guesses List */}
+          {submission.guesses && submission.guesses.length > 0 && (
+            <div className="border-t border-gray-200 p-6">
+              <h6 className="font-semibold text-gray-700 mb-3">Guesses</h6>
+              <div className="space-y-2">
+                {(() => {
+                  const correctGuesses = submission.guesses
+                    .filter((guess) => guess.guessee._id === submission.userId)
+                    .sort((a, b) => a.guesser.index - b.guesser.index);
+
+                  const incorrectGuesses = submission.guesses
+                    .filter((guess) => guess.guessee._id !== submission.userId)
+                    .sort((a, b) => a.guesser.index - b.guesser.index);
+
+                  return (
+                    <>
+                      {correctGuesses.map((guess, idx) => (
+                        <div
+                          key={`correct-${idx}`}
+                          className="flex items-center gap-2 text-sm text-green-900 bg-green-50 border border-green-200 rounded-md p-2"
+                        >
+                          <Avatar user={guess.guesser} size={6} />
+                          <span>{guess.guesser.userName} guessed</span>
+                          <Avatar user={guess.guessee} size={6} />
+                          <span>{guess.guessee.userName}</span>
+                          <GuessFeedback className="ml-auto" isCorrect={true} />
+                        </div>
+                      ))}
+                      {incorrectGuesses.map((guess, idx) => (
+                        <div
+                          key={`incorrect-${idx}`}
+                          className="flex items-center gap-2 text-sm text-red-900 bg-red-50 border border-red-200 rounded-md p-2"
+                        >
+                          <Avatar user={guess.guesser} size={6} />
+                          <span>{guess.guesser.userName} guessed</span>
+                          <Avatar user={guess.guessee} size={6} />
+                          <span>{guess.guessee.userName}</span>
+                          <GuessFeedback
+                            className="ml-auto"
+                            isCorrect={false}
+                          />
+                        </div>
+                      ))}
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
         </Card>
       );
     });
