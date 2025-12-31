@@ -240,6 +240,14 @@ export interface LeaguePlaybackStats {
     user: PopulatedUser;
     totalPoints: number;
   }>;
+  roundPoints: Array<{
+    round: PopulatedRound;
+    users: Array<{
+      user: PopulatedUser;
+      points: number;
+      wins: number;
+    }>;
+  }>;
 }
 
 export type PopulatedLeague = WithStringId<Omit<League, "users">> & {

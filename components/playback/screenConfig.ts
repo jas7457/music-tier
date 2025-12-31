@@ -15,6 +15,7 @@ import { ConspiratorsScreen } from "./screens/ConspiratorsScreen";
 import { AllUserTopSongsCarouselScreen } from "./screens/AllUserTopSongsCarouselScreen";
 import { SummaryScreen } from "./screens/SummaryScreen";
 import { LeagueChampionScreen } from "./screens/LeagueChampionScreen";
+import { RacingScreen } from "./screens/RacingScreen";
 import { memo } from "react";
 
 export const PLAYBACK_SCREENS: PlaybackScreen[] = [
@@ -22,6 +23,11 @@ export const PLAYBACK_SCREENS: PlaybackScreen[] = [
     key: "intro",
     component: memo(IntroScreen),
     viewType: "IntroScreen",
+  },
+  {
+    key: "racing",
+    component: memo(RacingScreen),
+    viewType: "CustomScreen",
   },
   {
     key: "league-champion",

@@ -45,6 +45,7 @@ export function calculatePlaybackStats(
       allUserWins: [],
       leagueWinner: null,
       otherUsers: [],
+      roundPoints: [],
     };
   }
 
@@ -1005,6 +1006,69 @@ export function calculatePlaybackStats(
       totalPoints: data.totalPoints,
     }));
 
+  // Calculate cumulative points per round for racing visualization
+  const roundPoints = completedRounds.map((round) => {
+    // Get cumulative points and wins up to and including this round
+    const cumulativePointsByUser = new Map<string, number>();
+    const cumulativeWinsByUser = new Map<string, number>();
+
+    // Calculate points and wins for all rounds up to and including the current round
+    completedRounds
+      .filter((r) => r.roundIndex <= round.roundIndex)
+      .forEach((r) => {
+        // Calculate points for this round
+        const submissionPointsThisRound = new Map<string, number>();
+        r.votes.forEach((vote) => {
+          const submission = r.submissions.find(
+            (s) => s._id === vote.submissionId
+          );
+          if (submission) {
+            const current = cumulativePointsByUser.get(submission.userId) || 0;
+            cumulativePointsByUser.set(
+              submission.userId,
+              current + vote.points
+            );
+
+            // Track points per submission for win calculation
+            const submissionPoints =
+              submissionPointsThisRound.get(submission._id) || 0;
+            submissionPointsThisRound.set(
+              submission._id,
+              submissionPoints + vote.points
+            );
+          }
+        });
+
+        // Determine winners for this round
+        if (submissionPointsThisRound.size > 0) {
+          const maxPoints = Math.max(
+            ...Array.from(submissionPointsThisRound.values())
+          );
+          r.submissions.forEach((submission) => {
+            const submissionPoints =
+              submissionPointsThisRound.get(submission._id) || 0;
+            if (submissionPoints === maxPoints && submissionPoints > 0) {
+              const currentWins =
+                cumulativeWinsByUser.get(submission.userId) || 0;
+              cumulativeWinsByUser.set(submission.userId, currentWins + 1);
+            }
+          });
+        }
+      });
+
+    // Convert to array with user objects
+    const usersWithPoints = league.users.map((user) => ({
+      user: usersById[user._id],
+      points: cumulativePointsByUser.get(user._id) || 0,
+      wins: cumulativeWinsByUser.get(user._id) || 0,
+    }));
+
+    return {
+      round,
+      users: usersWithPoints,
+    };
+  });
+
   return {
     topSong,
     userStats,
@@ -1044,5 +1108,6 @@ export function calculatePlaybackStats(
     allUserWins,
     leagueWinner,
     otherUsers,
+    roundPoints,
   };
 }
