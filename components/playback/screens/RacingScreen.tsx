@@ -24,7 +24,10 @@ export function RacingScreen({
   const [racerPositions, setRacerPositions] = useState<RacerPosition[]>([]);
   const previousPositionsRef = useRef<RacerPosition[]>([]);
   const swayAnimationRef = useRef<
-    Record<string, { delay: number; duration: number }>
+    Record<
+      string,
+      { delay: number; duration: number; style: React.CSSProperties }
+    >
   >({});
   const [isRacing, setIsRacing] = useState(false);
   const [showWinner, setShowWinner] = useState(false);
@@ -34,6 +37,7 @@ export function RacingScreen({
   const [poweringUpUsers, setPoweringUpUsers] = useState<Set<string>>(
     new Set()
   );
+  const animationTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
   const roundPoints = playback.roundPoints;
   const users = league.users;
@@ -44,7 +48,9 @@ export function RacingScreen({
   // Function to check for anyone who dropped in rank and trigger spin outs
   const checkForRankChanges = useCallback(
     (newPositions: RacerPosition[], oldPositions: RacerPosition[]) => {
-      if (oldPositions.length === 0) return;
+      if (oldPositions.length === 0) {
+        return;
+      }
 
       // Find all users who dropped in rank (rank number increased)
       const droppedUsers = newPositions
@@ -55,11 +61,11 @@ export function RacingScreen({
         })
         .map((p) => p.userId);
 
-      // Find all users who improved or maintained rank
+      // Find all users who improved rank
       const improvedUsers = newPositions
         .filter((newPos) => {
           const oldPos = oldPositions.find((op) => op.userId === newPos.userId);
-          // If rank decreased or stayed same (went up or stayed), they should power up
+          // If rank decreased (went up in place), they should power up
           return oldPos && newPos.rank < oldPos.rank;
         })
         .map((p) => p.userId);
@@ -70,36 +76,41 @@ export function RacingScreen({
           (prev) => new Set([...Array.from(prev), ...droppedUsers])
         );
 
-        // Remove spinning effect after animation completes
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
           setSpinningOutUsers((prev) => {
             const next = new Set(prev);
             droppedUsers.forEach((userId) => next.delete(userId));
             return next;
           });
         }, 1000);
+        animationTimeoutsRef.current.push(timeout);
       }
 
       if (improvedUsers.length > 0) {
-        // Add power-up effect to users who improved or maintained
+        // Add power-up effect to users who improved
         setPoweringUpUsers(
           (prev) => new Set([...Array.from(prev), ...improvedUsers])
         );
 
         // Remove power-up effect after animation completes
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
           setPoweringUpUsers((prev) => {
             const next = new Set(prev);
             improvedUsers.forEach((userId) => next.delete(userId));
             return next;
           });
         }, 800);
+        animationTimeoutsRef.current.push(timeout);
       }
     },
     []
   );
 
   useEffect(() => {
+    // Clear any pending animation timeouts
+    animationTimeoutsRef.current.forEach(clearTimeout);
+    animationTimeoutsRef.current = [];
+
     if (!isActive || roundPoints.length === 0) {
       setIsRacing(false);
       setShowWinner(false);
@@ -118,12 +129,18 @@ export function RacingScreen({
     // Initialize random sway animations for each user (only once)
     if (Object.keys(swayAnimationRef.current).length === 0) {
       swayAnimationRef.current = users.reduce((acc, user) => {
+        const delay = Math.random() * 2;
+        const duration = 1.5 + Math.random();
         acc[user._id] = {
-          delay: Math.random() * 2,
-          duration: 1.5 + Math.random(),
+          delay,
+          duration,
+          style: {
+            animationDelay: `${delay}s`,
+            animationDuration: `${duration}s`,
+          },
         };
         return acc;
-      }, {} as Record<string, { delay: number; duration: number }>);
+      }, {} as Record<string, { delay: number; duration: number; style: React.CSSProperties }>);
     }
 
     // Initialize positions at League Start (all at 0 points, all in 1st place)
@@ -241,6 +258,8 @@ export function RacingScreen({
 
     return () => {
       clearInterval(interval);
+      animationTimeoutsRef.current.forEach(clearTimeout);
+      animationTimeoutsRef.current = [];
     };
   }, [isActive, roundPoints, users, checkForRankChanges]);
 
@@ -257,6 +276,11 @@ export function RacingScreen({
   const currentRound =
     currentRoundIndex >= 0 ? roundPoints[currentRoundIndex] : null;
   const winner = playback.leagueWinner;
+
+  const paddingPercent = 5;
+  const usableWidth = 100 - paddingPercent * 2;
+  const laneWidth = usableWidth / totalLanes;
+  const allAtStart = racerPositions.every((r) => r.rank === 0);
 
   return (
     <Screen background={{ from: "#0f172a", via: "#1e293b", to: "#0f172a" }}>
@@ -306,34 +330,30 @@ export function RacingScreen({
             const user = users.find((u) => u._id === racer.userId);
             if (!user) return null;
 
-            // Add padding to lanes to prevent cutoff (10% padding on each side)
-            const paddingPercent = 5;
-            const usableWidth = 100 - paddingPercent * 2;
-            const laneWidth = usableWidth / totalLanes;
             const leftPosition =
               paddingPercent + racer.lane * laneWidth + laneWidth / 2;
 
-            // Check if we're at the start (all users have rank 0)
-            const allAtStart = racerPositions.every((r) => r.rank === 0);
-
             let topPosition;
             if (allAtStart) {
-              // At league start, everyone is at the top (start line)
-              topPosition = 18; // Position at the start line
+              topPosition = 18;
             } else {
-              // First place (rank 0) should be further down
-              // Invert the position so lower rank = further down
               const invertedPosition = 1 - racer.rank / (totalLanes - 1 || 1);
-              topPosition = 15 + invertedPosition * 60; // 15% from top, max 75% to avoid bottom overlap
+              topPosition = 20 + invertedPosition * 55;
             }
 
             const isSpinningOut = spinningOutUsers.has(racer.userId);
             const isPoweringUp = poweringUpUsers.has(racer.userId);
+            const swayAnimation = swayAnimationRef.current[racer.userId];
 
-            // Get the stored random animation values for this racer
-            const swayAnimation = swayAnimationRef.current[racer.userId] || {
-              delay: 0,
-              duration: 2,
+            const containerStyle: React.CSSProperties = {
+              left: `${leftPosition}%`,
+              top: `${topPosition}%`,
+              transform: "translate3d(-50%, -50%, 0)",
+              willChange:
+                isSpinningOut || isPoweringUp
+                  ? "transform, filter"
+                  : "transform",
+              ...(swayAnimation?.style || {}),
             };
 
             return (
@@ -343,15 +363,7 @@ export function RacingScreen({
                   "absolute transition-all duration-1500 ease-in-out animate-driving-sway",
                   isSpinningOut && "animate-spin-out"
                 )}
-                style={
-                  {
-                    left: `${leftPosition}%`,
-                    top: `${topPosition}%`,
-                    transform: "translate(-50%, -50%)",
-                    animationDelay: `${swayAnimation.delay}s`,
-                    animationDuration: `${swayAnimation.duration}s`,
-                  } as React.CSSProperties
-                }
+                style={containerStyle}
               >
                 <div className="flex flex-col items-center">
                   <div
@@ -371,15 +383,9 @@ export function RacingScreen({
                           : "border-white/50"
                       )}
                     />
-                    {/* Points badge */}
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-linear-to-r from-purple-600 to-pink-600 text-white text-[1.2rem] font-bold px-2.5 py-1 rounded-full shadow-lg whitespace-nowrap">
+                    <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-linear-to-r from-purple-600 to-pink-600 text-white text-[1.2rem] font-bold px-2.5 py-1 rounded-full shadow-lg whitespace-nowrap">
                       {racer.points}
                     </div>
-                  </div>
-
-                  {/* User name */}
-                  <div className="mt-1 text-white text-xs font-semibold text-center w-[10vw] max-w-16 truncate">
-                    {user.userName}
                   </div>
                 </div>
               </div>
@@ -419,41 +425,41 @@ export function RacingScreen({
 
         @keyframes spin-out {
           0% {
-            transform: translate(-50%, -50%) rotate(0deg) scale(1);
+            transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(1);
           }
           25% {
-            transform: translate(-50%, -50%) rotate(180deg) scale(0.8);
+            transform: translate3d(-50%, -50%, 0) rotate(180deg) scale(0.8);
           }
           50% {
-            transform: translate(-50%, -50%) rotate(360deg) scale(0.9);
+            transform: translate3d(-50%, -50%, 0) rotate(360deg) scale(0.9);
           }
           75% {
-            transform: translate(-50%, -50%) rotate(540deg) scale(0.8);
+            transform: translate3d(-50%, -50%, 0) rotate(540deg) scale(0.8);
           }
           100% {
-            transform: translate(-50%, -50%) rotate(720deg) scale(1);
+            transform: translate3d(-50%, -50%, 0) rotate(720deg) scale(1);
           }
         }
         .animate-spin-out {
           animation: spin-out 1s ease-in-out !important;
-          filter: blur(2px);
+          filter: blur(1.5px);
         }
 
         @keyframes driving-sway {
           0% {
-            transform: translate(-50%, -50%) translateX(0);
+            transform: translate3d(-50%, -50%, 0);
           }
           25% {
-            transform: translate(-50%, -50%) translateX(8px);
+            transform: translate3d(calc(-50% + 8px), -50%, 0);
           }
           50% {
-            transform: translate(-50%, -50%) translateX(0);
+            transform: translate3d(-50%, -50%, 0);
           }
           75% {
-            transform: translate(-50%, -50%) translateX(-8px);
+            transform: translate3d(calc(-50% - 8px), -50%, 0);
           }
           100% {
-            transform: translate(-50%, -50%) translateX(0);
+            transform: translate3d(-50%, -50%, 0);
           }
         }
         .animate-driving-sway {
