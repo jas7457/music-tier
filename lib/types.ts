@@ -141,6 +141,12 @@ export interface LeaguePlaybackStats {
       note: string | undefined;
     }>;
   }>;
+  scrappyWin: {
+    points: number;
+    voters: number;
+    user: PopulatedUser;
+    round: PopulatedRound;
+  } | null;
   fastestSubmission: {
     user: PopulatedUser;
     time: number;
@@ -217,6 +223,14 @@ export interface LeaguePlaybackStats {
     votes: PopulatedVote[];
     round: PopulatedRound;
   }>;
+  crowdPleaser: {
+    user: PopulatedUser;
+    trackInfo: TrackInfo;
+    points: number;
+    voters: number;
+    votes: PopulatedVote[];
+    round: PopulatedRound;
+  } | null;
   allUserWins: Array<{
     user: PopulatedUser;
     wins: number;

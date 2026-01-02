@@ -36,6 +36,8 @@ export function calculatePlaybackStats(
       fastestVoters: [],
       fastestVote: null,
       slowestVoter: null,
+      scrappyWin: null,
+      crowdPleaser: null,
       mostConsistent: [],
       conspirators: [],
       userTopSong: null,
@@ -48,6 +50,36 @@ export function calculatePlaybackStats(
       roundPoints: [],
     };
   }
+
+  const winsDueToTies = league.users.reduce((acc, user) => {
+    acc[user._id] = 0;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const breakTie = (userA: PopulatedUser, userB: PopulatedUser) => {
+    const userAWinsDueToTies = winsDueToTies[userA._id];
+    const userBWinsDueToTies = winsDueToTies[userB._id];
+
+    if (userAWinsDueToTies === userBWinsDueToTies) {
+      return userA.index - userB.index;
+    }
+    return userAWinsDueToTies - userBWinsDueToTies;
+  };
+  const incrementTieWin = (
+    items: Array<{ user: PopulatedUser; numbers: number[] }>
+  ) => {
+    if (items.length < 2) {
+      return;
+    }
+
+    const [first, second] = items;
+    if (first.numbers.length !== second.numbers.length) {
+      return;
+    }
+    if (first.numbers.every((num, idx) => num === second.numbers[idx])) {
+      winsDueToTies[first.user._id]++;
+    }
+  };
 
   const userData = league.users.reduce(
     (acc, user) => {
@@ -932,8 +964,40 @@ export function calculatePlaybackStats(
       if (b.voters !== a.voters) {
         return b.voters - a.voters;
       }
-      return a.user.index - b.user.index;
+      return breakTie(a.user, b.user);
     });
+  incrementTieWin(
+    allUserTopSongs.map((song) => ({
+      user: song.user,
+      numbers: [song.points, song.voters],
+    }))
+  );
+
+  const crowdPleaser: LeaguePlaybackStats["crowdPleaser"] = (() => {
+    if (allUserTopSongs.length === 0) {
+      return null;
+    }
+
+    const mostVoters = allUserTopSongs
+      .filter((s) => s.voters > 0)
+      .sort((a, b) => {
+        if (b.voters !== a.voters) {
+          return b.voters - a.voters;
+        }
+        if (b.points !== a.points) {
+          return b.points - a.points;
+        }
+        return breakTie(a.user, b.user);
+      });
+    incrementTieWin(
+      mostVoters.map((song) => ({
+        user: song.user,
+        numbers: [song.voters, song.points],
+      }))
+    );
+
+    return mostVoters[0] || null;
+  })();
 
   const allUserWins: LeaguePlaybackStats["allUserWins"] = Object.values(
     userData
@@ -1069,6 +1133,63 @@ export function calculatePlaybackStats(
     };
   });
 
+  const scrappyWin = (() => {
+    const scrappyWinBefore = league.rounds.completed.map((round) => {
+      const userPointsById = league.users.reduce((acc, user) => {
+        acc[user._id] = { points: 0, voters: 0, user, round };
+        return acc;
+      }, {} as Record<string, { points: number; voters: number; user: PopulatedUser; round: PopulatedRound }>);
+
+      round.votes.forEach((vote) => {
+        if (vote.points) {
+          const submission = round.submissions.find(
+            (s) => s._id === vote.submissionId
+          );
+          if (!submission) {
+            return;
+          }
+          userPointsById[submission.userId].points += vote.points;
+          userPointsById[submission.userId].voters += 1;
+        }
+      });
+
+      const sortedData = Object.values(userPointsById).sort((a, b) => {
+        if (a.points !== b.points) {
+          return b.points - a.points;
+        }
+        if (a.voters !== b.voters) {
+          return a.voters - b.voters;
+        }
+        return breakTie(a.user, b.user);
+      });
+      incrementTieWin(
+        sortedData.map((data) => ({
+          user: data.user,
+          numbers: [data.points, data.voters],
+        }))
+      );
+
+      return sortedData[0];
+    });
+    const scrappyWins = scrappyWinBefore.sort((a, b) => {
+      if (a.points !== b.points) {
+        return a.points - b.points;
+      }
+      if (a.voters !== b.voters) {
+        return a.voters - b.voters;
+      }
+      return breakTie(a.user, b.user);
+    });
+    incrementTieWin(
+      scrappyWins.map((data) => ({
+        user: data.user,
+        numbers: [data.points, data.voters],
+      }))
+    );
+
+    return scrappyWins[0];
+  })();
+
   return {
     topSong,
     userStats,
@@ -1076,6 +1197,8 @@ export function calculatePlaybackStats(
     biggestStan,
     biggestCritic,
     hardestSell,
+    scrappyWin,
+    crowdPleaser,
     mostWinsUsers: mostWinsUsers.sort((a, b) => {
       if (b.wins.length !== a.wins.length) {
         return b.wins.length - a.wins.length;

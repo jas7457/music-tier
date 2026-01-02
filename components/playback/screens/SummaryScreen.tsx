@@ -133,9 +133,6 @@ export function SummaryScreen({
       const quickestRound = roundsWithVotes[0];
       const timeDisplay = formatTime(quickestRound.avgTime);
 
-      const slowestRound = roundsWithVotes[roundsWithVotes.length - 1];
-      const slowTimeDisplay = formatTime(slowestRound.avgTime);
-
       cards.push({
         id: "quickest-voting-round",
         icon: "⏩",
@@ -147,16 +144,20 @@ export function SummaryScreen({
         description: `${quickestRound.round.title} had the fastest average voting time, with players casting their votes in just ${timeDisplay} on average.`,
       });
 
-      cards.push({
-        id: "slowest-voting-round",
-        icon: "⏳",
-        title: "Slowest Voting Round",
-        value: slowTimeDisplay,
-        color: NEON_COLORS.Yellow,
-        subtitle: slowestRound.round.title,
-        moreDetailsLink: getRoundLink(slowestRound.round, league._id),
-        description: `${slowestRound.round.title} saw the slowest average voting time, with players taking an average of ${slowTimeDisplay} to cast their votes.`,
-      });
+      if (roundsWithVotes.length > 1) {
+        const slowestRound = roundsWithVotes[roundsWithVotes.length - 1];
+        const slowTimeDisplay = formatTime(slowestRound.avgTime);
+        cards.push({
+          id: "slowest-voting-round",
+          icon: "⏳",
+          title: "Slowest Voting Round",
+          value: slowTimeDisplay,
+          color: NEON_COLORS.Yellow,
+          subtitle: slowestRound.round.title,
+          moreDetailsLink: getRoundLink(slowestRound.round, league._id),
+          description: `${slowestRound.round.title} saw the slowest average voting time, with players taking an average of ${slowTimeDisplay} to cast their votes.`,
+        });
+      }
     }
 
     // Most Noted Round (round with most comments)
@@ -721,107 +722,49 @@ export function SummaryScreen({
     }
 
     // Lowest Scoring Win (won with fewest points)
-    if (playback.mostWinsUsers.length > 0) {
-      const scrappyWin = league.rounds.completed
-        .map((round) => {
-          const userPointsById = league.users.reduce((acc, user) => {
-            acc[user._id] = { points: 0, voters: 0, user, round };
-            return acc;
-          }, {} as Record<string, { points: number; voters: number; user: PopulatedUser; round: PopulatedRound }>);
-
-          round.votes.forEach((vote) => {
-            if (vote.points) {
-              const submission = round.submissions.find(
-                (s) => s._id === vote.submissionId
-              );
-              if (!submission) {
-                return;
-              }
-              userPointsById[submission.userId].points += vote.points;
-              userPointsById[submission.userId].voters += 1;
-            }
-          });
-
-          const sortedData = Object.values(userPointsById).sort((a, b) => {
-            if (a.points !== b.points) {
-              return b.points - a.points;
-            }
-            if (a.voters !== b.voters) {
-              return b.voters - a.voters;
-            }
-            return a.user.index - b.user.index;
-          });
-
-          return sortedData[0];
-        })
-        .sort((a, b) => {
-          if (a.points !== b.points) {
-            return a.points - b.points;
-          }
-          if (a.voters !== b.voters) {
-            return a.voters - b.voters;
-          }
-          return a.user.index - b.user.index;
-        })[0];
-
-      if (scrappyWin) {
-        cards.push({
-          id: "scrappy-win",
-          icon: "🏅",
-          title: "Scrappy Victory",
-          user: scrappyWin.user,
-          subtitle: scrappyWin.user.userName,
-          value: `${scrappyWin.points.toString()} pts`,
-          color: NEON_COLORS.BrightGreen,
-          moreDetailsLink: getRoundLink(scrappyWin.round, league._id),
-          description: (
-            <div>
-              The lowest scoring round to still secure a victory happened in{" "}
-              <span className="font-bold">{scrappyWin.round.title}</span>. A
-              tight competition where every point mattered.
-            </div>
-          ),
-        });
-      }
+    if (playback.scrappyWin) {
+      cards.push({
+        id: "scrappy-win",
+        icon: "🏅",
+        title: "Scrappy Victory",
+        user: playback.scrappyWin.user,
+        subtitle: playback.scrappyWin.user.userName,
+        value: `${playback.scrappyWin.points.toString()} pts`,
+        color: NEON_COLORS.BrightGreen,
+        moreDetailsLink: getRoundLink(playback.scrappyWin.round, league._id),
+        description: (
+          <div>
+            The lowest scoring round to still secure a victory happened in{" "}
+            <span className="font-bold">{playback.scrappyWin.round.title}</span>
+            . A tight competition where every point mattered.
+          </div>
+        ),
+      });
     }
 
     // Most Votes Received (most popular submitter by voter count)
-    if (playback.allUserTopSongs.length > 0) {
-      const mostVoters = playback.allUserTopSongs
-        .filter((s) => s.voters > 0)
-        .sort((a, b) => {
-          if (b.voters !== a.voters) {
-            return b.voters - a.voters;
-          }
-          if (b.points !== a.points) {
-            return b.points - a.points;
-          }
-          return a.user.index - b.user.index;
-        })[0];
-
-      if (mostVoters && mostVoters.voters > 1) {
-        cards.push({
-          id: "crowd-pleaser",
-          icon: "👥",
-          title: "Crowd Pleaser",
-          user: mostVoters.user,
-          subtitle: mostVoters.user.userName,
-          value: `${mostVoters.voters.toString()} voters`,
-          color: NEON_COLORS.Yellow,
-          moreDetailsLink: getRoundLink(mostVoters.round, league._id),
-          description: (
-            <FullTrackInfoDisplay
-              preamble="The song that received votes from the most people. Broad appeal across the league."
-              entries={[
-                {
-                  trackInfo: mostVoters.trackInfo,
-                  round: mostVoters.round,
-                },
-              ]}
-            />
-          ),
-        });
-      }
+    if (playback.crowdPleaser) {
+      cards.push({
+        id: "crowd-pleaser",
+        icon: "👥",
+        title: "Crowd Pleaser",
+        user: playback.crowdPleaser.user,
+        subtitle: playback.crowdPleaser.user.userName,
+        value: `${playback.crowdPleaser.voters.toString()} voters`,
+        color: NEON_COLORS.Yellow,
+        moreDetailsLink: getRoundLink(playback.crowdPleaser.round, league._id),
+        description: (
+          <FullTrackInfoDisplay
+            preamble="The song that received votes from the most people. Broad appeal across the league."
+            entries={[
+              {
+                trackInfo: playback.crowdPleaser.trackInfo,
+                round: playback.crowdPleaser.round,
+              },
+            ]}
+          />
+        ),
+      });
     }
 
     // Comment King (most notes left on other songs)
