@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Activity } from "react";
 import { twMerge } from "tailwind-merge";
 import type { PopulatedLeague } from "@/lib/types";
 import { useAuth } from "@/lib/AuthContext";
@@ -163,6 +163,7 @@ export function PlaylistPartyPlayback({
         const Screen = screen.component;
         const isActive = index === currentScreenIndex;
         const isExiting = index === currentScreenIndex - 1;
+        const isActiveActivity = Math.abs(index - currentScreenIndex) <= 2;
 
         return (
           <div
@@ -170,13 +171,15 @@ export function PlaylistPartyPlayback({
             className="h-screen w-screen snap-start snap-always relative"
           >
             <div className="h-full w-full overflow-hidden">
-              <Screen
-                playback={playback}
-                league={league}
-                currentUserId={currentUserId}
-                isActive={isActive}
-                isExiting={isExiting}
-              />
+              <Activity mode={isActiveActivity ? "visible" : "hidden"}>
+                <Screen
+                  playback={playback}
+                  league={league}
+                  currentUserId={currentUserId}
+                  isActive={isActive}
+                  isExiting={isExiting}
+                />
+              </Activity>
             </div>
           </div>
         );
