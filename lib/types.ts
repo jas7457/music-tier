@@ -12,8 +12,6 @@ type WithStringId<T> = Omit<T, "_id"> & { _id: string };
 
 export type PopulatedUser = WithStringId<User> & {
   index: number;
-  canCreateBonusRound: boolean;
-  canCreateKickoffRound: boolean;
 };
 export type PopulatedSubmission = WithStringId<SongSubmission> & {
   userObject: PopulatedUser | undefined;

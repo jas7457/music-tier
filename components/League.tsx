@@ -138,11 +138,15 @@ export function League({
     userHasCreatedRound,
     userHasCreatedBonusRound,
     userHasCreatedKickoffRound,
+    userCanCreateBonusRound,
+    userCanCreateKickoffRound,
   } = useMemo(() => {
     if (!user) {
       return {
         userHasCreatedRound: false,
+        userCanCreateBonusRound: false,
         userHasCreatedBonusRound: false,
+        userCanCreateKickoffRound: false,
         userHasCreatedKickoffRound: false,
       };
     }
@@ -171,6 +175,10 @@ export function League({
         userHasCreatedRound: false,
         userHasCreatedBonusRound: false,
         userHasCreatedKickoffRound: false,
+        userCanCreateBonusRound: league.bonusRoundUserIds.includes(user._id),
+        userCanCreateKickoffRound: league.kickoffRoundUserIds.includes(
+          user._id
+        ),
       }
     );
   }, [league, user]);
@@ -471,7 +479,7 @@ export function League({
       )}
 
       {/* Create Kickoff Round */}
-      {user.canCreateKickoffRound && !userHasCreatedKickoffRound && (
+      {userCanCreateKickoffRound && !userHasCreatedKickoffRound && (
         <CreateRound
           leagueId={league._id}
           isBonusRound={false}
@@ -489,7 +497,7 @@ export function League({
       )}
 
       {/* Create Bonus Round */}
-      {user.canCreateBonusRound && !userHasCreatedBonusRound && (
+      {userCanCreateBonusRound && !userHasCreatedBonusRound && (
         <CreateRound
           leagueId={league._id}
           isBonusRound={true}

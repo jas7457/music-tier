@@ -771,12 +771,6 @@ export async function getUserByCookies(leagueId: string) {
       ...user,
       _id: user._id.toString(),
       index: league ? league.users.indexOf(payload.userId) : -1,
-      canCreateBonusRound: league
-        ? league.bonusRoundUserIds.includes(payload.userId)
-        : false,
-      canCreateKickoffRound: league
-        ? league.kickoffRoundUserIds.includes(payload.userId)
-        : false,
     };
 
     return userResponse;
