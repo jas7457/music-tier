@@ -1,7 +1,10 @@
 import { PopulatedRound } from "../types";
 
 export function getRoundTitle(
-  round: PopulatedRound,
+  round: Pick<
+    PopulatedRound,
+    "isHidden" | "title" | "isPending" | "_id" | "roundIndex"
+  >,
   includeRoundPrefix = true
 ) {
   const roundTitle = (() => {

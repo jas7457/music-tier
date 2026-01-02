@@ -10,6 +10,7 @@ import { HapticButton } from "./HapticButton";
 import { useToast } from "@/lib/ToastContext";
 import { getOnDeckInfo, OnDeckSubmissionsList } from "./OnDeckSubmissions";
 import { TrackInfo } from "@/databaseTypes";
+import Link from "next/link";
 
 export function Round({
   currentUser,
@@ -130,16 +131,42 @@ export function Round({
 
   return (
     <div className="flex flex-col gap-4">
-      <RoundInfo
-        league={league}
-        round={{ ...round, title: roundTitle, description: roundDescription }}
-        {...(canEdit
-          ? {
-              onTitleUpdate: setRoundTitle,
-              onDescriptionUpdate: setRoundDescription,
-            }
-          : {})}
-      />
+      <div className="grid gap-1">
+        {isRoundPage && (round.previousRound || round.nextRound) && (
+          <div className="grid grid-cols-[1fr_1fr] gap-1 text-sm">
+            <div className="truncate">
+              {round.previousRound && (
+                <Link
+                  href={`/leagues/${league._id}/rounds/${round.previousRound._id}`}
+                  className="text-primary-dark hover:underline"
+                >
+                  ← Round {round.previousRound.roundIndex + 1}
+                </Link>
+              )}
+            </div>
+            <div className="truncate text-right">
+              {round.nextRound && (
+                <Link
+                  href={`/leagues/${league._id}/rounds/${round.nextRound._id}`}
+                  className="text-primary-dark hover:underline"
+                >
+                  Round {round.nextRound.roundIndex + 1} →
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+        <RoundInfo
+          league={league}
+          round={{ ...round, title: roundTitle, description: roundDescription }}
+          {...(canEdit
+            ? {
+                onTitleUpdate: setRoundTitle,
+                onDescriptionUpdate: setRoundDescription,
+              }
+            : {})}
+        />
+      </div>
 
       {/* Song Submission Section */}
       {round.stage === "completed" && (

@@ -60,6 +60,15 @@ export type PopulatedRound = Omit<
   creatorObject: PopulatedUser;
   isPending?: boolean;
   isHidden: boolean;
+
+  previousRound: Pick<
+    PopulatedRound,
+    "_id" | "title" | "isHidden" | "isPending" | "roundIndex"
+  > | null;
+  nextRound: Pick<
+    PopulatedRound,
+    "_id" | "title" | "isHidden" | "isPending" | "roundIndex"
+  > | null;
 };
 
 export interface LeaguePlaybackStats {
