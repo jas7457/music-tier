@@ -240,7 +240,7 @@ export function LeagueChampionScreen({
             <div className="flex-1 overflow-y-auto space-y-3">
               {winner.submissions.map((submission, index) => (
                 <div
-                  key={submission.round._id}
+                  key={index}
                   className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20"
                   style={{
                     animation: isFlipped

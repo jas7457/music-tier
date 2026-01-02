@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import type { PlaybackScreenProps } from "../types";
 import { Screen } from "../components/Screen";
@@ -22,8 +22,15 @@ export function RacingScreen({
 }: PlaybackScreenProps) {
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
   const [racerPositions, setRacerPositions] = useState<RacerPosition[]>([]);
+  const previousPositionsRef = useRef<RacerPosition[]>([]);
   const [isRacing, setIsRacing] = useState(false);
   const [showWinner, setShowWinner] = useState(false);
+  const [spinningOutUsers, setSpinningOutUsers] = useState<Set<string>>(
+    new Set()
+  );
+  const [poweringUpUsers, setPoweringUpUsers] = useState<Set<string>>(
+    new Set()
+  );
 
   const roundPoints = playback.roundPoints;
   const users = league.users;
@@ -31,12 +38,72 @@ export function RacingScreen({
   // Calculate total lanes needed
   const totalLanes = users.length;
 
+  // Function to check for anyone who dropped in rank and trigger spin outs
+  const checkForRankChanges = useCallback(
+    (newPositions: RacerPosition[], oldPositions: RacerPosition[]) => {
+      if (oldPositions.length === 0) return;
+
+      // Find all users who dropped in rank (rank number increased)
+      const droppedUsers = newPositions
+        .filter((newPos) => {
+          const oldPos = oldPositions.find((op) => op.userId === newPos.userId);
+          // If rank increased (went down in place), they should spin out
+          return oldPos && newPos.rank > oldPos.rank;
+        })
+        .map((p) => p.userId);
+
+      // Find all users who improved or maintained rank
+      const improvedUsers = newPositions
+        .filter((newPos) => {
+          const oldPos = oldPositions.find((op) => op.userId === newPos.userId);
+          // If rank decreased or stayed same (went up or stayed), they should power up
+          return oldPos && newPos.rank < oldPos.rank;
+        })
+        .map((p) => p.userId);
+
+      if (droppedUsers.length > 0) {
+        // Add spinning effect to users who dropped
+        setSpinningOutUsers(
+          (prev) => new Set([...Array.from(prev), ...droppedUsers])
+        );
+
+        // Remove spinning effect after animation completes
+        setTimeout(() => {
+          setSpinningOutUsers((prev) => {
+            const next = new Set(prev);
+            droppedUsers.forEach((userId) => next.delete(userId));
+            return next;
+          });
+        }, 1000);
+      }
+
+      if (improvedUsers.length > 0) {
+        // Add power-up effect to users who improved or maintained
+        setPoweringUpUsers(
+          (prev) => new Set([...Array.from(prev), ...improvedUsers])
+        );
+
+        // Remove power-up effect after animation completes
+        setTimeout(() => {
+          setPoweringUpUsers((prev) => {
+            const next = new Set(prev);
+            improvedUsers.forEach((userId) => next.delete(userId));
+            return next;
+          });
+        }, 800);
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     if (!isActive || roundPoints.length === 0) {
       setIsRacing(false);
       setShowWinner(false);
       setRacerPositions([]);
       setCurrentRoundIndex(-1);
+      setSpinningOutUsers(new Set());
+      setPoweringUpUsers(new Set());
       return;
     }
 
@@ -45,15 +112,16 @@ export function RacingScreen({
     setShowWinner(false);
     setCurrentRoundIndex(-1); // Start at -1 for "League Start"
 
-    // Initialize positions at League Start (all at 0 points)
+    // Initialize positions at League Start (all at 0 points, all in 1st place)
     const initialPositions: RacerPosition[] = users.map((user, index) => ({
       userId: user._id,
       position: 0,
       points: 0,
       lane: index, // Horizontal lane stays constant
-      rank: 0, // All tied at start
+      rank: 0, // All start in 1st place (will cause most to spin out on first round)
     }));
     setRacerPositions(initialPositions);
+    previousPositionsRef.current = initialPositions;
 
     // Animate through rounds (starting at -1 for "League Start")
     let roundIdx = -1;
@@ -104,6 +172,10 @@ export function RacingScreen({
               };
             });
 
+            // Check for rank changes and trigger spin outs
+            checkForRankChanges(newPositions, previousPositionsRef.current);
+
+            previousPositionsRef.current = newPositions;
             setRacerPositions(newPositions);
             roundIdx++;
           }
@@ -145,6 +217,10 @@ export function RacingScreen({
         };
       });
 
+      // Check for rank changes and trigger spin outs
+      checkForRankChanges(newPositions, previousPositionsRef.current);
+
+      previousPositionsRef.current = newPositions;
       setRacerPositions(newPositions);
       roundIdx++;
     }, intervalTime);
@@ -152,7 +228,7 @@ export function RacingScreen({
     return () => {
       clearInterval(interval);
     };
-  }, [isActive, roundPoints, users]);
+  }, [isActive, roundPoints, users, checkForRankChanges]);
 
   if (roundPoints.length === 0) {
     return (
@@ -237,10 +313,16 @@ export function RacingScreen({
               topPosition = 15 + invertedPosition * 60; // 15% from top, max 75% to avoid bottom overlap
             }
 
+            const isSpinningOut = spinningOutUsers.has(racer.userId);
+            const isPoweringUp = poweringUpUsers.has(racer.userId);
+
             return (
               <div
                 key={racer.userId}
-                className="absolute transition-all duration-1500 ease-in-out"
+                className={twMerge(
+                  "absolute transition-all duration-1500 ease-in-out",
+                  isSpinningOut && "animate-spin-out"
+                )}
                 style={{
                   left: `${leftPosition}%`,
                   top: `${topPosition}%`,
@@ -248,11 +330,16 @@ export function RacingScreen({
                 }}
               >
                 <div className="flex flex-col items-center">
-                  {/* Avatar */}
-                  <div className="relative w-[16vw] max-w-24 aspect-square">
+                  <div
+                    className={twMerge(
+                      "relative w-[16vw] max-w-24 aspect-square",
+                      isPoweringUp && "animate-power-up"
+                    )}
+                  >
                     <Avatar
                       user={user}
                       size={96}
+                      includeLink={false}
                       className={twMerge(
                         "border-2 shadow-lg transition-all w-full! h-full!",
                         showWinner && winner?.user._id === user._id
@@ -304,6 +391,58 @@ export function RacingScreen({
         }
         .animate-fade-in {
           animation: fade-in 0.5s ease-out;
+        }
+
+        @keyframes spin-out {
+          0% {
+            transform: translate(-50%, -50%) rotate(0deg) scale(1);
+          }
+          25% {
+            transform: translate(-50%, -50%) rotate(180deg) scale(0.8);
+          }
+          50% {
+            transform: translate(-50%, -50%) rotate(360deg) scale(0.9);
+          }
+          75% {
+            transform: translate(-50%, -50%) rotate(540deg) scale(0.8);
+          }
+          100% {
+            transform: translate(-50%, -50%) rotate(720deg) scale(1);
+          }
+        }
+        .animate-spin-out {
+          animation: spin-out 1s ease-in-out;
+          filter: blur(2px);
+        }
+
+        @keyframes power-up {
+          0% {
+            transform: scale(1);
+            filter: brightness(1) drop-shadow(0 0 0 rgba(255, 215, 0, 0));
+          }
+          30% {
+            transform: scale(1.3);
+            filter: brightness(1.3) drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))
+              drop-shadow(0 0 40px rgba(255, 215, 0, 0.4));
+          }
+          50% {
+            transform: scale(1.2);
+            filter: brightness(1.25)
+              drop-shadow(0 0 15px rgba(255, 215, 0, 0.7))
+              drop-shadow(0 0 30px rgba(255, 215, 0, 0.3));
+          }
+          70% {
+            transform: scale(1.3);
+            filter: brightness(1.3) drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))
+              drop-shadow(0 0 40px rgba(255, 215, 0, 0.4));
+          }
+          100% {
+            transform: scale(1);
+            filter: brightness(1) drop-shadow(0 0 0 rgba(255, 215, 0, 0));
+          }
+        }
+        .animate-power-up {
+          animation: power-up 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
       `}</style>
     </Screen>
