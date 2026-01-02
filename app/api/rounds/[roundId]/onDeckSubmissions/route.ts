@@ -47,7 +47,7 @@ async function handleRequest(
       "onDeckSongSubmissions"
     );
 
-    const currentSubmissions = await onDeckSongSubmissions
+    const currentOnDeckSubmissions = await onDeckSongSubmissions
       .find({
         roundId,
         userId: payload.userId,
@@ -74,7 +74,7 @@ async function handleRequest(
         });
 
         const newSubmissions = onDeckSubmissions.filter((submission: any) => {
-          return !currentSubmissions.some(
+          return !currentOnDeckSubmissions.some(
             (current) =>
               current.trackInfo.trackId === submission.trackInfo.trackId
           );
@@ -99,7 +99,14 @@ async function handleRequest(
         return NextResponse.json({ success: true });
       }
       case "saveToSidePlaylist": {
-        if (currentSubmissions.length === 0) {
+        const { payload: submissionsToAdd } = body as {
+          payload?: Pick<
+            OnDeckSongSubmission,
+            "trackInfo" | "isAddedToSidePlaylist"
+          >[];
+        };
+
+        if (currentOnDeckSubmissions.length === 0) {
           return NextResponse.json(
             { error: "No on deck submissions to save" },
             { status: 400 }
@@ -122,13 +129,13 @@ async function handleRequest(
         const accessToken = cookieStore.get("spotify_access_token")?.value;
 
         // Filter out submissions that are already added to playlist OR are real submissions
-        const tracksToAdd = currentSubmissions
-          .filter(
-            (submission) =>
-              !submission.isAddedToSidePlaylist &&
-              !realSubmissionTrackIds.has(submission.trackInfo.trackId)
-          )
-          .map((submission) => `spotify:track:${submission.trackInfo.trackId}`);
+        const tracksToAdd = (
+          submissionsToAdd ?? currentOnDeckSubmissions
+        ).filter(
+          (onDeckSubmission) =>
+            !onDeckSubmission.isAddedToSidePlaylist &&
+            !realSubmissionTrackIds.has(onDeckSubmission.trackInfo.trackId)
+        );
 
         if (tracksToAdd.length === 0) {
           triggerRealTimeUpdate({ userIds: [payload.userId] });
@@ -148,7 +155,10 @@ async function handleRequest(
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              uris: tracksToAdd,
+              uris: tracksToAdd.map(
+                (onDeckSubmission) =>
+                  `spotify:track:${onDeckSubmission.trackInfo.trackId}`
+              ),
             }),
           }
         );
@@ -165,7 +175,7 @@ async function handleRequest(
             roundId,
             userId: payload.userId,
             "trackInfo.trackId": {
-              $nin: Array.from(realSubmissionTrackIds),
+              $in: tracksToAdd.map((s) => s.trackInfo.trackId),
             },
           },
           {

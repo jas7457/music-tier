@@ -119,19 +119,29 @@ export function OnDeckSubmissionsList({
       </div>
 
       {onDeckSubmissions.map((submission, index) => {
+        const isYourSubmission =
+          yourSubmission?.trackInfo.trackId === submission.trackInfo.trackId;
+
         const pillMarkup = (() => {
-          if (onDeckInfo.canAdd) {
-            return null;
-          }
-          if (
-            yourSubmission?.trackInfo.trackId === submission.trackInfo.trackId
-          ) {
-            return <Pill status="info">Your submission</Pill>;
+          const pills: string[] = [];
+          if (isYourSubmission) {
+            pills.push("Your submission");
           }
           if (submission.isAddedToSidePlaylist) {
-            return <Pill status="info">Added to SP</Pill>;
+            pills.push("Added to SP");
           }
-          return null;
+          if (pills.length === 0) {
+            return null;
+          }
+          return (
+            <div className="flex flex-wrap gap-1">
+              {pills.map((pillText) => (
+                <Pill key={pillText} status="info">
+                  {pillText}
+                </Pill>
+              ))}
+            </div>
+          );
         })();
 
         const Component = onRowClick ? "button" : "div";
@@ -144,7 +154,7 @@ export function OnDeckSubmissionsList({
             )}
           >
             <div
-              className="flex items-center gap-3 text-left"
+              className="grid grid-cols-[auto_1fr] items-center gap-3 text-left"
               {...(onRowClick
                 ? {
                     onClick: () => {
@@ -176,40 +186,104 @@ export function OnDeckSubmissionsList({
                 <p className="text-xs text-gray-600 truncate">
                   {submission.trackInfo.artists.join(", ")}
                 </p>
+
+                {pillMarkup}
+
+                {onDeckInfo.canSubmit &&
+                  !submission.isAddedToSidePlaylist &&
+                  !isYourSubmission && (
+                    <div className="flex">
+                      <HapticButton
+                        className="duration-150 ease-out active:scale-95 p-1 text-white bg-primary hover:bg-primary-dark rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+                        disabled={isSaving}
+                        onClick={async () => {
+                          setIsSaving(true);
+                          try {
+                            const response = await fetch(
+                              `/api/rounds/${round._id}/onDeckSubmissions`,
+                              {
+                                method: "PUT",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                  action: "saveToSidePlaylist",
+                                  payload: [submission],
+                                }),
+                              }
+                            );
+
+                            if (!response.ok) {
+                              throw new Error(
+                                "Failed to save to side playlist"
+                              );
+                            }
+                            toast.show({
+                              variant: "success",
+                              message: "Song saved to side playlist",
+                            });
+                            onUpdate(
+                              onDeckSubmissions.map(
+                                (onDeckSubmission, onDeckSubmissionIndex) => {
+                                  if (onDeckSubmissionIndex !== index) {
+                                    return onDeckSubmission;
+                                  }
+                                  return {
+                                    ...onDeckSubmission,
+                                    isAddedToSidePlaylist: true,
+                                  };
+                                }
+                              )
+                            );
+                          } catch (err) {
+                            const message = unknownToErrorString(
+                              err,
+                              "Error saving song to side playlist"
+                            );
+                            toast.show({
+                              title: "Error saving song to side playlist",
+                              variant: "error",
+                              message,
+                            });
+                          } finally {
+                            setIsSaving(false);
+                          }
+                        }}
+                      >
+                        <div style={{ fontSize: "8px" }}>Add to SP</div>
+                      </HapticButton>
+                    </div>
+                  )}
               </Component>
             </div>
 
-            {onDeckInfo.canAdd && (
-              <HapticButton
-                type="button"
-                disabled={isSaving}
-                onClick={async (event) => {
-                  event.stopPropagation();
-                  const newOnDecks = onDeckSubmissions.filter(
-                    (_, i) => i !== index
-                  );
-                  onUpdate(newOnDecks);
-                  await saveOnDeckToDatabase(newOnDecks);
-                }}
-                className="text-gray-400 hover:text-red-600 p-1 disabled:cursor-not-allowed disabled:opacity-50"
+            <HapticButton
+              type="button"
+              disabled={isSaving}
+              onClick={async (event) => {
+                event.stopPropagation();
+                const newOnDecks = onDeckSubmissions.filter(
+                  (_, i) => i !== index
+                );
+                onUpdate(newOnDecks);
+                await saveOnDeckToDatabase(newOnDecks);
+              }}
+              className="text-gray-400 hover:text-red-600 p-1 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </HapticButton>
-            )}
-
-            {pillMarkup}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </HapticButton>
           </div>
         );
       })}
@@ -274,7 +348,9 @@ export function OnDeckSubmissionsList({
               onUpdate(
                 onDeckSubmissions.map((submission) => ({
                   ...submission,
-                  isAddedToSidePlaylist: true,
+                  isAddedToSidePlaylist:
+                    yourSubmission?.trackInfo.trackId !==
+                    submission.trackInfo.trackId,
                 }))
               );
             } catch (err) {
