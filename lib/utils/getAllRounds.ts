@@ -8,6 +8,7 @@ export function getAllRounds(
   }: { includePending?: boolean; includeFake?: boolean } = {}
 ): PopulatedRound[] {
   return [
+    ...league.rounds.kickoff,
     ...(league.rounds.current ? [league.rounds.current] : []),
     ...league.rounds.upcoming,
     ...league.rounds.completed,

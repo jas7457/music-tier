@@ -189,6 +189,7 @@ export function Round({
                       title: roundTitle,
                       description: roundDescription,
                       isBonusRound: round.isBonusRound,
+                      isKickoffRound: round.isKickoffRound,
                     }),
                   }
                 );

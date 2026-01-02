@@ -39,8 +39,15 @@ async function handleRequest(
     }
 
     const body = await request.json();
-    const { title, description, roundId, isBonusRound: _isBonusRound } = body;
+    const {
+      title,
+      description,
+      roundId,
+      isBonusRound: _isBonusRound,
+      isKickoffRound: _isKickoffRound,
+    } = body;
     const isBonusRound = Boolean(_isBonusRound);
+    const isKickoffRound = Boolean(_isKickoffRound);
 
     if (!title || !description) {
       return NextResponse.json(
@@ -66,13 +73,25 @@ async function handleRequest(
           });
 
           const existingRound = allRounds.find(
-            (round) => round.creatorId === payload.userId && !round.isBonusRound
+            (round) =>
+              round.creatorId === payload.userId &&
+              !round.isBonusRound &&
+              !round.isKickoffRound
           );
           const existingBonusRound = allRounds.find(
             (round) => round.creatorId === payload.userId && round.isBonusRound
           );
+          const existingKickoffRound = allRounds.find(
+            (round) =>
+              round.creatorId === payload.userId && round.isKickoffRound
+          );
 
-          return { league, existingRound, existingBonusRound };
+          return {
+            league,
+            existingRound,
+            existingBonusRound,
+            existingKickoffRound,
+          };
         }
       }
 
@@ -80,10 +99,12 @@ async function handleRequest(
         league: null,
         existingRound: null,
         existingBonusRound: null,
+        existingKickoffRound: null,
       };
     };
 
-    const { league, existingRound, existingBonusRound } = await getLeagueData();
+    const { league, existingRound, existingBonusRound, existingKickoffRound } =
+      await getLeagueData();
 
     if (!league) {
       return NextResponse.json({ error: "League not found" }, { status: 404 });
@@ -103,7 +124,13 @@ async function handleRequest(
         { status: 400 }
       );
     }
-    if (method === "ADD" && existingRound && !isBonusRound) {
+    if (method === "ADD" && existingKickoffRound && isKickoffRound) {
+      return NextResponse.json(
+        { error: "You have already created a kickoff round for this league" },
+        { status: 400 }
+      );
+    }
+    if (method === "ADD" && existingRound && !isBonusRound && !isKickoffRound) {
       return NextResponse.json(
         { error: "You have already created a round for this league" },
         { status: 400 }
@@ -122,6 +149,7 @@ async function handleRequest(
           description: description.trim(),
           creatorId: payload.userId,
           isBonusRound: Boolean(isBonusRound),
+          isKickoffRound: Boolean(isKickoffRound),
           submissionDate: now,
           lastUpdatedDate: now,
         };
@@ -153,7 +181,7 @@ async function handleRequest(
     await Promise.all([
       roundNotifications({
         isNewRound: method === "ADD",
-        round: { _id: newRound._id, isBonusRound },
+        round: { _id: newRound._id, isBonusRound, isKickoffRound },
         before: {
           league,
         },

@@ -10,9 +10,14 @@ import { HapticButton } from "./HapticButton";
 type CreateRoundProps = {
   leagueId: string;
   isBonusRound: boolean;
+  isKickoffRound: boolean;
 };
 
-export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
+export function CreateRound({
+  leagueId,
+  isBonusRound,
+  isKickoffRound,
+}: CreateRoundProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -32,7 +37,12 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, description, isBonusRound }),
+        body: JSON.stringify({
+          title,
+          description,
+          isBonusRound,
+          isKickoffRound,
+        }),
       });
 
       if (!response.ok) {
@@ -58,19 +68,34 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
     }
   };
 
+  const { paragraphText, buttonText } = (() => {
+    if (isBonusRound) {
+      return {
+        paragraphText: "Congrats! You have a bonus round.",
+        buttonText: "Create Your Bonus Round",
+      };
+    }
+    if (isKickoffRound) {
+      return {
+        paragraphText: "Congrats! You have a kickoff round.",
+        buttonText: "Create Your Kickoff Round",
+      };
+    }
+    return {
+      paragraphText: "You haven't created your round yet.",
+      buttonText: "Create Your Round",
+    };
+  })();
+
   if (!isOpen) {
     return (
       <Card className="p-6 text-center border-2 border-dashed border-primary-light bg-primary-lightest">
-        <p className="text-gray-700 mb-3">
-          {isBonusRound
-            ? "Congrats! You have a bonus round."
-            : "You haven't created your round yet."}
-        </p>
+        <p className="text-gray-700 mb-3">{paragraphText}</p>
         <HapticButton
           onClick={() => setIsOpen(true)}
           className="bg-primary-dark hover:bg-primary-darker text-white font-semibold py-2 px-6 rounded-lg transition-colors"
         >
-          {isBonusRound ? "Create Your Bonus Round" : "Create Your Round"}
+          {buttonText}
         </HapticButton>
       </Card>
     );
@@ -79,7 +104,7 @@ export function CreateRound({ leagueId, isBonusRound }: CreateRoundProps) {
   return (
     <Card className="p-6 border-2 border-primary-light bg-primary-lightest">
       <h3 className="text-xl font-bold mb-4 text-primary-darkest">
-        {isBonusRound ? "Create Your Bonus Round" : "Create Your Round"}
+        {buttonText}
       </h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

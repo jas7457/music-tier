@@ -113,7 +113,7 @@ export async function roundNotifications({
   after,
 }: {
   isNewRound: boolean;
-  round: Pick<PopulatedRound, "_id" | "isBonusRound">;
+  round: Pick<PopulatedRound, "_id" | "isBonusRound" | "isKickoffRound">;
   before: { league: PopulatedLeague };
   after: { league: PopulatedLeague };
 }) {
@@ -137,8 +137,10 @@ export async function roundNotifications({
       }
       if (round.isBonusRound) {
         return currentRound.isBonusRound;
+      } else if (round.isKickoffRound) {
+        return currentRound.isKickoffRound;
       } else {
-        return !currentRound.isBonusRound;
+        return !currentRound.isBonusRound && !currentRound.isKickoffRound;
       }
     }
 

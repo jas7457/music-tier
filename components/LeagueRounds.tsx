@@ -60,6 +60,22 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
       roundInfo: (round: PopulatedRound) => React.ReactNode;
     }> = [
       {
+        rounds: league.rounds.kickoff,
+        title: "Kickoff Rounds",
+        roundInfo: (round) => (
+          <div className="flex flex-col gap-2">
+            <RoundInfo round={round} league={league} />
+
+            {!round._id && (
+              <div>
+                Waiting for {round.creatorObject.userName} to create their
+                kickoff round.
+              </div>
+            )}
+          </div>
+        ),
+      },
+      {
         rounds: league.rounds.upcoming,
         title: "Upcoming Rounds",
         roundInfo: (round) => <RoundInfo round={round} league={league} />,
@@ -149,6 +165,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
       {!league.rounds.current &&
         league.rounds.completed.length === 0 &&
         league.rounds.upcoming.length === 0 &&
+        league.rounds.kickoff.length === 0 &&
         league.rounds.bonus.length === 0 && (
           <p className="text-gray-500 text-center py-4">
             No rounds submitted in this league.

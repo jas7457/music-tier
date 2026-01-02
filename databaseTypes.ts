@@ -60,6 +60,8 @@ export type League = {
   daysForSubmission: number;
   // how many days after voting starts for votes to come in
   daysForVoting: number;
+  // array of user IDs who are allowed to create a kickoff round
+  kickoffRoundUserIds: string[];
   // array of user IDs who are allowed to create a bonus round
   bonusRoundUserIds: string[];
 
@@ -80,6 +82,8 @@ export type Round = {
   spotifyPlaylistId?: string;
   // whether this round is a bonus round
   isBonusRound: boolean;
+  // whether this round is a kickoff round
+  isKickoffRound: boolean;
   submissionDate: number;
   lastUpdatedDate: number;
 

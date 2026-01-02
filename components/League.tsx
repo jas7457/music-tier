@@ -134,9 +134,17 @@ export function League({
     touchStartRef.current = null;
   };
 
-  const { userHasCreatedRound, userHasCreatedBonusRound } = useMemo(() => {
+  const {
+    userHasCreatedRound,
+    userHasCreatedBonusRound,
+    userHasCreatedKickoffRound,
+  } = useMemo(() => {
     if (!user) {
-      return { userHasCreatedRound: false, userHasCreatedBonusRound: false };
+      return {
+        userHasCreatedRound: false,
+        userHasCreatedBonusRound: false,
+        userHasCreatedKickoffRound: false,
+      };
     }
 
     // Check if user has created their round for this league
@@ -152,12 +160,18 @@ export function League({
         }
         if (round.isBonusRound) {
           acc.userHasCreatedBonusRound = true;
+        } else if (round.isKickoffRound) {
+          acc.userHasCreatedKickoffRound = true;
         } else {
           acc.userHasCreatedRound = true;
         }
         return acc;
       },
-      { userHasCreatedRound: false, userHasCreatedBonusRound: false }
+      {
+        userHasCreatedRound: false,
+        userHasCreatedBonusRound: false,
+        userHasCreatedKickoffRound: false,
+      }
     );
   }, [league, user]);
 
@@ -456,14 +470,31 @@ export function League({
         </div>
       )}
 
+      {/* Create Kickoff Round */}
+      {user.canCreateKickoffRound && !userHasCreatedKickoffRound && (
+        <CreateRound
+          leagueId={league._id}
+          isBonusRound={false}
+          isKickoffRound={true}
+        />
+      )}
+
       {/* Create Round */}
       {userHasCreatedRound ? null : (
-        <CreateRound leagueId={league._id} isBonusRound={false} />
+        <CreateRound
+          leagueId={league._id}
+          isBonusRound={false}
+          isKickoffRound={false}
+        />
       )}
 
       {/* Create Bonus Round */}
       {user.canCreateBonusRound && !userHasCreatedBonusRound && (
-        <CreateRound leagueId={league._id} isBonusRound={true} />
+        <CreateRound
+          leagueId={league._id}
+          isBonusRound={true}
+          isKickoffRound={false}
+        />
       )}
 
       {/* Content */}

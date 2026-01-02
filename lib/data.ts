@@ -117,6 +117,7 @@ export async function getUserLeagues(
           _id: user._id.toString(),
           index,
           canCreateBonusRound: league.bonusRoundUserIds.includes(userId),
+          canCreateKickoffRound: league.kickoffRoundUserIds.includes(userId),
         }));
 
       const usersById = users.reduce((acc, user, index) => {
@@ -192,10 +193,12 @@ export async function getUserLeagues(
         roundIndex,
         userId,
         isBonusRound,
+        isKickoffRound,
       }: {
         roundIndex: number;
         userId: string;
         isBonusRound: boolean;
+        isKickoffRound: boolean;
       }): Omit<
         PopulatedRound,
         | "isHidden"
@@ -221,6 +224,7 @@ export async function getUserLeagues(
           stage: "upcoming" as const,
           userSubmission: undefined,
           isBonusRound,
+          isKickoffRound,
           submissionDate: inAWeek,
           lastUpdatedDate: inAWeek,
         };
@@ -235,7 +239,10 @@ export async function getUserLeagues(
             return undefined;
           }
           const populatedRound = populatedRounds.find(
-            (round) => round.creatorId === userId && !round.isBonusRound
+            (round) =>
+              round.creatorId === userId &&
+              !round.isBonusRound &&
+              !round.isKickoffRound
           );
           if (populatedRound) {
             return { ...populatedRound, roundIndex: index };
@@ -244,40 +251,57 @@ export async function getUserLeagues(
               roundIndex: usersById[userId]?.index ?? index,
               userId,
               isBonusRound: false,
+              isKickoffRound: false,
             });
           }
         })
         .filter((round) => round !== undefined)
         .map((round, index) => ({ ...round, roundIndex: index }));
 
-      const bonusRounds: Array<
-        (typeof populatedRounds)[number] & { roundIndex: number }
-      > = league.bonusRoundUserIds
-        .map((userId, userIndex) => {
-          const user = usersById[userId]?.user;
-          if (!user) {
-            return undefined;
-          }
-          const populatedRound = populatedRounds.find(
-            (round) => round.creatorId === userId && round.isBonusRound
-          );
-          if (populatedRound) {
-            return populatedRound;
-          }
-          return createPendingRound({
-            roundIndex: league.users.length + userIndex,
-            userId,
-            isBonusRound: true,
-          });
-        })
-        .filter((round) => round !== undefined)
-        .map((round, index) => ({
-          ...round,
-          roundIndex: index + league.users.length,
-        }));
+      const getAbnormalRounds = (
+        userIds: string[],
+        roundType: "bonus" | "kickoff"
+      ): Array<(typeof populatedRounds)[number]> => {
+        return userIds
+          .map((userId, userIndex) => {
+            const user = usersById[userId]?.user;
+            if (!user) {
+              return undefined;
+            }
+            const populatedRound = populatedRounds.find((round) => {
+              if (round.creatorId === userId) {
+                if (roundType === "bonus" && round.isBonusRound) {
+                  return true;
+                }
+                if (roundType === "kickoff" && round.isKickoffRound) {
+                  return true;
+                }
+              }
+
+              return false;
+            });
+            if (populatedRound) {
+              return populatedRound;
+            }
+            return createPendingRound({
+              roundIndex: league.users.length + userIndex,
+              userId,
+              isBonusRound: roundType === "bonus",
+              isKickoffRound: roundType === "kickoff",
+            });
+          })
+          .filter((round) => round !== undefined);
+      };
+
+      const kickoffRounds = getAbnormalRounds(
+        league.kickoffRoundUserIds,
+        "kickoff"
+      );
+      const bonusRounds = getAbnormalRounds(league.bonusRoundUserIds, "bonus");
 
       let currentOrUpcomingRoundsCount = 0;
       const roundsWithData: PopulatedRound[] = [
+        ...kickoffRounds,
         ...normalUserRounds,
         ...bonusRounds,
       ].map((round, roundIndex) => {
@@ -452,29 +476,13 @@ export async function getUserLeagues(
       });
 
       const currentRound: PopulatedRound | undefined = await (async () => {
-        const currentRound = roundsWithData.find((round) => {
-          return now >= round.submissionStartDate && now < round.votingEndDate;
+        return roundsWithData.find((round) => {
+          return (
+            round._id &&
+            now >= round.submissionStartDate &&
+            now < round.votingEndDate
+          );
         });
-
-        if (!currentRound) {
-          return undefined;
-        }
-
-        if (currentRound.isBonusRound) {
-          const hasIncompleteBefore = roundsWithData.some((round) => {
-            if (round._id === currentRound._id) {
-              return false;
-            }
-            if (round.roundIndex >= currentRound.roundIndex) {
-              return true;
-            }
-            return round.stage !== "completed";
-          });
-          if (hasIncompleteBefore) {
-            return undefined;
-          }
-        }
-        return currentRound;
       })();
 
       const roundsObject = roundsWithData.reduce(
@@ -494,6 +502,8 @@ export async function getUserLeagues(
             acc.completed.push(round);
           } else if (round.isBonusRound && !isCurrentRound) {
             acc.bonus.push(round);
+          } else if (round.isKickoffRound && !isCurrentRound) {
+            acc.kickoff.push(round);
           } else if (round.isPending && !isCurrentRound) {
             acc.pending.push(round);
           }
@@ -505,6 +515,7 @@ export async function getUserLeagues(
           completed: [] as PopulatedRound[],
           upcoming: [] as PopulatedRound[],
           bonus: [] as PopulatedRound[],
+          kickoff: [] as PopulatedRound[],
           pending: [] as PopulatedRound[],
         }
       );
@@ -520,7 +531,12 @@ export async function getUserLeagues(
         const hasPendingBefore = roundsObject.pending.some(
           (round) => round.roundIndex < userIndex
         );
-        if (hasPendingBefore && !round.isBonusRound && !round.isPending) {
+        if (
+          hasPendingBefore &&
+          !round.isBonusRound &&
+          !round.isPending &&
+          !round.isKickoffRound
+        ) {
           roundsObject.pending.push(round);
           if (round._id === roundsObject.current?._id) {
             roundsObject.current = undefined;
@@ -530,6 +546,7 @@ export async function getUserLeagues(
         if (
           now < round.submissionStartDate &&
           !round.isBonusRound &&
+          !round.isKickoffRound &&
           !round.isPending
         ) {
           roundsObject.upcoming.push(round);
@@ -586,7 +603,10 @@ export async function getUserLeagues(
 export async function getUser(
   userId: string,
   leagueId: string
-): Promise<(User & { canCreateBonusRound: boolean }) | null> {
+): Promise<
+  | (User & { canCreateBonusRound: boolean; canCreateKickoffRound: boolean })
+  | null
+> {
   const { usersCollection } = await dbPromise;
 
   const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
@@ -598,6 +618,7 @@ export async function getUser(
     return {
       ...user,
       canCreateBonusRound: false,
+      canCreateKickoffRound: false,
     };
   }
 
@@ -609,6 +630,9 @@ export async function getUser(
   return {
     ...user,
     canCreateBonusRound: league.bonusRoundUserIds.includes(user._id.toString()),
+    canCreateKickoffRound: league.kickoffRoundUserIds.includes(
+      user._id.toString()
+    ),
   };
 }
 
@@ -711,6 +735,9 @@ export async function getUserByCookies(leagueId: string) {
       index: league ? league.users.indexOf(payload.userId) : -1,
       canCreateBonusRound: league
         ? league.bonusRoundUserIds.includes(payload.userId)
+        : false,
+      canCreateKickoffRound: league
+        ? league.kickoffRoundUserIds.includes(payload.userId)
         : false,
     };
 

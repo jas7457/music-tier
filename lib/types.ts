@@ -13,6 +13,7 @@ type WithStringId<T> = Omit<T, "_id"> & { _id: string };
 export type PopulatedUser = WithStringId<User> & {
   index: number;
   canCreateBonusRound: boolean;
+  canCreateKickoffRound: boolean;
 };
 export type PopulatedSubmission = WithStringId<SongSubmission> & {
   userObject: PopulatedUser | undefined;
@@ -260,6 +261,7 @@ export type PopulatedLeague = WithStringId<Omit<League, "users">> & {
     upcoming: PopulatedRound[];
     pending: PopulatedRound[];
     bonus: PopulatedRound[];
+    kickoff: PopulatedRound[];
   };
   playback: LeaguePlaybackStats | null;
 };
