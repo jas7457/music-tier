@@ -147,16 +147,30 @@ export function RoundInfo({
   })();
 
   const statusPillsMarkup = (() => {
-    const pills: Array<{ key: string; pill: React.ReactNode }> = [
-      {
-        key: "normal",
-        pill: (
-          <Pill status={round.isPending ? "pending" : round.stage}>
-            {stageTitle}
-          </Pill>
-        ),
-      },
-    ];
+    const pills: Array<{ key: string; pill: React.ReactNode }> = [];
+
+    if (round.isBonusRound) {
+      pills.push({
+        key: "bonus",
+        pill: <Pill status="info">Bonus Round</Pill>,
+      });
+    }
+
+    if (round.isKickoffRound) {
+      pills.push({
+        key: "kickoff",
+        pill: <Pill status="info">Kickoff Round</Pill>,
+      });
+    }
+
+    pills.push({
+      key: "normal",
+      pill: (
+        <Pill status={round.isPending ? "pending" : round.stage}>
+          {stageTitle}
+        </Pill>
+      ),
+    });
 
     if (
       now > round.submissionEndDate &&
