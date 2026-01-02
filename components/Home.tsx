@@ -19,6 +19,8 @@ export default function Home({
     new Set(leagues.length > 0 ? [leagues[0]._id] : [])
   );
 
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
   useRealTimeUpdates();
 
   useEffect(() => {
@@ -72,6 +74,92 @@ export default function Home({
       );
     }
 
+    const nonFirstLeagues = leagues.slice(1);
+
+    const { upcomingLeagues, completedLeagues, otherLeagues } =
+      nonFirstLeagues.reduce(
+        (acc, league) => {
+          if (league.leagueStartDate > now) {
+            acc.upcomingLeagues.push(league);
+          } else if (league.status === "completed") {
+            acc.completedLeagues.push(league);
+          } else {
+            acc.otherLeagues.push(league);
+          }
+          return acc;
+        },
+        {
+          upcomingLeagues: [] as PopulatedLeague[],
+          completedLeagues: [] as PopulatedLeague[],
+          otherLeagues: [] as PopulatedLeague[],
+        }
+      );
+
+    const getOtherLeaguesMarkup = ({
+      leagues,
+      title,
+    }: {
+      leagues: PopulatedLeague[];
+      title: string;
+    }) => {
+      if (leagues.length === 0) {
+        return null;
+      }
+
+      return (
+        <div>
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">{title}</h2>
+          <div className="space-y-4">
+            {leagues.map((league) => {
+              const isExpanded = expandedLeagues.has(league._id);
+
+              return (
+                <Card
+                  key={league._id.toString()}
+                  variant="elevated"
+                  className="overflow-hidden"
+                >
+                  <button
+                    onClick={() => toggleLeague(league._id)}
+                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="text-left">
+                      <span className="sm:text-xl font-bold">
+                        {league.title}{" "}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        ({league.users.length} members)
+                      </span>
+                    </div>
+                    <svg
+                      className={twMerge(
+                        "w-6 h-6 text-gray-400 transition-transform",
+                        isExpanded ? "rotate-180" : ""
+                      )}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+
+                  <Expandable className="p-4" isExpanded={isExpanded}>
+                    <League league={league} user={user} />
+                  </Expandable>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      );
+    };
+
     return (
       <div className="space-y-8">
         {/* Current League */}
@@ -88,61 +176,23 @@ export default function Home({
           </div>
         )}
 
-        {/* Previous Leagues */}
-        {leagues.length > 1 && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">
-              Previous Leagues
-            </h2>
-            <div className="space-y-4">
-              {leagues.slice(1).map((league) => {
-                const isExpanded = expandedLeagues.has(league._id);
+        {/* Upcoming Leagues */}
+        {getOtherLeaguesMarkup({
+          leagues: upcomingLeagues,
+          title: "Upcoming Leagues",
+        })}
 
-                return (
-                  <Card
-                    key={league._id.toString()}
-                    variant="elevated"
-                    className="overflow-hidden"
-                  >
-                    <button
-                      onClick={() => toggleLeague(league._id)}
-                      className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="text-left">
-                        <span className="sm:text-xl font-bold">
-                          {league.title}{" "}
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          ({league.users.length} members)
-                        </span>
-                      </div>
-                      <svg
-                        className={twMerge(
-                          "w-6 h-6 text-gray-400 transition-transform",
-                          isExpanded ? "rotate-180" : ""
-                        )}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </button>
+        {/* Completed Leagues */}
+        {getOtherLeaguesMarkup({
+          leagues: completedLeagues,
+          title: "Completed Leagues",
+        })}
 
-                    <Expandable className="p-4" isExpanded={isExpanded}>
-                      <League league={league} user={user} />
-                    </Expandable>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        {/* Other Leagues */}
+        {getOtherLeaguesMarkup({
+          leagues: otherLeagues,
+          title: "Other Leagues",
+        })}
       </div>
     );
   })();

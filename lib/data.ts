@@ -62,6 +62,9 @@ export async function getUserLeagues(
     votesCollection,
   } = await dbPromise;
 
+  // get the current timestamp in the east coast of the usa
+  const now = Date.now();
+
   // Find leagues where user is a member
   const leagues = (
     await leaguesCollection
@@ -82,11 +85,16 @@ export async function getUserLeagues(
       if (leagueB.title === "Test league") {
         return -1;
       }
+      const leagueAHasStarted = now >= leagueA.leagueStartDate;
+      const leagueBHasStarted = now >= leagueB.leagueStartDate;
+      if (leagueAHasStarted && !leagueBHasStarted) {
+        return -1;
+      }
+      if (!leagueAHasStarted && leagueBHasStarted) {
+        return 1;
+      }
       return leagueB.leagueStartDate - leagueA.leagueStartDate;
     });
-
-  // get the current timestamp in the east coast of the usa
-  const now = Date.now();
 
   const leagueWithData = await Promise.all(
     leagues.map(async (league) => {
