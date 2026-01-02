@@ -23,6 +23,9 @@ export function RacingScreen({
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
   const [racerPositions, setRacerPositions] = useState<RacerPosition[]>([]);
   const previousPositionsRef = useRef<RacerPosition[]>([]);
+  const swayAnimationRef = useRef<
+    Record<string, { delay: number; duration: number }>
+  >({});
   const [isRacing, setIsRacing] = useState(false);
   const [showWinner, setShowWinner] = useState(false);
   const [spinningOutUsers, setSpinningOutUsers] = useState<Set<string>>(
@@ -111,6 +114,17 @@ export function RacingScreen({
     setIsRacing(true);
     setShowWinner(false);
     setCurrentRoundIndex(-1); // Start at -1 for "League Start"
+
+    // Initialize random sway animations for each user (only once)
+    if (Object.keys(swayAnimationRef.current).length === 0) {
+      swayAnimationRef.current = users.reduce((acc, user) => {
+        acc[user._id] = {
+          delay: Math.random() * 2,
+          duration: 1.5 + Math.random(),
+        };
+        return acc;
+      }, {} as Record<string, { delay: number; duration: number }>);
+    }
 
     // Initialize positions at League Start (all at 0 points, all in 1st place)
     const initialPositions: RacerPosition[] = users.map((user, index) => ({
@@ -316,18 +330,28 @@ export function RacingScreen({
             const isSpinningOut = spinningOutUsers.has(racer.userId);
             const isPoweringUp = poweringUpUsers.has(racer.userId);
 
+            // Get the stored random animation values for this racer
+            const swayAnimation = swayAnimationRef.current[racer.userId] || {
+              delay: 0,
+              duration: 2,
+            };
+
             return (
               <div
                 key={racer.userId}
                 className={twMerge(
-                  "absolute transition-all duration-1500 ease-in-out",
+                  "absolute transition-all duration-1500 ease-in-out animate-driving-sway",
                   isSpinningOut && "animate-spin-out"
                 )}
-                style={{
-                  left: `${leftPosition}%`,
-                  top: `${topPosition}%`,
-                  transform: "translate(-50%, -50%)",
-                }}
+                style={
+                  {
+                    left: `${leftPosition}%`,
+                    top: `${topPosition}%`,
+                    transform: "translate(-50%, -50%)",
+                    animationDelay: `${swayAnimation.delay}s`,
+                    animationDuration: `${swayAnimation.duration}s`,
+                  } as React.CSSProperties
+                }
               >
                 <div className="flex flex-col items-center">
                   <div
@@ -411,8 +435,29 @@ export function RacingScreen({
           }
         }
         .animate-spin-out {
-          animation: spin-out 1s ease-in-out;
+          animation: spin-out 1s ease-in-out !important;
           filter: blur(2px);
+        }
+
+        @keyframes driving-sway {
+          0% {
+            transform: translate(-50%, -50%) translateX(0);
+          }
+          25% {
+            transform: translate(-50%, -50%) translateX(8px);
+          }
+          50% {
+            transform: translate(-50%, -50%) translateX(0);
+          }
+          75% {
+            transform: translate(-50%, -50%) translateX(-8px);
+          }
+          100% {
+            transform: translate(-50%, -50%) translateX(0);
+          }
+        }
+        .animate-driving-sway {
+          animation: driving-sway 2s ease-in-out infinite;
         }
 
         @keyframes power-up {
