@@ -366,7 +366,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
             {isThird && <span className="text-4xl">🥉</span>}
             {isOther && (
               <span className="text-xl font-bold text-gray-500">
-                {index + 1}
+                {currentPlace}
               </span>
             )}
           </div>
