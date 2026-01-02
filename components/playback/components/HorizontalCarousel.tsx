@@ -7,6 +7,7 @@ import {
   ReactNode,
   createContext,
   useMemo,
+  Activity,
 } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -209,22 +210,28 @@ export function HorizontalCarousel<T>({
           }}
         >
           <div className="flex h-full">
-            {items.map((item, index) => (
-              <div
-                key={index}
-                ref={(el) => {
-                  itemRefs.current[index] = el;
-                }}
-                data-index={index}
-                className="w-screen h-full shrink-0 snap-center snap-always"
-                style={{
-                  contentVisibility: "auto",
-                  containIntrinsicSize: "100vw 100vh",
-                }}
-              >
-                {renderItem(item, index, currentIndex === index)}
-              </div>
-            ))}
+            {items.map((item, index) => {
+              const isActive = index === currentIndex;
+              const shouldRender = Math.abs(index - (currentIndex ?? 0)) <= 2;
+              return (
+                <div
+                  key={index}
+                  ref={(el) => {
+                    itemRefs.current[index] = el;
+                  }}
+                  data-index={index}
+                  className="w-screen h-full shrink-0 snap-center snap-always"
+                  style={{
+                    contentVisibility: "auto",
+                    containIntrinsicSize: "100vw 100vh",
+                  }}
+                >
+                  <Activity mode={shouldRender ? "visible" : "hidden"}>
+                    {renderItem(item, index, isActive)}
+                  </Activity>
+                </div>
+              );
+            })}
           </div>
         </div>
 
