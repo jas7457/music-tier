@@ -354,9 +354,30 @@ export function League({
           />
         )}
 
+        {/* Playlist Party Playback Overlay */}
+        {league.playback && (
+          <div className="absolute inset-0 bg-linear-to-br from-purple-500/60 backdrop-blur-sm flex justify-center items-center z-50">
+            <HapticButton
+              onClick={() => {
+                if (league.playback?.topSong) {
+                  playTrack({
+                    trackInfo: league.playback.topSong.trackInfo,
+                    round: "same",
+                  });
+                }
+                setPlaybackOpen(true);
+              }}
+              className="px-8 py-6 rounded-2xl bg-black/40 border-2 border-white text-white font-bold text-xl shadow-2xl transition-all hover:scale-110 hover:bg-black/60 flex flex-col items-center gap-2"
+            >
+              <span className="text-4xl">🎵</span>
+              <span>View Playlist Party Playback</span>
+            </HapticButton>
+          </div>
+        )}
+
         {/* Gradient Overlay for readability */}
-        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent flex justify-center items-center">
-          {heroButtons}
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent flex justify-center items-center pointer-events-none">
+          <div className="pointer-events-auto">{heroButtons}</div>
         </div>
 
         {/* Zoom Button - Top Left */}
@@ -385,7 +406,7 @@ export function League({
         )}
 
         {/* Title and Status overlaid on cover */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10">
           <div className="flex flex-wrap items-center gap-3">
             <MaybeLink
               href={`/leagues/${league._id}`}
@@ -457,26 +478,6 @@ export function League({
           </div>
         </div>
       </div>
-
-      {/* Playlist Party Playback Button */}
-      {league.playback && (
-        <div className="mb-4">
-          <HapticButton
-            onClick={() => {
-              if (league.playback?.topSong) {
-                playTrack({
-                  trackInfo: league.playback.topSong.trackInfo,
-                  round: "same",
-                });
-              }
-              setPlaybackOpen(true);
-            }}
-            className="w-full px-6 py-4 rounded-xl bg-linear-to-r from-purple-500 to-pink-500 border-2 border-white/40 text-white font-bold text-lg transition-all hover:scale-105 shadow-lg"
-          >
-            🎵 View Playlist Party Playback
-          </HapticButton>
-        </div>
-      )}
 
       {/* Create Kickoff Round */}
       {userCanCreateKickoffRound && !userHasCreatedKickoffRound && (
