@@ -349,10 +349,7 @@ export function RacingScreen({
               left: `${leftPosition}%`,
               top: `${topPosition}%`,
               transform: "translate3d(-50%, -50%, 0)",
-              willChange:
-                isSpinningOut || isPoweringUp
-                  ? "transform, filter"
-                  : "transform",
+              willChange: "transform, filter",
               ...(swayAnimation?.style || {}),
             };
 
@@ -442,7 +439,6 @@ export function RacingScreen({
         }
         .animate-spin-out {
           animation: spin-out 1s ease-in-out !important;
-          filter: blur(1.5px);
         }
 
         @keyframes driving-sway {
