@@ -369,7 +369,7 @@ export function League({
               }}
               className="p-4 rounded-2xl bg-black/40 border-2 border-white text-white font-bold text-xl shadow-2xl transition-all hover:scale-110 hover:bg-black/60 flex items-center"
             >
-              🎵 View Playlist Party Playback 🎵
+              🎵 Playlist Party Playback 🎵
             </HapticButton>
           </div>
         )}
