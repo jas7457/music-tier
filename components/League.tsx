@@ -367,10 +367,9 @@ export function League({
                 }
                 setPlaybackOpen(true);
               }}
-              className="px-8 py-6 rounded-2xl bg-black/40 border-2 border-white text-white font-bold text-xl shadow-2xl transition-all hover:scale-110 hover:bg-black/60 flex flex-col items-center gap-2"
+              className="p-4 rounded-2xl bg-black/40 border-2 border-white text-white font-bold text-xl shadow-2xl transition-all hover:scale-110 hover:bg-black/60 flex items-center"
             >
-              <span className="text-4xl">🎵</span>
-              <span>View Playlist Party Playback</span>
+              🎵 View Playlist Party Playback 🎵
             </HapticButton>
           </div>
         )}
