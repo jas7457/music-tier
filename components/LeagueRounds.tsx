@@ -15,24 +15,6 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
   }
 
   const roundsMarkup = (() => {
-    if (league.status === "completed") {
-      return (
-        <div className="flex flex-col gap-6">
-          {league.rounds.completed.map((round) => (
-            <Card key={round._id} className="p-4" variant="outlined">
-              <Round
-                key={round.stage}
-                round={round}
-                league={league}
-                currentUser={user}
-                isRoundPage={false}
-              />
-            </Card>
-          ))}
-        </div>
-      );
-    }
-
     if (!league.rounds.current) {
       return null;
     }
@@ -115,7 +97,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
         ),
       },
       {
-        rounds: league.status === "completed" ? [] : league.rounds.completed,
+        rounds: league.rounds.completed,
         title: "Completed Rounds",
         roundInfo: (round) => <RoundInfo round={round} league={league} />,
       },
