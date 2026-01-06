@@ -40,7 +40,7 @@ export function TopSongScreen({
         round={league.rounds.completed[0]}
         points={points}
         submittedBy={user}
-        pointsStrokeColor={NEON_COLORS.ElectricPurple}
+        pointsColor={NEON_COLORS.ElectricPurple}
         voters={voters}
       />
     </div>

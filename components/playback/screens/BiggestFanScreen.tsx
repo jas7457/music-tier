@@ -16,7 +16,7 @@ export function BiggestFanScreen({ playback, isActive }: PlaybackScreenProps) {
         kicker="You two must really like each other"
         title="Your Biggest Fan"
         user={biggestFan?.user || null}
-        strokeColor={NEON_COLORS.LimeGreen}
+        color={NEON_COLORS.LimeGreen}
         stat={{
           value: biggestFan ? `${biggestFan.points} points` : "",
           label: "gave you",

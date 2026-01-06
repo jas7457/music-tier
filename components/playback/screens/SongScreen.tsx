@@ -3,7 +3,7 @@
 import { twMerge } from "tailwind-merge";
 import type { TrackInfo } from "@/databaseTypes";
 import type { PopulatedRound, PopulatedUser } from "@/lib/types";
-import { OutlinedText } from "@/components/OutlinedText";
+import { DataText } from "@/components/DataText";
 import { useEffect, useRef } from "react";
 import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
 import { StatBounce } from "../components/Animations";
@@ -24,7 +24,7 @@ interface SongScreenProps {
     rightText: string;
     note: string | undefined;
   }>;
-  pointsStrokeColor: string;
+  pointsColor: string;
   submittedBy: PopulatedUser;
   noDataMessage?: string;
 }
@@ -36,7 +36,7 @@ export function SongScreen({
   trackInfo,
   round,
   points,
-  pointsStrokeColor,
+  pointsColor,
   submittedBy,
   voters,
 }: SongScreenProps) {
@@ -133,13 +133,12 @@ export function SongScreen({
               </p>
             )}
             <StatBounce isActive={isActive}>
-              <OutlinedText
+              <DataText
                 className="text-6xl md:text-7xl font-bold"
-                strokeColor={pointsStrokeColor}
-                strokeWidth={3}
+                color={pointsColor}
               >
                 {points} points
-              </OutlinedText>
+              </DataText>
             </StatBounce>
           </div>
         </div>

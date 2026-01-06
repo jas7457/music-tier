@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge";
 import { Screen } from "../components/Screen";
 import type { PlaybackScreenProps } from "../types";
 import { Avatar } from "@/components/Avatar";
-import { OutlinedText } from "@/components/OutlinedText";
+import { DataText } from "@/components/DataText";
 import { NEON_COLORS } from "../constants";
 import { HorizontalCarousel } from "../components/HorizontalCarousel";
 import { StatBounce } from "../components/Animations";
@@ -316,13 +316,12 @@ export function ConspiratorsScreen({
                         : "none",
                     }}
                   >
-                    <OutlinedText
+                    <DataText
                       className="text-6xl md:text-8xl font-bold"
-                      strokeColor={NEON_COLORS.Yellow}
-                      strokeWidth={3}
+                      color={NEON_COLORS.Yellow}
                     >
                       {conspirator.totalPoints} points
-                    </OutlinedText>
+                    </DataText>
                   </div>
                 </StatBounce>
               </div>

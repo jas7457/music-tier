@@ -91,7 +91,7 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
               kicker="Impressive!"
               title={`#${index + 1} Most 1st Place Wins`}
               user={winner.user}
-              strokeColor={NEON_COLORS.BrightBlue}
+              color={NEON_COLORS.BrightBlue}
               stat={{
                 value: winner.wins.length,
                 label: winner.wins.length === 1 ? "win" : "wins",

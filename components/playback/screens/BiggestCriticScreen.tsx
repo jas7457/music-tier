@@ -19,7 +19,7 @@ export function BiggestCriticScreen({
         kicker="You two have beef?"
         title="Your Biggest Critic"
         user={biggestCritic?.user || null}
-        strokeColor={NEON_COLORS.YellowGreen}
+        color={NEON_COLORS.YellowGreen}
         stat={{
           value: biggestCritic ? `${biggestCritic.points} points` : "",
           label: "only gave you",

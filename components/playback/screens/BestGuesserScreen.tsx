@@ -139,7 +139,7 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                       : "Best Guesser"
                   }
                   user={guesser.user}
-                  strokeColor={
+                  color={
                     isGoodGuesser
                       ? NEON_COLORS.BrightGreen
                       : NEON_COLORS.VividRed

@@ -136,7 +136,7 @@ export function MostConsistentScreen({
                 kicker="Steady as she goes!"
                 title={`#${index + 1} Most Consistent`}
                 user={consistent.user}
-                strokeColor={NEON_COLORS.LimeGreen}
+                color={NEON_COLORS.LimeGreen}
                 statClassName="text-5xl"
                 stat={{
                   value: `± ${consistent.variance.toFixed(1)} variance`,

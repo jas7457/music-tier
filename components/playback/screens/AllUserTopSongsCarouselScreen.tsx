@@ -77,7 +77,7 @@ export function AllUserTopSongsCarouselScreen({
               trackInfo={song.trackInfo}
               round={song.round}
               points={song.points}
-              pointsStrokeColor={NEON_COLORS.BrightPink}
+              pointsColor={NEON_COLORS.BrightPink}
               submittedBy={song.user}
               voters={song.votes.map((vote) => ({
                 user: vote.userObject,

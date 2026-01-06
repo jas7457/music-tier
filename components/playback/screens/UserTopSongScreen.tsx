@@ -49,7 +49,7 @@ export function UserTopSongScreen({
           trackInfo={trackInfo}
           round={league.rounds.completed[0]}
           points={points}
-          pointsStrokeColor={NEON_COLORS.Yellow}
+          pointsColor={NEON_COLORS.Yellow}
           submittedBy={user}
           voters={voters}
         />

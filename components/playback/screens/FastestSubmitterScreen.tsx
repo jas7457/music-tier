@@ -111,7 +111,7 @@ export function FastestSubmitterScreen({
                   : "Fastest Submitter"
               }
               user={submitter.user}
-              strokeColor={NEON_COLORS.MintyGreen}
+              color={NEON_COLORS.MintyGreen}
               stat={{
                 value: formatTime(submitter.avgTime),
                 icon: "⚡",

@@ -88,7 +88,7 @@ export function FastestVoterScreen({
                   : "Fastest Voter"
               }
               user={voter.user}
-              strokeColor={NEON_COLORS.ElectricPurple}
+              color={NEON_COLORS.ElectricPurple}
               stat={{
                 value: formatTime(voter.avgTime),
                 label: "average time",

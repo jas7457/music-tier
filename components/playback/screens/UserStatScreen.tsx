@@ -3,7 +3,7 @@
 import { twMerge } from "tailwind-merge";
 import { Avatar } from "@/components/Avatar";
 import type { PopulatedUser } from "@/lib/types";
-import { OutlinedText } from "@/components/OutlinedText";
+import { DataText } from "@/components/DataText";
 import { TrackInfo } from "@/databaseTypes";
 import { Songs, SongsProps } from "../components/Songs";
 import { useState } from "react";
@@ -26,7 +26,7 @@ interface UserStatScreenProps {
   kicker: string;
   title: string;
   user: PopulatedUser | null;
-  strokeColor: string;
+  color: string;
   background: { from: string; via?: string; to: string };
   stat: {
     value: string | number;
@@ -47,7 +47,7 @@ export function UserStatScreen({
   title,
   user,
   stat,
-  strokeColor,
+  color,
   noDataMessage = "No data available",
   className,
   statClassName,
@@ -170,7 +170,7 @@ export function UserStatScreen({
               <div
                 className="absolute inset-0 rounded-full opacity-60 aspect-square"
                 style={{
-                  background: strokeColor,
+                  background: color,
                   filter: "blur(40px)",
                   animation: isActive
                     ? "pulse-glow 3s ease-in-out infinite"
@@ -280,9 +280,7 @@ export function UserStatScreen({
                 )}
               >
                 {stat.icon && <span className="mr-2">{stat.icon}</span>}
-                <OutlinedText strokeColor={strokeColor} strokeWidth={3}>
-                  {stat.value}
-                </OutlinedText>
+                <DataText color={color}>{stat.value}</DataText>
               </StatBounce>
             </div>
           </div>

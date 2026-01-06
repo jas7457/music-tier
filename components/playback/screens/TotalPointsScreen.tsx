@@ -2,7 +2,7 @@
 
 import { twMerge } from "tailwind-merge";
 import type { PlaybackScreenProps } from "../types";
-import { OutlinedText } from "@/components/OutlinedText";
+import { DataText } from "@/components/DataText";
 import { NEON_COLORS } from "../constants";
 import { Screen } from "../components/Screen";
 
@@ -60,13 +60,12 @@ export function TotalPointsScreen({ playback, isActive }: PlaybackScreenProps) {
               : "none",
           }}
         >
-          <OutlinedText
-            strokeColor={NEON_COLORS.LightBlue}
-            strokeWidth={6}
+          <DataText
+            color={NEON_COLORS.LightBlue}
             className="text-9xl md:text-[12rem] font-black"
           >
             {userStats.totalPoints}
-          </OutlinedText>
+          </DataText>
         </div>
 
         <div
