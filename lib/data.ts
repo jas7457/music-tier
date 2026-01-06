@@ -20,7 +20,7 @@ import {
 } from "./types";
 import { verifySessionToken } from "./auth";
 import { seededShuffle } from "./utils/seededShuffle";
-import { JASON_ID, UPCOMING_ROUNDS_TO_SHOW } from "./utils/constants";
+import { UPCOMING_ROUNDS_TO_SHOW } from "./utils/constants";
 import { assertNever } from "./utils/never";
 import { calculatePlaybackStats } from "./playbackCalculations";
 
@@ -624,7 +624,7 @@ export async function getUserLeagues(
 
       // Calculate playback stats only for completed leagues
       const playback =
-        populatedLeague.status === "completed" || userId === JASON_ID
+        populatedLeague.status === "completed"
           ? calculatePlaybackStats(populatedLeague, userId)
           : null;
 
