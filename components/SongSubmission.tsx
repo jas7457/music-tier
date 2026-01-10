@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import AlbumArt from "./AlbumArt";
 import { PopulatedRound, PopulatedSubmission } from "@/lib/types";
 import { getTrackUrlFromId } from "@/lib/spotify";
@@ -37,7 +37,23 @@ export function SongSubmission({
   const [trackUrl, setTrackUrl] = useState(
     submission ? getTrackUrlFromId(submission.trackInfo.trackId) : ""
   );
-  const [error, setError] = useState<string | null>(null);
+  const [error, _setError] = useState<string | null>(null);
+  const setError: typeof _setError = useCallback((value) => {
+    _setError(value);
+    if (!value) {
+      return;
+    }
+    setTimeout(() => {
+      if (errorRef.current) {
+        errorRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }, 200);
+  }, []);
+
+  const errorRef = useRef<HTMLElement | null>(null);
   const [warningInfo, setWarningInfo] = useState<
     | { code: "ARTIST_MATCH"; artist: string }
     | { code: "TITLE_AND_ARTIST_MATCH"; trackInfo: TrackInfo }
@@ -317,7 +333,7 @@ export function SongSubmission({
             "bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm mb-3"
           }
         >
-          {error}
+          <span ref={errorRef}>{error}</span>
         </Card>
       )}
 
