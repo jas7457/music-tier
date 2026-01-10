@@ -17,6 +17,7 @@ import { OnDeckSubmissionsList } from "./OnDeckSubmissions";
 import { TrackInfo } from "@/databaseTypes";
 import { assertNever } from "@/lib/utils/never";
 import { getYouTubeIdFromUrl, YouTubePlayer } from "./YouTubePlayer";
+import { logError } from "@/lib/errorLogger";
 
 interface SongSubmissionProps {
   round: PopulatedRound;
@@ -70,6 +71,7 @@ export function SongSubmission({
           note: "",
           userObject: user || undefined,
           guesses: null,
+          youtubeURL: "",
           trackInfo: {
             trackId: "",
             title: "",
@@ -88,6 +90,12 @@ export function SongSubmission({
     e.preventDefault();
     if (!submission) {
       setError("Please select a track to submit.");
+      logError(new Error("No submission data on submit"));
+      toast.show({
+        title: `Failed to ${isRealSubmission ? "update" : "submit"} song`,
+        variant: "error",
+        message: "No submission data available.",
+      });
       return;
     }
     setError(null);
@@ -139,6 +147,7 @@ export function SongSubmission({
       setIsEditing(false);
       setIsSubmitting(false);
     } catch (err) {
+      logError(err);
       const message = unknownToErrorString(
         err,
         `Failed to ${isRealSubmission ? "update" : "submit"} song`
