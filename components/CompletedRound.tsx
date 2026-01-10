@@ -11,6 +11,7 @@ import { BlockQuote } from "./BlockQuote";
 import { twMerge } from "tailwind-merge";
 import { getPlaces } from "@/lib/utils/getPlaces";
 import { GuessFeedback } from "./GuessFeedback";
+import { getYouTubeIdFromUrl, YouTubePlayer } from "./YouTubePlayer";
 
 interface CompletedRoundProps {
   round: PopulatedRound;
@@ -189,6 +190,13 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
               )}
             </div>
           </div>
+
+          {submission.youtubeURL && (
+            <YouTubePlayer
+              className="px-4 sm:px-6 mb-3"
+              youtubeId={getYouTubeIdFromUrl(submission.youtubeURL)}
+            />
+          )}
 
           {/* Winner Badge */}
           {submitter && emoji && (

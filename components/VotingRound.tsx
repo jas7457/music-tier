@@ -15,6 +15,7 @@ import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
 import { Avatar } from "./Avatar";
 import { formatDateWithTime } from "@/lib/utils/formatDate";
 import { HapticButton } from "./HapticButton";
+import { getYouTubeIdFromUrl, YouTubePlayer } from "./YouTubePlayer";
 
 const LOCAL_STORAGE_KEY = "VotingRound.votes";
 
@@ -432,7 +433,7 @@ export default function VotingRound({
               </div>
               {/* Note Input */}
               {!isYourSubmission && (
-                <div className="pl-24">
+                <div>
                   {round.stage === "voting" ? (
                     <textarea
                       className="w-full px-3 py-2 text-xs border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
@@ -450,6 +451,11 @@ export default function VotingRound({
                   ) : null}
                 </div>
               )}
+
+              <YouTubePlayer
+                className="mb-2"
+                youtubeId={getYouTubeIdFromUrl(submission.youtubeURL || "")}
+              />
             </div>
           );
         })}

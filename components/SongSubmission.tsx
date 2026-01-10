@@ -16,6 +16,7 @@ import { SpotifySongSearch } from "./SpotifySongSearch";
 import { OnDeckSubmissionsList } from "./OnDeckSubmissions";
 import { TrackInfo } from "@/databaseTypes";
 import { assertNever } from "@/lib/utils/never";
+import { getYouTubeIdFromUrl, YouTubePlayer } from "./YouTubePlayer";
 
 interface SongSubmissionProps {
   round: PopulatedRound;
@@ -103,6 +104,7 @@ export function SongSubmission({
         body: JSON.stringify({
           trackInfo: submission.trackInfo,
           note: submission.note,
+          youtubeURL: submission.youtubeURL ?? null,
           force: warningInfo !== null,
         }),
       });
@@ -201,6 +203,10 @@ export function SongSubmission({
             )}
           </div>
         </div>
+
+        <YouTubePlayer
+          youtubeId={getYouTubeIdFromUrl(submission.youtubeURL || "")}
+        />
         {isRoundEnded && (
           <p className="text-xs text-gray-500 mt-3 italic">
             Round has ended - submissions are locked
@@ -276,6 +282,18 @@ export function SongSubmission({
         assertNever(warningCode);
       }
     }
+  })();
+
+  const { error: youtubeIdError, youtubeId } = (() => {
+    if (!submission || !submission.youtubeURL) {
+      return { error: null, youtubeId: null };
+    }
+
+    const youtubeId = getYouTubeIdFromUrl(submission.youtubeURL);
+    if (!youtubeId) {
+      return { error: "Invalid YouTube URL", youtubeId: null };
+    }
+    return { error: null, youtubeId };
   })();
 
   return (
@@ -362,8 +380,33 @@ export function SongSubmission({
             onChange={(e) => setSubmission({ note: e.target.value })}
             placeholder="Why did you choose this song?"
             rows={2}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            className="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           />
+        </div>
+
+        <div className="relative">
+          <label>
+            <div className="block text-xs font-medium text-gray-700 mb-1">
+              YouTube URL (optional)
+            </div>
+
+            <input
+              type="text"
+              autoComplete="off"
+              value={submission?.youtubeURL || ""}
+              onChange={(e) => {
+                setSubmission({ youtubeURL: e.target.value });
+              }}
+              placeholder="Paste YouTube video URL here"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100 disabled:cursor-not-allowed"
+            />
+
+            {youtubeIdError && (
+              <p className="text-xs text-red-600 mt-1">{youtubeIdError}</p>
+            )}
+          </label>
+
+          <YouTubePlayer youtubeId={youtubeId} className="mt-4" />
         </div>
 
         <OnDeckSubmissionsList

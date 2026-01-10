@@ -106,6 +106,7 @@ export type SongSubmission = {
   // timestamp of when the submission was created/updated
   submissionDate: number;
   note?: string;
+  youtubeURL?: string;
 };
 
 // "onDeckSongSubmissions" collection */

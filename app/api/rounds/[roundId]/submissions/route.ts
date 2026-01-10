@@ -45,7 +45,7 @@ async function handleRequest(
     }
 
     const body = await request.json();
-    const { trackInfo, note, force } = body;
+    const { trackInfo, note, youtubeURL, force } = body;
 
     if (!trackInfo || !trackInfo.trackId) {
       return NextResponse.json(
@@ -169,6 +169,7 @@ async function handleRequest(
           trackInfo,
           note,
           submissionDate: now,
+          ...(youtubeURL ? { youtubeURL } : {}),
         };
 
         await submissionsCollection.insertOne(newSubmission);
@@ -185,7 +186,9 @@ async function handleRequest(
               trackInfo,
               note,
               submissionDate: now,
+              ...(youtubeURL ? { youtubeURL } : {}),
             },
+            ...(youtubeURL ? {} : { $unset: { youtubeURL: "" } }),
           },
           { returnDocument: "after" }
         );
