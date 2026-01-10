@@ -343,7 +343,7 @@ export function SongSubmission({
 
         {/* Track Preview */}
         {submission?.trackInfo?.trackId && (
-          <div className="p-3 bg-primary-lightest border border-primary rounded-md">
+          <div className="p-3 bg-primary-lightest border border-primary rounded-md overflow-hidden">
             <div className="flex items-center gap-3">
               {submission.trackInfo.albumImageUrl && (
                 <AlbumArt
