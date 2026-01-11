@@ -8,7 +8,11 @@ if (!process.env.MONGO_DB_URI) {
 }
 
 const uri = process.env.MONGO_DB_URI;
-const options = {};
+const options = {
+  maxPoolSize: 10,
+  connectTimeoutMS: 30000,
+  serverSelectionTimeoutMS: 30000,
+};
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
