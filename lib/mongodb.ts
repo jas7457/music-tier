@@ -1,4 +1,5 @@
 import { MongoClient, Db, Collection, Document } from "mongodb";
+import { cache } from "react";
 
 if (!process.env.MONGO_DB_URI) {
   throw new Error(
@@ -30,16 +31,16 @@ if (process.env.NODE_ENV === "development") {
   clientPromise = client.connect();
 }
 
-export async function getDatabase(): Promise<Db> {
+export const getDatabase = cache(async function getDatabase(): Promise<Db> {
   const client = await clientPromise;
   return client.db("music-tier");
-}
+});
 
-export async function getCollection<T extends Document = Document>(
-  collectionName: string
-): Promise<Collection<T>> {
+export const getCollection = cache(async function getCollection<
+  T extends Document = Document
+>(collectionName: string): Promise<Collection<T>> {
   const db = await getDatabase();
   return db.collection<T>(collectionName);
-}
+});
 
 export default clientPromise;
