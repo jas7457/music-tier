@@ -1,22 +1,22 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken } from "@/lib/auth";
-import { getCollection } from "@/lib/mongodb";
-import { SongSubmission, TrackInfo } from "@/databaseTypes";
-import { ObjectId } from "mongodb";
-import { triggerRealTimeUpdate } from "@/lib/pusher-server";
-import { getUserLeagues } from "@/lib/data";
-import { getAllRounds } from "@/lib/utils/getAllRounds";
-import { submissionNotifications } from "@/lib/notifications";
-import { setScheduledNotifications } from "@/lib/scheduledNotifications";
-import { PopulatedRound, PopulatedUser } from "@/lib/types";
-import { assertNever } from "@/lib/utils/never";
+import { NextRequest, NextResponse } from 'next/server';
+import { verifySessionToken } from '@/lib/auth';
+import { getCollection } from '@/lib/mongodb';
+import { SongSubmission, TrackInfo } from '@/databaseTypes';
+import { ObjectId } from 'mongodb';
+import { triggerRealTimeUpdate } from '@/lib/pusher-server';
+import { getUserLeagues } from '@/lib/data';
+import { getAllRounds } from '@/lib/utils/getAllRounds';
+import { submissionNotifications } from '@/lib/notifications';
+import { setScheduledNotifications } from '@/lib/scheduledNotifications';
+import { PopulatedRound, PopulatedUser } from '@/lib/types';
+import { assertNever } from '@/lib/utils/never';
 
 export async function POST(
   request: NextRequest,
   props: { params: Promise<{ roundId: string }> },
 ) {
   const params = await props.params;
-  return handleRequest(request, { roundId: params.roundId, method: "ADD" });
+  return handleRequest(request, { roundId: params.roundId, method: 'ADD' });
 }
 
 export async function PUT(
@@ -24,22 +24,22 @@ export async function PUT(
   props: { params: Promise<{ roundId: string }> },
 ) {
   const params = await props.params;
-  return handleRequest(request, { roundId: params.roundId, method: "UPDATE" });
+  return handleRequest(request, { roundId: params.roundId, method: 'UPDATE' });
 }
 
 async function handleRequest(
   request: NextRequest,
-  { roundId, method }: { roundId: string; method: "ADD" | "UPDATE" },
+  { roundId, method }: { roundId: string; method: 'ADD' | 'UPDATE' },
 ) {
   try {
     const payload = await verifySessionToken();
     if (!payload) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
 
     if (!roundId) {
       return NextResponse.json(
-        { error: "Round ID is required" },
+        { error: 'Round ID is required' },
         { status: 400 },
       );
     }
@@ -49,7 +49,7 @@ async function handleRequest(
 
     if (!trackInfo || !trackInfo.trackId) {
       return NextResponse.json(
-        { error: "Track URL is required" },
+        { error: 'Track URL is required' },
         { status: 400 },
       );
     }
@@ -75,12 +75,12 @@ async function handleRequest(
 
     if (!foundRound) {
       return NextResponse.json(
-        { error: "No roound was found, Charlie Brown" },
+        { error: 'No roound was found, Charlie Brown' },
         { status: 404 },
       );
     }
 
-    if (foundRound.stage !== "submission") {
+    if (foundRound.stage !== 'submission') {
       return NextResponse.json(
         {
           error: `Submissions are not open for this round. The round is currently in the "${foundRound.stage}" stage.`,
@@ -93,11 +93,11 @@ async function handleRequest(
       (sub) => sub.userId === payload.userId,
     );
 
-    if (existingSubmission && method === "ADD") {
+    if (existingSubmission && method === 'ADD') {
       return NextResponse.json(
         {
           error:
-            "You have already submitted a song for this round. Use PUT to update it.",
+            'You have already submitted a song for this round. Use PUT to update it.',
         },
         { status: 409 },
       );
@@ -113,17 +113,17 @@ async function handleRequest(
           if (songInfo.user._id !== payload.userId) {
             const matchReason = songInfo.matchReason;
             switch (matchReason) {
-              case "EXACT_MATCH": {
+              case 'EXACT_MATCH': {
                 return NextResponse.json(
                   {
                     error:
-                      "You have great taste! This song has already been submitted by another user in this round.",
+                      'You have great taste! This song has already been submitted by another user in this round.',
                   },
                   { status: 409 },
                 );
               }
-              case "ARTIST_MATCH":
-              case "TITLE_AND_ARTIST_MATCH": {
+              case 'ARTIST_MATCH':
+              case 'TITLE_AND_ARTIST_MATCH': {
                 if (force) {
                   return null;
                 }
@@ -152,12 +152,12 @@ async function handleRequest(
     }
 
     const submissionsCollection =
-      await getCollection<SongSubmission>("songSubmissions");
+      await getCollection<SongSubmission>('songSubmissions');
 
     const now = Date.now();
 
     const newSubmission = await (async () => {
-      if (method === "ADD") {
+      if (method === 'ADD') {
         // Create new submission
         const submissionId = new ObjectId();
         const newSubmission: SongSubmission = {
@@ -186,13 +186,13 @@ async function handleRequest(
               submissionDate: now,
               ...(youtubeURL ? { youtubeURL } : {}),
             },
-            ...(youtubeURL ? {} : { $unset: { youtubeURL: "" } }),
+            ...(youtubeURL ? {} : { $unset: { youtubeURL: '' } }),
           },
-          { returnDocument: "after" },
+          { returnDocument: 'after' },
         );
 
         if (!result) {
-          throw new Error("No submission found to update");
+          throw new Error('No submission found to update');
         }
 
         const updatedSubmission = {
@@ -222,7 +222,7 @@ async function handleRequest(
     }
 
     await Promise.all([
-      method === "ADD"
+      method === 'ADD'
         ? submissionNotifications({
             league: foundLeague,
             before: {
@@ -240,9 +240,9 @@ async function handleRequest(
 
     return NextResponse.json({ submission: newSubmission });
   } catch (error) {
-    console.error("Error submitting song:", error);
+    console.error('Error submitting song:', error);
     return NextResponse.json(
-      { error: "Failed to submit song" },
+      { error: 'Failed to submit song' },
       { status: 500 },
     );
   }
@@ -256,7 +256,7 @@ function getExistingSongsInfo(
       isMatch: true;
       user: PopulatedUser;
       trackInfo: TrackInfo;
-      matchReason: "EXACT_MATCH" | "TITLE_AND_ARTIST_MATCH" | "ARTIST_MATCH";
+      matchReason: 'EXACT_MATCH' | 'TITLE_AND_ARTIST_MATCH' | 'ARTIST_MATCH';
     }
   | { isMatch: false; matchReason: null }
 > {
@@ -266,7 +266,7 @@ function getExistingSongsInfo(
     // Remove content in parentheses and brackets that contains common suffixes
     title = title.replace(
       /\s*[\(\[].*?(remaster|remix|mix|version|edition|live|acoustic|clean|explicit|original).*?[\)\]]\s*/gi,
-      " ",
+      ' ',
     );
 
     // Remove common suffixes with optional whitespace
@@ -280,11 +280,11 @@ function getExistingSongsInfo(
     ];
 
     suffixPatterns.forEach((pattern) => {
-      title = title.replace(pattern, "");
+      title = title.replace(pattern, '');
     });
 
     // Clean up extra whitespace
-    title = title.trim().replace(/\s+/g, " ");
+    title = title.trim().replace(/\s+/g, ' ');
 
     return title;
   };
@@ -295,7 +295,7 @@ function getExistingSongsInfo(
     if (sub.trackInfo.trackId === trackInfo.trackId) {
       return {
         isMatch: true,
-        matchReason: "EXACT_MATCH",
+        matchReason: 'EXACT_MATCH',
         user: sub.userObject!,
         trackInfo: sub.trackInfo,
       };
@@ -308,7 +308,7 @@ function getExistingSongsInfo(
     if (sub.trackInfo.title === trackInfo.title && atLeastOneArtistMatches) {
       return {
         isMatch: true,
-        matchReason: "EXACT_MATCH",
+        matchReason: 'EXACT_MATCH',
         user: sub.userObject!,
         trackInfo: sub.trackInfo,
       };
@@ -320,7 +320,7 @@ function getExistingSongsInfo(
     ) {
       return {
         isMatch: true,
-        matchReason: "TITLE_AND_ARTIST_MATCH",
+        matchReason: 'TITLE_AND_ARTIST_MATCH',
         user: sub.userObject!,
         trackInfo: sub.trackInfo,
       };
@@ -329,7 +329,7 @@ function getExistingSongsInfo(
     if (atLeastOneArtistMatches) {
       return {
         isMatch: true,
-        matchReason: "ARTIST_MATCH",
+        matchReason: 'ARTIST_MATCH',
         user: sub.userObject!,
         trackInfo: sub.trackInfo,
       };

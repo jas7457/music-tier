@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { NEON_COLORS } from "../constants";
-import type { PlaybackScreenProps } from "../types";
-import { SongScreen } from "./SongScreen";
-import { Screen } from "../components/Screen";
-import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
+import { NEON_COLORS } from '../constants';
+import type { PlaybackScreenProps } from '../types';
+import { SongScreen } from './SongScreen';
+import { Screen } from '../components/Screen';
+import { AnimatedImageBackdrop } from '@/components/AnimatedImageBackdrop';
 
 export function TopSongScreen({
   playback,

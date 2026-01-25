@@ -1,9 +1,9 @@
 export function unknownToErrorString(
   err: unknown,
-  unknownError: string
+  unknownError: string,
 ): string {
   const errorMessage = (() => {
-    if (typeof err === "string") {
+    if (typeof err === 'string') {
       return err;
     }
     if (err instanceof Error) {
@@ -14,9 +14,9 @@ export function unknownToErrorString(
       return unknownError;
     }
 
-    return "An unknown error occurred";
+    return 'An unknown error occurred';
   })();
 
-  console.error(`${unknownError ?? "Error"}:`, errorMessage);
+  console.error(`${unknownError ?? 'Error'}:`, errorMessage);
   return errorMessage;
 }

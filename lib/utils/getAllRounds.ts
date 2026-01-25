@@ -1,4 +1,4 @@
-import type { PopulatedLeague, PopulatedRound } from "../types";
+import type { PopulatedLeague, PopulatedRound } from '../types';
 
 export function getAllRounds(
   league: PopulatedLeague,

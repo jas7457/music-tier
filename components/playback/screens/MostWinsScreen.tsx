@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { Screen } from "../components/Screen";
-import { NEON_COLORS } from "../constants";
-import type { PlaybackScreenProps } from "../types";
-import { UserStatScreen } from "./UserStatScreen";
-import { HorizontalCarousel } from "../components/HorizontalCarousel";
+import { Screen } from '../components/Screen';
+import { NEON_COLORS } from '../constants';
+import type { PlaybackScreenProps } from '../types';
+import { UserStatScreen } from './UserStatScreen';
+import { HorizontalCarousel } from '../components/HorizontalCarousel';
 
 export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
   const stat = playback.mostWinsUsers;
-  const background = { from: "#8b5cf6", via: "#06b6d4", to: "#ef4444" };
+  const background = { from: '#8b5cf6', via: '#06b6d4', to: '#ef4444' };
 
   if (stat.length === 0) {
     return (
@@ -39,14 +39,14 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
               <>
                 <div
                   className="absolute -top-20 left-1/4 text-5xl pointer-events-none z-10"
-                  style={{ animation: "fall-confetti 4s linear infinite" }}
+                  style={{ animation: 'fall-confetti 4s linear infinite' }}
                 >
                   🎉
                 </div>
                 <div
                   className="absolute -top-20 right-1/4 text-5xl z-10 pointer-events-none"
                   style={{
-                    animation: "fall-confetti 4.5s linear 0.5s infinite",
+                    animation: 'fall-confetti 4.5s linear 0.5s infinite',
                   }}
                 >
                   ✨
@@ -54,7 +54,7 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
                 <div
                   className="absolute -top-20 left-1/3 text-4xl z-10 pointer-events-none"
                   style={{
-                    animation: "fall-confetti 5s linear 1s infinite",
+                    animation: 'fall-confetti 5s linear 1s infinite',
                   }}
                 >
                   🎊
@@ -62,7 +62,7 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
                 <div
                   className="absolute -top-20 right-1/3 text-4xl z-10 pointer-events-none"
                   style={{
-                    animation: "fall-confetti 4.8s linear 1.5s infinite",
+                    animation: 'fall-confetti 4.8s linear 1.5s infinite',
                   }}
                 >
                   ⭐
@@ -70,7 +70,7 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
                 <div
                   className="absolute -top-20 left-1/2 text-5xl z-10 pointer-events-none"
                   style={{
-                    animation: "fall-confetti 4.2s linear 2s infinite",
+                    animation: 'fall-confetti 4.2s linear 2s infinite',
                   }}
                 >
                   🎊
@@ -78,7 +78,7 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
                 <div
                   className="absolute -top-20 left-[15%] text-4xl z-10 pointer-events-none"
                   style={{
-                    animation: "fall-confetti 4.6s linear 2.5s infinite",
+                    animation: 'fall-confetti 4.6s linear 2.5s infinite',
                   }}
                 >
                   🎉
@@ -94,8 +94,8 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
               color={NEON_COLORS.BrightBlue}
               stat={{
                 value: winner.wins.length,
-                label: winner.wins.length === 1 ? "win" : "wins",
-                icon: "🥇",
+                label: winner.wins.length === 1 ? 'win' : 'wins',
+                icon: '🥇',
                 songs: winner.wins.map((win) => ({
                   ...win,
                   rightText: `${win.points} pts`,

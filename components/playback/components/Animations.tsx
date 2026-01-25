@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { CSSProperties, ReactNode } from "react";
+import { CSSProperties, ReactNode } from 'react';
 
 interface StatBounceProps {
   isActive: boolean;
@@ -15,7 +15,7 @@ export function StatBounce({
   isActive,
   delay = 0.7,
   children,
-  className = "",
+  className = '',
   style = {},
 }: StatBounceProps) {
   return (
@@ -23,7 +23,7 @@ export function StatBounce({
       className={className}
       style={{
         ...style,
-        animation: isActive ? `stat-bounce 5s infinite ${delay}s both` : "none",
+        animation: isActive ? `stat-bounce 5s infinite ${delay}s both` : 'none',
       }}
     >
       {children}

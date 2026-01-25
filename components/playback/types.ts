@@ -1,4 +1,4 @@
-import type { PopulatedLeague, LeaguePlaybackStats } from "@/lib/types";
+import type { PopulatedLeague, LeaguePlaybackStats } from '@/lib/types';
 
 export interface PlaybackScreenProps {
   playback: LeaguePlaybackStats;
@@ -12,9 +12,9 @@ export interface PlaybackScreen {
   key: string;
   component: React.ComponentType<PlaybackScreenProps>;
   viewType:
-    | "IntroScreen"
-    | "SummaryScreen"
-    | "SongScreen"
-    | "UserScreen"
-    | "CustomScreen";
+    | 'IntroScreen'
+    | 'SummaryScreen'
+    | 'SongScreen'
+    | 'UserScreen'
+    | 'CustomScreen';
 }

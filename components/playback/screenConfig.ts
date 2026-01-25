@@ -1,107 +1,107 @@
-import type { PlaybackScreen } from "./types";
-import { IntroScreen } from "./screens/IntroScreen";
-import { TopSongScreen } from "./screens/TopSongScreen";
-import { UserTopSongScreen } from "./screens/UserTopSongScreen";
-import { TotalPointsScreen } from "./screens/TotalPointsScreen";
-import { BiggestFanScreen } from "./screens/BiggestFanScreen";
-import { BiggestCriticScreen } from "./screens/BiggestCriticScreen";
-import { MostWinsScreen } from "./screens/MostWinsScreen";
-import { FastestSubmitterScreen } from "./screens/FastestSubmitterScreen";
-import { FastestVoterScreen } from "./screens/FastestVoterScreen";
-import { MostConsistentScreen } from "./screens/MostConsistentScreen";
-import { BestGuesserScreen } from "./screens/BestGuesserScreen";
-import { MostNotedSongScreen } from "./screens/MostNotedSongScreen";
-import { ConspiratorsScreen } from "./screens/ConspiratorsScreen";
-import { AllUserTopSongsCarouselScreen } from "./screens/AllUserTopSongsCarouselScreen";
-import { SummaryScreen } from "./screens/SummaryScreen";
-import { LeagueChampionScreen } from "./screens/LeagueChampionScreen";
-import { RacingScreen } from "./screens/RacingScreen";
-import { memo } from "react";
+import type { PlaybackScreen } from './types';
+import { IntroScreen } from './screens/IntroScreen';
+import { TopSongScreen } from './screens/TopSongScreen';
+import { UserTopSongScreen } from './screens/UserTopSongScreen';
+import { TotalPointsScreen } from './screens/TotalPointsScreen';
+import { BiggestFanScreen } from './screens/BiggestFanScreen';
+import { BiggestCriticScreen } from './screens/BiggestCriticScreen';
+import { MostWinsScreen } from './screens/MostWinsScreen';
+import { FastestSubmitterScreen } from './screens/FastestSubmitterScreen';
+import { FastestVoterScreen } from './screens/FastestVoterScreen';
+import { MostConsistentScreen } from './screens/MostConsistentScreen';
+import { BestGuesserScreen } from './screens/BestGuesserScreen';
+import { MostNotedSongScreen } from './screens/MostNotedSongScreen';
+import { ConspiratorsScreen } from './screens/ConspiratorsScreen';
+import { AllUserTopSongsCarouselScreen } from './screens/AllUserTopSongsCarouselScreen';
+import { SummaryScreen } from './screens/SummaryScreen';
+import { LeagueChampionScreen } from './screens/LeagueChampionScreen';
+import { RacingScreen } from './screens/RacingScreen';
+import { memo } from 'react';
 
 export const PLAYBACK_SCREENS: PlaybackScreen[] = [
   {
-    key: "intro",
+    key: 'intro',
     component: memo(IntroScreen),
-    viewType: "IntroScreen",
+    viewType: 'IntroScreen',
   },
   {
-    key: "racing",
+    key: 'racing',
     component: memo(RacingScreen),
-    viewType: "CustomScreen",
+    viewType: 'CustomScreen',
   },
   {
-    key: "league-champion",
+    key: 'league-champion',
     component: memo(LeagueChampionScreen),
-    viewType: "CustomScreen",
+    viewType: 'CustomScreen',
   },
   {
-    key: "total-points",
+    key: 'total-points',
     component: memo(TotalPointsScreen),
-    viewType: "CustomScreen",
+    viewType: 'CustomScreen',
   },
   {
-    key: "top-song",
+    key: 'top-song',
     component: memo(TopSongScreen),
-    viewType: "SongScreen",
+    viewType: 'SongScreen',
   },
   {
-    key: "biggest-fan",
+    key: 'biggest-fan',
     component: memo(BiggestFanScreen),
-    viewType: "UserScreen",
+    viewType: 'UserScreen',
   },
   {
-    key: "biggest-critic",
+    key: 'biggest-critic',
     component: memo(BiggestCriticScreen),
-    viewType: "UserScreen",
+    viewType: 'UserScreen',
   },
   {
-    key: "most-wins",
+    key: 'most-wins',
     component: memo(MostWinsScreen),
-    viewType: "UserScreen",
+    viewType: 'UserScreen',
   },
   {
-    key: "user-top-song",
+    key: 'user-top-song',
     component: memo(UserTopSongScreen),
-    viewType: "SongScreen",
+    viewType: 'SongScreen',
   },
   {
-    key: "fastest-submitter",
+    key: 'fastest-submitter',
     component: memo(FastestSubmitterScreen),
-    viewType: "UserScreen",
+    viewType: 'UserScreen',
   },
   {
-    key: "fastest-voter",
+    key: 'fastest-voter',
     component: memo(FastestVoterScreen),
-    viewType: "UserScreen",
+    viewType: 'UserScreen',
   },
   {
-    key: "conspirators",
+    key: 'conspirators',
     component: memo(ConspiratorsScreen),
-    viewType: "CustomScreen",
+    viewType: 'CustomScreen',
   },
   {
-    key: "most-consistent",
+    key: 'most-consistent',
     component: memo(MostConsistentScreen),
-    viewType: "UserScreen",
+    viewType: 'UserScreen',
   },
   {
-    key: "most-noted-song",
+    key: 'most-noted-song',
     component: memo(MostNotedSongScreen),
-    viewType: "SongScreen",
+    viewType: 'SongScreen',
   },
   {
-    key: "best-guesser",
+    key: 'best-guesser',
     component: memo(BestGuesserScreen),
-    viewType: "UserScreen",
+    viewType: 'UserScreen',
   },
   {
-    key: "all-user-top-songs-carousel",
+    key: 'all-user-top-songs-carousel',
     component: memo(AllUserTopSongsCarouselScreen),
-    viewType: "SongScreen",
+    viewType: 'SongScreen',
   },
   {
-    key: "summary",
+    key: 'summary',
     component: memo(SummaryScreen),
-    viewType: "SummaryScreen",
+    viewType: 'SummaryScreen',
   },
 ];

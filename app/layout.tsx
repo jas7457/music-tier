@@ -1,25 +1,25 @@
-import type { Metadata, Viewport } from "next";
-import "./globals.css";
-import { AuthProvider } from "@/lib/AuthContext";
-import { SpotifyPlayerProvider } from "@/lib/SpotifyPlayerContext";
-import { PusherProvider } from "@/lib/PusherContext";
-import { ServiceWorkerProvider } from "@/lib/ServiceWorkerContext";
-import { Layout } from "@/components/Layout";
-import { PopulatedUser } from "@/lib/types";
-import { getUserByCookies } from "@/lib/data";
-import { cookies } from "next/headers";
-import { DataProvider } from "@/lib/DataContext";
-import { ToastProvider } from "@/lib/ToastContext";
-import { ThemeProvider } from "@/lib/ThemeContext";
-import { APP_NAME } from "@/lib/utils/constants";
+import type { Metadata, Viewport } from 'next';
+import './globals.css';
+import { AuthProvider } from '@/lib/AuthContext';
+import { SpotifyPlayerProvider } from '@/lib/SpotifyPlayerContext';
+import { PusherProvider } from '@/lib/PusherContext';
+import { ServiceWorkerProvider } from '@/lib/ServiceWorkerContext';
+import { Layout } from '@/components/Layout';
+import { PopulatedUser } from '@/lib/types';
+import { getUserByCookies } from '@/lib/data';
+import { cookies } from 'next/headers';
+import { DataProvider } from '@/lib/DataContext';
+import { ToastProvider } from '@/lib/ToastContext';
+import { ThemeProvider } from '@/lib/ThemeContext';
+import { APP_NAME } from '@/lib/utils/constants';
 
 export const metadata: Metadata = {
   title: APP_NAME,
-  description: "Compete with friends in music discovery leagues",
-  manifest: "/manifest.json",
+  description: 'Compete with friends in music discovery leagues',
+  manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: 'default',
     title: APP_NAME,
   },
   formatDetection: {
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: '#000000',
   maximumScale: 1,
   userScalable: false,
 };
@@ -40,12 +40,12 @@ export default async function RootLayout({
 }) {
   let initialUser: PopulatedUser | null = null;
   const cookieStore = await cookies();
-  const primaryColor = cookieStore.get("primaryColor")?.value || "purple";
+  const primaryColor = cookieStore.get('primaryColor')?.value || 'purple';
 
   try {
-    const sessionToken = cookieStore.get("session_token")?.value;
+    const sessionToken = cookieStore.get('session_token')?.value;
     if (sessionToken) {
-      const user = await getUserByCookies("");
+      const user = await getUserByCookies('');
       initialUser = user || null;
     }
   } catch (err) {

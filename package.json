@@ -9,6 +9,7 @@
     "start": "next start",
     "type-check": "tsc --noEmit",
     "lint": "eslint . && pnpm type-check",
+    "format": "prettier --write .",
     "emptyLeague": "tsx scripts/emptyLeague.ts",
     "seed": "tsx scripts/seed.ts"
   },
@@ -44,6 +45,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.7",
     "postcss": "^8.5.6",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4.1.17",
     "tsx": "^4.20.6",
     "typescript": "^5",

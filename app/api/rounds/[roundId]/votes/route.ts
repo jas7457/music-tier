@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken } from "@/lib/auth";
-import { getCollection } from "@/lib/mongodb";
-import { Vote } from "@/databaseTypes";
-import { ObjectId } from "mongodb";
-import { triggerRealTimeUpdate } from "@/lib/pusher-server";
-import { getUserLeagues } from "@/lib/data";
-import { getAllRounds } from "@/lib/utils/getAllRounds";
-import { voteNotifications } from "@/lib/notifications";
-import { setScheduledNotifications } from "@/lib/scheduledNotifications";
+import { NextRequest, NextResponse } from 'next/server';
+import { verifySessionToken } from '@/lib/auth';
+import { getCollection } from '@/lib/mongodb';
+import { Vote } from '@/databaseTypes';
+import { ObjectId } from 'mongodb';
+import { triggerRealTimeUpdate } from '@/lib/pusher-server';
+import { getUserLeagues } from '@/lib/data';
+import { getAllRounds } from '@/lib/utils/getAllRounds';
+import { voteNotifications } from '@/lib/notifications';
+import { setScheduledNotifications } from '@/lib/scheduledNotifications';
 
 export async function POST(
   request: NextRequest,
@@ -17,13 +17,13 @@ export async function POST(
   try {
     const payload = await verifySessionToken();
     if (!payload) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
 
     const { roundId } = params;
     if (!roundId) {
       return NextResponse.json(
-        { error: "Round ID is required" },
+        { error: 'Round ID is required' },
         { status: 400 },
       );
     }
@@ -48,11 +48,11 @@ export async function POST(
     const { round, league } = await getData();
 
     if (!round) {
-      return NextResponse.json({ error: "Round not found" }, { status: 404 });
+      return NextResponse.json({ error: 'Round not found' }, { status: 404 });
     }
 
     // Get the round and league to validate
-    const votesCollection = await getCollection<Vote>("votes");
+    const votesCollection = await getCollection<Vote>('votes');
     await votesCollection.deleteMany({ userId: payload.userId, roundId });
 
     const now = Date.now();
@@ -97,9 +97,9 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error saving vote:", error);
+    console.error('Error saving vote:', error);
     return NextResponse.json(
-      { error: "Failed to submit vote" },
+      { error: 'Failed to submit vote' },
       { status: 500 },
     );
   }

@@ -1,17 +1,17 @@
-import { PopulatedOnDeckSubmission, PopulatedRound } from "@/lib/types";
-import { HapticButton } from "./HapticButton";
-import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
-import { useCallback, useMemo, useState } from "react";
-import { useToast } from "@/lib/ToastContext";
-import { SpotifySongSearch } from "./SpotifySongSearch";
-import AlbumArt from "./AlbumArt";
-import { twMerge } from "tailwind-merge";
-import { Pill } from "./Pill";
-import { useAuth } from "@/lib/AuthContext";
+import { PopulatedOnDeckSubmission, PopulatedRound } from '@/lib/types';
+import { HapticButton } from './HapticButton';
+import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
+import { useCallback, useMemo, useState } from 'react';
+import { useToast } from '@/lib/ToastContext';
+import { SpotifySongSearch } from './SpotifySongSearch';
+import AlbumArt from './AlbumArt';
+import { twMerge } from 'tailwind-merge';
+import { Pill } from './Pill';
+import { useAuth } from '@/lib/AuthContext';
 
 type SubmissionPartial = Pick<
   PopulatedOnDeckSubmission,
-  "trackInfo" | "isAddedToSidePlaylist"
+  'trackInfo' | 'isAddedToSidePlaylist'
 >;
 
 export function OnDeckSubmissionsList({
@@ -30,13 +30,13 @@ export function OnDeckSubmissionsList({
   className?: string;
 }) {
   const [isSaving, setIsSaving] = useState(false);
-  const [onDeckSearchInput, setOnDeckSearchInput] = useState("");
+  const [onDeckSearchInput, setOnDeckSearchInput] = useState('');
   const toast = useToast();
   const { user } = useAuth();
 
   const yourSubmission = useMemo(() => {
     return round.submissions.find(
-      (submission) => submission.userId === user?._id
+      (submission) => submission.userId === user?._id,
     );
   }, [round.submissions, user?._id]);
 
@@ -47,37 +47,37 @@ export function OnDeckSubmissionsList({
         const response = await fetch(
           `/api/rounds/${round._id}/onDeckSubmissions`,
           {
-            method: "PUT",
+            method: 'PUT',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              action: "update",
+              action: 'update',
               payload: {
                 onDeckSubmissions: newOnDecks,
               },
             }),
-          }
+          },
         );
 
         if (!response.ok) {
-          throw new Error("Failed to save on deck submissions");
+          throw new Error('Failed to save on deck submissions');
         }
       } catch (err) {
         const message = unknownToErrorString(
           err,
-          "Error saving on deck submissions"
+          'Error saving on deck submissions',
         );
         toast.show({
-          title: "Error saving on deck submissions",
-          variant: "error",
+          title: 'Error saving on deck submissions',
+          variant: 'error',
           message,
         });
       } finally {
         setIsSaving(false);
       }
     },
-    [round._id, toast]
+    [round._id, toast],
   );
 
   const onDeckInfo = getOnDeckInfo({
@@ -125,10 +125,10 @@ export function OnDeckSubmissionsList({
         const pillMarkup = (() => {
           const pills: string[] = [];
           if (isYourSubmission) {
-            pills.push("Your submission");
+            pills.push('Your submission');
           }
           if (submission.isAddedToSidePlaylist) {
-            pills.push("Added to SP");
+            pills.push('Added to SP');
           }
           if (pills.length === 0) {
             return null;
@@ -144,13 +144,13 @@ export function OnDeckSubmissionsList({
           );
         })();
 
-        const Component = onRowClick ? "button" : "div";
+        const Component = onRowClick ? 'button' : 'div';
         return (
           <div
             key={index}
             className={twMerge(
-              "grid grid-cols-[1fr_auto] items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-md",
-              className
+              'grid grid-cols-[1fr_auto] items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-md',
+              className,
             )}
           >
             <div
@@ -160,7 +160,7 @@ export function OnDeckSubmissionsList({
                     onClick: () => {
                       onRowClick(submission, index);
                     },
-                    type: "button",
+                    type: 'button',
                   }
                 : {})}
             >
@@ -176,7 +176,7 @@ export function OnDeckSubmissionsList({
                       onClick: () => {
                         onRowClick(submission, index);
                       },
-                      type: "button",
+                      type: 'button',
                     }
                   : {})}
               >
@@ -184,7 +184,7 @@ export function OnDeckSubmissionsList({
                   {submission.trackInfo.title}
                 </p>
                 <p className="text-xs text-gray-600 truncate">
-                  {submission.trackInfo.artists.join(", ")}
+                  {submission.trackInfo.artists.join(', ')}
                 </p>
 
                 {pillMarkup}
@@ -202,25 +202,25 @@ export function OnDeckSubmissionsList({
                             const response = await fetch(
                               `/api/rounds/${round._id}/onDeckSubmissions`,
                               {
-                                method: "PUT",
+                                method: 'PUT',
                                 headers: {
-                                  "Content-Type": "application/json",
+                                  'Content-Type': 'application/json',
                                 },
                                 body: JSON.stringify({
-                                  action: "saveToSidePlaylist",
+                                  action: 'saveToSidePlaylist',
                                   payload: [submission],
                                 }),
-                              }
+                              },
                             );
 
                             if (!response.ok) {
                               throw new Error(
-                                "Failed to save to side playlist"
+                                'Failed to save to side playlist',
                               );
                             }
                             toast.show({
-                              variant: "success",
-                              message: "Song saved to side playlist",
+                              variant: 'success',
+                              message: 'Song saved to side playlist',
                             });
                             onUpdate(
                               onDeckSubmissions.map(
@@ -232,17 +232,17 @@ export function OnDeckSubmissionsList({
                                     ...onDeckSubmission,
                                     isAddedToSidePlaylist: true,
                                   };
-                                }
-                              )
+                                },
+                              ),
                             );
                           } catch (err) {
                             const message = unknownToErrorString(
                               err,
-                              "Error saving song to side playlist"
+                              'Error saving song to side playlist',
                             );
                             toast.show({
-                              title: "Error saving song to side playlist",
-                              variant: "error",
+                              title: 'Error saving song to side playlist',
+                              variant: 'error',
                               message,
                             });
                           } finally {
@@ -250,7 +250,7 @@ export function OnDeckSubmissionsList({
                           }
                         }}
                       >
-                        <div style={{ fontSize: "8px" }}>Add to SP</div>
+                        <div style={{ fontSize: '8px' }}>Add to SP</div>
                       </HapticButton>
                     </div>
                   )}
@@ -263,7 +263,7 @@ export function OnDeckSubmissionsList({
               onClick={async (event) => {
                 event.stopPropagation();
                 const newOnDecks = onDeckSubmissions.filter(
-                  (_, i) => i !== index
+                  (_, i) => i !== index,
                 );
                 onUpdate(newOnDecks);
                 await saveOnDeckToDatabase(newOnDecks);
@@ -296,7 +296,7 @@ export function OnDeckSubmissionsList({
             disabled={isSaving}
             onChange={setOnDeckSearchInput}
             onTrackFetched={async (trackInfo) => {
-              setOnDeckSearchInput("");
+              setOnDeckSearchInput('');
               const newOnDecks = [
                 ...onDeckSubmissions,
                 { trackInfo, isAddedToSidePlaylist: false },
@@ -305,7 +305,7 @@ export function OnDeckSubmissionsList({
               await saveOnDeckToDatabase(newOnDecks);
             }}
             onSongSelected={async (trackInfo) => {
-              setOnDeckSearchInput("");
+              setOnDeckSearchInput('');
               const newOnDecks = [
                 ...onDeckSubmissions,
                 { trackInfo, isAddedToSidePlaylist: false },
@@ -328,22 +328,22 @@ export function OnDeckSubmissionsList({
               const response = await fetch(
                 `/api/rounds/${round._id}/onDeckSubmissions`,
                 {
-                  method: "PUT",
+                  method: 'PUT',
                   headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json',
                   },
                   body: JSON.stringify({
-                    action: "saveToSidePlaylist",
+                    action: 'saveToSidePlaylist',
                   }),
-                }
+                },
               );
 
               if (!response.ok) {
-                throw new Error("Failed to save to side playlist");
+                throw new Error('Failed to save to side playlist');
               }
               toast.show({
-                variant: "success",
-                message: "On deck submissions saved to side playlist",
+                variant: 'success',
+                message: 'On deck submissions saved to side playlist',
               });
               onUpdate(
                 onDeckSubmissions.map((submission) => ({
@@ -351,16 +351,16 @@ export function OnDeckSubmissionsList({
                   isAddedToSidePlaylist:
                     yourSubmission?.trackInfo.trackId !==
                     submission.trackInfo.trackId,
-                }))
+                })),
               );
             } catch (err) {
               const message = unknownToErrorString(
                 err,
-                "Error saving on deck submissions"
+                'Error saving on deck submissions',
               );
               toast.show({
-                title: "Error saving on deck submissions",
-                variant: "error",
+                title: 'Error saving on deck submissions',
+                variant: 'error',
                 message,
               });
             } finally {
@@ -396,23 +396,23 @@ export function getOnDeckInfo({
   const hasSubmissions = round.onDeckSubmissions.length > 0;
 
   switch (round.stage) {
-    case "upcoming": {
+    case 'upcoming': {
       return isRoundPage
         ? { isVisible: true, canAdd: true, canSubmit: false }
         : hiddenResult;
     }
-    case "submission": {
+    case 'submission': {
       return isGeneralRoundSlot
         ? hiddenResult
         : { isVisible: true, canAdd: true, canSubmit: false };
     }
-    case "voting":
-    case "currentUserVotingCompleted": {
+    case 'voting':
+    case 'currentUserVotingCompleted': {
       return hasSubmissions
         ? { isVisible: true, canAdd: false, canSubmit: true }
         : hiddenResult;
     }
-    case "completed": {
+    case 'completed': {
       return hasSubmissions
         ? { isVisible: true, canAdd: false, canSubmit: true }
         : hiddenResult;

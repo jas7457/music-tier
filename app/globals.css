@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "uploadthing/tw/v4";
+@import 'tailwindcss';
+@import 'uploadthing/tw/v4';
 @source "../node_modules/@uploadthing/react/dist";
 @source inline("w-{{1..50}}");
 @source inline("h-{{1..50}}");
@@ -17,13 +17,14 @@
 
 @layer base {
   * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
 
-  button:not([disabled]), a[href] {
-      cursor: pointer;
+  button:not([disabled]),
+  a[href] {
+    cursor: pointer;
   }
 
   @keyframes subtle-zoom {
@@ -64,7 +65,8 @@
   }
 
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0);
     }
     50% {
@@ -73,7 +75,8 @@
   }
 
   @keyframes pulse-glow {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow: 0 0 20px var(--glow-color, rgba(168, 85, 247, 0.4));
       opacity: 1;
     }
@@ -84,7 +87,8 @@
   }
 
   @keyframes gradient-swirl-1 {
-    0%, 100% {
+    0%,
+    100% {
       transform: translate(0%, 0%) rotate(0deg);
     }
     33% {
@@ -96,7 +100,8 @@
   }
 
   @keyframes gradient-swirl-2 {
-    0%, 100% {
+    0%,
+    100% {
       transform: translate(0%, 0%) rotate(0deg) scale(1);
     }
     50% {
@@ -105,7 +110,8 @@
   }
 
   @keyframes gradient-swirl-3 {
-    0%, 100% {
+    0%,
+    100% {
       transform: translate(0%, 0%) scale(1);
     }
     33% {

@@ -1,4 +1,4 @@
-import { twMerge } from "tailwind-merge";
+import { twMerge } from 'tailwind-merge';
 
 export function YouTubePlayer({
   youtubeId,
@@ -12,7 +12,7 @@ export function YouTubePlayer({
   }
 
   return (
-    <div className={twMerge("aspect-video", className)}>
+    <div className={twMerge('aspect-video', className)}>
       <iframe
         width="100%"
         height="100%"
@@ -38,7 +38,7 @@ export function getYouTubeIdFromUrl(youtubeURL: string): string | null {
 
   try {
     const url = new URL(youtubeURL);
-    return url.searchParams.get("v");
+    return url.searchParams.get('v');
   } catch {
     return null;
   }

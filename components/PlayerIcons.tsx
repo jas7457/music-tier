@@ -1,6 +1,6 @@
 export const PlayIcon = ({
   size = 24,
-  className = "",
+  className = '',
 }: {
   size?: number | string;
   className?: string;
@@ -12,7 +12,7 @@ export const PlayIcon = ({
 
 export const PauseIcon = ({
   size = 24,
-  className = "",
+  className = '',
 }: {
   size?: number | string;
   className?: string;
@@ -24,7 +24,7 @@ export const PauseIcon = ({
 
 export const NextIcon = ({
   size = 24,
-  className = "",
+  className = '',
 }: {
   size?: number | string;
   className?: string;
@@ -36,7 +36,7 @@ export const NextIcon = ({
 
 export const PreviousIcon = ({
   size = 24,
-  className = "",
+  className = '',
 }: {
   size?: number | string;
   className?: string;
@@ -48,7 +48,7 @@ export const PreviousIcon = ({
 
 export const VolumeIcon = ({
   size = 24,
-  className = "",
+  className = '',
 }: {
   size?: number;
   className?: string;

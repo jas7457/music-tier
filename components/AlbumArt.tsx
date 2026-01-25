@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { PopulatedRound } from "@/lib/types";
-import { PlayIcon, PauseIcon } from "./PlayerIcons";
-import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
-import { useEffect } from "react";
-import { twMerge } from "tailwind-merge";
-import { HapticButton } from "./HapticButton";
-import type { TrackInfo } from "@/databaseTypes";
-import { isChristmas } from "@/lib/utils/isChristmas";
+import { PopulatedRound } from '@/lib/types';
+import { PlayIcon, PauseIcon } from './PlayerIcons';
+import { useSpotifyPlayer } from '@/lib/SpotifyPlayerContext';
+import { useEffect } from 'react';
+import { twMerge } from 'tailwind-merge';
+import { HapticButton } from './HapticButton';
+import type { TrackInfo } from '@/databaseTypes';
+import { isChristmas } from '@/lib/utils/isChristmas';
 
 interface AlbumArtProps {
   trackInfo: TrackInfo;
@@ -22,7 +22,7 @@ export default function AlbumArt({
   round,
   trackInfo: trackInfoProp,
   size = 64,
-  className = "",
+  className = '',
   playlist,
   onPlaySong,
 }: AlbumArtProps) {
@@ -43,12 +43,12 @@ export default function AlbumArt({
   const trackInfo = isChristmas()
     ? {
         ...trackInfoProp,
-        trackId: "0bYg9bo50gSsH3LtXe2SQn",
-        title: "All I Want for Christmas Is You",
-        artists: ["Mariah Carey"],
-        albumName: "Merry Christmas",
+        trackId: '0bYg9bo50gSsH3LtXe2SQn',
+        title: 'All I Want for Christmas Is You',
+        artists: ['Mariah Carey'],
+        albumName: 'Merry Christmas',
         albumImageUrl:
-          "https://i.scdn.co/image/ab67616d0000b273c0862332847213b151ffab31",
+          'https://i.scdn.co/image/ab67616d0000b273c0862332847213b151ffab31',
       }
     : trackInfoProp;
 
@@ -70,19 +70,19 @@ export default function AlbumArt({
 
   const playButtonExtraClasses = (() => {
     if (isDisabled) {
-      return "bg-gray-500/80 cursor-not-allowed opacity-60";
+      return 'bg-gray-500/80 cursor-not-allowed opacity-60';
     }
     if (isCurrentlyPlaying) {
-      return "bg-[#1DB954]/90 opacity-100 scale-110";
+      return 'bg-[#1DB954]/90 opacity-100 scale-110';
     }
-    return "bg-[#1DB954]/90 opacity-100 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 hover:bg-[#1ed760] hover:scale-110";
+    return 'bg-[#1DB954]/90 opacity-100 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 hover:bg-[#1ed760] hover:scale-110';
   })();
 
   return (
     <div
       className={twMerge(
-        "relative shrink-0 overflow-hidden rounded group",
-        className
+        'relative shrink-0 overflow-hidden rounded group',
+        className,
       )}
       style={{ width: `${size}px`, height: `${size}px` }}
     >
@@ -97,8 +97,8 @@ export default function AlbumArt({
       <HapticButton
         type="button"
         style={{
-          width: "clamp(40px, 60%, 100px)",
-          aspectRatio: "1 / 1",
+          width: 'clamp(40px, 60%, 100px)',
+          aspectRatio: '1 / 1',
         }}
         onClick={async (event) => {
           event.stopPropagation();
@@ -118,15 +118,15 @@ export default function AlbumArt({
         }}
         disabled={isDisabled}
         className={twMerge(
-          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm pointer-events-auto z-10",
-          playButtonExtraClasses
+          'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm pointer-events-auto z-10',
+          playButtonExtraClasses,
         )}
         title={
           isDisabled
-            ? "Spotify Premium required"
+            ? 'Spotify Premium required'
             : isCurrentlyPlaying
-            ? "Pause"
-            : "Play"
+              ? 'Pause'
+              : 'Play'
         }
       >
         {isCurrentlyPlaying ? (

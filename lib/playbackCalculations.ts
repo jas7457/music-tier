@@ -1,4 +1,4 @@
-import { TrackInfo } from "@/databaseTypes";
+import { TrackInfo } from '@/databaseTypes';
 import type {
   LeaguePlaybackStats,
   PopulatedLeague,
@@ -6,21 +6,24 @@ import type {
   PopulatedSubmission,
   PopulatedUser,
   PopulatedVote,
-} from "./types";
-import { getAllRounds } from "./utils/getAllRounds";
-import { getPlaces } from "./utils/getPlaces";
+} from './types';
+import { getAllRounds } from './utils/getAllRounds';
+import { getPlaces } from './utils/getPlaces';
 
 export function calculatePlaybackStats(
-  league: Omit<PopulatedLeague, "playback">,
-  userId: string
+  league: Omit<PopulatedLeague, 'playback'>,
+  userId: string,
 ): LeaguePlaybackStats {
   const completedRounds = getAllRounds({ ...league, playback: null }).filter(
-    (r) => r.stage === "completed"
+    (r) => r.stage === 'completed',
   );
-  const usersById = league.users.reduce((acc, user) => {
-    acc[user._id] = user;
-    return acc;
-  }, {} as { [userId: string]: PopulatedUser });
+  const usersById = league.users.reduce(
+    (acc, user) => {
+      acc[user._id] = user;
+      return acc;
+    },
+    {} as { [userId: string]: PopulatedUser },
+  );
 
   if (completedRounds.length === 0) {
     return {
@@ -51,10 +54,13 @@ export function calculatePlaybackStats(
     };
   }
 
-  const winsDueToTies = league.users.reduce((acc, user) => {
-    acc[user._id] = 0;
-    return acc;
-  }, {} as Record<string, number>);
+  const winsDueToTies = league.users.reduce(
+    (acc, user) => {
+      acc[user._id] = 0;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const breakTie = (userA: PopulatedUser, userB: PopulatedUser) => {
     const userAWinsDueToTies = winsDueToTies[userA._id];
@@ -66,7 +72,7 @@ export function calculatePlaybackStats(
     return userAWinsDueToTies - userBWinsDueToTies;
   };
   const incrementTieWin = (
-    items: Array<{ user: PopulatedUser; numbers: number[] }>
+    items: Array<{ user: PopulatedUser; numbers: number[] }>,
   ) => {
     if (items.length < 2) {
       return;
@@ -84,13 +90,16 @@ export function calculatePlaybackStats(
   const userData = league.users.reduce(
     (acc, user) => {
       const createEmpty = () => {
-        return league.users.reduce((acc, user) => {
-          if (user._id === userId) {
+        return league.users.reduce(
+          (acc, user) => {
+            if (user._id === userId) {
+              return acc;
+            }
+            acc[user._id] = { points: 0, votes: 0, songs: [], user };
             return acc;
-          }
-          acc[user._id] = { points: 0, votes: 0, songs: [], user };
-          return acc;
-        }, {} as Record<string, LeaguePlaybackStats["biggestFan"]>);
+          },
+          {} as Record<string, LeaguePlaybackStats['biggestFan']>,
+        );
       };
 
       acc[user._id] = {
@@ -112,15 +121,15 @@ export function calculatePlaybackStats(
         user: PopulatedUser;
         places: Array<{ place: number; round: PopulatedRound }>;
         topSong: NonNullable<
-          LeaguePlaybackStats["topSong"] & {
+          LeaguePlaybackStats['topSong'] & {
             round: PopulatedRound;
           }
         > | null;
-        pointsByFriends: Record<string, LeaguePlaybackStats["biggestFan"]>;
-        pointsForFriends: Record<string, LeaguePlaybackStats["biggestStan"]>;
+        pointsByFriends: Record<string, LeaguePlaybackStats['biggestFan']>;
+        pointsForFriends: Record<string, LeaguePlaybackStats['biggestStan']>;
         guesses: NonNullable<
-          LeaguePlaybackStats["bestGuessers"]
-        >[number]["guesses"];
+          LeaguePlaybackStats['bestGuessers']
+        >[number]['guesses'];
         points: Array<{
           trackInfo: TrackInfo;
           points: number;
@@ -146,7 +155,7 @@ export function calculatePlaybackStats(
           timeToVote: number;
         }>;
       };
-    }
+    },
   );
 
   const { roundsById, submissionsById } = completedRounds.reduce(
@@ -160,7 +169,7 @@ export function calculatePlaybackStats(
     {
       roundsById: {} as { [roundId: string]: PopulatedRound },
       submissionsById: {} as { [submissionId: string]: PopulatedSubmission },
-    }
+    },
   );
 
   completedRounds.forEach((round) => {
@@ -176,7 +185,7 @@ export function calculatePlaybackStats(
       const submissionUser = userData[submission.userId];
 
       const currentPointInfo = submissionUser.points.find(
-        (point) => point.submission._id === submission._id
+        (point) => point.submission._id === submission._id,
       );
       const pointInfo = currentPointInfo ?? {
         trackInfo: submission.trackInfo,
@@ -278,7 +287,7 @@ export function calculatePlaybackStats(
     const usersByPoints = league.users.map((user) => {
       const votesForUser = round.votes.filter((vote) => {
         const submission = round.submissions.find(
-          (s) => s._id === vote.submissionId
+          (s) => s._id === vote.submissionId,
         );
         return submission?.userId === user._id;
       });
@@ -292,7 +301,7 @@ export function calculatePlaybackStats(
         {
           points: 0,
           user: usersById[user._id],
-        }
+        },
       );
 
       return userPoints;
@@ -314,7 +323,7 @@ export function calculatePlaybackStats(
   completedRounds.forEach((round) => {
     round.votes.forEach((vote) => {
       const submission = round.submissions.find(
-        (s) => s._id === vote.submissionId
+        (s) => s._id === vote.submissionId,
       );
       if (submission) {
         const current = pointsByUser.get(submission.userId) || 0;
@@ -328,10 +337,10 @@ export function calculatePlaybackStats(
       ...u,
       points: u.totalPoints,
       wins: u.places.filter((p) => p.place === 1).length,
-    }))
+    })),
   );
   const userPlace = userPlaces.find((u) => u.user._id === userId);
-  const userStats: LeaguePlaybackStats["userStats"] = {
+  const userStats: LeaguePlaybackStats['userStats'] = {
     totalPoints: yourInfo.totalPoints,
     place: userPlace?.place ?? 800,
   };
@@ -382,7 +391,7 @@ export function calculatePlaybackStats(
   completedRounds.forEach((round) => {
     round.votes.forEach((vote) => {
       const submission = round.submissions.find(
-        (s) => s._id === vote.submissionId
+        (s) => s._id === vote.submissionId,
       );
       if (submission && submission.userId === userId && vote.points > 0) {
         const current = pointsGiven.get(vote.userId) || {
@@ -421,7 +430,7 @@ export function calculatePlaybackStats(
           wins: 0,
           submission,
         };
-      })
+      }),
     );
 
     places.forEach((place) => {
@@ -455,7 +464,7 @@ export function calculatePlaybackStats(
           .map((placeInfo) => {
             // Find the submission for this winning round
             const pointInfo = data.points.find(
-              (p) => p.round._id === placeInfo.round._id
+              (p) => p.round._id === placeInfo.round._id,
             );
             if (!pointInfo) {
               return null;
@@ -493,7 +502,7 @@ export function calculatePlaybackStats(
         const averageSubmitTime =
           data.submissions.reduce(
             (acc, submission) => acc + submission.timeToSubmit,
-            0
+            0,
           ) / data.submissions.length;
 
         const fastestSubmission = data.submissions.reduce(
@@ -505,7 +514,7 @@ export function calculatePlaybackStats(
               ? current
               : fastest;
           },
-          null as null | (typeof data.submissions)[number]
+          null as null | (typeof data.submissions)[number],
         );
         if (fastestSubmission) {
           acc.fastestSubmitters.push({
@@ -526,7 +535,7 @@ export function calculatePlaybackStats(
                 time: submission.timeToSubmit,
                 round: roundsById[submission.submission.roundId],
                 note: submission.notes.find(
-                  (note) => note.user._id === data.user._id
+                  (note) => note.user._id === data.user._id,
                 )?.text,
               })),
           });
@@ -551,18 +560,26 @@ export function calculatePlaybackStats(
           data.votes.reduce((acc, vote) => acc + vote.timeToVote, 0) /
           data.votes.length;
 
-        const votesForRound = data.votes.reduce((acc, vote) => {
-          const hasRound = acc.find((v) => v.round._id === vote.round._id);
-          if (!hasRound) {
-            acc.push({
-              round: vote.round,
-              time: vote.timeToVote,
-              points: vote.vote.points,
-              trackInfo: submissionsById[vote.vote.submissionId].trackInfo,
-            });
-          }
-          return acc;
-        }, [] as Array<{ round: PopulatedRound; time: number; points: number; trackInfo: TrackInfo }>);
+        const votesForRound = data.votes.reduce(
+          (acc, vote) => {
+            const hasRound = acc.find((v) => v.round._id === vote.round._id);
+            if (!hasRound) {
+              acc.push({
+                round: vote.round,
+                time: vote.timeToVote,
+                points: vote.vote.points,
+                trackInfo: submissionsById[vote.vote.submissionId].trackInfo,
+              });
+            }
+            return acc;
+          },
+          [] as Array<{
+            round: PopulatedRound;
+            time: number;
+            points: number;
+            trackInfo: TrackInfo;
+          }>,
+        );
 
         acc.fastestVoters.push({
           user: data.user,
@@ -572,7 +589,7 @@ export function calculatePlaybackStats(
         });
 
         const fastestVote = [...data.votes].sort(
-          (a, b) => a.timeToVote - b.timeToVote
+          (a, b) => a.timeToVote - b.timeToVote,
         )[0];
         if (!fastestVote) {
           return;
@@ -596,7 +613,7 @@ export function calculatePlaybackStats(
         const guessAccuracy =
           data.guesses.reduce(
             (acc, guess) => acc + (guess.isCorrect ? 1 : 0),
-            0
+            0,
           ) / data.guesses.length;
 
         acc.bestGuessers.push({
@@ -629,16 +646,16 @@ export function calculatePlaybackStats(
       return acc;
     },
     {
-      mostWinsUsers: [] as LeaguePlaybackStats["mostWinsUsers"],
-      topSong: null as LeaguePlaybackStats["topSong"],
-      fastestSubmitters: [] as LeaguePlaybackStats["fastestSubmitters"],
-      fastestSubmission: null as LeaguePlaybackStats["fastestSubmission"],
-      fastestVoters: [] as LeaguePlaybackStats["fastestVoters"],
-      fastestVote: null as LeaguePlaybackStats["fastestVote"],
-      slowestVoter: null as LeaguePlaybackStats["slowestVoter"],
-      bestGuessers: [] as LeaguePlaybackStats["bestGuessers"],
-      mostNotedSongs: [] as LeaguePlaybackStats["mostNotedSongs"],
-    }
+      mostWinsUsers: [] as LeaguePlaybackStats['mostWinsUsers'],
+      topSong: null as LeaguePlaybackStats['topSong'],
+      fastestSubmitters: [] as LeaguePlaybackStats['fastestSubmitters'],
+      fastestSubmission: null as LeaguePlaybackStats['fastestSubmission'],
+      fastestVoters: [] as LeaguePlaybackStats['fastestVoters'],
+      fastestVote: null as LeaguePlaybackStats['fastestVote'],
+      slowestVoter: null as LeaguePlaybackStats['slowestVoter'],
+      bestGuessers: [] as LeaguePlaybackStats['bestGuessers'],
+      mostNotedSongs: [] as LeaguePlaybackStats['mostNotedSongs'],
+    },
   );
 
   // 8-9. Voting timing
@@ -677,7 +694,7 @@ export function calculatePlaybackStats(
       }
 
       const submission = round.submissions.find(
-        (s) => s._id === voteData.submissionId
+        (s) => s._id === voteData.submissionId,
       );
       if (!submission) {
         return;
@@ -725,8 +742,8 @@ export function calculatePlaybackStats(
     });
   });
 
-  const mostConsistent: LeaguePlaybackStats["mostConsistent"] = Array.from(
-    pointsByUserByRound.entries()
+  const mostConsistent: LeaguePlaybackStats['mostConsistent'] = Array.from(
+    pointsByUserByRound.entries(),
   )
     .map(([userId, data]) => {
       const mean = data.totalPoints / data.points.length;
@@ -740,7 +757,7 @@ export function calculatePlaybackStats(
         rounds: userData[userId].places
           .map((placeInfo) => {
             const pointInfo = userData[userId].points.find(
-              (p) => p.round._id === placeInfo.round._id
+              (p) => p.round._id === placeInfo.round._id,
             );
             if (!pointInfo) {
               return null;
@@ -765,7 +782,7 @@ export function calculatePlaybackStats(
   completedRounds.forEach((round) => {
     round.votes.forEach((vote) => {
       const submission = round.submissions.find(
-        (s) => s._id === vote.submissionId
+        (s) => s._id === vote.submissionId,
       );
       if (!submission) {
         return;
@@ -810,11 +827,11 @@ export function calculatePlaybackStats(
     });
   });
 
-  const conspirators: LeaguePlaybackStats["conspirators"] = Array.from(
-    mutualPoints.entries()
+  const conspirators: LeaguePlaybackStats['conspirators'] = Array.from(
+    mutualPoints.entries(),
   )
     .map(([pairKey, points]) => {
-      const [userId1, userId2] = pairKey.split(":");
+      const [userId1, userId2] = pairKey.split(':');
       return {
         totalPoints: points.points,
         ...(points.user1Points > points.user2Points ||
@@ -837,7 +854,7 @@ export function calculatePlaybackStats(
     .sort((a, b) => b.totalPoints - a.totalPoints);
 
   // 12. User top song (highest scoring submission per user)
-  const userTopSong: LeaguePlaybackStats["userTopSong"] = yourInfo.topSong;
+  const userTopSong: LeaguePlaybackStats['userTopSong'] = yourInfo.topSong;
 
   // 13. Best and worst guessers (vote accuracy)
   // Calculate how well each user's votes predicted final rankings
@@ -867,7 +884,7 @@ export function calculatePlaybackStats(
           guesses: [],
         };
         const submission = round.submissions.find(
-          (submission) => submission._id === vote.submissionId
+          (submission) => submission._id === vote.submissionId,
         );
         if (!submission) {
           return;
@@ -940,8 +957,8 @@ export function calculatePlaybackStats(
     });
   });
 
-  const allUserTopSongs: LeaguePlaybackStats["allUserTopSongs"] = Object.values(
-    userData
+  const allUserTopSongs: LeaguePlaybackStats['allUserTopSongs'] = Object.values(
+    userData,
   )
     .map((data) => {
       if (!data.topSong) {
@@ -970,10 +987,10 @@ export function calculatePlaybackStats(
     allUserTopSongs.map((song) => ({
       user: song.user,
       numbers: [song.points, song.voters],
-    }))
+    })),
   );
 
-  const crowdPleaser: LeaguePlaybackStats["crowdPleaser"] = (() => {
+  const crowdPleaser: LeaguePlaybackStats['crowdPleaser'] = (() => {
     if (allUserTopSongs.length === 0) {
       return null;
     }
@@ -993,14 +1010,14 @@ export function calculatePlaybackStats(
       mostVoters.map((song) => ({
         user: song.user,
         numbers: [song.voters, song.points],
-      }))
+      })),
     );
 
     return mostVoters[0] || null;
   })();
 
-  const allUserWins: LeaguePlaybackStats["allUserWins"] = Object.values(
-    userData
+  const allUserWins: LeaguePlaybackStats['allUserWins'] = Object.values(
+    userData,
   )
     .map((data) => {
       const wins = data.places.filter((p) => p.place === 1).length;
@@ -1026,26 +1043,26 @@ export function calculatePlaybackStats(
         pointsArray: data.points,
         wins: data.places.filter((p) => p.place === 1).length,
       };
-    })
+    }),
   );
 
-  const leagueWinner: LeaguePlaybackStats["leagueWinner"] =
+  const leagueWinner: LeaguePlaybackStats['leagueWinner'] =
     sortedByPoints.length > 0
       ? {
           user: sortedByPoints[0].user,
           totalPoints: sortedByPoints[0].totalPoints,
           firstPlaceRounds: sortedByPoints[0].places.filter(
-            (p) => p.place === 1
+            (p) => p.place === 1,
           ).length,
           submissions: sortedByPoints[0].pointsArray.map((pointInfo) => {
             const round = completedRounds.find(
-              (r) => r._id === pointInfo.round._id
+              (r) => r._id === pointInfo.round._id,
             )!;
             const votes = round.votes
               .filter(
                 (vote) =>
                   vote.submissionId === pointInfo.submission._id &&
-                  (vote.points > 0 || vote.note)
+                  (vote.points > 0 || vote.note),
               )
               .map((vote) => ({
                 user: usersById[vote.userId],
@@ -1084,13 +1101,13 @@ export function calculatePlaybackStats(
         const submissionPointsThisRound = new Map<string, number>();
         r.votes.forEach((vote) => {
           const submission = r.submissions.find(
-            (s) => s._id === vote.submissionId
+            (s) => s._id === vote.submissionId,
           );
           if (submission) {
             const current = cumulativePointsByUser.get(submission.userId) || 0;
             cumulativePointsByUser.set(
               submission.userId,
-              current + vote.points
+              current + vote.points,
             );
 
             // Track points per submission for win calculation
@@ -1098,7 +1115,7 @@ export function calculatePlaybackStats(
               submissionPointsThisRound.get(submission._id) || 0;
             submissionPointsThisRound.set(
               submission._id,
-              submissionPoints + vote.points
+              submissionPoints + vote.points,
             );
           }
         });
@@ -1106,7 +1123,7 @@ export function calculatePlaybackStats(
         // Determine winners for this round
         if (submissionPointsThisRound.size > 0) {
           const maxPoints = Math.max(
-            ...Array.from(submissionPointsThisRound.values())
+            ...Array.from(submissionPointsThisRound.values()),
           );
           r.submissions.forEach((submission) => {
             const submissionPoints =
@@ -1135,15 +1152,26 @@ export function calculatePlaybackStats(
 
   const scrappyWin = (() => {
     const scrappyWinBefore = league.rounds.completed.map((round) => {
-      const userPointsById = league.users.reduce((acc, user) => {
-        acc[user._id] = { points: 0, voters: 0, user, round };
-        return acc;
-      }, {} as Record<string, { points: number; voters: number; user: PopulatedUser; round: PopulatedRound }>);
+      const userPointsById = league.users.reduce(
+        (acc, user) => {
+          acc[user._id] = { points: 0, voters: 0, user, round };
+          return acc;
+        },
+        {} as Record<
+          string,
+          {
+            points: number;
+            voters: number;
+            user: PopulatedUser;
+            round: PopulatedRound;
+          }
+        >,
+      );
 
       round.votes.forEach((vote) => {
         if (vote.points) {
           const submission = round.submissions.find(
-            (s) => s._id === vote.submissionId
+            (s) => s._id === vote.submissionId,
           );
           if (!submission) {
             return;
@@ -1166,7 +1194,7 @@ export function calculatePlaybackStats(
         sortedData.map((data) => ({
           user: data.user,
           numbers: [data.points, data.voters],
-        }))
+        })),
       );
 
       return sortedData[0];
@@ -1184,7 +1212,7 @@ export function calculatePlaybackStats(
       scrappyWins.map((data) => ({
         user: data.user,
         numbers: [data.points, data.voters],
-      }))
+      })),
     );
 
     return scrappyWins[0];

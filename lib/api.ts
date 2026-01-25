@@ -1,7 +1,7 @@
-import type { GETReponse as GetTrackDetails } from "../app/api/spotify/track/[trackId]/route";
+import type { GETReponse as GetTrackDetails } from '../app/api/spotify/track/[trackId]/route';
 
 export async function getTrackDetails(
-  trackId: string
+  trackId: string,
 ): Promise<GetTrackDetails> {
   const response = await fetch(`/api/spotify/track/${trackId}`);
   if (!response.ok) {

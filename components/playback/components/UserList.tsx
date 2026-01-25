@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Avatar } from "@/components/Avatar";
-import { PopulatedUser } from "@/lib/types";
-import { Screen } from "./Screen";
-import { BlockQuote } from "@/components/BlockQuote";
+import { Avatar } from '@/components/Avatar';
+import { PopulatedUser } from '@/lib/types';
+import { Screen } from './Screen';
+import { BlockQuote } from '@/components/BlockQuote';
 
 interface UserListItem {
   user: PopulatedUser;
@@ -47,7 +47,7 @@ export function UserList({
                     style={{
                       animation: isActive
                         ? `slide-in-user 0.4s ease-out ${index * 80}ms both`
-                        : "none",
+                        : 'none',
                     }}
                   >
                     <div
@@ -56,7 +56,7 @@ export function UserList({
                           ? `avatar-pop 0.5s ease-out ${
                               index * 80 + 100
                             }ms both`
-                          : "none",
+                          : 'none',
                       }}
                     >
                       <Avatar user={item.user} size={16} includeLink={false} />
@@ -79,7 +79,7 @@ export function UserList({
                               }ms both, points-bounce 3.6s ease-in-out ${
                                 index * 80 + 3200
                               }ms infinite`
-                            : "none",
+                            : 'none',
                         }}
                       >
                         <div className="text-lg font-bold text-green-400 drop-shadow-md transition-all duration-300 text-shadow-lg">

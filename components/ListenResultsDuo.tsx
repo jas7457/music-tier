@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useAuth } from "@/lib/AuthContext";
-import { PopulatedLeague, PopulatedRound } from "@/lib/types";
-import { MaybeLink } from "./MaybeLink";
-import { useState } from "react";
-import { useToast } from "@/lib/ToastContext";
-import { createSpotifyPlaylist } from "@/lib/utils/createSpotifyPlaylist";
-import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
+import { useAuth } from '@/lib/AuthContext';
+import { PopulatedLeague, PopulatedRound } from '@/lib/types';
+import { MaybeLink } from './MaybeLink';
+import { useState } from 'react';
+import { useToast } from '@/lib/ToastContext';
+import { createSpotifyPlaylist } from '@/lib/utils/createSpotifyPlaylist';
+import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
 
 export function ListenResultsDuo({
   league,
@@ -55,11 +55,11 @@ export function ListenResultsDuo({
             } catch (err) {
               const message = unknownToErrorString(
                 err,
-                "Error creating playlist"
+                'Error creating playlist',
               );
               toast.show({
-                title: "Error creating playlist",
-                variant: "error",
+                title: 'Error creating playlist',
+                variant: 'error',
                 message,
               });
             } finally {
@@ -78,7 +78,7 @@ export function ListenResultsDuo({
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm0 2v12h16V6H4zm4 2c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm8 0c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zM8 10c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm8 0c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm-6 5h4v2h-4v-2z" />
           </svg>
           <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
-            {creatingPlaylist ? "Creating..." : "Create playlist"}
+            {creatingPlaylist ? 'Creating...' : 'Create playlist'}
           </span>
         </button>
       )}

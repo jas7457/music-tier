@@ -1,19 +1,22 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const query = searchParams.get("q");
+  const query = searchParams.get('q');
 
   if (!query) {
-    return NextResponse.json({ error: "Query parameter required" }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Query parameter required' },
+      { status: 400 },
+    );
   }
 
   // Get token from cookies (server-side)
   const cookieStore = request.cookies;
-  const accessToken = cookieStore.get("spotify_access_token")?.value;
+  const accessToken = cookieStore.get('spotify_access_token')?.value;
 
   if (!accessToken) {
-    return NextResponse.json({ error: "No access token" }, { status: 401 });
+    return NextResponse.json({ error: 'No access token' }, { status: 401 });
   }
 
   try {
@@ -23,13 +26,13 @@ export async function GET(request: NextRequest) {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: "Spotify API error" },
-        { status: response.status }
+        { error: 'Spotify API error' },
+        { status: response.status },
       );
     }
 
@@ -41,15 +44,15 @@ export async function GET(request: NextRequest) {
       title: track.name,
       artists: track.artists.map((artist: any) => artist.name),
       albumName: track.album.name,
-      albumImageUrl: track.album.images[0]?.url || "",
+      albumImageUrl: track.album.images[0]?.url || '',
     }));
 
     return NextResponse.json({ tracks });
   } catch (error) {
-    console.error("Error searching Spotify:", error);
+    console.error('Error searching Spotify:', error);
     return NextResponse.json(
-      { error: "Failed to search Spotify" },
-      { status: 500 }
+      { error: 'Failed to search Spotify' },
+      { status: 500 },
     );
   }
 }

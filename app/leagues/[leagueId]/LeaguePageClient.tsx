@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { League } from "@/components/League";
-import Card from "@/components/Card";
-import { PopulatedLeague, PopulatedUser } from "@/lib/types";
-import { useRealTimeUpdates } from "@/lib/PusherContext";
-import { Breadcrumb, HomeIcon, LeagueIcon } from "@/components/Breadcrumb";
+import { League } from '@/components/League';
+import Card from '@/components/Card';
+import { PopulatedLeague, PopulatedUser } from '@/lib/types';
+import { useRealTimeUpdates } from '@/lib/PusherContext';
+import { Breadcrumb, HomeIcon, LeagueIcon } from '@/components/Breadcrumb';
 
 type LeaguePageClientProps = {
   league: PopulatedLeague;
@@ -19,7 +19,7 @@ export function LeaguePageClient({ league, user }: LeaguePageClientProps) {
       <div className="max-w-4xl mx-auto">
         <Breadcrumb
           items={[
-            { label: "", icon: <HomeIcon />, href: "/" },
+            { label: '', icon: <HomeIcon />, href: '/' },
             { label: league.title, icon: <LeagueIcon /> },
           ]}
         />

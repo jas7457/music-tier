@@ -1,9 +1,9 @@
-import { formatDate, formatDateWithTime } from "@/lib/utils/formatDate";
-import { useState } from "react";
+import { formatDate, formatDateWithTime } from '@/lib/utils/formatDate';
+import { useState } from 'react';
 
 export function DateTime({
   children,
-  prefix = "",
+  prefix = '',
 }: {
   children: number;
   prefix?: string;
@@ -11,11 +11,11 @@ export function DateTime({
   const [shortVersion, setShortVersion] = useState(true);
   return (
     <span
-      title={formatDateWithTime(children, { second: "numeric" })}
+      title={formatDateWithTime(children, { second: 'numeric' })}
       onClick={() => setShortVersion((current) => !current)}
       className="select-none"
     >
-      {prefix ? `${prefix} ` : ""}
+      {prefix ? `${prefix} ` : ''}
       {shortVersion ? formatDate(children) : formatDateWithTime(children)}
     </span>
   );

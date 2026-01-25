@@ -1,4 +1,4 @@
-import { PopulatedTrackInfo } from "./types";
+import { PopulatedTrackInfo } from './types';
 
 export interface SpotifyTrack {
   id: string;
@@ -27,24 +27,24 @@ export interface SpotifyUserProfile {
   images?: Array<{ url: string; height: number; width: number }>;
 }
 
-const CLIENT_ID = process.env.CLIENT_ID || "3b4aa4f5d652435db1d08f41ea973c44";
-const CLIENT_SECRET = process.env.CLIENT_SECRET || "";
+const CLIENT_ID = process.env.CLIENT_ID || '3b4aa4f5d652435db1d08f41ea973c44';
+const CLIENT_SECRET = process.env.CLIENT_SECRET || '';
 const REDIRECT_URI =
-  process.env.NODE_ENV === "development"
-    ? "https://127.0.0.1:3000/callback"
-    : "https://music-tier.vercel.app/callback";
+  process.env.NODE_ENV === 'development'
+    ? 'https://127.0.0.1:3000/callback'
+    : 'https://music-tier.vercel.app/callback';
 
 export const generateRandomString = (length: number): string => {
   const possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const values = crypto.getRandomValues(new Uint8Array(length));
-  return values.reduce((acc, x) => acc + possible[x % possible.length], "");
+  return values.reduce((acc, x) => acc + possible[x % possible.length], '');
 };
 
 export const sha256 = async (plain: string): Promise<ArrayBuffer> => {
   const encoder = new TextEncoder();
   const data = encoder.encode(plain);
-  return window.crypto.subtle.digest("SHA-256", data);
+  return window.crypto.subtle.digest('SHA-256', data);
 };
 
 export const base64encode = (input: ArrayBuffer): string => {
@@ -53,35 +53,35 @@ export const base64encode = (input: ArrayBuffer): string => {
   for (let i = 0; i < uint8Array.length; i++) {
     chars.push(String.fromCharCode(uint8Array[i]));
   }
-  return btoa(chars.join(""))
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
+  return btoa(chars.join(''))
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
 };
 const codeVerifier = generateRandomString(64);
 
 export const initiateSpotifyAuth = async (): Promise<void> => {
   if (!CLIENT_ID) {
-    throw new Error("Spotify Client ID not configured");
+    throw new Error('Spotify Client ID not configured');
   }
 
   const scope = [
-    "user-read-private",
-    "user-read-email",
-    "playlist-read-private",
-    "playlist-read-collaborative",
-    "streaming",
-    "user-read-playback-state",
-    "user-modify-playback-state",
-    "playlist-modify-private",
-    "playlist-modify-public",
-  ].join(" ");
-  const authUrl = new URL("https://accounts.spotify.com/authorize");
+    'user-read-private',
+    'user-read-email',
+    'playlist-read-private',
+    'playlist-read-collaborative',
+    'streaming',
+    'user-read-playback-state',
+    'user-modify-playback-state',
+    'playlist-modify-private',
+    'playlist-modify-public',
+  ].join(' ');
+  const authUrl = new URL('https://accounts.spotify.com/authorize');
 
-  window.localStorage.setItem("code_verifier", codeVerifier);
+  window.localStorage.setItem('code_verifier', codeVerifier);
 
   const params = {
-    response_type: "code",
+    response_type: 'code',
     client_id: CLIENT_ID,
     scope,
     redirect_uri: REDIRECT_URI,
@@ -99,19 +99,19 @@ export interface SpotifyTokenResponse {
 }
 
 export async function callbackAuth(
-  code: string
+  code: string,
 ): Promise<SpotifyTokenResponse> {
-  const response = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
+  const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+      'Content-Type': 'application/x-www-form-urlencoded',
       Authorization:
-        "Basic " +
-        Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
+        'Basic ' +
+        Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'),
     },
     body: new URLSearchParams({
       client_id: CLIENT_ID,
-      grant_type: "authorization_code",
+      grant_type: 'authorization_code',
       code,
       redirect_uri: REDIRECT_URI,
       code_verifier: codeVerifier,
@@ -119,7 +119,7 @@ export async function callbackAuth(
   });
 
   if (!response.ok) {
-    throw new Error("Failed to exchange code for token");
+    throw new Error('Failed to exchange code for token');
   }
 
   const data = await response.json();
@@ -132,25 +132,25 @@ export async function callbackAuth(
 }
 
 export async function refreshAccessToken(
-  refreshToken: string
+  refreshToken: string,
 ): Promise<SpotifyTokenResponse> {
-  const response = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
+  const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+      'Content-Type': 'application/x-www-form-urlencoded',
       Authorization:
-        "Basic " +
-        Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
+        'Basic ' +
+        Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'),
     },
     body: new URLSearchParams({
-      grant_type: "refresh_token",
+      grant_type: 'refresh_token',
       refresh_token: refreshToken,
       client_id: CLIENT_ID,
     }),
   });
 
   if (!response.ok) {
-    throw new Error("Failed to refresh access token");
+    throw new Error('Failed to refresh access token');
   }
 
   const data = await response.json();
@@ -164,7 +164,7 @@ export async function refreshAccessToken(
 
 export const fetchPlaylist = async (
   playlistId: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<SpotifyPlaylistResponse> => {
   const response = await fetch(
     `https://api.spotify.com/v1/playlists/${playlistId}?fields=name,tracks.items(track(id,name,artists,album(name,images)))`,
@@ -172,7 +172,7 @@ export const fetchPlaylist = async (
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -183,9 +183,9 @@ export const fetchPlaylist = async (
 };
 
 export const getSpotifyUserProfile = async (
-  accessToken: string
+  accessToken: string,
 ): Promise<SpotifyUserProfile> => {
-  const response = await fetch("https://api.spotify.com/v1/me", {
+  const response = await fetch('https://api.spotify.com/v1/me', {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -199,7 +199,7 @@ export const getSpotifyUserProfile = async (
 };
 
 export async function getSpotifyDevices(accessToken: string) {
-  const response = await fetch("https://api.spotify.com/v1/me/player/devices", {
+  const response = await fetch('https://api.spotify.com/v1/me/player/devices', {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -246,14 +246,14 @@ export function extractTrackIdFromUrl(url: string): string | null {
 
 export function getTrackUrlFromId(trackId: string): string {
   if (!trackId) {
-    return "";
+    return '';
   }
   return `https://open.spotify.com/track/${trackId}`;
 }
 
 export const getTrackDetails = async (
   trackId: string,
-  accessToken: string
+  accessToken: string,
 ): Promise<PopulatedTrackInfo> => {
   const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
     headers: {
@@ -270,13 +270,13 @@ export const getTrackDetails = async (
 };
 
 export function spotifyTrackToSubmission(
-  track: SpotifyTrack
+  track: SpotifyTrack,
 ): PopulatedTrackInfo {
   return {
     trackId: track.id,
     title: track.name,
     artists: track.artists.map((artist) => artist.name),
     albumName: track.album.name,
-    albumImageUrl: track.album.images[0]?.url || "",
+    albumImageUrl: track.album.images[0]?.url || '',
   };
 }

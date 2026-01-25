@@ -1,8 +1,8 @@
-import type { ObjectId } from "mongodb";
+import type { ObjectId } from 'mongodb';
 
-import type { Notification } from "./lib/notifications";
+import type { Notification } from './lib/notifications';
 
-type NotificationCodes = Notification["code"];
+type NotificationCodes = Notification['code'];
 
 export type TrackInfo = {
   // a track id from spotify
@@ -24,7 +24,7 @@ export type User = {
   signupDate: number;
   photoUrl?: string;
   phoneNumber?: string;
-  phoneCarrier?: "verizon" | "att" | "tmobile";
+  phoneCarrier?: 'verizon' | 'att' | 'tmobile';
   phoneVerificationCode?: string;
   phoneVerified?: boolean;
   emailAddress?: string;
@@ -140,7 +140,7 @@ export type Vote = {
 /* "scheduledNotifications" collection */
 export type ScheduledNotification = {
   _id: ObjectId;
-  status: "pending" | "completed" | "failed" | "cancelled";
+  status: 'pending' | 'completed' | 'failed' | 'cancelled';
   leagueId: string;
   userIds: string[];
 
@@ -149,22 +149,22 @@ export type ScheduledNotification = {
   error?: string;
 } & (
   | {
-      type: "VOTING.REMINDER";
+      type: 'VOTING.REMINDER';
       data: {
         roundId: string;
         notification: {
-          code: "VOTING.REMINDER";
+          code: 'VOTING.REMINDER';
           title: string;
           message: string;
         };
       };
     }
   | {
-      type: "SUBMISSION.REMINDER";
+      type: 'SUBMISSION.REMINDER';
       data: {
         roundId: string;
         notification: {
-          code: "SUBMISSION.REMINDER";
+          code: 'SUBMISSION.REMINDER';
           title: string;
           message: string;
         };

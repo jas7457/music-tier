@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import AlbumArt from "./AlbumArt";
-import Card from "./Card";
-import { PopulatedRound, PopulatedUser } from "@/lib/types";
-import { Avatar } from "./Avatar";
-import { MultiLine } from "./MultiLine";
-import { useAuth } from "@/lib/AuthContext";
-import { BlockQuote } from "./BlockQuote";
-import { twMerge } from "tailwind-merge";
-import { getPlaces } from "@/lib/utils/getPlaces";
-import { GuessFeedback } from "./GuessFeedback";
-import { getYouTubeIdFromUrl, YouTubePlayer } from "./YouTubePlayer";
+import { useMemo } from 'react';
+import AlbumArt from './AlbumArt';
+import Card from './Card';
+import { PopulatedRound, PopulatedUser } from '@/lib/types';
+import { Avatar } from './Avatar';
+import { MultiLine } from './MultiLine';
+import { useAuth } from '@/lib/AuthContext';
+import { BlockQuote } from './BlockQuote';
+import { twMerge } from 'tailwind-merge';
+import { getPlaces } from '@/lib/utils/getPlaces';
+import { GuessFeedback } from './GuessFeedback';
+import { getYouTubeIdFromUrl, YouTubePlayer } from './YouTubePlayer';
 
 interface CompletedRoundProps {
   round: PopulatedRound;
@@ -21,21 +21,24 @@ interface CompletedRoundProps {
 export default function CompletedRound({ round, users }: CompletedRoundProps) {
   const { user } = useAuth();
   const usersById = useMemo(() => {
-    return users.reduce((acc, user, index) => {
-      acc[user._id] = { ...user, index };
-      return acc;
-    }, {} as Record<string, PopulatedUser>);
+    return users.reduce(
+      (acc, user, index) => {
+        acc[user._id] = { ...user, index };
+        return acc;
+      },
+      {} as Record<string, PopulatedUser>,
+    );
   }, [users]);
 
   // Calculate total points for each submission and get voters
   const submissionsWithScores = useMemo(() => {
     const results = round.submissions.map((submission) => {
       const submissionVotes = round.votes.filter(
-        (vote) => vote.submissionId === submission._id
+        (vote) => vote.submissionId === submission._id,
       );
       const totalPoints = submissionVotes.reduce(
         (sum, vote) => sum + vote.points,
-        0
+        0,
       );
       const voters = submissionVotes
         .map((vote) => ({
@@ -64,7 +67,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
         user: s.user,
         points: s.totalPoints,
         wins: 0,
-      }))
+      })),
     );
 
     return places.map(({ submission, totalPoints, voters }, index) => {
@@ -77,27 +80,27 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
 
         if (isFirst) {
           return {
-            emoji: "🥇",
-            cardClassName: "border-2 border-yellow-400 bg-yellow-50",
-            innerClassName: "border-yellow-400",
+            emoji: '🥇',
+            cardClassName: 'border-2 border-yellow-400 bg-yellow-50',
+            innerClassName: 'border-yellow-400',
           };
         } else if (isSecond) {
           return {
-            emoji: "🥈",
-            cardClassName: "border-2 border-gray-400 bg-gray-50",
-            innerClassName: "border-gray-400",
+            emoji: '🥈',
+            cardClassName: 'border-2 border-gray-400 bg-gray-50',
+            innerClassName: 'border-gray-400',
           };
         } else if (isThird) {
           return {
-            emoji: "🥉",
-            cardClassName: "border-2 border-[#cd7f32] bg-[#f9f2ec]",
-            innerClassName: "border-[#cd7f32]",
+            emoji: '🥉',
+            cardClassName: 'border-2 border-[#cd7f32] bg-[#f9f2ec]',
+            innerClassName: 'border-[#cd7f32]',
           };
         } else {
           return {
-            emoji: "",
-            cardClassName: "",
-            innerClassName: "",
+            emoji: '',
+            cardClassName: '',
+            innerClassName: '',
           };
         }
       })();
@@ -105,7 +108,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
       const submitter = usersById[submission.userId];
       const yourVote = round.votes.find(
         (vote) =>
-          vote.userId === user?._id && vote.submissionId === submission._id
+          vote.userId === user?._id && vote.submissionId === submission._id,
       );
 
       const votersWithPoints = voters.filter((voter) => voter.points > 0);
@@ -113,7 +116,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
       return (
         <Card
           key={submission._id}
-          className={twMerge("relative", cardClassName)}
+          className={twMerge('relative', cardClassName)}
         >
           {/* Submission Header */}
           <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[auto_1fr_auto] gap-4 p-4 sm:p-6">
@@ -133,7 +136,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
               </h5>
               <div>
                 <p className="text-base text-gray-700">
-                  {submission.trackInfo.artists.join(", ")}
+                  {submission.trackInfo.artists.join(', ')}
                 </p>
                 <p className="text-sm text-gray-600">
                   {submission.trackInfo.albumName}
@@ -166,8 +169,8 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                   {totalPoints} pts
                 </div>
                 <div className="text-sm text-gray-600">
-                  {votersWithPoints.length}{" "}
-                  {votersWithPoints.length === 1 ? "voter" : "voters"}
+                  {votersWithPoints.length}{' '}
+                  {votersWithPoints.length === 1 ? 'voter' : 'voters'}
                 </div>
               </div>
 
@@ -202,8 +205,8 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
           {submitter && emoji && (
             <div
               className={twMerge(
-                "absolute -top-4 -left-4 bg-white rounded-full border-2 text-3xl w-12 h-12 grid items-center justify-items-center",
-                innerClassName
+                'absolute -top-4 -left-4 bg-white rounded-full border-2 text-3xl w-12 h-12 grid items-center justify-items-center',
+                innerClassName,
               )}
             >
               {emoji}
@@ -263,7 +266,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                         (acc[guess.guessee._id] || 0) + 1;
                       return acc;
                     },
-                    {} as Record<string, number>
+                    {} as Record<string, number>,
                   );
 
                   const incorrectGuesses = submission.guesses

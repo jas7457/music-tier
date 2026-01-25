@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { PopulatedLeague, PopulatedUser } from "@/lib/types";
-import { CreateRound } from "./CreateRound";
-import { MaybeLink } from "./MaybeLink";
-import { Avatar } from "./Avatar";
-import { MultiLine } from "./MultiLine";
-import { Pill } from "./Pill";
-import { LeagueRounds } from "./LeagueRounds";
-import { LeagueStandings } from "./LeagueStandings";
-import { ToggleButton } from "./ToggleButton";
-import { getAllRounds } from "@/lib/utils/getAllRounds";
-import { DateTime } from "./DateTime";
-import { ConfirmUploadButton } from "./UploadThing";
-import { useToast } from "@/lib/ToastContext";
-import { HapticButton } from "./HapticButton";
-import { PlaylistPartyPlayback } from "./playback/PlaylistPartyPlayback";
-import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { PopulatedLeague, PopulatedUser } from '@/lib/types';
+import { CreateRound } from './CreateRound';
+import { MaybeLink } from './MaybeLink';
+import { Avatar } from './Avatar';
+import { MultiLine } from './MultiLine';
+import { Pill } from './Pill';
+import { LeagueRounds } from './LeagueRounds';
+import { LeagueStandings } from './LeagueStandings';
+import { ToggleButton } from './ToggleButton';
+import { getAllRounds } from '@/lib/utils/getAllRounds';
+import { DateTime } from './DateTime';
+import { ConfirmUploadButton } from './UploadThing';
+import { useToast } from '@/lib/ToastContext';
+import { HapticButton } from './HapticButton';
+import { PlaylistPartyPlayback } from './playback/PlaylistPartyPlayback';
+import { useSpotifyPlayer } from '@/lib/SpotifyPlayerContext';
 
 export function League({
   league,
@@ -28,11 +28,11 @@ export function League({
   const toast = useToast();
   const { playTrack } = useSpotifyPlayer();
   const [showStandings, setShowStandings] = useState(
-    league.status === "completed",
+    league.status === 'completed',
   );
   const [leagueImageUrl, setLeagueImageUrl] = useState(league.heroImageUrl);
   const [heroStage, setHeroState] = useState(
-    leagueImageUrl ? ("edit" as const) : ("add" as const),
+    leagueImageUrl ? ('edit' as const) : ('add' as const),
   );
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
   const [imageScale, setImageScale] = useState(1);
@@ -59,13 +59,13 @@ export function League({
       return;
     }
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         setIsImageFullScreen(false);
       }
     };
 
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [isImageFullScreen]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -196,16 +196,16 @@ export function League({
 
   const text = (() => {
     switch (league.status) {
-      case "active":
-        return "Active";
-      case "completed":
-        return "Completed";
-      case "upcoming":
-        return "Upcoming";
-      case "pending":
-        return "Pending";
+      case 'active':
+        return 'Active';
+      case 'completed':
+        return 'Completed';
+      case 'upcoming':
+        return 'Upcoming';
+      case 'pending':
+        return 'Pending';
       default:
-        return "Unexpected league status. If you see this, tell Jason";
+        return 'Unexpected league status. If you see this, tell Jason';
     }
   })();
 
@@ -214,7 +214,7 @@ export function League({
       return null;
     }
     switch (heroStage) {
-      case "add": {
+      case 'add': {
         return (
           <div className="absolute inset-0 flex justify-center items-center">
             <ConfirmUploadButton
@@ -228,8 +228,8 @@ export function League({
                   const response = await fetch(
                     `/api/leagues/${league._id}/hero-image`,
                     {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ heroImageUrl: url }),
                     },
                   );
@@ -237,24 +237,24 @@ export function League({
                   if (!response.ok) {
                     const error = await response.json();
                     throw new Error(
-                      error.error || "Failed to update hero image",
+                      error.error || 'Failed to update hero image',
                     );
                   }
 
                   setLeagueImageUrl(url);
-                  setHeroState("edit");
+                  setHeroState('edit');
                   toast.show({
-                    variant: "success",
-                    message: "Hero image updated successfully!",
+                    variant: 'success',
+                    message: 'Hero image updated successfully!',
                   });
                 } catch (error) {
-                  console.error("Error updating hero image:", error);
+                  console.error('Error updating hero image:', error);
                   toast.show({
-                    variant: "error",
+                    variant: 'error',
                     message:
                       error instanceof Error
                         ? error.message
-                        : "Failed to update hero image",
+                        : 'Failed to update hero image',
                   });
                   // Revert to original image on error
                   setLeagueImageUrl(league.heroImageUrl);
@@ -262,7 +262,7 @@ export function League({
               }}
               onUploadError={(error) => {
                 toast.show({
-                  variant: "error",
+                  variant: 'error',
                   message: `Image upload failed: ${error.message}`,
                 });
               }}
@@ -270,12 +270,12 @@ export function League({
           </div>
         );
       }
-      case "edit": {
+      case 'edit': {
         return (
           <div className="absolute inset-0 flex justify-end items-start p-4">
             <HapticButton
               className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
-              onClick={() => setHeroState("add")}
+              onClick={() => setHeroState('add')}
             >
               <svg
                 className="w-5 h-5 text-white"
@@ -334,8 +334,8 @@ export function League({
             onTouchEnd={handleTouchEnd}
             style={{
               transform: `scale(${imageScale}) translate(${imageTranslate.x}px, ${imageTranslate.y}px)`,
-              transition: imageScale === 1 ? "transform 0.3s ease-out" : "none",
-              touchAction: "none",
+              transition: imageScale === 1 ? 'transform 0.3s ease-out' : 'none',
+              touchAction: 'none',
             }}
           />
         </div>
@@ -361,7 +361,7 @@ export function League({
                 if (league.playback?.topSong) {
                   playTrack({
                     trackInfo: league.playback.topSong.trackInfo,
-                    round: "same",
+                    round: 'same',
                   });
                 }
                 setPlaybackOpen(true);
@@ -438,13 +438,13 @@ export function League({
         {/* League Details and Toggle */}
         <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-gray-300">
           <div className="flex flex-wrap gap-x-2 text-sm text-gray-500">
-            {league.status === "completed" && finalVoteTimestamp > 0 && (
+            {league.status === 'completed' && finalVoteTimestamp > 0 && (
               <>
                 <DateTime prefix="League ended:">{finalVoteTimestamp}</DateTime>
                 <span>•</span>
               </>
             )}
-            {league.status === "upcoming" && (
+            {league.status === 'upcoming' && (
               <>
                 <DateTime prefix="League starting:">
                   {league.leagueStartDate}

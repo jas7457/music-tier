@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Card from "./Card";
-import { useData } from "@/lib/DataContext";
-import { useToast } from "@/lib/ToastContext";
-import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
-import { HapticButton } from "./HapticButton";
+import { useState } from 'react';
+import Card from './Card';
+import { useData } from '@/lib/DataContext';
+import { useToast } from '@/lib/ToastContext';
+import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
+import { HapticButton } from './HapticButton';
 
 type CreateRoundProps = {
   leagueId: string;
@@ -19,8 +19,8 @@ export function CreateRound({
   isKickoffRound,
 }: CreateRoundProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { refreshData } = useData();
@@ -33,9 +33,9 @@ export function CreateRound({
 
     try {
       const response = await fetch(`/api/leagues/${leagueId}/rounds`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           title,
@@ -47,43 +47,43 @@ export function CreateRound({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to create round");
+        throw new Error(data.error || 'Failed to create round');
       }
 
       // Reset form and close
-      setTitle("");
-      setDescription("");
+      setTitle('');
+      setDescription('');
       setIsOpen(false);
     } catch (err) {
-      const message = unknownToErrorString(err, "Failed to create round");
+      const message = unknownToErrorString(err, 'Failed to create round');
       toast.show({
-        title: "Failed to create round",
+        title: 'Failed to create round',
         message,
-        variant: "error",
+        variant: 'error',
       });
       setError(message);
     } finally {
       setIsSubmitting(false);
-      refreshData("manual");
+      refreshData('manual');
     }
   };
 
   const { paragraphText, buttonText } = (() => {
     if (isBonusRound) {
       return {
-        paragraphText: "Congrats! You have a bonus round.",
-        buttonText: "Create Your Bonus Round",
+        paragraphText: 'Congrats! You have a bonus round.',
+        buttonText: 'Create Your Bonus Round',
       };
     }
     if (isKickoffRound) {
       return {
-        paragraphText: "Congrats! You have a kickoff round.",
-        buttonText: "Create Your Kickoff Round",
+        paragraphText: 'Congrats! You have a kickoff round.',
+        buttonText: 'Create Your Kickoff Round',
       };
     }
     return {
       paragraphText: "You haven't created your round yet.",
-      buttonText: "Create Your Round",
+      buttonText: 'Create Your Round',
     };
   })();
 
@@ -161,14 +161,14 @@ export function CreateRound({
             disabled={isSubmitting}
             className="flex-1 bg-primary-dark hover:bg-primary-darker text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Creating..." : "Create Round"}
+            {isSubmitting ? 'Creating...' : 'Create Round'}
           </HapticButton>
           <HapticButton
             type="button"
             onClick={() => {
               setIsOpen(false);
-              setTitle("");
-              setDescription("");
+              setTitle('');
+              setDescription('');
               setError(null);
             }}
             disabled={isSubmitting}

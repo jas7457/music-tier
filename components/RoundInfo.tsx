@@ -1,20 +1,20 @@
-import { PopulatedLeague, PopulatedRound } from "@/lib/types";
-import { DateTime } from "./DateTime";
-import { Fragment, useState } from "react";
-import { twMerge } from "tailwind-merge";
-import { MultiLine } from "./MultiLine";
-import { Avatar } from "./Avatar";
-import { getRoundTitle } from "@/lib/utils/getRoundTitle";
-import { MaybeLink } from "./MaybeLink";
-import { Pill } from "./Pill";
-import { HapticButton } from "./HapticButton";
+import { PopulatedLeague, PopulatedRound } from '@/lib/types';
+import { DateTime } from './DateTime';
+import { Fragment, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
+import { MultiLine } from './MultiLine';
+import { Avatar } from './Avatar';
+import { getRoundTitle } from '@/lib/utils/getRoundTitle';
+import { MaybeLink } from './MaybeLink';
+import { Pill } from './Pill';
+import { HapticButton } from './HapticButton';
 
-import spotifyLogo from "../app/images/spotify.svg";
-import { useToast } from "@/lib/ToastContext";
-import { createSpotifyPlaylist } from "@/lib/utils/createSpotifyPlaylist";
-import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
-import { assertNever } from "@/lib/utils/never";
-import { InlineGap } from "./InlineGap";
+import spotifyLogo from '../app/images/spotify.svg';
+import { useToast } from '@/lib/ToastContext';
+import { createSpotifyPlaylist } from '@/lib/utils/createSpotifyPlaylist';
+import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
+import { assertNever } from '@/lib/utils/never';
+import { InlineGap } from './InlineGap';
 
 export function RoundInfo({
   round,
@@ -35,29 +35,29 @@ export function RoundInfo({
   const now = Date.now();
   const stageTitle = (() => {
     switch (round.stage) {
-      case "completed": {
-        return "Completed";
+      case 'completed': {
+        return 'Completed';
       }
-      case "submission": {
+      case 'submission': {
         if (!round._id) {
-          return "Pending";
+          return 'Pending';
         }
-        return "Submission";
+        return 'Submission';
       }
-      case "voting": {
-        return "Voting";
+      case 'voting': {
+        return 'Voting';
       }
-      case "currentUserVotingCompleted": {
-        return "Votes Pending";
+      case 'currentUserVotingCompleted': {
+        return 'Votes Pending';
       }
-      case "upcoming": {
+      case 'upcoming': {
         if (round.isPending) {
-          return "Pending";
+          return 'Pending';
         }
-        return "Upcoming";
+        return 'Upcoming';
       }
-      case "unknown": {
-        return "Unknown";
+      case 'unknown': {
+        return 'Unknown';
       }
       default: {
         assertNever(round.stage);
@@ -68,14 +68,14 @@ export function RoundInfo({
   const spotifyMarkup = (() => {
     const isCorrectStage = (() => {
       switch (round.stage) {
-        case "completed":
-        case "voting":
-        case "currentUserVotingCompleted": {
+        case 'completed':
+        case 'voting':
+        case 'currentUserVotingCompleted': {
           return true;
         }
-        case "upcoming":
-        case "submission":
-        case "unknown": {
+        case 'upcoming':
+        case 'submission':
+        case 'unknown': {
           return false;
         }
         default: {
@@ -120,11 +120,11 @@ export function RoundInfo({
           } catch (err) {
             const message = unknownToErrorString(
               err,
-              "Error creating playlist",
+              'Error creating playlist',
             );
             toast.show({
-              title: "Error creating playlist",
-              variant: "error",
+              title: 'Error creating playlist',
+              variant: 'error',
               message,
             });
           } finally {
@@ -138,8 +138,8 @@ export function RoundInfo({
           width={20}
           title={
             round.spotifyPlaylistId
-              ? "Listen on Spotify"
-              : "Create Spotify Playlist"
+              ? 'Listen on Spotify'
+              : 'Create Spotify Playlist'
           }
         />
       </HapticButton>
@@ -151,22 +151,22 @@ export function RoundInfo({
 
     if (round.isBonusRound) {
       pills.push({
-        key: "bonus",
+        key: 'bonus',
         pill: <Pill status="info">Bonus Round</Pill>,
       });
     }
 
     if (round.isKickoffRound) {
       pills.push({
-        key: "kickoff",
+        key: 'kickoff',
         pill: <Pill status="info">Kickoff Round</Pill>,
       });
     }
 
     pills.push({
-      key: "normal",
+      key: 'normal',
       pill: (
-        <Pill status={round.isPending ? "pending" : round.stage}>
+        <Pill status={round.isPending ? 'pending' : round.stage}>
           {stageTitle}
         </Pill>
       ),
@@ -195,7 +195,7 @@ export function RoundInfo({
 
     if (now > round.submissionEndDate && !didAllUsersSubmit) {
       pills.push({
-        key: "submissions",
+        key: 'submissions',
         pill: <Pill status="error">Not all users submitted</Pill>,
       });
     }
@@ -205,7 +205,7 @@ export function RoundInfo({
       usersThatVoted.size < league.users.length
     ) {
       pills.push({
-        key: "votes",
+        key: 'votes',
         pill: <Pill status="error">Not all users voted</Pill>,
       });
     }
@@ -287,7 +287,7 @@ export function RoundInfo({
 
       <div
         className={twMerge(
-          "flex flex-wrap gap-x-2 text-xs text-gray-500",
+          'flex flex-wrap gap-x-2 text-xs text-gray-500',
           dateTimeClassName,
         )}
       >
@@ -301,7 +301,7 @@ export function RoundInfo({
         )}
         <DateTime
           prefix={`Submissions ${
-            now > round.submissionStartDate ? "started" : "start"
+            now > round.submissionStartDate ? 'started' : 'start'
           }:`}
         >
           {round.submissionStartDate}
@@ -309,14 +309,14 @@ export function RoundInfo({
         <span>•</span>
         <DateTime
           prefix={`Submissions ${
-            now > round.submissionEndDate ? "ended" : "end"
+            now > round.submissionEndDate ? 'ended' : 'end'
           }:`}
         >
           {round.submissionEndDate}
         </DateTime>
         <span>•</span>
         <DateTime
-          prefix={`Round ${now > round.votingEndDate ? "ended" : "ends"}:`}
+          prefix={`Round ${now > round.votingEndDate ? 'ended' : 'ends'}:`}
         >
           {round.votingEndDate}
         </DateTime>

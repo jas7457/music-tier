@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { Screen } from "../components/Screen";
-import type { PlaybackScreenProps } from "../types";
-import { NEON_COLORS } from "../constants";
-import { HorizontalCarousel } from "../components/HorizontalCarousel";
-import { UserStatScreen } from "./UserStatScreen";
+import { Screen } from '../components/Screen';
+import type { PlaybackScreenProps } from '../types';
+import { NEON_COLORS } from '../constants';
+import { HorizontalCarousel } from '../components/HorizontalCarousel';
+import { UserStatScreen } from './UserStatScreen';
 
 export function MostConsistentScreen({
   playback,
   isActive,
 }: PlaybackScreenProps) {
-  const background = { from: "#ec4899", via: "#f97316", to: "#a855f7" };
+  const background = { from: '#ec4899', via: '#f97316', to: '#a855f7' };
   if (!playback.mostConsistent || playback.mostConsistent.length === 0) {
     return (
       <Screen background={background}>
@@ -38,19 +38,19 @@ export function MostConsistentScreen({
                   <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-pink-400/30"
                     style={{
-                      animation: "pulse-ring 3s ease-in-out infinite",
+                      animation: 'pulse-ring 3s ease-in-out infinite',
                     }}
                   />
                   <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-orange-400/30"
                     style={{
-                      animation: "pulse-ring 3s ease-in-out 1s infinite",
+                      animation: 'pulse-ring 3s ease-in-out 1s infinite',
                     }}
                   />
                   <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-purple-400/30"
                     style={{
-                      animation: "pulse-ring 3s ease-in-out 2s infinite",
+                      animation: 'pulse-ring 3s ease-in-out 2s infinite',
                     }}
                   />
 
@@ -58,7 +58,7 @@ export function MostConsistentScreen({
                   <div
                     className="absolute top-[15%] left-[12%] text-4xl opacity-30"
                     style={{
-                      animation: "metronome-swing 2s ease-in-out infinite",
+                      animation: 'metronome-swing 2s ease-in-out infinite',
                     }}
                   >
                     ⏱️
@@ -66,7 +66,7 @@ export function MostConsistentScreen({
                   <div
                     className="absolute top-[20%] right-[15%] text-3xl opacity-25"
                     style={{
-                      animation: "metronome-swing 2s ease-in-out 0.5s infinite",
+                      animation: 'metronome-swing 2s ease-in-out 0.5s infinite',
                     }}
                   >
                     ⏱️
@@ -74,7 +74,7 @@ export function MostConsistentScreen({
                   <div
                     className="absolute bottom-[20%] left-[10%] text-5xl opacity-20"
                     style={{
-                      animation: "metronome-swing 2s ease-in-out 1s infinite",
+                      animation: 'metronome-swing 2s ease-in-out 1s infinite',
                     }}
                   >
                     ⏱️
@@ -84,7 +84,7 @@ export function MostConsistentScreen({
                   <div
                     className="absolute top-[35%] right-[8%] text-4xl opacity-25"
                     style={{
-                      animation: "check-bounce 2.5s ease-in-out infinite",
+                      animation: 'check-bounce 2.5s ease-in-out infinite',
                     }}
                   >
                     ✓
@@ -92,7 +92,7 @@ export function MostConsistentScreen({
                   <div
                     className="absolute bottom-[35%] left-[15%] text-3xl opacity-30"
                     style={{
-                      animation: "check-bounce 2.5s ease-in-out 1.2s infinite",
+                      animation: 'check-bounce 2.5s ease-in-out 1.2s infinite',
                     }}
                   >
                     ✓
@@ -100,7 +100,7 @@ export function MostConsistentScreen({
                   <div
                     className="absolute top-[55%] left-[8%] text-4xl opacity-20"
                     style={{
-                      animation: "check-bounce 2.5s ease-in-out 0.8s infinite",
+                      animation: 'check-bounce 2.5s ease-in-out 0.8s infinite',
                     }}
                   >
                     ✓
@@ -108,7 +108,7 @@ export function MostConsistentScreen({
                   <div
                     className="absolute bottom-[50%] right-[12%] text-3xl opacity-25"
                     style={{
-                      animation: "check-bounce 2.5s ease-in-out 1.8s infinite",
+                      animation: 'check-bounce 2.5s ease-in-out 1.8s infinite',
                     }}
                   >
                     ✓
@@ -118,13 +118,13 @@ export function MostConsistentScreen({
                   <div
                     className="absolute top-[25%] left-0 w-full h-0.5 bg-linear-to-r from-transparent via-pink-400/20 to-transparent"
                     style={{
-                      animation: "line-slide 4s ease-in-out infinite",
+                      animation: 'line-slide 4s ease-in-out infinite',
                     }}
                   />
                   <div
                     className="absolute top-[75%] left-0 w-full h-0.5 bg-linear-to-r from-transparent via-orange-400/20 to-transparent"
                     style={{
-                      animation: "line-slide 4s ease-in-out 2s infinite",
+                      animation: 'line-slide 4s ease-in-out 2s infinite',
                     }}
                   />
                 </div>
@@ -141,9 +141,9 @@ export function MostConsistentScreen({
                 stat={{
                   value: `± ${consistent.variance.toFixed(1)} variance`,
                   label: `Averaged ${consistent.avgPoints.toFixed(
-                    1
+                    1,
                   )} pts/round`,
-                  icon: "",
+                  icon: '',
                   songs: consistent.rounds.map((round) => ({
                     trackInfo: round.submission.trackInfo,
                     round: round.round,

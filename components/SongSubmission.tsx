@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useEffect, useRef } from "react";
-import AlbumArt from "./AlbumArt";
-import { PopulatedRound, PopulatedSubmission } from "@/lib/types";
-import { getTrackUrlFromId } from "@/lib/spotify";
-import { useAuth } from "@/lib/AuthContext";
-import { MultiLine } from "./MultiLine";
-import Card from "./Card";
-import { twMerge } from "tailwind-merge";
-import { useData } from "@/lib/DataContext";
-import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
-import { useToast } from "@/lib/ToastContext";
-import { HapticButton } from "./HapticButton";
-import { SpotifySongSearch } from "./SpotifySongSearch";
-import { OnDeckSubmissionsList } from "./OnDeckSubmissions";
-import { TrackInfo } from "@/databaseTypes";
-import { assertNever } from "@/lib/utils/never";
-import { getYouTubeIdFromUrl, YouTubePlayer } from "./YouTubePlayer";
-import { logError } from "@/lib/errorLogger";
+import { useState, useCallback, useEffect, useRef } from 'react';
+import AlbumArt from './AlbumArt';
+import { PopulatedRound, PopulatedSubmission } from '@/lib/types';
+import { getTrackUrlFromId } from '@/lib/spotify';
+import { useAuth } from '@/lib/AuthContext';
+import { MultiLine } from './MultiLine';
+import Card from './Card';
+import { twMerge } from 'tailwind-merge';
+import { useData } from '@/lib/DataContext';
+import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
+import { useToast } from '@/lib/ToastContext';
+import { HapticButton } from './HapticButton';
+import { SpotifySongSearch } from './SpotifySongSearch';
+import { OnDeckSubmissionsList } from './OnDeckSubmissions';
+import { TrackInfo } from '@/databaseTypes';
+import { assertNever } from '@/lib/utils/never';
+import { getYouTubeIdFromUrl, YouTubePlayer } from './YouTubePlayer';
+import { logError } from '@/lib/errorLogger';
 
 interface SongSubmissionProps {
   round: PopulatedRound;
@@ -35,7 +35,7 @@ export function SongSubmission({
   const [submission, _setSubmission] = useState(round.userSubmission ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [trackUrl, setTrackUrl] = useState(
-    submission ? getTrackUrlFromId(submission.trackInfo.trackId) : ""
+    submission ? getTrackUrlFromId(submission.trackInfo.trackId) : '',
   );
   const [error, _setError] = useState<string | null>(null);
   const setError: typeof _setError = useCallback((value) => {
@@ -46,8 +46,8 @@ export function SongSubmission({
     setTimeout(() => {
       if (errorRef.current) {
         errorRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
+          behavior: 'smooth',
+          block: 'center',
         });
       }
     }, 200);
@@ -55,8 +55,8 @@ export function SongSubmission({
 
   const errorRef = useRef<HTMLElement | null>(null);
   const [warningInfo, setWarningInfo] = useState<
-    | { code: "ARTIST_MATCH"; artist: string }
-    | { code: "TITLE_AND_ARTIST_MATCH"; trackInfo: TrackInfo }
+    | { code: 'ARTIST_MATCH'; artist: string }
+    | { code: 'TITLE_AND_ARTIST_MATCH'; trackInfo: TrackInfo }
     | null
   >(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -71,7 +71,7 @@ export function SongSubmission({
     setOnDeckSubmissions(round.onDeckSubmissions);
   }, [round.onDeckSubmissions]);
 
-  const isRealSubmission = submission ? submission._id !== "" : false;
+  const isRealSubmission = submission ? submission._id !== '' : false;
 
   const setSubmission = useCallback(
     (update: Partial<PopulatedSubmission>) => {
@@ -80,37 +80,37 @@ export function SongSubmission({
           return { ...prev, ...update };
         }
         return {
-          _id: "",
+          _id: '',
           roundId: round._id,
-          userId: user?._id || "",
+          userId: user?._id || '',
           submissionDate: Date.now(),
-          note: "",
+          note: '',
           userObject: user || undefined,
           guesses: null,
-          youtubeURL: "",
+          youtubeURL: '',
           trackInfo: {
-            trackId: "",
-            title: "",
+            trackId: '',
+            title: '',
             artists: [],
-            albumName: "",
-            albumImageUrl: "",
+            albumName: '',
+            albumImageUrl: '',
           },
           ...update,
         };
       });
     },
-    [round._id, user]
+    [round._id, user],
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!submission) {
-      setError("Please select a track to submit.");
-      logError(new Error("No submission data on submit"));
+      setError('Please select a track to submit.');
+      logError(new Error('No submission data on submit'));
       toast.show({
-        title: `Failed to ${isRealSubmission ? "update" : "submit"} song`,
-        variant: "error",
-        message: "No submission data available.",
+        title: `Failed to ${isRealSubmission ? 'update' : 'submit'} song`,
+        variant: 'error',
+        message: 'No submission data available.',
       });
       return;
     }
@@ -119,11 +119,11 @@ export function SongSubmission({
     setIsSubmitting(true);
 
     try {
-      const method = isRealSubmission ? "PUT" : "POST";
+      const method = isRealSubmission ? 'PUT' : 'POST';
       const response = await fetch(`/api/rounds/${round._id}/submissions`, {
         method,
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           trackInfo: submission.trackInfo,
@@ -138,23 +138,23 @@ export function SongSubmission({
       if (!response.ok) {
         setError(
           data.error ||
-            `Failed to ${isRealSubmission ? "update" : "submit"} song`
+            `Failed to ${isRealSubmission ? 'update' : 'submit'} song`,
         );
         setIsSubmitting(false);
         return;
       }
 
       if (data.success === false) {
-        if (data.code === "TITLE_AND_ARTIST_MATCH") {
+        if (data.code === 'TITLE_AND_ARTIST_MATCH') {
           setWarningInfo({
-            code: "TITLE_AND_ARTIST_MATCH",
+            code: 'TITLE_AND_ARTIST_MATCH',
             trackInfo: data.trackInfo,
           });
           setIsSubmitting(false);
           return;
         }
-        if (data.code === "ARTIST_MATCH") {
-          setWarningInfo({ code: "ARTIST_MATCH", artist: data.artist });
+        if (data.code === 'ARTIST_MATCH') {
+          setWarningInfo({ code: 'ARTIST_MATCH', artist: data.artist });
           setIsSubmitting(false);
           return;
         }
@@ -166,23 +166,23 @@ export function SongSubmission({
       logError(err);
       const message = unknownToErrorString(
         err,
-        `Failed to ${isRealSubmission ? "update" : "submit"} song`
+        `Failed to ${isRealSubmission ? 'update' : 'submit'} song`,
       );
       toast.show({
-        title: `Failed to ${isRealSubmission ? "update" : "submit"} song`,
-        variant: "error",
+        title: `Failed to ${isRealSubmission ? 'update' : 'submit'} song`,
+        variant: 'error',
         message,
       });
       setError(message);
       setIsSubmitting(false);
     } finally {
-      refreshData("manual");
+      refreshData('manual');
     }
   };
 
   const isRoundEnded = round.votingEndDate <= Date.now();
 
-  const fullClassName = twMerge("p-3", className);
+  const fullClassName = twMerge('p-3', className);
 
   if (submission && isRealSubmission && !isEditing) {
     return (
@@ -190,7 +190,7 @@ export function SongSubmission({
         variant="outlined"
         className={twMerge(
           fullClassName,
-          "bg-primary-lightest border-primary-light grid gap-3"
+          'bg-primary-lightest border-primary-light grid gap-3',
         )}
       >
         <div className="flex items-center justify-between">
@@ -219,7 +219,7 @@ export function SongSubmission({
               {submission.trackInfo.title}
             </p>
             <p className="text-xs text-gray-600">
-              {submission.trackInfo.artists.join(", ")}
+              {submission.trackInfo.artists.join(', ')}
             </p>
             {submission.note && (
               <p className="text-xs text-gray-500 mt-1 italic">
@@ -230,7 +230,7 @@ export function SongSubmission({
         </div>
 
         <YouTubePlayer
-          youtubeId={getYouTubeIdFromUrl(submission.youtubeURL || "")}
+          youtubeId={getYouTubeIdFromUrl(submission.youtubeURL || '')}
         />
         {isRoundEnded && (
           <p className="text-xs text-gray-500 mt-3 italic">
@@ -248,7 +248,7 @@ export function SongSubmission({
             onRowClick={(submission) => {
               setSubmission({ trackInfo: submission.trackInfo });
               setTrackUrl(
-                getTrackUrlFromId(submission.trackInfo.trackId) || ""
+                getTrackUrlFromId(submission.trackInfo.trackId) || '',
               );
             }}
           />
@@ -274,11 +274,11 @@ export function SongSubmission({
 
     const warningCode = warningInfo.code;
     switch (warningCode) {
-      case "ARTIST_MATCH": {
+      case 'ARTIST_MATCH': {
         return (
           <Card
             className={
-              "bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded text-sm mb-3"
+              'bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded text-sm mb-3'
             }
           >
             It looks like there was another submission with this artist already.
@@ -286,18 +286,18 @@ export function SongSubmission({
           </Card>
         );
       }
-      case "TITLE_AND_ARTIST_MATCH": {
+      case 'TITLE_AND_ARTIST_MATCH': {
         return (
           <Card
             className={
-              "bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded text-sm mb-3"
+              'bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded text-sm mb-3'
             }
           >
             It looks like there was another submission that was very similar to
-            yours. The song{" "}
+            yours. The song{' '}
             <span className="font-semibold">{`${
               warningInfo.trackInfo.title
-            } by ${warningInfo.trackInfo.artists.join(", ")}`}</span>{" "}
+            } by ${warningInfo.trackInfo.artists.join(', ')}`}</span>{' '}
             has already been submitted. You can still submit by clicking the
             button again.
           </Card>
@@ -316,7 +316,7 @@ export function SongSubmission({
 
     const youtubeId = getYouTubeIdFromUrl(submission.youtubeURL);
     if (!youtubeId) {
-      return { error: "Invalid YouTube URL", youtubeId: null };
+      return { error: 'Invalid YouTube URL', youtubeId: null };
     }
     return { error: null, youtubeId };
   })();
@@ -324,13 +324,13 @@ export function SongSubmission({
   return (
     <Card variant="outlined" className={fullClassName}>
       <h5 className="font-semibold text-sm mb-3 text-gray-700">
-        {isRealSubmission ? "Update Your Submission" : "Submit Your Song"}
+        {isRealSubmission ? 'Update Your Submission' : 'Submit Your Song'}
       </h5>
 
       {error && (
         <Card
           className={
-            "bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm mb-3"
+            'bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm mb-3'
           }
         >
           <span ref={errorRef}>{error}</span>
@@ -382,7 +382,7 @@ export function SongSubmission({
                   {submission.trackInfo.title}
                 </p>
                 <p className="text-xs text-gray-600 truncate">
-                  {submission.trackInfo.artists.join(", ")}
+                  {submission.trackInfo.artists.join(', ')}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
                   {submission.trackInfo.albumName}
@@ -401,7 +401,7 @@ export function SongSubmission({
           </label>
           <textarea
             id="note"
-            value={submission?.note || ""}
+            value={submission?.note || ''}
             onChange={(e) => setSubmission({ note: e.target.value })}
             placeholder="Why did you choose this song?"
             rows={2}
@@ -418,7 +418,7 @@ export function SongSubmission({
             <input
               type="text"
               autoComplete="off"
-              value={submission?.youtubeURL || ""}
+              value={submission?.youtubeURL || ''}
               onChange={(e) => {
                 setSubmission({ youtubeURL: e.target.value });
               }}
@@ -441,7 +441,7 @@ export function SongSubmission({
           onUpdate={setOnDeckSubmissions}
           onRowClick={(submission) => {
             setSubmission({ trackInfo: submission.trackInfo });
-            setTrackUrl(getTrackUrlFromId(submission.trackInfo.trackId) || "");
+            setTrackUrl(getTrackUrlFromId(submission.trackInfo.trackId) || '');
           }}
         />
 
@@ -455,11 +455,11 @@ export function SongSubmission({
           >
             {isSubmitting
               ? isRealSubmission
-                ? "Updating..."
-                : "Submitting..."
+                ? 'Updating...'
+                : 'Submitting...'
               : isRealSubmission
-              ? "Update Song"
-              : "Submit Song"}
+                ? 'Update Song'
+                : 'Submit Song'}
           </HapticButton>
           {isEditing && (
             <HapticButton

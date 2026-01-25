@@ -1,13 +1,13 @@
-import webpush from "web-push";
-import type { PushSubscription } from "@/databaseTypes";
+import webpush from 'web-push';
+import type { PushSubscription } from '@/databaseTypes';
 
 const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
 const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-const vapidSubject = process.env.VAPID_SUBJECT || "mailto:noreply@example.com";
+const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:noreply@example.com';
 
 if (!vapidPublicKey || !vapidPrivateKey) {
   console.warn(
-    "VAPID keys not configured. Web push notifications will not work."
+    'VAPID keys not configured. Web push notifications will not work.',
   );
 } else {
   webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
@@ -25,10 +25,10 @@ export type PushNotificationPayload = {
 
 export async function sendPushNotification(
   subscription: PushSubscription,
-  payload: PushNotificationPayload
+  payload: PushNotificationPayload,
 ): Promise<boolean> {
   if (!vapidPublicKey || !vapidPrivateKey) {
-    console.error("VAPID keys not configured");
+    console.error('VAPID keys not configured');
     return false;
   }
 
@@ -41,11 +41,11 @@ export async function sendPushNotification(
           auth: subscription.keys.auth,
         },
       },
-      JSON.stringify(payload)
+      JSON.stringify(payload),
     );
     return true;
   } catch (error) {
-    console.error("Error sending push notification:", error);
+    console.error('Error sending push notification:', error);
     // If subscription is invalid (410 Gone), we should remove it from the database
     // The caller should handle this
     return false;

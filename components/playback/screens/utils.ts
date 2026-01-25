@@ -20,8 +20,8 @@ export function formatTime(ms: number): string {
 }
 
 export function getPlaceText(place: number): string {
-  if (place === 1) return "1st";
-  if (place === 2) return "2nd";
-  if (place === 3) return "3rd";
+  if (place === 1) return '1st';
+  if (place === 2) return '2nd';
+  if (place === 3) return '3rd';
   return `${place}th`;
 }

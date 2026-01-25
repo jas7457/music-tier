@@ -1,4 +1,4 @@
-import { twMerge } from "tailwind-merge";
+import { twMerge } from 'tailwind-merge';
 
 export function Expandable({
   isExpanded,
@@ -12,12 +12,12 @@ export function Expandable({
   return (
     <div
       className={twMerge(
-        "overflow-hidden transition-[height] duration-300 ease-in-out",
-        isExpanded ? "h-auto" : "h-0"
+        'overflow-hidden transition-[height] duration-300 ease-in-out',
+        isExpanded ? 'h-auto' : 'h-0',
       )}
       style={{
         // @ts-ignore
-        interpolateSize: "allow-keywords",
+        interpolateSize: 'allow-keywords',
       }}
     >
       <div className={className}>{children}</div>

@@ -1,23 +1,23 @@
-import { PopulatedRound } from "../types";
+import { PopulatedRound } from '../types';
 
 export function getRoundTitle(
   round: Pick<
     PopulatedRound,
-    "isHidden" | "title" | "isPending" | "_id" | "roundIndex"
+    'isHidden' | 'title' | 'isPending' | '_id' | 'roundIndex'
   >,
-  includeRoundPrefix = true
+  includeRoundPrefix = true,
 ) {
   const roundTitle = (() => {
     if (round.isHidden) {
-      return "Hidden";
+      return 'Hidden';
     }
     if (round.title) {
       return round.title;
     }
     if (round.isPending && !round._id) {
-      return "Pending";
+      return 'Pending';
     }
-    return "Unknown Round";
+    return 'Unknown Round';
   })();
 
   if (includeRoundPrefix) {

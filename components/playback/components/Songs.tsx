@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { twMerge } from "tailwind-merge";
-import type { TrackInfo } from "@/databaseTypes";
-import type { PopulatedRound } from "@/lib/types";
-import AlbumArt from "@/components/AlbumArt";
-import { useMemo, useState } from "react";
-import { BlockQuote } from "@/components/BlockQuote";
+import { twMerge } from 'tailwind-merge';
+import type { TrackInfo } from '@/databaseTypes';
+import type { PopulatedRound } from '@/lib/types';
+import AlbumArt from '@/components/AlbumArt';
+import { useMemo, useState } from 'react';
+import { BlockQuote } from '@/components/BlockQuote';
 
 type Song = {
   trackInfo: TrackInfo;
@@ -34,23 +34,23 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
   const shimmerDelays = useState(() => songs.map(() => Math.random() * 4))[0];
 
   return (
-    <div className={twMerge("flex-1 w-full", className)}>
+    <div className={twMerge('flex-1 w-full', className)}>
       <div className="space-y-3">
         {songs.map((song, index) => (
           <div
             key={index}
             className={twMerge(
-              "bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 transition-all duration-700 transform hover:bg-white/20 hover:border-white/40 relative overflow-hidden",
+              'bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 transition-all duration-700 transform hover:bg-white/20 hover:border-white/40 relative overflow-hidden',
               isActive
-                ? "opacity-100 translate-x-0"
-                : "opacity-0 -translate-x-10",
-              song.className
+                ? 'opacity-100 translate-x-0'
+                : 'opacity-0 -translate-x-10',
+              song.className,
             )}
             style={{
-              transitionDelay: isActive ? `${index * delay}ms` : "0ms",
+              transitionDelay: isActive ? `${index * delay}ms` : '0ms',
               animation: isActive
                 ? `slide-in-bounce 0.6s ease-out ${index * delay}ms both`
-                : "none",
+                : 'none',
             }}
           >
             {/* Shimmer overlay */}
@@ -60,17 +60,17 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
                 style={{
                   animation: `shimmer 4s ease-in-out ${shimmerDelays[index]}s infinite`,
                   background:
-                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)",
-                  transform: "translateX(-100%)",
+                    'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%)',
+                  transform: 'translateX(-100%)',
                 }}
               />
             )}
             <div
               className={twMerge(
-                "grid items-center gap-3",
+                'grid items-center gap-3',
                 song.leftText
-                  ? "grid-cols-[auto_auto_1fr_auto]"
-                  : "grid-cols-[auto_1fr_auto]"
+                  ? 'grid-cols-[auto_auto_1fr_auto]'
+                  : 'grid-cols-[auto_1fr_auto]',
               )}
             >
               {song.leftText && <div className="text-2xl">{song.leftText}</div>}
@@ -86,7 +86,7 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
                   {song.trackInfo.title}
                 </p>
                 <p className="text-xs text-purple-200 truncate">
-                  {song.trackInfo.artists.join(", ")}
+                  {song.trackInfo.artists.join(', ')}
                 </p>
               </div>
               {song.rightText && (
@@ -95,7 +95,7 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
                   style={{
                     animation: isActive
                       ? `points-pop 0.4s ease-out ${index * delay + 300}ms both`
-                      : "none",
+                      : 'none',
                   }}
                 >
                   <div className="text-lg font-bold text-green-400 drop-shadow-lg">

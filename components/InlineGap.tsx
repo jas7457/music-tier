@@ -1,4 +1,4 @@
-import { Fragment, ReactNode } from "react";
+import { Fragment, ReactNode } from 'react';
 
 export function InlineGap({ children }: { children: Array<ReactNode> }) {
   return (

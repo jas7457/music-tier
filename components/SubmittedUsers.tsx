@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { UsersList } from "./UsersList";
-import { useMemo } from "react";
-import { PopulatedSubmission, PopulatedUser } from "@/lib/types";
-import { formatDateWithTime } from "@/lib/utils/formatDate";
+import { UsersList } from './UsersList';
+import { useMemo } from 'react';
+import { PopulatedSubmission, PopulatedUser } from '@/lib/types';
+import { formatDateWithTime } from '@/lib/utils/formatDate';
 
 interface SubmittedUsersProps {
   submissions: PopulatedSubmission[];
@@ -28,14 +28,14 @@ export function SubmittedUsers({
   return (
     <UsersList
       users={filteredUsers}
-      text={{ verb: "Submitted", noun: "submissions" }}
+      text={{ verb: 'Submitted', noun: 'submissions' }}
       tooltipText={(user) => {
         const submission = submissions.find((sub) => sub.userId === user._id);
         if (!submission) {
           return user.userName;
         }
         return `${user.userName} submitted on ${formatDateWithTime(
-          submission.submissionDate
+          submission.submissionDate,
         )}`;
       }}
     />
@@ -59,7 +59,7 @@ export function UnsubmittedUsers({
   return (
     <UsersList
       users={filteredUsers}
-      text={{ verb: "Not submitted", noun: "submissions" }}
+      text={{ verb: 'Not submitted', noun: 'submissions' }}
     />
   );
 }

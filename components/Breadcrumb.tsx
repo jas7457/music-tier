@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { ReactNode } from "react";
+import Link from 'next/link';
+import { ReactNode } from 'react';
 
 type BreadcrumbItem = {
   label: string;
@@ -50,7 +50,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
 // Icon components
 export const HomeIcon = ({
   size = 16,
-  className = "",
+  className = '',
 }: {
   size?: number;
   className?: string;
@@ -68,7 +68,7 @@ export const HomeIcon = ({
 
 export const LeagueIcon = ({
   size = 16,
-  className = "",
+  className = '',
 }: {
   size?: number;
   className?: string;
@@ -86,7 +86,7 @@ export const LeagueIcon = ({
 
 export const RoundIcon = ({
   size = 16,
-  className = "",
+  className = '',
 }: {
   size?: number;
   className?: string;

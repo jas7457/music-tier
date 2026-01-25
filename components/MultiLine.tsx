@@ -1,8 +1,8 @@
-import { Fragment, useMemo } from "react";
+import { Fragment, useMemo } from 'react';
 
 export function MultiLine({ children }: { children: string }) {
   const output = useMemo(() => {
-    const lines = children.split("\n");
+    const lines = children.split('\n');
     if (lines.length === 1) {
       return children;
     }
@@ -15,7 +15,7 @@ export function MultiLine({ children }: { children: string }) {
         return arr;
       })
       .map((node, index) => {
-        const key = typeof node === "string" ? `${node}.${index}` : index;
+        const key = typeof node === 'string' ? `${node}.${index}` : index;
         return <Fragment key={key}>{node}</Fragment>;
       });
   }, [children]);

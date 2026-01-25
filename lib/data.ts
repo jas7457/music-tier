@@ -1,4 +1,4 @@
-import { getCollection } from "@/lib/mongodb";
+import { getCollection } from '@/lib/mongodb';
 import {
   League,
   OnDeckSongSubmission,
@@ -6,9 +6,9 @@ import {
   SongSubmission,
   User,
   Vote,
-} from "@/databaseTypes";
-import { ObjectId } from "mongodb";
-import { ONE_DAY_MS } from "./utils/time";
+} from '@/databaseTypes';
+import { ObjectId } from 'mongodb';
+import { ONE_DAY_MS } from './utils/time';
 import {
   PopulatedLeague,
   PopulatedOnDeckSubmission,
@@ -17,12 +17,12 @@ import {
   PopulatedSubmission,
   PopulatedUser,
   PopulatedVote,
-} from "./types";
-import { verifySessionToken } from "./auth";
-import { seededShuffle } from "./utils/seededShuffle";
-import { UPCOMING_ROUNDS_TO_SHOW } from "./utils/constants";
-import { assertNever } from "./utils/never";
-import { calculatePlaybackStats } from "./playbackCalculations";
+} from './types';
+import { verifySessionToken } from './auth';
+import { seededShuffle } from './utils/seededShuffle';
+import { UPCOMING_ROUNDS_TO_SHOW } from './utils/constants';
+import { assertNever } from './utils/never';
+import { calculatePlaybackStats } from './playbackCalculations';
 
 const dbPromise = (async () => {
   const [
@@ -33,12 +33,12 @@ const dbPromise = (async () => {
     onDeckSubmissionsCollection,
     votesCollection,
   ] = await Promise.all([
-    getCollection<User>("users"),
-    getCollection<League>("leagues"),
-    getCollection<Round>("rounds"),
-    getCollection<SongSubmission>("songSubmissions"),
-    getCollection<OnDeckSongSubmission>("onDeckSongSubmissions"),
-    getCollection<Vote>("votes"),
+    getCollection<User>('users'),
+    getCollection<League>('leagues'),
+    getCollection<Round>('rounds'),
+    getCollection<SongSubmission>('songSubmissions'),
+    getCollection<OnDeckSongSubmission>('onDeckSongSubmissions'),
+    getCollection<Vote>('votes'),
   ]);
   return {
     usersCollection,
@@ -79,10 +79,10 @@ export async function getUserLeagues(
       return { ...league, _id: league._id.toString() };
     })
     .sort((leagueA, leagueB) => {
-      if (leagueA.title === "Test league") {
+      if (leagueA.title === 'Test league') {
         return 1;
       }
-      if (leagueB.title === "Test league") {
+      if (leagueB.title === 'Test league') {
         return -1;
       }
       const leagueAHasStarted = now >= leagueA.leagueStartDate;
@@ -212,29 +212,29 @@ export async function getUserLeagues(
         isKickoffRound: boolean;
       }): Omit<
         PopulatedRound,
-        | "isHidden"
-        | "submissionStartDate"
-        | "submissionEndDate"
-        | "votingStartDate"
-        | "votingEndDate"
-        | "previousRound"
-        | "nextRound"
+        | 'isHidden'
+        | 'submissionStartDate'
+        | 'submissionEndDate'
+        | 'votingStartDate'
+        | 'votingEndDate'
+        | 'previousRound'
+        | 'nextRound'
       > => {
         const inAWeek = now + 7 * ONE_DAY_MS;
 
         return {
-          _id: "",
+          _id: '',
           isPending: true,
           leagueId: league._id.toString(),
           creatorId: userId,
-          title: "",
-          description: "",
+          title: '',
+          description: '',
           submissions: [],
           onDeckSubmissions: [],
           votes: [],
           roundIndex,
           creatorObject: usersById[userId]?.user,
-          stage: "upcoming" as const,
+          stage: 'upcoming' as const,
           userSubmission: undefined,
           isBonusRound,
           isKickoffRound,
@@ -273,7 +273,7 @@ export async function getUserLeagues(
 
       const getAbnormalRounds = (
         userIds: string[],
-        roundType: "bonus" | "kickoff",
+        roundType: 'bonus' | 'kickoff',
       ): Array<(typeof populatedRounds)[number]> => {
         return userIds
           .map((userId, userIndex) => {
@@ -283,10 +283,10 @@ export async function getUserLeagues(
             }
             const populatedRound = populatedRounds.find((round) => {
               if (round.creatorId === userId) {
-                if (roundType === "bonus" && round.isBonusRound) {
+                if (roundType === 'bonus' && round.isBonusRound) {
                   return true;
                 }
-                if (roundType === "kickoff" && round.isKickoffRound) {
+                if (roundType === 'kickoff' && round.isKickoffRound) {
                   return true;
                 }
               }
@@ -299,8 +299,8 @@ export async function getUserLeagues(
             return createPendingRound({
               roundIndex: league.users.length + userIndex,
               userId,
-              isBonusRound: roundType === "bonus",
-              isKickoffRound: roundType === "kickoff",
+              isBonusRound: roundType === 'bonus',
+              isKickoffRound: roundType === 'kickoff',
             });
           })
           .filter((round) => round !== undefined);
@@ -308,13 +308,13 @@ export async function getUserLeagues(
 
       const kickoffRounds = getAbnormalRounds(
         league.kickoffRoundUserIds,
-        "kickoff",
+        'kickoff',
       );
-      const bonusRounds = getAbnormalRounds(league.bonusRoundUserIds, "bonus");
+      const bonusRounds = getAbnormalRounds(league.bonusRoundUserIds, 'bonus');
 
       let currentOrUpcomingRoundsCount = 0;
       const roundsWithMostData: Array<
-        Omit<PopulatedRound, "previousRound" | "nextRound">
+        Omit<PopulatedRound, 'previousRound' | 'nextRound'>
       > = [...kickoffRounds, ...normalUserRounds, ...bonusRounds].map(
         (round, roundIndex) => {
           const userSubmission = round.submissions.find(
@@ -413,7 +413,7 @@ export async function getUserLeagues(
 
           const populatedRound: Omit<
             PopulatedRound,
-            "stage" | "isHidden" | "previousRound" | "nextRound"
+            'stage' | 'isHidden' | 'previousRound' | 'nextRound'
           > = {
             ...round,
             _id: round._id.toString(),
@@ -433,7 +433,7 @@ export async function getUserLeagues(
             now,
           });
 
-          if (roundStage !== "completed") {
+          if (roundStage !== 'completed') {
             currentOrUpcomingRoundsCount += 1;
           }
 
@@ -442,14 +442,14 @@ export async function getUserLeagues(
               return false;
             }
             switch (roundStage) {
-              case "completed":
-              case "submission":
-              case "unknown":
-              case "voting":
-              case "currentUserVotingCompleted": {
+              case 'completed':
+              case 'submission':
+              case 'unknown':
+              case 'voting':
+              case 'currentUserVotingCompleted': {
                 return false;
               }
-              case "upcoming": {
+              case 'upcoming': {
                 if (populatedRound.isPending) {
                   return false;
                 }
@@ -467,7 +467,7 @@ export async function getUserLeagues(
 
           const submissionsSorted = (() => {
             switch (roundStage) {
-              case "completed": {
+              case 'completed': {
                 // Return in original order for completed rounds
                 return populatedRound.submissions.filter((submission) => {
                   return usersThatVoted.has(submission.userId);
@@ -569,19 +569,19 @@ export async function getUserLeagues(
 
       const status = (() => {
         if (roundsObject.completed.length === numberOfRounds) {
-          return "completed" as const;
+          return 'completed' as const;
         }
 
         const hasStarted = now >= league.leagueStartDate;
         if (!hasStarted) {
-          return "upcoming" as const;
+          return 'upcoming' as const;
         }
 
         if (roundsObject.current) {
-          return "active" as const;
+          return 'active' as const;
         }
 
-        return "unknown" as const;
+        return 'unknown' as const;
       })();
 
       const populatedLeague = {
@@ -594,7 +594,7 @@ export async function getUserLeagues(
 
       // Calculate playback stats only for completed leagues
       const playback =
-        populatedLeague.status === "completed"
+        populatedLeague.status === 'completed'
           ? calculatePlaybackStats(populatedLeague, userId)
           : null;
 
@@ -619,7 +619,7 @@ export async function getUser(
     return null;
   }
 
-  if (leagueId === "any") {
+  if (leagueId === 'any') {
     return {
       ...user,
       canCreateBonusRound: false,
@@ -650,13 +650,13 @@ function getRoundStage({
   currentUserId: string;
   round: Omit<
     PopulatedRound,
-    "stage" | "roundIndex" | "isHidden" | "previousRound" | "nextRound"
+    'stage' | 'roundIndex' | 'isHidden' | 'previousRound' | 'nextRound'
   >;
-  league: Pick<PopulatedLeague, "votesPerRound"> & { users: unknown[] };
+  league: Pick<PopulatedLeague, 'votesPerRound'> & { users: unknown[] };
   now: number;
 }): PopulatedRoundStage {
   if (now >= round.votingEndDate) {
-    return "completed";
+    return 'completed';
   }
 
   if (now >= round.votingStartDate) {
@@ -665,23 +665,23 @@ function getRoundStage({
       .reduce((sum, v) => sum + v.points, 0);
 
     if (yourVotedPoints >= league.votesPerRound) {
-      return "currentUserVotingCompleted";
+      return 'currentUserVotingCompleted';
     }
-    return "voting";
+    return 'voting';
   }
 
   if (now > round.submissionEndDate) {
-    return "unknown";
+    return 'unknown';
   }
 
   if (now >= round.submissionStartDate) {
-    return "submission";
+    return 'submission';
   }
 
   if (now < round.submissionStartDate) {
-    return "upcoming";
+    return 'upcoming';
   }
-  return "unknown";
+  return 'unknown';
 }
 
 export async function getLeagueById(
@@ -689,15 +689,15 @@ export async function getLeagueById(
   userId: string,
 ): Promise<PopulatedLeague | undefined> {
   const leagues = await getUserLeagues(userId);
-  if (leagueId === "current") {
-    const current = leagues.find((league) => league.status === "active");
+  if (leagueId === 'current') {
+    const current = leagues.find((league) => league.status === 'active');
     if (current) {
       return current;
     }
 
     const now = Date.now();
     const other = leagues
-      .filter((league) => league.status !== "active")
+      .filter((league) => league.status !== 'active')
       .sort((leagueA, leagueB) => {
         const distanceFromA = Math.abs(now - leagueA.leagueStartDate);
         const distanceFromB = Math.abs(now - leagueB.leagueStartDate);
@@ -719,8 +719,8 @@ export async function getUserByCookies(leagueId: string) {
 
     // Fetch the full user from the database
     const [usersCollection, leaguesCollection] = await Promise.all([
-      getCollection<User>("users"),
-      getCollection<League>("leagues"),
+      getCollection<User>('users'),
+      getCollection<League>('leagues'),
     ]);
     const [user, league] = await Promise.all([
       usersCollection.findOne({
@@ -745,7 +745,7 @@ export async function getUserByCookies(leagueId: string) {
 
     return userResponse;
   } catch (error) {
-    console.error("Error fetching session:", error);
+    console.error('Error fetching session:', error);
     return null;
   }
 }
@@ -754,17 +754,17 @@ function getStartOfDay(date: number): number {
   const d = new Date(date);
 
   // Get the year, month, day in Eastern time for this timestamp
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
   });
 
   const parts = formatter.formatToParts(d);
-  const year = parts.find((p) => p.type === "year")!.value;
-  const month = parts.find((p) => p.type === "month")!.value;
-  const day = parts.find((p) => p.type === "day")!.value;
+  const year = parts.find((p) => p.type === 'year')!.value;
+  const month = parts.find((p) => p.type === 'month')!.value;
+  const day = parts.find((p) => p.type === 'day')!.value;
 
   return new Date(`${year}-${month}-${day}T00:00:00-05:00`).getTime();
 }

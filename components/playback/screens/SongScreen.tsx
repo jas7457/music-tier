@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { twMerge } from "tailwind-merge";
-import type { TrackInfo } from "@/databaseTypes";
-import type { PopulatedRound, PopulatedUser } from "@/lib/types";
-import { DataText } from "@/components/DataText";
-import { useEffect, useRef } from "react";
-import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
-import { StatBounce } from "../components/Animations";
-import { ThreeDSong } from "../components/3DSong";
-import { Screen } from "../components/Screen";
-import { DualScreen } from "../components/DualScreen";
-import { UserList } from "../components/UserList";
+import { twMerge } from 'tailwind-merge';
+import type { TrackInfo } from '@/databaseTypes';
+import type { PopulatedRound, PopulatedUser } from '@/lib/types';
+import { DataText } from '@/components/DataText';
+import { useEffect, useRef } from 'react';
+import { useSpotifyPlayer } from '@/lib/SpotifyPlayerContext';
+import { StatBounce } from '../components/Animations';
+import { ThreeDSong } from '../components/3DSong';
+import { Screen } from '../components/Screen';
+import { DualScreen } from '../components/DualScreen';
+import { UserList } from '../components/UserList';
 
 interface SongScreenProps {
   isActive: boolean;
@@ -85,10 +85,10 @@ export function SongScreen({
         <div className="flex flex-col items-center justify-center text-white gap-8 w-full h-full relative px-8 py-10">
           <div
             className={twMerge(
-              "transition-all duration-700 transform z-10",
+              'transition-all duration-700 transform z-10',
               isActive
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 -translate-y-10"
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 -translate-y-10',
             )}
           >
             <h2 className="text-center font-bold">{title}</h2>
@@ -97,10 +97,10 @@ export function SongScreen({
 
           <div
             className={twMerge(
-              "transition-all duration-700 delay-200 transform",
+              'transition-all duration-700 delay-200 transform',
               isActive
-                ? "opacity-100 scale-100 rotate-0"
-                : "opacity-0 scale-75 rotate-12"
+                ? 'opacity-100 scale-100 rotate-0'
+                : 'opacity-0 scale-75 rotate-12',
             )}
           >
             <ThreeDSong
@@ -115,17 +115,17 @@ export function SongScreen({
 
           <div
             className={twMerge(
-              "text-center transition-all duration-700 delay-400 transform",
+              'text-center transition-all duration-700 delay-400 transform',
               isActive
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-10',
             )}
           >
             <p className="text-3xl md:text-5xl font-bold mb-1">
               {trackInfo.title}
             </p>
             <p className="text-xl md:text-2xl text-purple-200 mb-6">
-              {trackInfo.artists.join(", ")}
+              {trackInfo.artists.join(', ')}
             </p>
             {submittedBy && (
               <p className="text-lg md:text-xl text-purple-300 mb-4">

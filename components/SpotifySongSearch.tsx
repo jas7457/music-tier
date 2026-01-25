@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState, useRef, useEffect } from "react";
-import { extractTrackIdFromUrl } from "@/lib/spotify";
-import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
-import { useToast } from "@/lib/ToastContext";
-import { getTrackDetails } from "@/lib/api";
-import { TrackInfo } from "@/databaseTypes";
+import { useState, useRef, useEffect } from 'react';
+import { extractTrackIdFromUrl } from '@/lib/spotify';
+import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
+import { useToast } from '@/lib/ToastContext';
+import { getTrackDetails } from '@/lib/api';
+import { TrackInfo } from '@/databaseTypes';
 
 interface SpotifySongSearchProps {
   value: string;
@@ -45,21 +45,21 @@ export function SpotifySongSearch({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `/api/spotify/search?q=${encodeURIComponent(query)}`
+        `/api/spotify/search?q=${encodeURIComponent(query)}`,
       );
 
       if (!response.ok) {
-        throw new Error("Failed to search tracks");
+        throw new Error('Failed to search tracks');
       }
 
       const data = await response.json();
       setSearchResults(data.tracks || []);
       setShowSearchResults(true);
     } catch (err) {
-      const message = unknownToErrorString(err, "Error searching tracks");
+      const message = unknownToErrorString(err, 'Error searching tracks');
       toast.show({
-        title: "Error searching tracks",
-        variant: "error",
+        title: 'Error searching tracks',
+        variant: 'error',
         message,
       });
       setSearchResults([]);
@@ -83,9 +83,9 @@ export function SpotifySongSearch({
   const fetchTrackPreview = async (trackId: string | null) => {
     if (!trackId) {
       toast.show({
-        title: "Invalid Spotify track URL",
-        variant: "error",
-        message: "Please provide a valid Spotify track URL",
+        title: 'Invalid Spotify track URL',
+        variant: 'error',
+        message: 'Please provide a valid Spotify track URL',
       });
       return;
     }
@@ -106,16 +106,16 @@ export function SpotifySongSearch({
         onTrackFetched(trackData.track, trackUrl);
       } else {
         toast.show({
-          title: "Track not found",
-          variant: "error",
-          message: trackData.error || "Could not find track",
+          title: 'Track not found',
+          variant: 'error',
+          message: trackData.error || 'Could not find track',
         });
       }
     } catch (err) {
-      const message = unknownToErrorString(err, "Error fetching track preview");
+      const message = unknownToErrorString(err, 'Error fetching track preview');
       toast.show({
-        title: "Error fetching track preview",
-        variant: "error",
+        title: 'Error fetching track preview',
+        variant: 'error',
         message,
       });
     } finally {
@@ -150,7 +150,7 @@ export function SpotifySongSearch({
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const pastedValue = e.clipboardData.getData("text");
+    const pastedValue = e.clipboardData.getData('text');
     const trackId = extractTrackIdFromUrl(pastedValue);
     if (trackId) {
       // It's a URL, fetch preview immediately (no debounce on paste)
@@ -228,7 +228,7 @@ export function SpotifySongSearch({
                     {result.title}
                   </p>
                   <p className="text-xs text-gray-600 truncate">
-                    {result.artists.join(", ")}
+                    {result.artists.join(', ')}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
                     {result.albumName}

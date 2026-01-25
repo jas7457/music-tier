@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { Round } from "@/components/Round";
-import Card from "@/components/Card";
-import { PopulatedRound, PopulatedUser, PopulatedLeague } from "@/lib/types";
-import { useRealTimeUpdates } from "@/lib/PusherContext";
+import { Round } from '@/components/Round';
+import Card from '@/components/Card';
+import { PopulatedRound, PopulatedUser, PopulatedLeague } from '@/lib/types';
+import { useRealTimeUpdates } from '@/lib/PusherContext';
 import {
   Breadcrumb,
   HomeIcon,
   LeagueIcon,
   RoundIcon,
-} from "@/components/Breadcrumb";
-import { getRoundTitle } from "@/lib/utils/getRoundTitle";
+} from '@/components/Breadcrumb';
+import { getRoundTitle } from '@/lib/utils/getRoundTitle';
 
 type RoundPageClientProps = {
   round: PopulatedRound;
@@ -30,7 +30,7 @@ export function RoundPageClient({
       <div className="max-w-4xl mx-auto">
         <Breadcrumb
           items={[
-            { label: "", icon: <HomeIcon />, href: "/" },
+            { label: '', icon: <HomeIcon />, href: '/' },
             {
               label: league.title,
               icon: <LeagueIcon />,

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useMemo } from "react";
-import { PopulatedUser } from "./types";
+import React, { createContext, useContext, useMemo } from 'react';
+import { PopulatedUser } from './types';
 
 interface AuthContextType {
   user: PopulatedUser | null;
@@ -22,10 +22,10 @@ export function AuthProvider({
       user: initialUser,
       logout: async () => {
         try {
-          await fetch("/api/auth/logout", { method: "POST" });
-          window.location.href = "/";
+          await fetch('/api/auth/logout', { method: 'POST' });
+          window.location.href = '/';
         } catch (error) {
-          console.error("Error logging out:", error);
+          console.error('Error logging out:', error);
         }
       },
     };
@@ -39,7 +39,7 @@ export function AuthProvider({
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }

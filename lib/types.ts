@@ -6,9 +6,9 @@ import type {
   User,
   Vote,
   TrackInfo,
-} from "../databaseTypes";
+} from '../databaseTypes';
 
-type WithStringId<T> = Omit<T, "_id"> & { _id: string };
+type WithStringId<T> = Omit<T, '_id'> & { _id: string };
 
 export type PopulatedUser = WithStringId<User> & {
   index: number;
@@ -27,22 +27,22 @@ export type PopulatedVote = WithStringId<Vote> & {
   userObject: PopulatedUser;
   userGuessObject: PopulatedUser | undefined;
 };
-export type PopulatedTrackInfo = PopulatedSubmission["trackInfo"];
+export type PopulatedTrackInfo = PopulatedSubmission['trackInfo'];
 
 export type PopulatedRoundStage =
-  | "upcoming"
-  | "completed"
-  | "voting"
-  | "currentUserVotingCompleted"
-  | "submission"
-  | "unknown";
+  | 'upcoming'
+  | 'completed'
+  | 'voting'
+  | 'currentUserVotingCompleted'
+  | 'submission'
+  | 'unknown';
 
 export type PopulatedRound = Omit<
   WithStringId<Round>,
-  | "submissionStartDate"
-  | "submissionEndDate"
-  | "votingStartDate"
-  | "votingEndDate"
+  | 'submissionStartDate'
+  | 'submissionEndDate'
+  | 'votingStartDate'
+  | 'votingEndDate'
 > & {
   roundIndex: number;
   submissionStartDate: number;
@@ -61,11 +61,11 @@ export type PopulatedRound = Omit<
 
   previousRound: Pick<
     PopulatedRound,
-    "_id" | "title" | "isHidden" | "isPending" | "roundIndex"
+    '_id' | 'title' | 'isHidden' | 'isPending' | 'roundIndex'
   > | null;
   nextRound: Pick<
     PopulatedRound,
-    "_id" | "title" | "isHidden" | "isPending" | "roundIndex"
+    '_id' | 'title' | 'isHidden' | 'isPending' | 'roundIndex'
   > | null;
 };
 
@@ -272,8 +272,8 @@ export interface LeaguePlaybackStats {
   }>;
 }
 
-export type PopulatedLeague = WithStringId<Omit<League, "users">> & {
-  status: "active" | "completed" | "upcoming" | "pending" | "unknown";
+export type PopulatedLeague = WithStringId<Omit<League, 'users'>> & {
+  status: 'active' | 'completed' | 'upcoming' | 'pending' | 'unknown';
   numberOfRounds: number;
   users: PopulatedUser[];
   rounds: {

@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { Screen } from "../components/Screen";
-import { NEON_COLORS } from "../constants";
-import type { PlaybackScreenProps } from "../types";
-import { HorizontalCarousel } from "../components/HorizontalCarousel";
-import { UserStatScreen } from "./UserStatScreen";
-import { Avatar } from "@/components/Avatar";
+import { Screen } from '../components/Screen';
+import { NEON_COLORS } from '../constants';
+import type { PlaybackScreenProps } from '../types';
+import { HorizontalCarousel } from '../components/HorizontalCarousel';
+import { UserStatScreen } from './UserStatScreen';
+import { Avatar } from '@/components/Avatar';
 
 export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
   const stat = playback.bestGuessers;
-  const background = { from: "#10b981", via: "#ef4444", to: "#f97316" };
+  const background = { from: '#10b981', via: '#ef4444', to: '#f97316' };
 
   if (stat.length === 0) {
     return (
@@ -38,19 +38,19 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                   <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-4 border-green-400/20 z-10"
                     style={{
-                      animation: "target-pulse 3s ease-in-out infinite",
+                      animation: 'target-pulse 3s ease-in-out infinite',
                     }}
                   />
                   <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-4 border-red-400/20 z-10"
                     style={{
-                      animation: "target-pulse 3s ease-in-out 1s infinite",
+                      animation: 'target-pulse 3s ease-in-out 1s infinite',
                     }}
                   />
                   <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-4 border-orange-400/20 z-10"
                     style={{
-                      animation: "target-pulse 3s ease-in-out 2s infinite",
+                      animation: 'target-pulse 3s ease-in-out 2s infinite',
                     }}
                   />
 
@@ -58,7 +58,7 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                   <div
                     className="absolute top-[12%] left-[18%] text-4xl opacity-30 z-10"
                     style={{
-                      animation: "dart-fly 4s ease-in-out infinite",
+                      animation: 'dart-fly 4s ease-in-out infinite',
                     }}
                   >
                     🎯
@@ -66,7 +66,7 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                   <div
                     className="absolute top-[25%] right-[20%] text-3xl opacity-25 z-10"
                     style={{
-                      animation: "dart-fly 4s ease-in-out 1s infinite",
+                      animation: 'dart-fly 4s ease-in-out 1s infinite',
                     }}
                   >
                     🎯
@@ -74,7 +74,7 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                   <div
                     className="absolute bottom-[28%] left-[15%] text-5xl opacity-20 z-10"
                     style={{
-                      animation: "dart-fly 4s ease-in-out 2s infinite",
+                      animation: 'dart-fly 4s ease-in-out 2s infinite',
                     }}
                   >
                     🎯
@@ -82,7 +82,7 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                   <div
                     className="absolute bottom-[15%] right-[12%] text-4xl opacity-25 z-10"
                     style={{
-                      animation: "dart-fly 4s ease-in-out 3s infinite",
+                      animation: 'dart-fly 4s ease-in-out 3s infinite',
                     }}
                   >
                     🎯
@@ -92,7 +92,7 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                   <div
                     className="absolute top-[40%] right-[10%] text-3xl opacity-30 z-10"
                     style={{
-                      animation: "crosshair-spin 5s linear infinite",
+                      animation: 'crosshair-spin 5s linear infinite',
                     }}
                   >
                     ⊕
@@ -100,7 +100,7 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                   <div
                     className="absolute top-[60%] left-[8%] text-4xl opacity-25 z-10"
                     style={{
-                      animation: "crosshair-spin 5s linear 2.5s infinite",
+                      animation: 'crosshair-spin 5s linear 2.5s infinite',
                     }}
                   >
                     ⊕
@@ -110,15 +110,15 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                   <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-32 bg-linear-to-b from-transparent via-green-400/20 to-transparent z-10"
                     style={{
-                      animation: "radial-sweep 4s ease-in-out infinite",
-                      transformOrigin: "center center",
+                      animation: 'radial-sweep 4s ease-in-out infinite',
+                      transformOrigin: 'center center',
                     }}
                   />
                   <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-px bg-linear-to-r from-transparent via-red-400/20 to-transparent z-10"
                     style={{
-                      animation: "radial-sweep 4s ease-in-out 2s infinite",
-                      transformOrigin: "center center",
+                      animation: 'radial-sweep 4s ease-in-out 2s infinite',
+                      transformOrigin: 'center center',
                     }}
                   />
                 </div>
@@ -130,13 +130,13 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                   isActive={isItemActive}
                   kicker={
                     isGoodGuesser
-                      ? "Are you a psychic?"
-                      : "Better luck next time"
+                      ? 'Are you a psychic?'
+                      : 'Better luck next time'
                   }
                   title={
                     stat.length > 1
                       ? `#${index + 1} Best Guesser`
-                      : "Best Guesser"
+                      : 'Best Guesser'
                   }
                   user={guesser.user}
                   color={
@@ -146,18 +146,18 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                   }
                   stat={{
                     value: `${(guesser.accuracy * 100).toFixed(0)}%`,
-                    label: "guess accuracy",
-                    icon: isGoodGuesser ? "🎯" : "🎲",
+                    label: 'guess accuracy',
+                    icon: isGoodGuesser ? '🎯' : '🎲',
                     songs: guesser.guesses
                       .sort((a, b) =>
-                        a.isCorrect === b.isCorrect ? 0 : a.isCorrect ? -1 : 1
+                        a.isCorrect === b.isCorrect ? 0 : a.isCorrect ? -1 : 1,
                       )
                       .map((guess) => ({
                         trackInfo: guess.trackInfo,
                         points: 0,
                         round: guess.round,
                         note: undefined,
-                        leftText: guess.isCorrect ? "✓" : "✗",
+                        leftText: guess.isCorrect ? '✓' : '✗',
                         rightText: (
                           <div className="flex gap-2">
                             <Avatar size={6} user={guess.guessedUser} />
@@ -166,8 +166,8 @@ export function BestGuesserScreen({ playback, isActive }: PlaybackScreenProps) {
                           </div>
                         ),
                         className: guess.isCorrect
-                          ? "border-green-400/50 bg-green-500/10"
-                          : "border-red-400/50 bg-red-500/10",
+                          ? 'border-green-400/50 bg-green-500/10'
+                          : 'border-red-400/50 bg-red-500/10',
                       })),
                   }}
                   noDataMessage="No voting data available"

@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo, useState } from 'react';
 import {
   PopulatedLeague,
   PopulatedSubmission,
   PopulatedUser,
-} from "@/lib/types";
-import Card from "./Card";
-import { Avatar } from "./Avatar";
-import { twMerge } from "tailwind-merge";
-import { getPlaces } from "@/lib/utils/getPlaces";
-import AlbumArt from "./AlbumArt";
-import { useAuth } from "@/lib/AuthContext";
-import { getRoundTitle } from "@/lib/utils/getRoundTitle";
-import { Expandable } from "./Expandable";
+} from '@/lib/types';
+import Card from './Card';
+import { Avatar } from './Avatar';
+import { twMerge } from 'tailwind-merge';
+import { getPlaces } from '@/lib/utils/getPlaces';
+import AlbumArt from './AlbumArt';
+import { useAuth } from '@/lib/AuthContext';
+import { getRoundTitle } from '@/lib/utils/getRoundTitle';
+import { Expandable } from './Expandable';
 
 export function LeagueStandings({ league }: { league: PopulatedLeague }) {
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
@@ -21,17 +21,26 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
 
   const standings = useMemo(() => {
     // Calculate total points for each user across all completed rounds
-    const userPointsById = league.users.reduce((acc, user) => {
-      acc[user._id] = { user, points: 0, wins: 0 };
-      return acc;
-    }, {} as Record<string, { user: PopulatedUser; points: number; wins: number }>);
+    const userPointsById = league.users.reduce(
+      (acc, user) => {
+        acc[user._id] = { user, points: 0, wins: 0 };
+        return acc;
+      },
+      {} as Record<
+        string,
+        { user: PopulatedUser; points: number; wins: number }
+      >,
+    );
 
     const submissionsBySubmissionId = league.rounds.completed
       .flatMap((round) => round.submissions)
-      .reduce((acc, submission) => {
-        acc[submission._id] = submission;
-        return acc;
-      }, {} as Record<string, PopulatedSubmission>);
+      .reduce(
+        (acc, submission) => {
+          acc[submission._id] = submission;
+          return acc;
+        },
+        {} as Record<string, PopulatedSubmission>,
+      );
 
     league.rounds.completed.forEach((round) => {
       const userPointsForRound: Record<string, number> = round.votes.reduce(
@@ -46,7 +55,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
           acc[submission.userId] += vote.points;
           return acc;
         },
-        {} as Record<string, number>
+        {} as Record<string, number>,
       );
 
       const sortedUsers = [...league.users].sort((userA, userB) => {
@@ -61,7 +70,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
         userPointsById[user._id].points += pointsForRound;
         if (pointsForRound > highestPoints) {
           throw new Error(
-            "Unexpected state: user has more points than highestPoints"
+            'Unexpected state: user has more points than highestPoints',
           );
         }
         if (pointsForRound === highestPoints && highestPoints > 0) {
@@ -81,17 +90,23 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
   }, [league]);
 
   const guessStats = useMemo(() => {
-    const usersById = league.users.reduce((acc, user) => {
-      acc[user._id] = user;
-      return acc;
-    }, {} as Record<string, PopulatedUser>);
+    const usersById = league.users.reduce(
+      (acc, user) => {
+        acc[user._id] = user;
+        return acc;
+      },
+      {} as Record<string, PopulatedUser>,
+    );
 
     const submissionsById = league.rounds.completed
       .flatMap((round) => round.submissions)
-      .reduce((acc, submission) => {
-        acc[submission._id] = submission;
-        return acc;
-      }, {} as Record<string, PopulatedSubmission>);
+      .reduce(
+        (acc, submission) => {
+          acc[submission._id] = submission;
+          return acc;
+        },
+        {} as Record<string, PopulatedSubmission>,
+      );
 
     // Calculate guess stats for each user
     const userGuessStats = league.users.map((user) => {
@@ -107,7 +122,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
       league.rounds.completed.forEach((round) => {
         // Find all votes by this user that have a guess
         const userVotes = round.votes.filter(
-          (vote) => vote.userId === user._id && vote.userGuessId
+          (vote) => vote.userId === user._id && vote.userGuessId,
         );
 
         userVotes.forEach((vote) => {
@@ -160,20 +175,29 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
   }, [league]);
 
   const completedMarkup = useMemo(() => {
-    if (league.status !== "completed") {
+    if (league.status !== 'completed') {
       return null;
     }
 
-    const userPointsById = league.users.reduce((acc, user) => {
-      acc[user._id] = { user, points: 0, votes: 0 };
-      return acc;
-    }, {} as Record<string, { user: PopulatedUser; points: number; votes: number }>);
+    const userPointsById = league.users.reduce(
+      (acc, user) => {
+        acc[user._id] = { user, points: 0, votes: 0 };
+        return acc;
+      },
+      {} as Record<
+        string,
+        { user: PopulatedUser; points: number; votes: number }
+      >,
+    );
 
     league.rounds.completed.forEach((round) => {
-      const submissionsById = round.submissions.reduce((acc, submission) => {
-        acc[submission._id] = submission;
-        return acc;
-      }, {} as Record<string, PopulatedSubmission>);
+      const submissionsById = round.submissions.reduce(
+        (acc, submission) => {
+          acc[submission._id] = submission;
+          return acc;
+        },
+        {} as Record<string, PopulatedSubmission>,
+      );
       round.votes.forEach((vote) => {
         const submission = submissionsById[vote.submissionId];
         if (!submission || submission.userId !== user?._id) {
@@ -200,7 +224,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
     const biggestCritic = sortedUsers[sortedUsers.length - 1];
 
     const yourStandingIndex = standings.findIndex(
-      (standing) => standing.user._id === user?._id
+      (standing) => standing.user._id === user?._id,
     );
 
     const places = getPlaces(standings);
@@ -211,13 +235,13 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
       const lastDigit = yourPlace % 10;
       switch (lastDigit) {
         case 1:
-          return yourPlace === 11 ? "th" : "st";
+          return yourPlace === 11 ? 'th' : 'st';
         case 2:
-          return yourPlace === 12 ? "th" : "nd";
+          return yourPlace === 12 ? 'th' : 'nd';
         case 3:
-          return yourPlace === 13 ? "th" : "rd";
+          return yourPlace === 13 ? 'th' : 'rd';
         default:
-          return "th";
+          return 'th';
       }
     })();
     const placeText = `${yourPlace}${suffix}`;
@@ -230,9 +254,9 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
           </h3>
           <p className="text-gray-600">The competition was fierce!</p>
           <p className="text-base text-gray-800">
-            You finished the{" "}
-            <span className="font-semibold">{league.title}</span> league in{" "}
-            <span className="font-semibold">{placeText} place</span> with{" "}
+            You finished the{' '}
+            <span className="font-semibold">{league.title}</span> league in{' '}
+            <span className="font-semibold">{placeText} place</span> with{' '}
             <span className="font-semibold">
               {yourStanding?.points || 0} points
             </span>
@@ -269,7 +293,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
 
               {/* Points */}
               <div className="text-gray-600">
-                {biggestFan.points} upvote{biggestFan.points !== 1 ? "s" : ""}{" "}
+                {biggestFan.points} upvote{biggestFan.points !== 1 ? 's' : ''}{' '}
                 for you
               </div>
             </div>
@@ -309,7 +333,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
               {/* Points */}
               <div className="text-gray-600">
                 {biggestCritic.points} upvote
-                {biggestCritic.points !== 1 ? "s" : ""} for you
+                {biggestCritic.points !== 1 ? 's' : ''} for you
               </div>
             </div>
           )}
@@ -350,13 +374,13 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
         <div
           key={standing.user._id}
           className={twMerge(
-            "p-2 md:p-4 flex items-center gap-2 md:gap-4",
-            isFirst && "border border-yellow-400 bg-yellow-50",
-            isSecond && "border border-gray-400 bg-gray-50",
-            isThird && "border border-[#cd7f32] bg-[#f9f2ec]",
-            isOther && "border border-gray-400 bg-white",
-            index === 0 && "rounded-t-lg",
-            index === standings.length - 1 && "rounded-b-lg"
+            'p-2 md:p-4 flex items-center gap-2 md:gap-4',
+            isFirst && 'border border-yellow-400 bg-yellow-50',
+            isSecond && 'border border-gray-400 bg-gray-50',
+            isThird && 'border border-[#cd7f32] bg-[#f9f2ec]',
+            isOther && 'border border-gray-400 bg-white',
+            index === 0 && 'rounded-t-lg',
+            index === standings.length - 1 && 'rounded-b-lg',
           )}
         >
           {/* Rank */}
@@ -380,7 +404,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
               {standing.user.userName}
             </div>
             <div className="text-sm text-gray-600">
-              {standing.wins} {standing.wins === 1 ? "win" : "wins"}
+              {standing.wins} {standing.wins === 1 ? 'win' : 'wins'}
             </div>
           </div>
 
@@ -440,10 +464,10 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                   {} as Record<
                     string,
                     {
-                      round: (typeof stat.guesses)[0]["round"];
+                      round: (typeof stat.guesses)[0]['round'];
                       guesses: typeof stat.guesses;
                     }
-                  >
+                  >,
                 );
 
                 return (
@@ -479,7 +503,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                           {stat.user.userName}
                         </div>
                         <div className="text-sm text-gray-600">
-                          {stat.correctCount} correct • {stat.incorrectCount}{" "}
+                          {stat.correctCount} correct • {stat.incorrectCount}{' '}
                           incorrect
                         </div>
                       </div>
@@ -496,8 +520,8 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                       <div className="text-gray-400">
                         <svg
                           className={twMerge(
-                            "w-5 h-5 transition-transform",
-                            isExpanded ? "rotate-180" : ""
+                            'w-5 h-5 transition-transform',
+                            isExpanded ? 'rotate-180' : '',
                           )}
                           fill="none"
                           viewBox="0 0 24 24"
@@ -529,7 +553,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                 {guesses.map((guess, guessIdx) => {
                                   const guesserText =
                                     user?._id === stat.user._id
-                                      ? { capitalized: "You", normal: "you" }
+                                      ? { capitalized: 'You', normal: 'you' }
                                       : {
                                           capitalized: stat.user.userName,
                                           normal: stat.user.userName,
@@ -539,10 +563,10 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                     <div
                                       key={guessIdx}
                                       className={twMerge(
-                                        "p-2 md:p-3 rounded-lg border flex flex-col gap-1",
+                                        'p-2 md:p-3 rounded-lg border flex flex-col gap-1',
                                         guess.isCorrect
-                                          ? "bg-green-50 border-green-200"
-                                          : "bg-red-50 border-red-200"
+                                          ? 'bg-green-50 border-green-200'
+                                          : 'bg-red-50 border-red-200',
                                       )}
                                     >
                                       <div className="flex items-center justify-between">
@@ -598,7 +622,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                           </div>
                                           <div className="text-xs text-gray-600">
                                             {guess.submission.trackInfo.artists.join(
-                                              ", "
+                                              ', ',
                                             )}
                                           </div>
 
@@ -611,8 +635,8 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                                 tooltipText={`Submitted by ${guess.actualUser.userName}`}
                                                 includeLink={false}
                                               />
-                                            </div>{" "}
-                                            /{" "}
+                                            </div>{' '}
+                                            /{' '}
                                             <div className="shrink-0">
                                               <Avatar
                                                 user={guess.guessedUser}
@@ -622,9 +646,9 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                                 includeLink={false}
                                               />
                                             </div>
-                                            Submitted by{" "}
-                                            {guess.actualUser.userName},{" "}
-                                            {guesserText.normal} guessed{" "}
+                                            Submitted by{' '}
+                                            {guess.actualUser.userName},{' '}
+                                            {guesserText.normal} guessed{' '}
                                             {guess.guessedUser.userName}
                                           </div>
                                         </div>
@@ -634,7 +658,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                 })}
                               </div>
                             </div>
-                          )
+                          ),
                         )}
                       </div>
                     </Expandable>

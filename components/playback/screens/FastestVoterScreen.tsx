@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { Screen } from "../components/Screen";
-import { NEON_COLORS } from "../constants";
-import type { PlaybackScreenProps } from "../types";
-import { UserStatScreen } from "./UserStatScreen";
-import { HorizontalCarousel } from "../components/HorizontalCarousel";
-import { formatTime } from "./utils";
-import { RoundList } from "../components/RoundList";
+import { Screen } from '../components/Screen';
+import { NEON_COLORS } from '../constants';
+import type { PlaybackScreenProps } from '../types';
+import { UserStatScreen } from './UserStatScreen';
+import { HorizontalCarousel } from '../components/HorizontalCarousel';
+import { formatTime } from './utils';
+import { RoundList } from '../components/RoundList';
 
 export function FastestVoterScreen({
   playback,
   isActive,
 }: PlaybackScreenProps) {
   const stat = playback.fastestVoters;
-  const background = { from: "#3b82f6", via: "#a855f7", to: "#10b981" };
+  const background = { from: '#3b82f6', via: '#a855f7', to: '#10b981' };
 
   if (stat.length === 0) {
     return (
@@ -26,7 +26,7 @@ export function FastestVoterScreen({
   }
 
   return (
-    <Screen background={{ from: "#3b82f6", via: "#a855f7", to: "#10b981" }}>
+    <Screen background={{ from: '#3b82f6', via: '#a855f7', to: '#10b981' }}>
       <HorizontalCarousel
         items={stat}
         isActive={isActive}
@@ -38,7 +38,7 @@ export function FastestVoterScreen({
                 <div
                   className="absolute top-[20%] left-[10%] text-6xl opacity-60 z-10"
                   style={{
-                    animation: "float-check 3s ease-in-out infinite",
+                    animation: 'float-check 3s ease-in-out infinite',
                   }}
                 >
                   ✓
@@ -46,7 +46,7 @@ export function FastestVoterScreen({
                 <div
                   className="absolute top-[30%] right-[15%] text-5xl opacity-50 z-10"
                   style={{
-                    animation: "float-check 3.5s ease-in-out 0.5s infinite",
+                    animation: 'float-check 3.5s ease-in-out 0.5s infinite',
                   }}
                 >
                   ✓
@@ -54,7 +54,7 @@ export function FastestVoterScreen({
                 <div
                   className="absolute bottom-[35%] left-[20%] text-7xl opacity-40 z-10"
                   style={{
-                    animation: "float-check 3.2s ease-in-out 1s infinite",
+                    animation: 'float-check 3.2s ease-in-out 1s infinite',
                   }}
                 >
                   ✓
@@ -62,7 +62,7 @@ export function FastestVoterScreen({
                 <div
                   className="absolute bottom-[20%] right-[10%] text-5xl opacity-55 z-10"
                   style={{
-                    animation: "float-check 3.8s ease-in-out 1.5s infinite",
+                    animation: 'float-check 3.8s ease-in-out 1.5s infinite',
                   }}
                 >
                   ✓
@@ -70,7 +70,7 @@ export function FastestVoterScreen({
                 <div
                   className="absolute top-[50%] right-[25%] text-4xl opacity-45 z-10"
                   style={{
-                    animation: "float-check 3.3s ease-in-out 2s infinite",
+                    animation: 'float-check 3.3s ease-in-out 2s infinite',
                   }}
                 >
                   ✓
@@ -85,14 +85,14 @@ export function FastestVoterScreen({
               title={
                 stat.length > 1
                   ? `#${index + 1} Fastest Voter`
-                  : "Fastest Voter"
+                  : 'Fastest Voter'
               }
               user={voter.user}
               color={NEON_COLORS.ElectricPurple}
               stat={{
                 value: formatTime(voter.avgTime),
-                label: "average time",
-                icon: "⚡",
+                label: 'average time',
+                icon: '⚡',
               }}
               renderBackface={(isBackfaceActive) => (
                 <RoundList

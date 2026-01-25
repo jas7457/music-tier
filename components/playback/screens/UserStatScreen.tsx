@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
-import { twMerge } from "tailwind-merge";
-import { Avatar } from "@/components/Avatar";
-import type { PopulatedUser } from "@/lib/types";
-import { DataText } from "@/components/DataText";
-import { TrackInfo } from "@/databaseTypes";
-import { Songs, SongsProps } from "../components/Songs";
-import { useState } from "react";
-import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
-import { StatBounce } from "../components/Animations";
-import { DualScreen } from "../components/DualScreen";
+import { twMerge } from 'tailwind-merge';
+import { Avatar } from '@/components/Avatar';
+import type { PopulatedUser } from '@/lib/types';
+import { DataText } from '@/components/DataText';
+import { TrackInfo } from '@/databaseTypes';
+import { Songs, SongsProps } from '../components/Songs';
+import { useState } from 'react';
+import { AnimatedImageBackdrop } from '@/components/AnimatedImageBackdrop';
+import { StatBounce } from '../components/Animations';
+import { DualScreen } from '../components/DualScreen';
 
-import codyImage from "../images/codyfinal.jpg";
-import dharamImage from "../images/dharamfinal.png";
-import jamesImage from "../images/jamesfinal.jpg";
-import jasonImage from "../images/jasonfinal.jpg";
-import jenImage from "../images/jenfinal.jpg";
-import kaylaImage from "../images/kaylafinal.jpg";
-import kelseyImage from "../images/kelseyfinal.jpg";
-import tjImage from "../images/tjfinal.jpg";
-import { USER_IDS } from "@/lib/utils/constants";
+import codyImage from '../images/codyfinal.jpg';
+import dharamImage from '../images/dharamfinal.png';
+import jamesImage from '../images/jamesfinal.jpg';
+import jasonImage from '../images/jasonfinal.jpg';
+import jenImage from '../images/jenfinal.jpg';
+import kaylaImage from '../images/kaylafinal.jpg';
+import kelseyImage from '../images/kelseyfinal.jpg';
+import tjImage from '../images/tjfinal.jpg';
+import { USER_IDS } from '@/lib/utils/constants';
 
 interface UserStatScreenProps {
   isActive: boolean;
@@ -33,7 +33,7 @@ interface UserStatScreenProps {
     label: string;
     icon?: string;
     songPrefix?: React.ReactNode;
-    songs?: SongsProps["songs"];
+    songs?: SongsProps['songs'];
   };
   renderBackface?: (isActive: boolean) => React.ReactNode;
   noDataMessage?: string;
@@ -48,14 +48,14 @@ export function UserStatScreen({
   user,
   stat,
   color,
-  noDataMessage = "No data available",
+  noDataMessage = 'No data available',
   className,
   statClassName,
   renderBackface,
   background,
 }: UserStatScreenProps) {
   const [currentSong, setCurrentSong] = useState<TrackInfo | null>(
-    stat.songs?.[0] ? stat.songs[0].trackInfo : null
+    stat.songs?.[0] ? stat.songs[0].trackInfo : null,
   );
 
   if (!user) {
@@ -91,10 +91,10 @@ export function UserStatScreen({
             stat.songs ? (
               <div
                 className={twMerge(
-                  "h-full text-white py-14 px-4 relative z-10",
+                  'h-full text-white py-14 px-4 relative z-10',
                   background.from,
                   background.to,
-                  background.via
+                  background.via,
                 )}
               >
                 <div className="grid items-center h-full overflow-y-auto overflow-x-hidden">
@@ -110,10 +110,10 @@ export function UserStatScreen({
 
                     <Songs
                       className={twMerge(
-                        "transition-all duration-700 delay-600 transform",
+                        'transition-all duration-700 delay-600 transform',
                         isActive
-                          ? "opacity-100 translate-y-0"
-                          : "opacity-0 translate-y-10"
+                          ? 'opacity-100 translate-y-0'
+                          : 'opacity-0 translate-y-10',
                       )}
                       songs={stat.songs}
                       isActive={isActive}
@@ -133,8 +133,8 @@ export function UserStatScreen({
       >
         <div
           className={twMerge(
-            "h-full flex items-center justify-center px-8 py-12 text-white overflow-hidden relative",
-            className
+            'h-full flex items-center justify-center px-8 py-12 text-white overflow-hidden relative',
+            className,
           )}
           style={{
             ...(currentSong
@@ -148,8 +148,8 @@ export function UserStatScreen({
             {/* Header with parallax effect */}
             <div
               className={twMerge(
-                "transition-all duration-700 transform z-10",
-                isActive ? "translate-y-0" : "-translate-y-10"
+                'transition-all duration-700 transform z-10',
+                isActive ? 'translate-y-0' : '-translate-y-10',
               )}
             >
               <h2 className="text-center font-bold">{kicker}</h2>
@@ -159,11 +159,13 @@ export function UserStatScreen({
             {/* Avatar with floating animation */}
             <div
               className={twMerge(
-                "transition-all duration-700 transform flex justify-center relative mx-auto",
-                isActive ? "scale-100 rotate-0 delay-400" : "scale-75 rotate-48"
+                'transition-all duration-700 transform flex justify-center relative mx-auto',
+                isActive
+                  ? 'scale-100 rotate-0 delay-400'
+                  : 'scale-75 rotate-48',
               )}
               style={{
-                width: "clamp(200px, 60%, 300px)",
+                width: 'clamp(200px, 60%, 300px)',
               }}
             >
               {/* Glowing ring behind avatar */}
@@ -171,43 +173,43 @@ export function UserStatScreen({
                 className="absolute inset-0 rounded-full opacity-60 aspect-square"
                 style={{
                   background: color,
-                  filter: "blur(40px)",
+                  filter: 'blur(40px)',
                   animation: isActive
-                    ? "pulse-glow 3s ease-in-out infinite"
-                    : "none",
+                    ? 'pulse-glow 3s ease-in-out infinite'
+                    : 'none',
                 }}
               />
               <div
                 className="relative flex justify-center aspect-square w-full"
                 style={{
                   animation: isActive
-                    ? "float-avatar 4s ease-in-out infinite"
-                    : "none",
+                    ? 'float-avatar 4s ease-in-out infinite'
+                    : 'none',
                 }}
               >
                 {/* 3D container for flip animation */}
                 <div
                   className="w-full h-full"
                   style={{
-                    perspective: "1200px",
-                    perspectiveOrigin: "center center",
+                    perspective: '1200px',
+                    perspectiveOrigin: 'center center',
                   }}
                 >
                   <div
                     className="relative w-full h-full"
                     style={{
                       animation: isActive
-                        ? "avatar-3d-spin-with-flip 21s ease-in-out infinite"
-                        : "none",
-                      transformStyle: "preserve-3d",
+                        ? 'avatar-3d-spin-with-flip 21s ease-in-out infinite'
+                        : 'none',
+                      transformStyle: 'preserve-3d',
                     }}
                   >
                     {/* Front face - Avatar */}
                     <div
                       className="absolute inset-0"
                       style={{
-                        transform: "translateZ(0) rotateY(0deg)",
-                        backfaceVisibility: "hidden",
+                        transform: 'translateZ(0) rotateY(0deg)',
+                        backfaceVisibility: 'hidden',
                       }}
                     >
                       <Avatar
@@ -223,8 +225,8 @@ export function UserStatScreen({
                       className="absolute inset-0 rounded-full overflow-hidden"
                       style={{
                         transform:
-                          "translateZ(0) rotateY(180deg) rotate(180deg)",
-                        backfaceVisibility: "hidden",
+                          'translateZ(0) rotateY(180deg) rotate(180deg)',
+                        backfaceVisibility: 'hidden',
                       }}
                     >
                       <div className="h-full w-full grid items-center justify-items-center">
@@ -241,12 +243,12 @@ export function UserStatScreen({
                 {/* Question mark overlay */}
                 <div
                   className={twMerge(
-                    "absolute inset-0 flex items-center justify-center bg-pink-600 rounded-full transition-opacity duration-700 pointer-events-none",
-                    isActive ? "opacity-0" : "opacity-100"
+                    'absolute inset-0 flex items-center justify-center bg-pink-600 rounded-full transition-opacity duration-700 pointer-events-none',
+                    isActive ? 'opacity-0' : 'opacity-100',
                   )}
                   style={{
-                    aspectRatio: "1",
-                    transitionDelay: isActive ? "0.5s" : "0s",
+                    aspectRatio: '1',
+                    transitionDelay: isActive ? '0.5s' : '0s',
                   }}
                 >
                   <span className="text-6xl md:text-8xl font-bold text-white drop-shadow-2xl">
@@ -259,10 +261,10 @@ export function UserStatScreen({
             {/* User name and stat with staggered entrance */}
             <div
               className={twMerge(
-                "text-center transition-all duration-700 transform",
+                'text-center transition-all duration-700 transform',
                 isActive
-                  ? "opacity-100 translate-y-0 delay-600"
-                  : "opacity-0 translate-y-10"
+                  ? 'opacity-100 translate-y-0 delay-600'
+                  : 'opacity-0 translate-y-10',
               )}
             >
               <p className="text-3xl md:text-5xl font-bold mb-2 drop-shadow-lg">
@@ -275,8 +277,8 @@ export function UserStatScreen({
                 isActive={isActive}
                 delay={1}
                 className={twMerge(
-                  "text-6xl md:text-7xl font-bold wrap-break-word break-all",
-                  statClassName
+                  'text-6xl md:text-7xl font-bold wrap-break-word break-all',
+                  statClassName,
                 )}
               >
                 {stat.icon && <span className="mr-2">{stat.icon}</span>}

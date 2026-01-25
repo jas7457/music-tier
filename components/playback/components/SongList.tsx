@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import AlbumArt from "@/components/AlbumArt";
-import { TrackInfo } from "@/databaseTypes";
-import { PopulatedRound } from "@/lib/types";
+import AlbumArt from '@/components/AlbumArt';
+import { TrackInfo } from '@/databaseTypes';
+import { PopulatedRound } from '@/lib/types';
 
 interface SongListItem {
   trackInfo: TrackInfo;
@@ -37,7 +37,7 @@ export function SongList({ songs, className }: SongListProps) {
               {song.trackInfo.title}
             </div>
             <div className="text-xs text-white/60 truncate">
-              {song.trackInfo.artists.join(", ")}
+              {song.trackInfo.artists.join(', ')}
             </div>
           </div>
 

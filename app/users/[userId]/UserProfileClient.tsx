@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
-import { Avatar } from "@/components/Avatar";
-import { MaybeLink } from "@/components/MaybeLink";
+import { useMemo, useState } from 'react';
+import { Avatar } from '@/components/Avatar';
+import { MaybeLink } from '@/components/MaybeLink';
 import {
   PopulatedLeague,
   PopulatedRound,
   PopulatedSubmission,
   PopulatedUser,
-} from "@/lib/types";
-import { twMerge } from "tailwind-merge";
-import AlbumArt from "@/components/AlbumArt";
-import { Pill } from "@/components/Pill";
-import { assertNever } from "@/lib/utils/never";
-import Card, { CardProps } from "@/components/Card";
-import { HapticButton } from "@/components/HapticButton";
-import { DateTime } from "@/components/DateTime";
-import { useAuth } from "@/lib/AuthContext";
+} from '@/lib/types';
+import { twMerge } from 'tailwind-merge';
+import AlbumArt from '@/components/AlbumArt';
+import { Pill } from '@/components/Pill';
+import { assertNever } from '@/lib/utils/never';
+import Card, { CardProps } from '@/components/Card';
+import { HapticButton } from '@/components/HapticButton';
+import { DateTime } from '@/components/DateTime';
+import { useAuth } from '@/lib/AuthContext';
 
 type LeagueInfo = PopulatedLeague & {
   yourPoints: number;
@@ -58,32 +58,32 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
   const { user, currentLeagues, pastLeagues, stats } = profileData;
   const fullName = `${user.firstName} ${user.lastName}`;
   const [expandedStat, setExpandedStat] = useState<
-    | "totalPoints"
-    | "firstPlace"
-    | "secondPlace"
-    | "thirdPlace"
-    | "mostVoted"
-    | "totalLeagues"
-    | "completedLeagues"
-    | "avgPoints"
+    | 'totalPoints'
+    | 'firstPlace'
+    | 'secondPlace'
+    | 'thirdPlace'
+    | 'mostVoted'
+    | 'totalLeagues'
+    | 'completedLeagues'
+    | 'avgPoints'
     | null
   >(null);
 
   const isYou = user._id === youUser?._id;
   const infoMap = useMemo(() => {
-    const person = isYou ? "you" : user.firstName;
+    const person = isYou ? 'you' : user.firstName;
 
     return {
-      totalPoints: "Total points across all completed and ongoing leagues",
+      totalPoints: 'Total points across all completed and ongoing leagues',
       firstPlace: `Number of completed leagues where ${person} placed 1st`,
       secondPlace: `Number of completed leagues where ${person} placed 2nd`,
       thirdPlace: `Number of completed leagues where ${person} placed 3rd`,
       mostVoted: `Number of ${
-        isYou ? "your" : `${person}'s`
+        isYou ? 'your' : `${person}'s`
       } submissions that received the most points in their rounds`,
       totalLeagues: `Total number of completed and ongoing leagues you have participated in`,
       completedLeagues: `Number of leagues ${
-        isYou ? "you have" : `${person} has`
+        isYou ? 'you have' : `${person} has`
       } completed`,
       avgPoints: `Average points scored across completed and ongoing league`,
     };
@@ -98,7 +98,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
       case null: {
         return null;
       }
-      case "totalPoints": {
+      case 'totalPoints': {
         return (
           <SubmissionsCards
             title="Points Breakdown by Submission"
@@ -107,7 +107,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
           />
         );
       }
-      case "firstPlace": {
+      case 'firstPlace': {
         return (
           <LeaguesCards
             title="1st Place Wins"
@@ -117,7 +117,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
           />
         );
       }
-      case "secondPlace": {
+      case 'secondPlace': {
         return (
           <LeaguesCards
             title="2nd Place Wins"
@@ -127,7 +127,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
           />
         );
       }
-      case "thirdPlace": {
+      case 'thirdPlace': {
         return (
           <LeaguesCards
             title="3rd Place Wins"
@@ -137,7 +137,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
           />
         );
       }
-      case "mostVoted": {
+      case 'mostVoted': {
         return (
           <SubmissionsCards
             title="Most Voted Songs"
@@ -146,7 +146,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
           />
         );
       }
-      case "totalLeagues": {
+      case 'totalLeagues': {
         return (
           <LeaguesCards
             title="Total Leagues"
@@ -155,18 +155,18 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
           />
         );
       }
-      case "completedLeagues": {
+      case 'completedLeagues': {
         return (
           <LeaguesCards
             title="Completed Leagues"
             info={infoMap.completedLeagues}
             leagues={pastLeagues.filter(
-              (league) => league.status === "completed"
+              (league) => league.status === 'completed',
             )}
           />
         );
       }
-      case "avgPoints": {
+      case 'avgPoints': {
         return (
           <GenericStatCard className="flex flex-col gap-2" color="gray">
             <div>
@@ -176,7 +176,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
 
             {stats.pointsPerLeague.length === 0 ? (
               <div>
-                {isYou ? "You have" : `${user.firstName} has`} no points in any
+                {isYou ? 'You have' : `${user.firstName} has`} no points in any
                 leagues yet.
               </div>
             ) : (
@@ -266,68 +266,68 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
             {(
               [
                 {
-                  label: "Total Points",
+                  label: 'Total Points',
                   value: stats.totalPoints,
                   info: infoMap.totalPoints,
-                  icon: "🏆",
-                  stat: "totalPoints",
+                  icon: '🏆',
+                  stat: 'totalPoints',
                 },
                 {
-                  label: "1st Place",
+                  label: '1st Place',
                   value: stats.firstPlaceLeagues.length,
                   info: infoMap.firstPlace,
-                  icon: "🥇",
-                  stat: "firstPlace",
+                  icon: '🥇',
+                  stat: 'firstPlace',
                 },
                 {
-                  label: "2nd Place",
+                  label: '2nd Place',
                   info: infoMap.secondPlace,
                   value: stats.secondPlaceLeagues.length,
-                  icon: "🥈",
-                  stat: "secondPlace",
+                  icon: '🥈',
+                  stat: 'secondPlace',
                 },
                 {
-                  label: "3rd Place",
+                  label: '3rd Place',
                   info: infoMap.thirdPlace,
                   value: stats.thirdPlaceLeagues.length,
-                  icon: "🥉",
-                  stat: "thirdPlace",
+                  icon: '🥉',
+                  stat: 'thirdPlace',
                 },
                 {
-                  label: "Most Voted Songs",
+                  label: 'Most Voted Songs',
                   info: infoMap.mostVoted,
                   value: stats.mostVotedSongDetails.length,
-                  icon: "⭐",
-                  stat: "mostVoted",
+                  icon: '⭐',
+                  stat: 'mostVoted',
                 },
                 {
-                  label: "Total Leagues",
+                  label: 'Total Leagues',
                   info: infoMap.totalLeagues,
                   value: stats.totalLeagues,
-                  icon: "🎵",
-                  stat: "totalLeagues",
+                  icon: '🎵',
+                  stat: 'totalLeagues',
                 },
                 {
-                  label: "Completed Leagues",
+                  label: 'Completed Leagues',
                   info: infoMap.completedLeagues,
                   value: stats.completedLeagues,
-                  icon: "✅",
-                  stat: "completedLeagues",
+                  icon: '✅',
+                  stat: 'completedLeagues',
                 },
                 {
-                  label: "Avg Points/League",
+                  label: 'Avg Points/League',
                   info: infoMap.avgPoints,
                   value:
                     stats.totalLeagues > 0
                       ? parseFloat(
-                          (stats.totalPoints / stats.totalLeagues).toFixed(2)
+                          (stats.totalPoints / stats.totalLeagues).toFixed(2),
                         )
                       : 0,
-                  icon: "📊",
-                  stat: "avgPoints",
+                  icon: '📊',
+                  stat: 'avgPoints',
                 },
               ] satisfies Array<
-                Omit<StatCardProps, "onClick" | "isExpanded"> & {
+                Omit<StatCardProps, 'onClick' | 'isExpanded'> & {
                   stat: typeof expandedStat;
                 }
               >
@@ -353,16 +353,16 @@ function GenericStatCard({
   className,
   color,
   ...rest
-}: CardProps & { color: "white" | "gray" }) {
+}: CardProps & { color: 'white' | 'gray' }) {
   return (
     <Card
       {...rest}
       className={twMerge(
-        "p-4 border-gray-200 rounded-lg transition-all",
-        color === "white"
-          ? "bg-white"
-          : "bg-linear-to-br from-gray-50 to-gray-100 border-2",
-        className
+        'p-4 border-gray-200 rounded-lg transition-all',
+        color === 'white'
+          ? 'bg-white'
+          : 'bg-linear-to-br from-gray-50 to-gray-100 border-2',
+        className,
       )}
     >
       {children}
@@ -398,9 +398,9 @@ function LeaguesCards({
         ) : (
           leagues.map((league) => {
             const dateString = (() => {
-              if (league.status === "completed") {
+              if (league.status === 'completed') {
                 const sortedCompletedRounds = [...league.rounds.completed].sort(
-                  (a, b) => b.votingEndDate - a.votingEndDate
+                  (a, b) => b.votingEndDate - a.votingEndDate,
                 );
                 const lastRound =
                   sortedCompletedRounds[sortedCompletedRounds.length - 1];
@@ -438,8 +438,8 @@ function LeaguesCards({
                     <div>
                       <h3 className="font-semibold text-lg">{league.title}</h3>
                       <p className="text-sm text-gray-600">
-                        {league.yourPoints} points • {league.numberOfRounds}{" "}
-                        rounds • {league.users.length} participants •{" "}
+                        {league.yourPoints} points • {league.numberOfRounds}{' '}
+                        rounds • {league.users.length} participants •{' '}
                         {dateString}
                       </p>
                     </div>
@@ -500,19 +500,19 @@ function SubmissionsCards({
                   {detail.submission.trackInfo.title}
                 </div>
                 <div className="text-xs text-gray-500 truncate">
-                  by {detail.submission.trackInfo.artists.join(", ")}
+                  by {detail.submission.trackInfo.artists.join(', ')}
                 </div>
                 <div className="text-xs text-gray-500">
                   <MaybeLink href={`/leagues/${detail.league._id}`}>
                     {detail.league.title}
-                  </MaybeLink>{" "}
-                  •{" "}
+                  </MaybeLink>{' '}
+                  •{' '}
                   <MaybeLink
                     href={`/leagues/${detail.league._id}/rounds/${detail.round._id}`}
                   >
                     {detail.round.title}
-                  </MaybeLink>{" "}
-                  •{" "}
+                  </MaybeLink>{' '}
+                  •{' '}
                   <DateTime prefix="Submitted on">
                     {detail.submission.submissionDate}
                   </DateTime>
@@ -555,9 +555,9 @@ function StatCard({
       color="gray"
       className={twMerge(
         isClickable
-          ? "cursor-pointer hover:shadow-md hover:border-primary"
-          : "",
-        isExpanded ? "ring-2 ring-primary shadow-md" : ""
+          ? 'cursor-pointer hover:shadow-md hover:border-primary'
+          : '',
+        isExpanded ? 'ring-2 ring-primary shadow-md' : '',
       )}
     >
       <div className="text-4xl mb-3 text-center">{icon}</div>

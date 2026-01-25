@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { Screen } from "../components/Screen";
-import type { PlaybackScreenProps } from "../types";
-import { Avatar } from "@/components/Avatar";
-import { NEON_COLORS } from "../constants";
-import { useMemo, useState } from "react";
+import { Screen } from '../components/Screen';
+import type { PlaybackScreenProps } from '../types';
+import { Avatar } from '@/components/Avatar';
+import { NEON_COLORS } from '../constants';
+import { useMemo, useState } from 'react';
 import type {
   PopulatedRound,
   PopulatedSubmission,
   PopulatedUser,
-} from "@/lib/types";
-import AlbumArt from "@/components/AlbumArt";
-import { formatTime } from "./utils";
-import { getPlaceString } from "@/lib/utils/getPlaces";
-import { TrackInfo } from "@/databaseTypes";
-import Link from "next/link";
-import { useAuth } from "@/lib/AuthContext";
-import { BlockQuote } from "@/components/BlockQuote";
+} from '@/lib/types';
+import AlbumArt from '@/components/AlbumArt';
+import { formatTime } from './utils';
+import { getPlaceString } from '@/lib/utils/getPlaces';
+import { TrackInfo } from '@/databaseTypes';
+import Link from 'next/link';
+import { useAuth } from '@/lib/AuthContext';
+import { BlockQuote } from '@/components/BlockQuote';
 
 type SummaryCard = {
   id: string;
@@ -49,14 +49,14 @@ export function SummaryScreen({
     // Your Total Points
     if (playback.userStats) {
       cards.push({
-        id: "your-points",
-        icon: "⭐",
-        title: "Your Total Points",
+        id: 'your-points',
+        icon: '⭐',
+        title: 'Your Total Points',
         subtitle: `${getPlaceString(playback.userStats.place)} place`,
         value: `${playback.userStats.totalPoints.toString()} pts`,
         color: NEON_COLORS.Yellow,
         description:
-          "Your total points accumulated across all completed rounds in this league.",
+          'Your total points accumulated across all completed rounds in this league.',
       });
     }
 
@@ -64,14 +64,14 @@ export function SummaryScreen({
     const roundsWithSubmissions = completedRounds
       .map((round) => {
         const submissions = round.submissions.filter(
-          (s) => s.submissionDate && round.submissionStartDate
+          (s) => s.submissionDate && round.submissionStartDate,
         );
         if (submissions.length === 0) return null;
 
         const avgTime =
           submissions.reduce(
             (sum, s) => sum + (s.submissionDate - round.submissionStartDate),
-            0
+            0,
           ) / submissions.length;
 
         return { round, avgTime, submissionCount: submissions.length };
@@ -88,9 +88,9 @@ export function SummaryScreen({
       const slowTimeDisplay = formatTime(slowestRound.avgTime);
 
       cards.push({
-        id: "quickest-submission-round",
-        icon: "⏱️",
-        title: "Quickest Submission Round",
+        id: 'quickest-submission-round',
+        icon: '⏱️',
+        title: 'Quickest Submission Round',
         value: timeDisplay,
         color: NEON_COLORS.ElectricPurple,
         subtitle: quickestRound.round.title,
@@ -99,9 +99,9 @@ export function SummaryScreen({
       });
 
       cards.push({
-        id: "slowest-submission-round",
-        icon: "🕐",
-        title: "Slowest Submission Round",
+        id: 'slowest-submission-round',
+        icon: '🕐',
+        title: 'Slowest Submission Round',
         value: slowTimeDisplay,
         color: NEON_COLORS.DeepViolet,
         subtitle: slowestRound.round.title,
@@ -114,14 +114,14 @@ export function SummaryScreen({
     const roundsWithVotes = completedRounds
       .map((round) => {
         const votes = round.votes.filter(
-          (v) => v.voteDate && round.votingStartDate
+          (v) => v.voteDate && round.votingStartDate,
         );
         if (votes.length === 0) return null;
 
         const avgTime =
           votes.reduce(
             (sum, v) => sum + (v.voteDate - round.votingStartDate),
-            0
+            0,
           ) / votes.length;
 
         return { round, avgTime, voteCount: votes.length };
@@ -134,9 +134,9 @@ export function SummaryScreen({
       const timeDisplay = formatTime(quickestRound.avgTime);
 
       cards.push({
-        id: "quickest-voting-round",
-        icon: "⏩",
-        title: "Quickest Voting Round",
+        id: 'quickest-voting-round',
+        icon: '⏩',
+        title: 'Quickest Voting Round',
         value: timeDisplay,
         color: NEON_COLORS.YellowGreen,
         subtitle: quickestRound.round.title,
@@ -148,9 +148,9 @@ export function SummaryScreen({
         const slowestRound = roundsWithVotes[roundsWithVotes.length - 1];
         const slowTimeDisplay = formatTime(slowestRound.avgTime);
         cards.push({
-          id: "slowest-voting-round",
-          icon: "⏳",
-          title: "Slowest Voting Round",
+          id: 'slowest-voting-round',
+          icon: '⏳',
+          title: 'Slowest Voting Round',
           value: slowTimeDisplay,
           color: NEON_COLORS.Yellow,
           subtitle: slowestRound.round.title,
@@ -172,9 +172,9 @@ export function SummaryScreen({
     if (roundsWithNotes.length > 0) {
       const mostNotedRound = roundsWithNotes[0];
       cards.push({
-        id: "most-noted-round",
-        icon: "💬",
-        title: "Most Discussed Round",
+        id: 'most-noted-round',
+        icon: '💬',
+        title: 'Most Discussed Round',
         value: `${mostNotedRound.totalNotes.toString()} notes`,
         color: NEON_COLORS.BrightBlue,
         subtitle: mostNotedRound.round.title,
@@ -186,9 +186,9 @@ export function SummaryScreen({
     // Biggest Fan
     if (playback.biggestFan) {
       cards.push({
-        id: "biggest-fan",
-        icon: "💙",
-        title: "Biggest Fan",
+        id: 'biggest-fan',
+        icon: '💙',
+        title: 'Biggest Fan',
         user: playback.biggestFan.user,
         subtitle: playback.biggestFan.user.userName,
         value: `${playback.biggestFan.points.toString()} pts`,
@@ -209,9 +209,9 @@ export function SummaryScreen({
     // Biggest Stan
     if (playback.biggestStan) {
       cards.push({
-        id: "biggest-stan",
-        icon: "🤩",
-        title: "Biggest Stan",
+        id: 'biggest-stan',
+        icon: '🤩',
+        title: 'Biggest Stan',
         user: playback.biggestStan.user,
         subtitle: playback.biggestStan.user.userName,
         value: `${playback.biggestStan.points.toString()} pts`,
@@ -232,16 +232,16 @@ export function SummaryScreen({
     // Musical Soulmate
     if (playback.conspirators.length > 0) {
       const firstTake = playback.conspirators.find(
-        (c) => c.user1._id === user?._id || c.user2._id === user?._id
+        (c) => c.user1._id === user?._id || c.user2._id === user?._id,
       );
       if (firstTake) {
         const otherUser =
           firstTake.user1._id === user?._id ? firstTake.user2 : firstTake.user1;
 
         cards.push({
-          id: "musical-soulmate",
-          icon: "💖",
-          title: "Musical Soulmate",
+          id: 'musical-soulmate',
+          icon: '💖',
+          title: 'Musical Soulmate',
           user: otherUser,
           subtitle: otherUser.userName,
           value: `${firstTake.totalPoints.toString()} pts`,
@@ -261,9 +261,9 @@ export function SummaryScreen({
     // Biggest Critic
     if (playback.biggestCritic) {
       cards.push({
-        id: "biggest-critic",
-        icon: "🔪",
-        title: "Biggest Critic",
+        id: 'biggest-critic',
+        icon: '🔪',
+        title: 'Biggest Critic',
         user: playback.biggestCritic.user,
         subtitle: playback.biggestCritic.user.userName,
         value: `${playback.biggestCritic.points.toString()} pts`,
@@ -284,9 +284,9 @@ export function SummaryScreen({
     // Hardest Sell
     if (playback.hardestSell) {
       cards.push({
-        id: "hardest-sell",
-        icon: "🛍️",
-        title: "Hardest Sell",
+        id: 'hardest-sell',
+        icon: '🛍️',
+        title: 'Hardest Sell',
         user: playback.hardestSell.user,
         subtitle: playback.hardestSell.user.userName,
         value: `${playback.hardestSell.points.toString()} pts`,
@@ -314,8 +314,8 @@ export function SummaryScreen({
           firstTake.user1._id === user?._id ? firstTake.user2 : firstTake.user1;
 
         cards.push({
-          id: "musical-lets-just-be-friends",
-          icon: "💔",
+          id: 'musical-lets-just-be-friends',
+          icon: '💔',
           title: "Musical Let's Just Be Friends",
           user: otherUser,
           subtitle: otherUser.userName,
@@ -330,9 +330,9 @@ export function SummaryScreen({
     if (playback.allUserTopSongs.length > 0) {
       const topSong = playback.allUserTopSongs[0];
       cards.push({
-        id: "top-song",
-        icon: "🔥",
-        title: "Highest Scoring Song",
+        id: 'top-song',
+        icon: '🔥',
+        title: 'Highest Scoring Song',
         user: topSong.user,
         subtitle: topSong.user.userName,
         value: `${topSong.points.toString()} pts`,
@@ -356,21 +356,21 @@ export function SummaryScreen({
     if (playback.mostWinsUsers.length > 0) {
       const winner = playback.mostWinsUsers[0];
       // @ts-ignore
-      const formatter = new Intl.ListFormat("en", {
-        style: "long",
-        type: "conjunction",
+      const formatter = new Intl.ListFormat('en', {
+        style: 'long',
+        type: 'conjunction',
       });
 
       cards.push({
-        id: "most-wins",
-        icon: "🏆",
-        title: "Most Round Wins",
+        id: 'most-wins',
+        icon: '🏆',
+        title: 'Most Round Wins',
         user: winner.user,
         subtitle: winner.user.userName,
         value: `${winner.wins.length.toString()} wins`,
         color: NEON_COLORS.BrightOrange,
         description: `The player with the most first-place finishes in ${formatter.format(
-          winner.wins.map((win) => win.round.title)
+          winner.wins.map((win) => win.round.title),
         )}. Multiple victories show dominance.`,
       });
     }
@@ -379,15 +379,15 @@ export function SummaryScreen({
     if (playback.bestGuessers.length > 0) {
       const guesser = playback.bestGuessers[0];
       cards.push({
-        id: "guesser",
-        icon: "🎲",
-        title: "Best Guesser",
+        id: 'guesser',
+        icon: '🎲',
+        title: 'Best Guesser',
         user: guesser.user,
         subtitle: guesser.user.userName,
         value: `${(guesser.accuracy * 100).toFixed(0)}%`,
         color: NEON_COLORS.BrightGreen,
         description:
-          "The player who correctly guessed the most song submitters. They have the best intuition for matching songs to people.",
+          'The player who correctly guessed the most song submitters. They have the best intuition for matching songs to people.',
       });
     }
 
@@ -396,15 +396,15 @@ export function SummaryScreen({
       const worstGuesser =
         playback.bestGuessers[playback.bestGuessers.length - 1];
       cards.push({
-        id: "worst-guesser",
-        icon: "❓",
-        title: "Most Surprised",
+        id: 'worst-guesser',
+        icon: '❓',
+        title: 'Most Surprised',
         user: worstGuesser.user,
         subtitle: worstGuesser.user.userName,
         value: `${(worstGuesser.accuracy * 100).toFixed(0)}%`,
         color: NEON_COLORS.VividRed,
         description:
-          "The player who struggled most at guessing song submitters. Surprises around every corner!",
+          'The player who struggled most at guessing song submitters. Surprises around every corner!',
       });
     }
 
@@ -412,9 +412,9 @@ export function SummaryScreen({
     if (playback.fastestSubmitters.length > 0) {
       const fastest = playback.fastestSubmitters[0];
       cards.push({
-        id: "fastest-submitter",
-        icon: "⏱️",
-        title: "Fastest Submitter",
+        id: 'fastest-submitter',
+        icon: '⏱️',
+        title: 'Fastest Submitter',
         user: fastest.user,
         subtitle: fastest.user.userName,
         value: formatTime(fastest.avgTime),
@@ -434,21 +434,21 @@ export function SummaryScreen({
 
     if (playback.fastestSubmission) {
       cards.push({
-        id: "fastest-submission",
-        icon: "🚀",
-        title: "Fastest Submission",
+        id: 'fastest-submission',
+        icon: '🚀',
+        title: 'Fastest Submission',
         user: playback.fastestSubmission.user,
         subtitle: playback.fastestSubmission.user.userName,
         value: formatTime(playback.fastestSubmission.time),
         color: NEON_COLORS.DeepViolet,
         moreDetailsLink: getRoundLink(
           playback.fastestSubmission.round,
-          league._id
+          league._id,
         ),
         description: (
           <FullTrackInfoDisplay
             preamble={`The fastest submission was made in ${formatTime(
-              playback.fastestSubmission.time
+              playback.fastestSubmission.time,
             )} during ${
               playback.fastestSubmission.round.title
             }. Quick on the draw!`}
@@ -467,19 +467,32 @@ export function SummaryScreen({
     const stats = completedRounds.flatMap((round) => {
       return round.submissions.flatMap((submission) => {
         const votesForSubmission = round.votes.filter(
-          (v) => v.submissionId === submission._id
+          (v) => v.submissionId === submission._id,
         );
-        const userData = league.users.reduce((acc, user) => {
-          acc[user._id] = {
-            user,
-            correctGuesses: 0,
-            incorrectGuesses: 0,
-            totalGuesses: 0,
-            submission,
-            round,
-          };
-          return acc;
-        }, {} as Record<string, { user: PopulatedUser; correctGuesses: number; incorrectGuesses: number; totalGuesses: number; submission: PopulatedSubmission; round: PopulatedRound }>);
+        const userData = league.users.reduce(
+          (acc, user) => {
+            acc[user._id] = {
+              user,
+              correctGuesses: 0,
+              incorrectGuesses: 0,
+              totalGuesses: 0,
+              submission,
+              round,
+            };
+            return acc;
+          },
+          {} as Record<
+            string,
+            {
+              user: PopulatedUser;
+              correctGuesses: number;
+              incorrectGuesses: number;
+              totalGuesses: number;
+              submission: PopulatedSubmission;
+              round: PopulatedRound;
+            }
+          >,
+        );
 
         votesForSubmission.forEach((vote) => {
           if (!vote.userGuessId) {
@@ -523,9 +536,9 @@ export function SummaryScreen({
 
     if (mostObvious) {
       cards.push({
-        id: "most-obvious",
-        icon: "✅",
-        title: "Most Obvious",
+        id: 'most-obvious',
+        icon: '✅',
+        title: 'Most Obvious',
         user: mostObvious.user,
         subtitle: mostObvious.user.userName,
         value: `${mostObvious.correctGuesses}/${mostObvious.totalGuesses} correct`,
@@ -546,9 +559,9 @@ export function SummaryScreen({
 
       if (biggestSurprise) {
         cards.push({
-          id: "biggest-surprise",
-          icon: "😲",
-          title: "Biggest Surprise",
+          id: 'biggest-surprise',
+          icon: '😲',
+          title: 'Biggest Surprise',
           user: biggestSurprise.user,
           subtitle: biggestSurprise.user.userName,
           value: `${biggestSurprise.incorrectGuesses}/${biggestSurprise.totalGuesses} wrong`,
@@ -558,12 +571,12 @@ export function SummaryScreen({
             <FullTrackInfoDisplay
               preamble={
                 <>
-                  Plot twist! {biggestSurprise.incorrectGuesses} out of{" "}
-                  {biggestSurprise.totalGuesses} voters thought this was{" "}
+                  Plot twist! {biggestSurprise.incorrectGuesses} out of{' '}
+                  {biggestSurprise.totalGuesses} voters thought this was{' '}
                   <span className="font-semibold text-white">
                     {biggestSurprise.user.userName}
                   </span>
-                  &apos;s song, but it was actually{" "}
+                  &apos;s song, but it was actually{' '}
                   <span className="font-semibold text-white">
                     {biggestSurprise.submission.userObject?.userName}
                   </span>
@@ -586,9 +599,9 @@ export function SummaryScreen({
     if (playback.mostNotedSongs.length > 0) {
       const notedSong = playback.mostNotedSongs[0];
       cards.push({
-        id: "most-noted-song",
-        icon: "💭",
-        title: "Most Talked About",
+        id: 'most-noted-song',
+        icon: '💭',
+        title: 'Most Talked About',
         user: notedSong.user,
         subtitle: notedSong.user.userName,
         value: `${notedSong.notes.length.toString()} notes`,
@@ -627,16 +640,16 @@ export function SummaryScreen({
       const { user1, user2 } = conspiracy;
       if (user1 && user2) {
         cards.push({
-          id: "conspirators",
-          icon: "🤝",
-          title: "Mutual Appreciation",
+          id: 'conspirators',
+          icon: '🤝',
+          title: 'Mutual Appreciation',
           subtitle: `${user1.userName} & ${user2.userName}`,
           user: user1,
           user2: user2,
           value: `${conspiracy.totalPoints.toString()} pts`,
           color: NEON_COLORS.MintyGreen,
           description:
-            "The pair of players who gave each other the most points. Mutual appreciation or collusion?",
+            'The pair of players who gave each other the most points. Mutual appreciation or collusion?',
         });
       }
     }
@@ -645,9 +658,9 @@ export function SummaryScreen({
     if (playback.fastestVoters.length > 0) {
       const fastVoter = playback.fastestVoters[0];
       cards.push({
-        id: "fastest-voter",
-        icon: "⚡",
-        title: "Fastest Voter",
+        id: 'fastest-voter',
+        icon: '⚡',
+        title: 'Fastest Voter',
         user: fastVoter.user,
         subtitle: fastVoter.user.userName,
         value: formatTime(fastVoter.avgTime),
@@ -675,9 +688,9 @@ export function SummaryScreen({
       const fastVote = playback.fastestVote;
       const timeDisplay = formatTime(fastVote.time);
       cards.push({
-        id: "fastest-vote",
-        icon: "⏰",
-        title: "Fastest Vote",
+        id: 'fastest-vote',
+        icon: '⏰',
+        title: 'Fastest Vote',
         user: fastVote.user,
         subtitle: fastVote.user.userName,
         value: timeDisplay,
@@ -685,7 +698,7 @@ export function SummaryScreen({
         moreDetailsLink: getRoundLink(fastVote.round, league._id),
         description: (
           <div>
-            The fastest vote for a round happened in {formatTime(fastVote.time)}{" "}
+            The fastest vote for a round happened in {formatTime(fastVote.time)}{' '}
             for <span className="font-bold">{fastVote.round.title}</span>. Quick
             on the draw!
           </div>
@@ -701,32 +714,32 @@ export function SummaryScreen({
       const avgHours = Math.floor(avgMinutes / 60);
       const displayMinutes = avgMinutes % 60;
 
-      let timeDisplay = "";
+      let timeDisplay = '';
       if (avgHours > 0) {
         timeDisplay = `${avgHours}h ${displayMinutes}m`;
       } else {
-        timeDisplay = `${avgMinutes}:${avgSeconds.toString().padStart(2, "0")}`;
+        timeDisplay = `${avgMinutes}:${avgSeconds.toString().padStart(2, '0')}`;
       }
 
       cards.push({
-        id: "slowest-voter",
-        icon: "🐢",
-        title: "The Procrastinator",
+        id: 'slowest-voter',
+        icon: '🐢',
+        title: 'The Procrastinator',
         user: slowVoter.user,
         subtitle: slowVoter.user.userName,
         value: timeDisplay,
         color: NEON_COLORS.Pink,
         description:
-          "The player who takes the longest to vote. Better late than never!",
+          'The player who takes the longest to vote. Better late than never!',
       });
     }
 
     // Lowest Scoring Win (won with fewest points)
     if (playback.scrappyWin) {
       cards.push({
-        id: "scrappy-win",
-        icon: "🏅",
-        title: "Scrappy Victory",
+        id: 'scrappy-win',
+        icon: '🏅',
+        title: 'Scrappy Victory',
         user: playback.scrappyWin.user,
         subtitle: playback.scrappyWin.user.userName,
         value: `${playback.scrappyWin.points.toString()} pts`,
@@ -734,7 +747,7 @@ export function SummaryScreen({
         moreDetailsLink: getRoundLink(playback.scrappyWin.round, league._id),
         description: (
           <div>
-            The lowest scoring round to still secure a victory happened in{" "}
+            The lowest scoring round to still secure a victory happened in{' '}
             <span className="font-bold">{playback.scrappyWin.round.title}</span>
             . A tight competition where every point mattered.
           </div>
@@ -745,9 +758,9 @@ export function SummaryScreen({
     // Most Votes Received (most popular submitter by voter count)
     if (playback.crowdPleaser) {
       cards.push({
-        id: "crowd-pleaser",
-        icon: "👥",
-        title: "Crowd Pleaser",
+        id: 'crowd-pleaser',
+        icon: '👥',
+        title: 'Crowd Pleaser',
         user: playback.crowdPleaser.user,
         subtitle: playback.crowdPleaser.user.userName,
         value: `${playback.crowdPleaser.voters.toString()} voters`,
@@ -791,9 +804,9 @@ export function SummaryScreen({
 
         if (topCommenter && topCommenter.user) {
           cards.push({
-            id: "comment-king",
-            icon: "✍️",
-            title: "Comment King",
+            id: 'comment-king',
+            icon: '✍️',
+            title: 'Comment King',
             user: topCommenter.user,
             subtitle: topCommenter.user.userName,
             value: topCommenter.count.toString(),
@@ -812,9 +825,9 @@ export function SummaryScreen({
         playback.mostConsistent[playback.mostConsistent.length - 1];
 
       cards.push({
-        id: "consistent",
-        icon: "📊",
-        title: "Most Consistent",
+        id: 'consistent',
+        icon: '📊',
+        title: 'Most Consistent',
         user: consistent.user,
         subtitle: consistent.user.userName,
         value: `±${consistent.variance.toFixed(1)}`,
@@ -827,7 +840,7 @@ export function SummaryScreen({
             </p>
 
             <p>
-              {consistent.user.userName} scored an average of{" "}
+              {consistent.user.userName} scored an average of{' '}
               {consistent.avgPoints.toFixed(1)} points per round with a variance
               of ±{consistent.variance.toFixed(1)}.
             </p>
@@ -836,9 +849,9 @@ export function SummaryScreen({
       });
 
       cards.push({
-        id: "wildcard",
-        icon: "🎲",
-        title: "Most Unpredictable",
+        id: 'wildcard',
+        icon: '🎲',
+        title: 'Most Unpredictable',
         user: mostWild.user,
         subtitle: mostWild.user.userName,
         value: `±${mostWild.variance.toFixed(1)}`,
@@ -851,7 +864,7 @@ export function SummaryScreen({
             </p>
 
             <p>
-              {mostWild.user.userName} scored an average of{" "}
+              {mostWild.user.userName} scored an average of{' '}
               {mostWild.avgPoints.toFixed(1)} points per round with a variance
               of ±{mostWild.variance.toFixed(1)}.
             </p>
@@ -868,7 +881,7 @@ export function SummaryScreen({
 
           completedRounds.forEach((round) => {
             const userVotes = round.votes.filter(
-              (v) => v.userId === user._id && v.points > 0
+              (v) => v.userId === user._id && v.points > 0,
             );
             if (userVotes.length > 0) {
               totalVotesGiven += userVotes.length;
@@ -891,36 +904,36 @@ export function SummaryScreen({
           userVotingPatterns[userVotingPatterns.length - 1];
 
         cards.push({
-          id: "even-distributor",
-          icon: "⚖️",
-          title: "Democratic Voter",
+          id: 'even-distributor',
+          icon: '⚖️',
+          title: 'Democratic Voter',
           user: evenDistributor.user,
           subtitle: evenDistributor.user.userName,
           value: `${evenDistributor.avgVotesPerRound.toFixed(1)} songs`,
           color: NEON_COLORS.BrightGreen,
           description: `The player who spreads their points across the most songs on average. They voted for an average of ${evenDistributor.avgVotesPerRound.toFixed(
-            1
+            1,
           )} different songs per round, averaging ${(
             league.votesPerRound / evenDistributor.avgVotesPerRound
           ).toFixed(
-            2
+            2,
           )} points per song, appreciating a wide variety of submissions.`,
         });
 
         cards.push({
-          id: "selective-voter",
-          icon: "🎖️",
-          title: "Selective Voter",
+          id: 'selective-voter',
+          icon: '🎖️',
+          title: 'Selective Voter',
           user: selectiveVoter.user,
           subtitle: selectiveVoter.user.userName,
           value: `${selectiveVoter.avgVotesPerRound.toFixed(1)} songs`,
           color: NEON_COLORS.Yellow,
           description: `The player who concentrates their points on fewer songs. They voted for an average of ${selectiveVoter.avgVotesPerRound.toFixed(
-            1
+            1,
           )} different songs per round, averaging ${(
             league.votesPerRound / selectiveVoter.avgVotesPerRound
           ).toFixed(
-            2
+            2,
           )} points per song, reserving their points for only the best submissions.`,
         });
       }
@@ -937,7 +950,7 @@ export function SummaryScreen({
   ]);
 
   return (
-    <Screen background={{ from: "#1e1b4b", via: "#7c3aed", to: "#000000" }}>
+    <Screen background={{ from: '#1e1b4b', via: '#7c3aed', to: '#000000' }}>
       <div className="h-full flex flex-col text-white relative overflow-hidden py-8">
         {/* Animated background */}
         {isActive && (
@@ -946,7 +959,7 @@ export function SummaryScreen({
             <div
               className="absolute top-[8%] left-[5%] text-2xl opacity-15 z-0"
               style={{
-                animation: "sparkle-twinkle 3s ease-in-out infinite",
+                animation: 'sparkle-twinkle 3s ease-in-out infinite',
               }}
             >
               ✨
@@ -954,7 +967,7 @@ export function SummaryScreen({
             <div
               className="absolute top-[40%] right-[8%] text-2xl opacity-10 z-0"
               style={{
-                animation: "sparkle-twinkle 3s ease-in-out 1s infinite",
+                animation: 'sparkle-twinkle 3s ease-in-out 1s infinite',
               }}
             >
               ✨
@@ -962,7 +975,7 @@ export function SummaryScreen({
             <div
               className="absolute bottom-[20%] left-[10%] text-3xl opacity-15 z-0"
               style={{
-                animation: "sparkle-twinkle 3s ease-in-out 2s infinite",
+                animation: 'sparkle-twinkle 3s ease-in-out 2s infinite',
               }}
             >
               ✨
@@ -985,8 +998,8 @@ export function SummaryScreen({
                     index < summaryCards.length - 1 &&
                     expandedCard !== card.id &&
                     expandedCard !== summaryCards[index + 1]?.id
-                      ? "border-b border-white/10"
-                      : ""
+                      ? 'border-b border-white/10'
+                      : ''
                   }`}
                   onClick={() =>
                     setExpandedCard(expandedCard === card.id ? null : card.id)
@@ -1111,7 +1124,7 @@ function FullTrackInfoDisplay({
   }>;
 }) {
   const preambleMarkup =
-    typeof preamble === "string" ? <p>{preamble}</p> : preamble;
+    typeof preamble === 'string' ? <p>{preamble}</p> : preamble;
 
   return (
     <div className="space-y-3 max-w-full overflow-hidden">
@@ -1148,7 +1161,7 @@ function TrackInfoDisplay({
           {trackInfo.title}
         </div>
         <div className="text-xs text-white/60 truncate">
-          {trackInfo.artists.join(", ")}
+          {trackInfo.artists.join(', ')}
         </div>
       </div>
 

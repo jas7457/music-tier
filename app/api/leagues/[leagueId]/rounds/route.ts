@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken } from "@/lib/auth";
-import { getCollection } from "@/lib/mongodb";
-import { Round } from "@/databaseTypes";
-import { ObjectId } from "mongodb";
-import { triggerRealTimeUpdate } from "@/lib/pusher-server";
-import { roundNotifications } from "@/lib/notifications";
-import { getUserLeagues } from "@/lib/data";
-import { getAllRounds } from "@/lib/utils/getAllRounds";
-import { setScheduledNotifications } from "@/lib/scheduledNotifications";
+import { NextRequest, NextResponse } from 'next/server';
+import { verifySessionToken } from '@/lib/auth';
+import { getCollection } from '@/lib/mongodb';
+import { Round } from '@/databaseTypes';
+import { ObjectId } from 'mongodb';
+import { triggerRealTimeUpdate } from '@/lib/pusher-server';
+import { roundNotifications } from '@/lib/notifications';
+import { getUserLeagues } from '@/lib/data';
+import { getAllRounds } from '@/lib/utils/getAllRounds';
+import { setScheduledNotifications } from '@/lib/scheduledNotifications';
 
 export async function POST(
   request: NextRequest,
@@ -15,7 +15,7 @@ export async function POST(
 ) {
   const params = await props.params;
   const { leagueId } = params;
-  return handleRequest(request, { leagueId, method: "ADD" });
+  return handleRequest(request, { leagueId, method: 'ADD' });
 }
 
 export async function PUT(
@@ -24,18 +24,18 @@ export async function PUT(
 ) {
   const params = await props.params;
   const { leagueId } = params;
-  return handleRequest(request, { leagueId, method: "UPDATE" });
+  return handleRequest(request, { leagueId, method: 'UPDATE' });
 }
 
 async function handleRequest(
   request: NextRequest,
-  { leagueId, method }: { leagueId: string; method: "ADD" | "UPDATE" },
+  { leagueId, method }: { leagueId: string; method: 'ADD' | 'UPDATE' },
 ) {
   const now = Date.now();
   try {
     const payload = await verifySessionToken();
     if (!payload) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -51,14 +51,14 @@ async function handleRequest(
 
     if (!title || !description) {
       return NextResponse.json(
-        { error: "Title and description are required" },
+        { error: 'Title and description are required' },
         { status: 400 },
       );
     }
 
-    if (method === "UPDATE" && !roundId) {
+    if (method === 'UPDATE' && !roundId) {
       return NextResponse.json(
-        { error: "Round ID is required for update" },
+        { error: 'Round ID is required for update' },
         { status: 400 },
       );
     }
@@ -106,40 +106,40 @@ async function handleRequest(
       await getLeagueData();
 
     if (!league) {
-      return NextResponse.json({ error: "League not found" }, { status: 404 });
+      return NextResponse.json({ error: 'League not found' }, { status: 404 });
     }
 
     // Verify user is in the league
     if (!league.users.map((user) => user._id).includes(payload.userId)) {
       return NextResponse.json(
-        { error: "You are not a member of this league" },
+        { error: 'You are not a member of this league' },
         { status: 403 },
       );
     }
 
-    if (method === "ADD" && existingBonusRound && isBonusRound) {
+    if (method === 'ADD' && existingBonusRound && isBonusRound) {
       return NextResponse.json(
-        { error: "You have already created a bonus round for this league" },
+        { error: 'You have already created a bonus round for this league' },
         { status: 400 },
       );
     }
-    if (method === "ADD" && existingKickoffRound && isKickoffRound) {
+    if (method === 'ADD' && existingKickoffRound && isKickoffRound) {
       return NextResponse.json(
-        { error: "You have already created a kickoff round for this league" },
+        { error: 'You have already created a kickoff round for this league' },
         { status: 400 },
       );
     }
-    if (method === "ADD" && existingRound && !isBonusRound && !isKickoffRound) {
+    if (method === 'ADD' && existingRound && !isBonusRound && !isKickoffRound) {
       return NextResponse.json(
-        { error: "You have already created a round for this league" },
+        { error: 'You have already created a round for this league' },
         { status: 400 },
       );
     }
 
-    const roundsCollection = await getCollection<Round>("rounds");
+    const roundsCollection = await getCollection<Round>('rounds');
 
     const newRound = await (async () => {
-      if (method === "ADD") {
+      if (method === 'ADD') {
         // Create the round
         const newRound: Round = {
           _id: new ObjectId(),
@@ -166,10 +166,10 @@ async function handleRequest(
               lastUpdatedDate: now,
             },
           },
-          { returnDocument: "after" },
+          { returnDocument: 'after' },
         );
         if (!result) {
-          throw new Error("No round found to update");
+          throw new Error('No round found to update');
         }
         return { ...result, _id: result._id.toString() };
       }
@@ -179,7 +179,7 @@ async function handleRequest(
 
     await Promise.all([
       roundNotifications({
-        isNewRound: method === "ADD",
+        isNewRound: method === 'ADD',
         round: { _id: newRound._id, isBonusRound, isKickoffRound },
         before: {
           league,
@@ -198,9 +198,9 @@ async function handleRequest(
       round: newRound,
     });
   } catch (error) {
-    console.error("Error creating round:", error);
+    console.error('Error creating round:', error);
     return NextResponse.json(
-      { error: "Failed to create round" },
+      { error: 'Failed to create round' },
       { status: 500 },
     );
   }

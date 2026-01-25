@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 import {
   getDueNotifications,
   markNotificationCompleted,
   markNotificationFailed,
-} from "@/lib/scheduledNotifications";
-import { sendNotifications } from "@/lib/notifications";
-import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
-import { getLeagueById } from "@/lib/data";
-import { assertNever } from "@/lib/utils/never";
-import { PopulatedLeague } from "@/lib/types";
+} from '@/lib/scheduledNotifications';
+import { sendNotifications } from '@/lib/notifications';
+import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
+import { getLeagueById } from '@/lib/data';
+import { assertNever } from '@/lib/utils/never';
+import { PopulatedLeague } from '@/lib/types';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Allow up to 60 seconds for processing
 
 export async function GET() {
@@ -49,21 +49,21 @@ export async function GET() {
 
       leaguesById[task.leagueId] ??= getLeagueById(
         task.leagueId,
-        task.userIds[0]
+        task.userIds[0],
       );
       const league = await leaguesById[task.leagueId];
       if (!league) {
         await markNotificationFailed(
           task._id,
-          `League ${task.leagueId} not found`
+          `League ${task.leagueId} not found`,
         );
         continue;
       }
 
       try {
         switch (task.type) {
-          case "SUBMISSION.REMINDER":
-          case "VOTING.REMINDER": {
+          case 'SUBMISSION.REMINDER':
+          case 'VOTING.REMINDER': {
             const notification = task.data.notification;
             await sendNotifications(
               [
@@ -72,7 +72,7 @@ export async function GET() {
                   userIds: task.userIds,
                 },
               ],
-              league
+              league,
             );
             break;
           }
@@ -85,7 +85,7 @@ export async function GET() {
         await markNotificationCompleted(task._id);
         results.succeeded++;
       } catch (error) {
-        const errorMessage = unknownToErrorString(error, "Unknown error");
+        const errorMessage = unknownToErrorString(error, 'Unknown error');
         await markNotificationFailed(task._id, errorMessage);
         results.failed++;
         results.errors.push(`Task ${task._id} failed: ${errorMessage}`);
@@ -98,12 +98,12 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    const errorText = unknownToErrorString(error, "Unknown error");
+    const errorText = unknownToErrorString(error, 'Unknown error');
     return NextResponse.json(
       {
         error: errorText,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

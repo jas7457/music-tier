@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import AlbumArt from "@/components/AlbumArt";
-import type { TrackInfo } from "@/databaseTypes";
-import type { PopulatedRound, PopulatedUser } from "@/lib/types";
-import { useProminentColor } from "../utils";
+import AlbumArt from '@/components/AlbumArt';
+import type { TrackInfo } from '@/databaseTypes';
+import type { PopulatedRound, PopulatedUser } from '@/lib/types';
+import { useProminentColor } from '../utils';
 
 interface ThreeDSongProps {
   trackInfo: TrackInfo;
@@ -24,7 +24,7 @@ export function ThreeDSong({
   playlist,
   submittedBy,
 }: ThreeDSongProps) {
-  const glowColor = useProminentColor(trackInfo.albumImageUrl, "transparent");
+  const glowColor = useProminentColor(trackInfo.albumImageUrl, 'transparent');
 
   return (
     <div className="relative">
@@ -32,55 +32,55 @@ export function ThreeDSong({
       <div
         className="absolute inset-0 rounded-lg opacity-60"
         style={{
-          background: glowColor || "transparent",
-          filter: "blur(30px)",
-          animation: isActive ? "glow-pulse-1 3s ease-in-out infinite" : "none",
+          background: glowColor || 'transparent',
+          filter: 'blur(30px)',
+          animation: isActive ? 'glow-pulse-1 3s ease-in-out infinite' : 'none',
         }}
       />
       <div
         className="absolute inset-0 rounded-lg opacity-40"
         style={{
-          background: glowColor || "transparent",
-          filter: "blur(50px)",
+          background: glowColor || 'transparent',
+          filter: 'blur(50px)',
           animation: isActive
-            ? "glow-pulse-2 3s ease-in-out 0.5s infinite"
-            : "none",
+            ? 'glow-pulse-2 3s ease-in-out 0.5s infinite'
+            : 'none',
         }}
       />
 
       {/* Album art with 3D rotation and shadow */}
       <div
         style={{
-          perspective: "1200px",
-          perspectiveOrigin: "center center",
+          perspective: '1200px',
+          perspectiveOrigin: 'center center',
         }}
       >
         <div
           className="relative"
           style={{
             animation: isActive
-              ? "album-3d-spin-with-flip 21s ease-in-out infinite"
-              : "none",
-            transformStyle: "preserve-3d",
+              ? 'album-3d-spin-with-flip 21s ease-in-out infinite'
+              : 'none',
+            transformStyle: 'preserve-3d',
           }}
         >
           {/* 3D shadow layer */}
           <div
             className="absolute inset-0 bg-black/60 rounded-lg"
             style={{
-              transform: "translateZ(-30px) scale(1.05)",
-              filter: "blur(20px)",
-              backfaceVisibility: "hidden",
+              transform: 'translateZ(-30px) scale(1.05)',
+              filter: 'blur(20px)',
+              backfaceVisibility: 'hidden',
             }}
           />
 
           {/* Front face */}
           <div
             style={{
-              transform: "translateZ(0) rotateY(0deg)",
+              transform: 'translateZ(0) rotateY(0deg)',
               boxShadow:
-                "0 20px 60px rgba(0,0,0,0.5), 0 0 100px rgba(0,0,0,0.3)",
-              backfaceVisibility: "hidden",
+                '0 20px 60px rgba(0,0,0,0.5), 0 0 100px rgba(0,0,0,0.3)',
+              backfaceVisibility: 'hidden',
             }}
           >
             <AlbumArt
@@ -98,17 +98,17 @@ export function ThreeDSong({
           <div
             className="absolute inset-0 rounded-md"
             style={{
-              transform: "translateZ(0) rotateY(180deg)",
+              transform: 'translateZ(0) rotateY(180deg)',
               boxShadow:
-                "0 20px 60px rgba(0,0,0,0.5), 0 0 100px rgba(0,0,0,0.3)",
-              backfaceVisibility: "hidden",
+                '0 20px 60px rgba(0,0,0,0.5), 0 0 100px rgba(0,0,0,0.3)',
+              backfaceVisibility: 'hidden',
               width: size,
               height: size,
             }}
           >
             <div
               className="h-full w-full grid items-center justify-items-center"
-              style={{ transform: "scaleY(-1)" }}
+              style={{ transform: 'scaleY(-1)' }}
             >
               <img
                 alt=""

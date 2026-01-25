@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { useState, useMemo, useEffect } from "react";
-import AlbumArt from "./AlbumArt";
-import Card from "./Card";
-import { UsersList } from "./UsersList";
-import { PopulatedRound, PopulatedUser } from "@/lib/types";
-import { UserGuess } from "./UserGuess";
-import { BlockQuote } from "./BlockQuote";
-import { twMerge } from "tailwind-merge";
-import { getStatusColor } from "@/lib/utils/colors";
-import { useData } from "@/lib/DataContext";
-import { useToast } from "@/lib/ToastContext";
-import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
-import { Avatar } from "./Avatar";
-import { formatDateWithTime } from "@/lib/utils/formatDate";
-import { HapticButton } from "./HapticButton";
-import { getYouTubeIdFromUrl, YouTubePlayer } from "./YouTubePlayer";
+import { useState, useMemo, useEffect } from 'react';
+import AlbumArt from './AlbumArt';
+import Card from './Card';
+import { UsersList } from './UsersList';
+import { PopulatedRound, PopulatedUser } from '@/lib/types';
+import { UserGuess } from './UserGuess';
+import { BlockQuote } from './BlockQuote';
+import { twMerge } from 'tailwind-merge';
+import { getStatusColor } from '@/lib/utils/colors';
+import { useData } from '@/lib/DataContext';
+import { useToast } from '@/lib/ToastContext';
+import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
+import { Avatar } from './Avatar';
+import { formatDateWithTime } from '@/lib/utils/formatDate';
+import { HapticButton } from './HapticButton';
+import { getYouTubeIdFromUrl, YouTubePlayer } from './YouTubePlayer';
 
-const LOCAL_STORAGE_KEY = "VotingRound.votes";
+const LOCAL_STORAGE_KEY = 'VotingRound.votes';
 
 interface VotingRoundProps {
   round: PopulatedRound;
@@ -41,14 +41,14 @@ export default function VotingRound({
 }: VotingRoundProps) {
   const toast = useToast();
   const { refreshData } = useData();
-  const [stage, setStage] = useState<"voting" | "guessing" | "submitted">(
-    round.stage === "voting" ? "voting" : "submitted"
+  const [stage, setStage] = useState<'voting' | 'guessing' | 'submitted'>(
+    round.stage === 'voting' ? 'voting' : 'submitted',
   );
   const [votes, setVotes] = useState(() => {
     const storedVersion: Partial<VoteRecord> = (() => {
       try {
         const storedVersion = JSON.parse(
-          localStorage.getItem(LOCAL_STORAGE_KEY) || "{}"
+          localStorage.getItem(LOCAL_STORAGE_KEY) || '{}',
         );
         if (
           storedVersion.roundId !== round._id ||
@@ -67,11 +67,11 @@ export default function VotingRound({
       const currentVote = round.votes.find(
         (vote) =>
           vote.userId === currentUser._id &&
-          vote.submissionId === submission._id
+          vote.submissionId === submission._id,
       );
 
       const points = (() => {
-        if (round.stage === "currentUserVotingCompleted") {
+        if (round.stage === 'currentUserVotingCompleted') {
           return round.votes.reduce((sum, vote) => {
             return (
               sum + (vote.submissionId === submission._id ? vote.points : 0)
@@ -84,13 +84,13 @@ export default function VotingRound({
       if (currentVote) {
         acc[submission._id] = {
           points,
-          note: currentVote.note || "",
+          note: currentVote.note || '',
           userGuessId: currentVote.userGuessId,
         };
       } else {
         acc[submission._id] = {
           points: 0,
-          note: "",
+          note: '',
           userGuessId: undefined,
           ...(storedVersion[submission._id] ?? {}),
         };
@@ -107,7 +107,7 @@ export default function VotingRound({
         leagueId: league._id,
         userId: currentUser._id,
         votes,
-      })
+      }),
     );
   }, [votes, round._id, league._id, currentUser._id]);
   const [saving, setSaving] = useState(false);
@@ -116,7 +116,7 @@ export default function VotingRound({
   const totalVotesUsed = useMemo(() => {
     return Object.values(votes).reduce(
       (sum, vote) => sum + vote.points || 0,
-      0
+      0,
     );
   }, [votes]);
   const remainingVotes = league.votesPerRound - totalVotesUsed;
@@ -135,7 +135,7 @@ export default function VotingRound({
       ...prev,
       [submissionId]: {
         points: newVotes,
-        note: prev[submissionId]?.note || "",
+        note: prev[submissionId]?.note || '',
         userGuessId: prev[submissionId]?.userGuessId,
       },
     }));
@@ -152,7 +152,7 @@ export default function VotingRound({
 
   const handleGuessChange = (
     submissionId: string,
-    userId: string | undefined
+    userId: string | undefined,
   ) => {
     setVotes((prev) => {
       return {
@@ -163,16 +163,16 @@ export default function VotingRound({
   };
 
   const handleSave = async () => {
-    if (round.stage !== "voting") {
+    if (round.stage !== 'voting') {
       return;
     }
     try {
       setSaving(true);
       // Save all votes in parallel
       const response = await fetch(`/api/rounds/${round._id}/votes`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(votes),
       });
@@ -181,16 +181,16 @@ export default function VotingRound({
         throw new Error(`Failed to submit vote for ${round._id}`);
       }
     } catch (error) {
-      const message = unknownToErrorString(error, "Failed to save some votes");
+      const message = unknownToErrorString(error, 'Failed to save some votes');
       toast.show({
-        title: "Failed to save some votes",
-        variant: "error",
+        title: 'Failed to save some votes',
+        variant: 'error',
         message,
       });
     } finally {
       setSaving(false);
-      setStage("submitted");
-      refreshData("manual");
+      setStage('submitted');
+      refreshData('manual');
     }
   };
 
@@ -198,9 +198,9 @@ export default function VotingRound({
     return league.users.reduce(
       (acc, user) => {
         const hasVoted = (() => {
-          if (round.stage === "completed") {
+          if (round.stage === 'completed') {
             return round.votes.some(
-              (vote) => vote.userId === user._id && vote.points > 0
+              (vote) => vote.userId === user._id && vote.points > 0,
             );
           }
 
@@ -230,38 +230,38 @@ export default function VotingRound({
       {
         usersThatHaveVoted: [] as PopulatedUser[],
         usersThatHaveNotVoted: [] as PopulatedUser[],
-      }
+      },
     );
   }, [league, round]);
 
   const { title, subtitle } = (() => {
     switch (round.stage) {
-      case "voting":
+      case 'voting':
         return {
-          title: "Voting in Progress",
+          title: 'Voting in Progress',
           subtitle: (
             <>
-              Vote for your favorite tracks! You have{" "}
-              <span className="font-semibold">{league.votesPerRound}</span>{" "}
+              Vote for your favorite tracks! You have{' '}
+              <span className="font-semibold">{league.votesPerRound}</span>{' '}
               total votes to distribute.
             </>
           ),
         };
-      case "currentUserVotingCompleted":
+      case 'currentUserVotingCompleted':
         return {
-          title: "Waiting on others to vote",
-          subtitle: "You have already submitted your votes.",
+          title: 'Waiting on others to vote',
+          subtitle: 'You have already submitted your votes.',
         };
-      case "completed": {
+      case 'completed': {
         return {
-          title: "Round Completed",
-          subtitle: "View the results of the round below.",
+          title: 'Round Completed',
+          subtitle: 'View the results of the round below.',
         };
       }
       default:
         return {
-          title: "Unexpected state",
-          subtitle: "Tell Jason you saw this",
+          title: 'Unexpected state',
+          subtitle: 'Tell Jason you saw this',
         };
     }
   })();
@@ -271,9 +271,9 @@ export default function VotingRound({
       {/* Voting Summary */}
       <Card
         className={twMerge(
-          "py-2 md:py-4 flex flex-col gap-3",
+          'py-2 md:py-4 flex flex-col gap-3',
           getStatusColor(round.stage),
-          "text-black"
+          'text-black',
         )}
         variant="outlined"
       >
@@ -283,7 +283,7 @@ export default function VotingRound({
             <p className="text-xs text-gray-600">{subtitle}</p>
           </div>
 
-          {round.stage === "voting" && (
+          {round.stage === 'voting' && (
             <div className="text-right">
               <div className="text-2xl font-bold text-yellow-600">
                 {remainingVotes}
@@ -320,7 +320,7 @@ export default function VotingRound({
                     {submission.trackInfo.title}
                   </h5>
                   <p className="text-sm text-gray-600 truncate">
-                    {submission.trackInfo.artists.join(", ")}
+                    {submission.trackInfo.artists.join(', ')}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
                     {submission.trackInfo.albumName}
@@ -331,7 +331,7 @@ export default function VotingRound({
                     </p>
                   )}
 
-                  {round.stage === "completed" && submission.userObject && (
+                  {round.stage === 'completed' && submission.userObject && (
                     <div className="flex items-center gap-1">
                       <Avatar user={submission.userObject} size={6} />
                       <p className="text-sm text-gray-600">
@@ -343,22 +343,22 @@ export default function VotingRound({
 
                 {/* Voting Controls */}
                 {(!isYourSubmission ||
-                  round.stage === "currentUserVotingCompleted") && (
+                  round.stage === 'currentUserVotingCompleted') && (
                   <div
                     className={twMerge(
-                      "flex items-center gap-1",
-                      round.stage === "currentUserVotingCompleted"
-                        ? "self-start"
-                        : ""
+                      'flex items-center gap-1',
+                      round.stage === 'currentUserVotingCompleted'
+                        ? 'self-start'
+                        : '',
                     )}
                   >
                     <div className="flex flex-col items-center min-w-10">
-                      {stage === "voting" && (
+                      {stage === 'voting' && (
                         <HapticButton
                           onClick={() => handleVoteChange(submission._id, 1)}
                           disabled={!canVoteUp || saving}
                           className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                          title={canVoteUp ? "Vote up" : "No votes remaining"}
+                          title={canVoteUp ? 'Vote up' : 'No votes remaining'}
                         >
                           <svg
                             width="16"
@@ -377,7 +377,7 @@ export default function VotingRound({
                         {savedSubmission?.points || 0}
                       </div>
 
-                      {stage === "voting" && (
+                      {stage === 'voting' && (
                         <HapticButton
                           onClick={() => handleVoteChange(submission._id, -1)}
                           disabled={savedSubmission?.points === 0 || saving}
@@ -401,7 +401,7 @@ export default function VotingRound({
                     <div>
                       <UserGuess
                         isCorrect={
-                          round.stage === "completed" &&
+                          round.stage === 'completed' &&
                           savedSubmission.userGuessId
                             ? savedSubmission.userGuessId === submission.userId
                             : undefined
@@ -412,13 +412,13 @@ export default function VotingRound({
                             return false;
                           }
                           return !Object.values(votes).some(
-                            (vote) => vote.userGuessId === u._id
+                            (vote) => vote.userGuessId === u._id,
                           );
                         })}
                         selectedUser={
                           savedSubmission?.userGuessId
                             ? league.users.find(
-                                (u) => u._id === savedSubmission.userGuessId
+                                (u) => u._id === savedSubmission.userGuessId,
                               )
                             : undefined
                         }
@@ -434,10 +434,10 @@ export default function VotingRound({
               {/* Note Input */}
               {!isYourSubmission && (
                 <div>
-                  {round.stage === "voting" ? (
+                  {round.stage === 'voting' ? (
                     <textarea
                       className="w-full px-3 py-2 text-xs border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
-                      value={votes[submission._id]?.note || ""}
+                      value={votes[submission._id]?.note || ''}
                       onChange={(e) =>
                         handleNoteChange(submission._id, e.target.value)
                       }
@@ -454,16 +454,16 @@ export default function VotingRound({
 
               <YouTubePlayer
                 className="mb-2"
-                youtubeId={getYouTubeIdFromUrl(submission.youtubeURL || "")}
+                youtubeId={getYouTubeIdFromUrl(submission.youtubeURL || '')}
               />
             </div>
           );
         })}
 
-        {stage === "voting" && (
+        {stage === 'voting' && (
           <div className="px-2 md:px-4 pt-3">
             <HapticButton
-              onClick={() => setStage("guessing")}
+              onClick={() => setStage('guessing')}
               disabled={remainingVotes !== 0}
               className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
@@ -472,14 +472,14 @@ export default function VotingRound({
           </div>
         )}
 
-        {stage === "guessing" && (
+        {stage === 'guessing' && (
           <div className="px-2 md:px-4 pt-3">
             <HapticButton
               onClick={handleSave}
               disabled={saving || remainingVotes !== 0}
               className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {saving ? "Submitting..." : "Submit Votes"}
+              {saving ? 'Submitting...' : 'Submit Votes'}
             </HapticButton>
           </div>
         )}
@@ -488,14 +488,14 @@ export default function VotingRound({
           <UsersList
             className="px-2 md:px-4"
             users={usersThatHaveVoted}
-            text={{ noun: "votes", verb: "voted" }}
+            text={{ noun: 'votes', verb: 'voted' }}
             tooltipText={(user) => {
               const vote = round.votes.find((vote) => vote.userId === user._id);
               if (!vote) {
                 return `${user.userName}`;
               }
               return `${user.userName} voted on ${formatDateWithTime(
-                vote.voteDate
+                vote.voteDate,
               )}`;
             }}
           />
@@ -505,7 +505,7 @@ export default function VotingRound({
           <UsersList
             className="px-2 md:px-4"
             users={usersThatHaveNotVoted}
-            text={{ noun: "votes", verb: "not voted" }}
+            text={{ noun: 'votes', verb: 'not voted' }}
           />
         )}
       </Card>

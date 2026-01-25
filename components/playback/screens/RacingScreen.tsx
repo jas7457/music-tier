@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { twMerge } from "tailwind-merge";
-import type { PlaybackScreenProps } from "../types";
-import { Screen } from "../components/Screen";
-import { Avatar } from "@/components/Avatar";
-import { getPlaces } from "@/lib/utils/getPlaces";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
+import type { PlaybackScreenProps } from '../types';
+import { Screen } from '../components/Screen';
+import { Avatar } from '@/components/Avatar';
+import { getPlaces } from '@/lib/utils/getPlaces';
 
 interface RacerPosition {
   userId: string;
@@ -32,10 +32,10 @@ export function RacingScreen({
   const [isRacing, setIsRacing] = useState(false);
   const [showWinner, setShowWinner] = useState(false);
   const [spinningOutUsers, setSpinningOutUsers] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const [poweringUpUsers, setPoweringUpUsers] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const animationTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
@@ -73,7 +73,7 @@ export function RacingScreen({
       if (droppedUsers.length > 0) {
         // Add spinning effect to users who dropped
         setSpinningOutUsers(
-          (prev) => new Set([...Array.from(prev), ...droppedUsers])
+          (prev) => new Set([...Array.from(prev), ...droppedUsers]),
         );
 
         const timeout = setTimeout(() => {
@@ -89,7 +89,7 @@ export function RacingScreen({
       if (improvedUsers.length > 0) {
         // Add power-up effect to users who improved
         setPoweringUpUsers(
-          (prev) => new Set([...Array.from(prev), ...improvedUsers])
+          (prev) => new Set([...Array.from(prev), ...improvedUsers]),
         );
 
         // Remove power-up effect after animation completes
@@ -103,7 +103,7 @@ export function RacingScreen({
         animationTimeoutsRef.current.push(timeout);
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -128,19 +128,25 @@ export function RacingScreen({
 
     // Initialize random sway animations for each user (only once)
     if (Object.keys(swayAnimationRef.current).length === 0) {
-      swayAnimationRef.current = users.reduce((acc, user) => {
-        const delay = Math.random() * 2;
-        const duration = 1.5 + Math.random();
-        acc[user._id] = {
-          delay,
-          duration,
-          style: {
-            animationDelay: `${delay}s`,
-            animationDuration: `${duration}s`,
-          },
-        };
-        return acc;
-      }, {} as Record<string, { delay: number; duration: number; style: React.CSSProperties }>);
+      swayAnimationRef.current = users.reduce(
+        (acc, user) => {
+          const delay = Math.random() * 2;
+          const duration = 1.5 + Math.random();
+          acc[user._id] = {
+            delay,
+            duration,
+            style: {
+              animationDelay: `${delay}s`,
+              animationDuration: `${duration}s`,
+            },
+          };
+          return acc;
+        },
+        {} as Record<
+          string,
+          { delay: number; duration: number; style: React.CSSProperties }
+        >,
+      );
     }
 
     // Initialize positions at League Start (all at 0 points, all in 1st place)
@@ -181,7 +187,7 @@ export function RacingScreen({
             setCurrentRoundIndex(roundIdx);
 
             const userPointsMap = new Map(
-              currentRound.users.map((u) => [u.user._id, u.points])
+              currentRound.users.map((u) => [u.user._id, u.points]),
             );
             const sortedUsers = getPlaces(currentRound.users);
             const maxPoints = sortedUsers[0]?.points || 1;
@@ -190,7 +196,7 @@ export function RacingScreen({
               const points = userPointsMap.get(user._id) || 0;
               const position = maxPoints > 0 ? points / maxPoints : 0;
               const userWithPlace = sortedUsers.find(
-                (u) => u.user._id === user._id
+                (u) => u.user._id === user._id,
               );
               const rank = userWithPlace ? userWithPlace.place - 1 : index;
 
@@ -219,7 +225,7 @@ export function RacingScreen({
 
       // Calculate positions based on cumulative points
       const userPointsMap = new Map(
-        currentRound.users.map((u) => [u.user._id, u.points])
+        currentRound.users.map((u) => [u.user._id, u.points]),
       );
 
       // Sort users by points (descending) to determine position
@@ -283,16 +289,16 @@ export function RacingScreen({
   const allAtStart = racerPositions.every((r) => r.rank === 0);
 
   return (
-    <Screen background={{ from: "#0f172a", via: "#1e293b", to: "#0f172a" }}>
+    <Screen background={{ from: '#0f172a', via: '#1e293b', to: '#0f172a' }}>
       <div className="h-full w-full relative flex flex-col">
         {/* Header */}
         <div className="absolute top-0 left-0 right-0 z-10 p-6 bg-linear-to-b from-black/50 to-transparent">
           <div
             className={twMerge(
-              "text-center transition-all duration-500",
+              'text-center transition-all duration-500',
               isActive
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 -translate-y-4"
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 -translate-y-4',
             )}
           >
             <h2 className="text-4xl font-bold text-white mb-2">
@@ -303,7 +309,7 @@ export function RacingScreen({
             )}
             {isRacing && currentRound && (
               <p className="text-xl text-purple-300 truncate">
-                Round {currentRound.round.roundIndex + 1}:{" "}
+                Round {currentRound.round.roundIndex + 1}:{' '}
                 {currentRound.round.title}
               </p>
             )}
@@ -348,8 +354,8 @@ export function RacingScreen({
             const containerStyle: React.CSSProperties = {
               left: `${leftPosition}%`,
               top: `${topPosition}%`,
-              transform: "translate3d(-50%, -50%, 0)",
-              willChange: "transform, filter",
+              transform: 'translate3d(-50%, -50%, 0)',
+              willChange: 'transform, filter',
               ...(swayAnimation?.style || {}),
             };
 
@@ -357,16 +363,16 @@ export function RacingScreen({
               <div
                 key={racer.userId}
                 className={twMerge(
-                  "absolute transition-all duration-1500 ease-in-out animate-driving-sway",
-                  isSpinningOut && "animate-spin-out"
+                  'absolute transition-all duration-1500 ease-in-out animate-driving-sway',
+                  isSpinningOut && 'animate-spin-out',
                 )}
                 style={containerStyle}
               >
                 <div className="flex flex-col items-center">
                   <div
                     className={twMerge(
-                      "relative w-[16vw] max-w-24 aspect-square",
-                      isPoweringUp && "animate-power-up"
+                      'relative w-[16vw] max-w-24 aspect-square',
+                      isPoweringUp && 'animate-power-up',
                     )}
                   >
                     <Avatar
@@ -374,10 +380,10 @@ export function RacingScreen({
                       size={96}
                       includeLink={false}
                       className={twMerge(
-                        "border-2 shadow-lg transition-all w-full! h-full!",
+                        'border-2 shadow-lg transition-all w-full! h-full!',
                         showWinner && winner?.user._id === user._id
-                          ? "border-yellow-400 shadow-yellow-400/50 scale-125"
-                          : "border-white/50"
+                          ? 'border-yellow-400 shadow-yellow-400/50 scale-125'
+                          : 'border-white/50',
                       )}
                     />
                     <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-linear-to-r from-purple-600 to-pink-600 text-white text-[1.2rem] font-bold px-2.5 py-1 rounded-full shadow-lg whitespace-nowrap">

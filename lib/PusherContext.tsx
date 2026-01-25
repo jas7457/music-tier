@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import PusherClient from "pusher-js";
-import type { Channel } from "pusher-js";
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import PusherClient from 'pusher-js';
+import type { Channel } from 'pusher-js';
 import {
   PUSHER_REAL_TIME_UPDATES,
   PUSHER_CLUSTER,
   PUSHER_PUBLIC_KEY,
   PUSHER_NOTIFICATIONS,
-} from "./utils/constants";
-import { useData } from "./DataContext";
-import { useToast } from "./ToastContext";
-import { useAuth } from "./AuthContext";
-import type { Notification } from "./notifications";
+} from './utils/constants';
+import { useData } from './DataContext';
+import { useToast } from './ToastContext';
+import { useAuth } from './AuthContext';
+import type { Notification } from './notifications';
 
 type PusherContextType = {
   pusher: PusherClient | null;
@@ -62,7 +62,7 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
 export function usePusher() {
   const pusherContext = useContext(PusherContext);
   if (!pusherContext) {
-    throw new Error("usePusher must be used within a PusherProvider");
+    throw new Error('usePusher must be used within a PusherProvider');
   }
   return pusherContext;
 }
@@ -84,15 +84,15 @@ export function useRealTimeUpdates() {
       if (
         !userIds ||
         userIds.length === 0 ||
-        userIds.includes(user?._id || "")
+        userIds.includes(user?._id || '')
       ) {
-        refreshData("pusherUpdate");
+        refreshData('pusherUpdate');
       }
     };
-    channel.bind("update", updateHandler);
+    channel.bind('update', updateHandler);
 
     return () => {
-      channel.unbind("update", updateHandler);
+      channel.unbind('update', updateHandler);
       unsubscribe(PUSHER_REAL_TIME_UPDATES);
     };
   }, [refreshData, subscribe, unsubscribe, user?._id]);
@@ -116,20 +116,20 @@ function useNotifications() {
       notifications: Notification[];
     }) => {
       notifications.forEach((notification) => {
-        if (notification.userIds.includes(user?._id || "")) {
+        if (notification.userIds.includes(user?._id || '')) {
           toast.show({
             title: notification.title,
             message: notification.message,
-            variant: "info",
+            variant: 'info',
             timeout: 10_000,
           });
         }
       });
     };
-    channel.bind("notification", notificationHandler);
+    channel.bind('notification', notificationHandler);
 
     return () => {
-      channel.unbind("notification", notificationHandler);
+      channel.unbind('notification', notificationHandler);
       unsubscribe(PUSHER_NOTIFICATIONS);
     };
   }, [subscribe, toast, unsubscribe, user?._id]);

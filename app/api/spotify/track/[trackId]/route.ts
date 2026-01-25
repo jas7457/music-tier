@@ -1,20 +1,23 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getTrackDetails } from "@/lib/spotify";
-import { PopulatedTrackInfo } from "@/lib/types";
+import { NextRequest, NextResponse } from 'next/server';
+import { getTrackDetails } from '@/lib/spotify';
+import { PopulatedTrackInfo } from '@/lib/types';
 
 export type GETReponse =
   | { error: string; track?: never }
   | { track: PopulatedTrackInfo; error?: never };
 
-export async function GET(request: NextRequest, props: { params: Promise<{ trackId: string }> }): Promise<NextResponse<GETReponse>> {
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ trackId: string }> },
+): Promise<NextResponse<GETReponse>> {
   const params = await props.params;
   try {
-    const accessToken = request.cookies.get("spotify_access_token")?.value;
+    const accessToken = request.cookies.get('spotify_access_token')?.value;
 
     if (!accessToken) {
       return NextResponse.json(
-        { error: "No Spotify access token found" },
-        { status: 401 }
+        { error: 'No Spotify access token found' },
+        { status: 401 },
       );
     }
 
@@ -23,10 +26,10 @@ export async function GET(request: NextRequest, props: { params: Promise<{ track
 
     return NextResponse.json({ track });
   } catch (error) {
-    console.error("Error fetching track details:", error);
+    console.error('Error fetching track details:', error);
     return NextResponse.json(
       { error: `Failed to fetch track details: ${error}` },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

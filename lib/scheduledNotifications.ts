@@ -1,11 +1,11 @@
-import { ObjectId } from "mongodb";
-import { getDatabase } from "./mongodb";
-import type { ScheduledNotification } from "@/databaseTypes";
-import { formatDateWithTime } from "./utils/formatDate";
-import { PopulatedLeague } from "./types";
+import { ObjectId } from 'mongodb';
+import { getDatabase } from './mongodb';
+import type { ScheduledNotification } from '@/databaseTypes';
+import { formatDateWithTime } from './utils/formatDate';
+import { PopulatedLeague } from './types';
 
 export async function setScheduledNotifications(
-  league: PopulatedLeague | null | undefined
+  league: PopulatedLeague | null | undefined,
 ) {
   if (!league) {
     return;
@@ -13,7 +13,7 @@ export async function setScheduledNotifications(
   try {
     const db = await getDatabase();
     const scheduledNotificationsCollection =
-      db.collection<ScheduledNotification>("scheduledNotifications");
+      db.collection<ScheduledNotification>('scheduledNotifications');
 
     // Fetch all existing scheduled notifications for this league
     const existingNotifications = await scheduledNotificationsCollection
@@ -28,21 +28,21 @@ export async function setScheduledNotifications(
     // Helper function to get users who already received a specific notification type for a round
     const getUsersAlreadyNotified = (
       roundId: string,
-      type: ScheduledNotification["type"]
+      type: ScheduledNotification['type'],
     ): Set<string> => {
       return new Set(
         existingNotifications
           .filter((n) => {
-            const isCompletedType = n.type === type && n.status === "completed";
+            const isCompletedType = n.type === type && n.status === 'completed';
             if (!isCompletedType) {
               return false;
             }
-            if ("roundId" in n.data) {
+            if ('roundId' in n.data) {
               return n.data.roundId === roundId;
             }
             return false;
           })
-          .flatMap((n) => n.userIds)
+          .flatMap((n) => n.userIds),
       );
     };
 
@@ -53,15 +53,15 @@ export async function setScheduledNotifications(
       }
 
       switch (currentRound.stage) {
-        case "completed":
-        case "unknown":
-        case "upcoming": {
+        case 'completed':
+        case 'unknown':
+        case 'upcoming': {
           return;
         }
-        case "submission": {
+        case 'submission': {
           const unsubmittedUsers = league.users.filter((user) => {
             const hasSubmitted = currentRound.submissions.some(
-              (submission) => submission.userId === user._id
+              (submission) => submission.userId === user._id,
             );
             return !hasSubmitted;
           });
@@ -72,7 +72,7 @@ export async function setScheduledNotifications(
           // Get users who already received this notification
           const usersAlreadyNotified = getUsersAlreadyNotified(
             currentRound._id,
-            "SUBMISSION.REMINDER"
+            'SUBMISSION.REMINDER',
           );
 
           // Filter out users who already received the notification
@@ -86,31 +86,31 @@ export async function setScheduledNotifications(
 
           scheduledNotifications.push({
             _id: new ObjectId(),
-            type: "SUBMISSION.REMINDER",
-            status: "pending",
+            type: 'SUBMISSION.REMINDER',
+            status: 'pending',
             leagueId: league._id,
             userIds: usersToNotify,
             executeAt: getTimeBefore(currentRound.submissionEndDate),
             data: {
               roundId: currentRound._id,
               notification: {
-                code: "SUBMISSION.REMINDER",
-                title: "Round Submission Reminder",
+                code: 'SUBMISSION.REMINDER',
+                title: 'Round Submission Reminder',
                 message: `Song submissions for ${
                   currentRound.title
                 } are ending at ${formatDateWithTime(
-                  currentRound.submissionEndDate
+                  currentRound.submissionEndDate,
                 )}. Make sure to get your submission in on time!`,
               },
             },
           });
           return;
         }
-        case "voting":
-        case "currentUserVotingCompleted": {
+        case 'voting':
+        case 'currentUserVotingCompleted': {
           const unvotedUsers = league.users.filter((user) => {
             const hasVoted = currentRound.votes.some(
-              (vote) => vote.userId === user._id
+              (vote) => vote.userId === user._id,
             );
             return !hasVoted;
           });
@@ -122,7 +122,7 @@ export async function setScheduledNotifications(
           // Get users who already received this notification
           const usersAlreadyNotified = getUsersAlreadyNotified(
             currentRound._id,
-            "VOTING.REMINDER"
+            'VOTING.REMINDER',
           );
 
           // Filter out users who already received the notification
@@ -136,20 +136,20 @@ export async function setScheduledNotifications(
 
           scheduledNotifications.push({
             _id: new ObjectId(),
-            type: "VOTING.REMINDER",
-            status: "pending",
+            type: 'VOTING.REMINDER',
+            status: 'pending',
             leagueId: league._id,
             userIds: usersToNotify,
             executeAt: getTimeBefore(currentRound.votingEndDate),
             data: {
               roundId: currentRound._id,
               notification: {
-                code: "VOTING.REMINDER",
-                title: "Round Voting Reminder",
+                code: 'VOTING.REMINDER',
+                title: 'Round Voting Reminder',
                 message: `Voting for ${
                   currentRound.title
                 } is ending at ${formatDateWithTime(
-                  currentRound.votingEndDate
+                  currentRound.votingEndDate,
                 )}. Make sure to get your votes in on time!`,
               },
             },
@@ -162,7 +162,7 @@ export async function setScheduledNotifications(
     // Only delete pending notifications - keep completed/failed as historical record
     await scheduledNotificationsCollection.deleteMany({
       leagueId: league._id,
-      status: "pending",
+      status: 'pending',
     });
 
     if (scheduledNotifications.length > 0) {
@@ -177,14 +177,14 @@ export async function setScheduledNotifications(
 export async function getDueNotifications(): Promise<ScheduledNotification[]> {
   const db = await getDatabase();
   const notificationsCollection = db.collection<ScheduledNotification>(
-    "scheduledNotifications"
+    'scheduledNotifications',
   );
 
   const now = Date.now();
 
   return await notificationsCollection
     .find({
-      status: "pending",
+      status: 'pending',
       executeAt: { $lte: now },
     })
     .sort({ executeAt: 1 })
@@ -195,21 +195,21 @@ export async function getDueNotifications(): Promise<ScheduledNotification[]> {
  * Mark a notification as completed
  */
 export async function markNotificationCompleted(
-  notificationId: ObjectId
+  notificationId: ObjectId,
 ): Promise<void> {
   const db = await getDatabase();
   const notificationsCollection = db.collection<ScheduledNotification>(
-    "scheduledNotifications"
+    'scheduledNotifications',
   );
 
   await notificationsCollection.updateOne(
     { _id: notificationId },
     {
       $set: {
-        status: "completed",
+        status: 'completed',
         executedAt: Date.now(),
       },
-    }
+    },
   );
 }
 
@@ -218,21 +218,21 @@ export async function markNotificationCompleted(
  */
 export async function markNotificationFailed(
   notificationId: ObjectId,
-  error: string
+  error: string,
 ): Promise<void> {
   const db = await getDatabase();
   const notificationsCollection = db.collection<ScheduledNotification>(
-    "scheduledNotifications"
+    'scheduledNotifications',
   );
 
   await notificationsCollection.updateOne(
     { _id: notificationId },
     {
       $set: {
-        status: "failed",
+        status: 'failed',
         executedAt: Date.now(),
         error,
       },
-    }
+    },
   );
 }

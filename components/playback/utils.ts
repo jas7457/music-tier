@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 const colorCache: Record<string, Promise<string | undefined>> = {};
 
@@ -9,8 +9,8 @@ async function getAverageRGB(imageUrl: string): Promise<string | undefined> {
   }
   const promise = new Promise<string | undefined>((resolve, reject) => {
     const blockSize = 5;
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext && canvas.getContext("2d");
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext && canvas.getContext('2d');
     const rgb = { r: 0, g: 0, b: 0 };
 
     let i = -4;
@@ -22,7 +22,7 @@ async function getAverageRGB(imageUrl: string): Promise<string | undefined> {
     }
 
     const imageElement = new Image();
-    imageElement.crossOrigin = "Anonymous";
+    imageElement.crossOrigin = 'Anonymous';
     imageElement.onload = () => {
       const height = (canvas.height =
         imageElement.naturalHeight ||

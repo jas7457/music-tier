@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   createContext,
@@ -8,14 +8,14 @@ import {
   useRef,
   useCallback,
   useMemo,
-} from "react";
-import Cookies from "js-cookie";
-import { PopulatedRound } from "./types";
-import { useToast } from "./ToastContext";
-import { APP_NAME } from "./utils/constants";
-import { unknownToErrorString } from "./utils/unknownToErrorString";
-import { useAuth } from "./AuthContext";
-import { TrackInfo } from "@/databaseTypes";
+} from 'react';
+import Cookies from 'js-cookie';
+import { PopulatedRound } from './types';
+import { useToast } from './ToastContext';
+import { APP_NAME } from './utils/constants';
+import { unknownToErrorString } from './utils/unknownToErrorString';
+import { useAuth } from './AuthContext';
+import { TrackInfo } from '@/databaseTypes';
 
 const SPOTIFY_PLAYER_NAME = APP_NAME;
 
@@ -31,7 +31,7 @@ interface SpotifyPlayerContextType {
   registerTimeUpdate: (callback: (time: number) => void) => () => void;
   playTrack: (options: {
     trackInfo: TrackInfo;
-    round: PopulatedRound | "same";
+    round: PopulatedRound | 'same';
     playlist?: Array<TrackInfo>;
     startTime?: number;
     skipErrors?: boolean;
@@ -46,14 +46,14 @@ interface SpotifyPlayerContextType {
 }
 
 const SpotifyPlayerContext = createContext<SpotifyPlayerContextType | null>(
-  null
+  null,
 );
 
 export const useSpotifyPlayer = () => {
   const context = useContext(SpotifyPlayerContext);
   if (!context) {
     throw new Error(
-      "useSpotifyPlayer must be used within a SpotifyPlayerProvider"
+      'useSpotifyPlayer must be used within a SpotifyPlayerProvider',
     );
   }
   return context;
@@ -107,13 +107,13 @@ export function SpotifyPlayerProvider({
   const hasPreviousTrack = playlist.length > 0 && currentTrackIndex > 0;
 
   const refreshToken = useCallback(async (): Promise<{ success: boolean }> => {
-    const refreshToken = Cookies.get("spotify_refresh_token");
+    const refreshToken = Cookies.get('spotify_refresh_token');
     if (!refreshToken) {
       return { success: false };
     }
     try {
-      const response = await fetch("/api/spotify/refresh", {
-        method: "POST",
+      const response = await fetch('/api/spotify/refresh', {
+        method: 'POST',
       });
       if (!response.ok) {
         throw new Error(`${response.status} error: ${response.statusText}`);
@@ -128,12 +128,12 @@ export function SpotifyPlayerProvider({
     } catch (error) {
       const errorMessage = unknownToErrorString(
         error,
-        "Error refreshing Spotify token"
+        'Error refreshing Spotify token',
       );
       toast.show({
-        title: "Error refreshing Spotify token",
+        title: 'Error refreshing Spotify token',
         message: errorMessage,
-        variant: "error",
+        variant: 'error',
       });
       return { success: false };
     }
@@ -144,8 +144,8 @@ export function SpotifyPlayerProvider({
     let timeoutId: NodeJS.Timeout;
     async function setup() {
       const checkAndRefreshToken = async () => {
-        const expiresAt = Cookies.get("spotify_token_expires_at");
-        const currentRefreshToken = Cookies.get("spotify_refresh_token");
+        const expiresAt = Cookies.get('spotify_token_expires_at');
+        const currentRefreshToken = Cookies.get('spotify_refresh_token');
         if (!expiresAt) {
           if (currentRefreshToken) {
             await refreshToken();
@@ -209,9 +209,9 @@ export function SpotifyPlayerProvider({
         return setupPromiseRef.current;
       }
 
-      const token = Cookies.get("spotify_access_token");
+      const token = Cookies.get('spotify_access_token');
       if (!token) {
-        return "";
+        return '';
       }
 
       let stateTimeout: NodeJS.Timeout;
@@ -223,7 +223,7 @@ export function SpotifyPlayerProvider({
           }, 5_000);
 
           const resolveWithNothing = () => {
-            resolve("");
+            resolve('');
             clearTimeout(resolveTimeout);
           };
 
@@ -232,62 +232,62 @@ export function SpotifyPlayerProvider({
             // @ts-ignore
             enableMediaSession: true,
             getOAuthToken: (cb) => {
-              const currentToken = Cookies.get("spotify_access_token");
+              const currentToken = Cookies.get('spotify_access_token');
               cb(currentToken || token);
             },
             volume: 1,
           });
 
           // Ready event - device is ready
-          spotifyPlayer.addListener("ready", async ({ device_id }) => {
-            console.log("Spotify Player Ready with Device ID:", device_id);
+          spotifyPlayer.addListener('ready', async ({ device_id }) => {
+            console.log('Spotify Player Ready with Device ID:', device_id);
             deviceIdRef.current = device_id;
             resolve(device_id);
             clearTimeout(resolveTimeout);
           });
 
           // Not Ready event - device has gone offline
-          spotifyPlayer.addListener("not_ready", () => {
-            const errorMessage = "Spotify Player went offline";
+          spotifyPlayer.addListener('not_ready', () => {
+            const errorMessage = 'Spotify Player went offline';
             if (!skipErrors) {
-              toast.show({ message: errorMessage, variant: "error" });
+              toast.show({ message: errorMessage, variant: 'error' });
             }
             resolveWithNothing();
           });
 
-          spotifyPlayer.addListener("initialization_error", ({ message }) => {
-            if (!skipErrors) {
-              const errorMessage = unknownToErrorString(
-                message,
-                "Spotify Initialization Error"
-              );
-              toast.show({ message: errorMessage, variant: "error" });
-            }
-            resolveWithNothing();
-          });
-
-          spotifyPlayer.addListener("authentication_error", ({ message }) => {
+          spotifyPlayer.addListener('initialization_error', ({ message }) => {
             if (!skipErrors) {
               const errorMessage = unknownToErrorString(
                 message,
-                "Spotify Authentication Error"
+                'Spotify Initialization Error',
               );
-              toast.show({ message: errorMessage, variant: "error" });
+              toast.show({ message: errorMessage, variant: 'error' });
             }
             resolveWithNothing();
           });
 
-          spotifyPlayer.addListener("account_error", ({ message }) => {
+          spotifyPlayer.addListener('authentication_error', ({ message }) => {
+            if (!skipErrors) {
+              const errorMessage = unknownToErrorString(
+                message,
+                'Spotify Authentication Error',
+              );
+              toast.show({ message: errorMessage, variant: 'error' });
+            }
+            resolveWithNothing();
+          });
+
+          spotifyPlayer.addListener('account_error', ({ message }) => {
             const errorMessage = unknownToErrorString(
               message,
-              "Spotify Account Error"
+              'Spotify Account Error',
             );
-            toast.show({ message: errorMessage, variant: "error" });
+            toast.show({ message: errorMessage, variant: 'error' });
             resolveWithNothing();
           });
 
           // Player state changed
-          spotifyPlayer.addListener("player_state_changed", updateWithNewState);
+          spotifyPlayer.addListener('player_state_changed', updateWithNewState);
 
           // Connect to the player
           spotifyPlayer.connect().then((success: boolean) => {
@@ -295,8 +295,8 @@ export function SpotifyPlayerProvider({
               resolveWithNothing();
               if (!skipErrors) {
                 toast.show({
-                  message: "Failed to connect to Spotify Player",
-                  variant: "error",
+                  message: 'Failed to connect to Spotify Player',
+                  variant: 'error',
                 });
               }
             }
@@ -331,7 +331,7 @@ export function SpotifyPlayerProvider({
       skipErrors,
     }: {
       trackInfo: TrackInfo;
-      round: PopulatedRound | "same";
+      round: PopulatedRound | 'same';
       playlist?: Array<TrackInfo>;
       startTime?: number;
       skipErrors?: boolean;
@@ -345,23 +345,23 @@ export function SpotifyPlayerProvider({
         if (skipErrors) {
           return;
         }
-        const errorMessage = "No Spotify device available";
+        const errorMessage = 'No Spotify device available';
         toast.show({
           message: errorMessage,
-          variant: "error",
+          variant: 'error',
         });
         return;
       }
 
-      const accessToken = Cookies.get("spotify_access_token");
+      const accessToken = Cookies.get('spotify_access_token');
       if (!accessToken) {
         if (skipErrors) {
           return;
         }
-        const errorMessage = "No Spotify access token";
+        const errorMessage = 'No Spotify access token';
         toast.show({
           message: errorMessage,
-          variant: "error",
+          variant: 'error',
         });
         return;
       }
@@ -373,7 +373,7 @@ export function SpotifyPlayerProvider({
       try {
         const playlistInfo = (() => {
           const newPlaylist = songPlaylist ?? playlist;
-          if (round === "same") {
+          if (round === 'same') {
             return { playlist: newPlaylist, round: playlistRound };
           }
           if (songPlaylist) {
@@ -386,14 +386,15 @@ export function SpotifyPlayerProvider({
         })();
 
         const hasSong = playlistInfo.playlist.find(
-          (playlistTrackInfo) => playlistTrackInfo.trackId === trackInfo.trackId
+          (playlistTrackInfo) =>
+            playlistTrackInfo.trackId === trackInfo.trackId,
         );
         if (!hasSong) {
           playlistInfo.playlist.unshift(trackInfo);
         }
 
         const uris = playlistInfo.playlist.map(
-          (trackInfo) => `spotify:track:${trackInfo.trackId}`
+          (trackInfo) => `spotify:track:${trackInfo.trackId}`,
         );
 
         const trackUri = `spotify:track:${trackInfo.trackId}`;
@@ -402,10 +403,10 @@ export function SpotifyPlayerProvider({
         const response = await fetch(
           `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
           {
-            method: "PUT",
+            method: 'PUT',
             headers: {
               Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({
               uris,
@@ -414,14 +415,14 @@ export function SpotifyPlayerProvider({
               },
               ...(startTime && { position_ms: startTime }),
             }),
-          }
+          },
         );
 
         if (!response.ok) {
           setIsPlaying(false);
           toast.show({
             message: `Spotify API error: ${response.status} ${response.statusText}`,
-            variant: "error",
+            variant: 'error',
           });
           setCurrentTrack(null);
           setPlaylist({ playlist: [], round: null });
@@ -436,11 +437,11 @@ export function SpotifyPlayerProvider({
         }
         const message = unknownToErrorString(
           error,
-          "Failed to play track. Make sure you have Spotify Premium."
+          'Failed to play track. Make sure you have Spotify Premium.',
         );
         toast.show({
           message,
-          variant: "error",
+          variant: 'error',
         });
       }
     };
@@ -456,22 +457,22 @@ export function SpotifyPlayerProvider({
       playTrack,
       setVolume,
       pausePlayback: async () => {
-        const accessToken = Cookies.get("spotify_access_token");
+        const accessToken = Cookies.get('spotify_access_token');
         if (!accessToken) return;
 
         try {
-          await fetch("https://api.spotify.com/v1/me/player/pause", {
-            method: "PUT",
+          await fetch('https://api.spotify.com/v1/me/player/pause', {
+            method: 'PUT',
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
           });
           setIsPlaying(false);
         } catch (error) {
-          const message = unknownToErrorString(error, "Error pausing playback");
+          const message = unknownToErrorString(error, 'Error pausing playback');
           toast.show({
             message,
-            variant: "error",
+            variant: 'error',
           });
         }
       },
@@ -479,17 +480,17 @@ export function SpotifyPlayerProvider({
         if (!hasPreviouslyPlayedRef.current) {
           return playTrack({
             trackInfo: playlist[currentTrackIndexRef.current],
-            round: "same",
+            round: 'same',
           });
         }
-        const accessToken = Cookies.get("spotify_access_token");
+        const accessToken = Cookies.get('spotify_access_token');
         if (!accessToken) {
           return;
         }
 
         try {
-          await fetch("https://api.spotify.com/v1/me/player/play", {
-            method: "PUT",
+          await fetch('https://api.spotify.com/v1/me/player/play', {
+            method: 'PUT',
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
@@ -498,28 +499,28 @@ export function SpotifyPlayerProvider({
         } catch (error) {
           const message = unknownToErrorString(
             error,
-            "Error resuming playback"
+            'Error resuming playback',
           );
           toast.show({
             message,
-            variant: "error",
+            variant: 'error',
           });
         }
       },
       nextTrack: async () => {
         const nextTrack = playlist[currentTrackIndexRef.current + 1];
         if (nextTrack) {
-          playTrack({ trackInfo: nextTrack, round: "same" });
+          playTrack({ trackInfo: nextTrack, round: 'same' });
         }
       },
       previousTrack: async () => {
         const previousTrack = playlist[currentTrackIndexRef.current - 1];
         if (previousTrack) {
-          playTrack({ trackInfo: previousTrack, round: "same" });
+          playTrack({ trackInfo: previousTrack, round: 'same' });
         }
       },
       seekToPosition: async (position: number) => {
-        const accessToken = Cookies.get("spotify_access_token");
+        const accessToken = Cookies.get('spotify_access_token');
         if (!accessToken) {
           return;
         }
@@ -527,24 +528,24 @@ export function SpotifyPlayerProvider({
         try {
           await fetch(
             `https://api.spotify.com/v1/me/player/seek?position_ms=${Math.floor(
-              position
+              position,
             )}`,
             {
-              method: "PUT",
+              method: 'PUT',
               headers: {
                 Authorization: `Bearer ${accessToken}`,
               },
-            }
+            },
           );
           setTimeListeners((listeners) => {
             listeners.forEach((callback) => callback(position));
             return listeners;
           });
         } catch (error) {
-          const message = unknownToErrorString(error, "Error seeking");
+          const message = unknownToErrorString(error, 'Error seeking');
           toast.show({
             message,
-            variant: "error",
+            variant: 'error',
           });
         }
       },
@@ -568,7 +569,7 @@ export function SpotifyPlayerProvider({
           return;
         }
 
-        const token = Cookies.get("spotify_access_token");
+        const token = Cookies.get('spotify_access_token');
         if (!token) {
           return;
         }
@@ -579,7 +580,7 @@ export function SpotifyPlayerProvider({
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
+            },
           );
 
           const data = await response.json();
@@ -593,11 +594,11 @@ export function SpotifyPlayerProvider({
         } catch (err) {
           const message = unknownToErrorString(
             err,
-            "Error initializing playlist"
+            'Error initializing playlist',
           );
           toast.show({
-            title: "Error initializing playlist",
-            variant: "error",
+            title: 'Error initializing playlist',
+            variant: 'error',
             message,
           });
         }
@@ -606,7 +607,7 @@ export function SpotifyPlayerProvider({
         setTimeListeners((listeners) => [...listeners, callback]);
         return () => {
           setTimeListeners((listeners) =>
-            listeners.filter((cb) => cb !== callback)
+            listeners.filter((cb) => cb !== callback),
           );
         };
       },
@@ -640,9 +641,9 @@ function getPlaylistForRound({
   return round.submissions
     .filter((submission) => {
       switch (round.stage) {
-        case "completed":
-        case "voting":
-        case "currentUserVotingCompleted": {
+        case 'completed':
+        case 'voting':
+        case 'currentUserVotingCompleted': {
           return true;
         }
         default: {
@@ -654,7 +655,7 @@ function getPlaylistForRound({
 }
 
 async function setVolume(volume: number): Promise<void> {
-  const accessToken = Cookies.get("spotify_access_token");
+  const accessToken = Cookies.get('spotify_access_token');
   if (!accessToken) {
     return;
   }
@@ -662,14 +663,14 @@ async function setVolume(volume: number): Promise<void> {
   try {
     await fetch(
       `https://api.spotify.com/v1/me/player/volume?volume_percent=${Math.floor(
-        volume * 100
+        volume * 100,
       )}`,
       {
-        method: "PUT",
+        method: 'PUT',
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
   } catch {}
 }

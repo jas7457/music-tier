@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
-import "./Screen.css";
-import { twMerge } from "tailwind-merge";
+import './Screen.css';
+import { twMerge } from 'tailwind-merge';
 
 // Generate random values outside component
 const generateShootingStars = () =>
@@ -19,7 +19,7 @@ const generateFloatingNotes = () =>
     left: 10 + i * 12,
     duration: 5 + Math.random() * 3,
     delay: i * 0.5,
-    symbol: i % 2 === 0 ? "♪" : "♫",
+    symbol: i % 2 === 0 ? '♪' : '♫',
   }));
 
 export function Screen({
@@ -37,8 +37,8 @@ export function Screen({
 
   return (
     <div
-      className={twMerge("relative h-full w-full overflow-hidden", className)}
-      style={{ contentVisibility: "auto", containIntrinsicSize: "100vw 100vh" }}
+      className={twMerge('relative h-full w-full overflow-hidden', className)}
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '100vw 100vh' }}
     >
       {background && (
         <>
@@ -57,21 +57,21 @@ export function Screen({
               className="absolute w-[800px] h-[800px] -top-40 -left-40 opacity-50 blur-3xl transition-colors duration-1000"
               style={{
                 background: `radial-gradient(circle, ${background.via} 0%, transparent 70%)`,
-                animation: "gradient-swirl-1 12s ease-in-out infinite",
+                animation: 'gradient-swirl-1 12s ease-in-out infinite',
               }}
             />
             <div
               className="absolute w-[600px] h-[600px] top-1/2 right-0 opacity-40 blur-3xl transition-colors duration-1000"
               style={{
                 background: `radial-gradient(circle, ${background.from} 0%, transparent 70%)`,
-                animation: "gradient-swirl-2 15s ease-in-out infinite",
+                animation: 'gradient-swirl-2 15s ease-in-out infinite',
               }}
             />
             <div
               className="absolute w-[700px] h-[700px] bottom-0 left-1/4 opacity-30 blur-3xl transition-colors duration-1000"
               style={{
                 background: `radial-gradient(circle, ${background.to} 0%, transparent 70%)`,
-                animation: "gradient-swirl-3 18s ease-in-out infinite",
+                animation: 'gradient-swirl-3 18s ease-in-out infinite',
               }}
             />
 

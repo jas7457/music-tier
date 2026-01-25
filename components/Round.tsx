@@ -1,16 +1,16 @@
-import { SongSubmission } from "./SongSubmission";
-import { SubmittedUsers, UnsubmittedUsers } from "./SubmittedUsers";
-import { Fragment, useEffect, useMemo, useState } from "react";
-import VotingRound from "./VotingRound";
-import CompletedRound from "./CompletedRound";
-import { PopulatedLeague, PopulatedRound, PopulatedUser } from "@/lib/types";
-import { ToggleButton } from "./ToggleButton";
-import { RoundInfo } from "./RoundInfo";
-import { HapticButton } from "./HapticButton";
-import { useToast } from "@/lib/ToastContext";
-import { getOnDeckInfo, OnDeckSubmissionsList } from "./OnDeckSubmissions";
-import { TrackInfo } from "@/databaseTypes";
-import Link from "next/link";
+import { SongSubmission } from './SongSubmission';
+import { SubmittedUsers, UnsubmittedUsers } from './SubmittedUsers';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import VotingRound from './VotingRound';
+import CompletedRound from './CompletedRound';
+import { PopulatedLeague, PopulatedRound, PopulatedUser } from '@/lib/types';
+import { ToggleButton } from './ToggleButton';
+import { RoundInfo } from './RoundInfo';
+import { HapticButton } from './HapticButton';
+import { useToast } from '@/lib/ToastContext';
+import { getOnDeckInfo, OnDeckSubmissionsList } from './OnDeckSubmissions';
+import { TrackInfo } from '@/databaseTypes';
+import Link from 'next/link';
 
 export function Round({
   currentUser,
@@ -47,7 +47,7 @@ export function Round({
     if (currentUser._id !== round.creatorId) {
       return false;
     }
-    if (round.stage !== "upcoming") {
+    if (round.stage !== 'upcoming') {
       return false;
     }
     if (!round._id) {
@@ -64,7 +64,7 @@ export function Round({
 
   const bodyMarkup = useMemo(() => {
     switch (round.stage) {
-      case "completed": {
+      case 'completed': {
         if (showVotesView) {
           return (
             <VotingRound
@@ -78,7 +78,7 @@ export function Round({
           return <CompletedRound round={round} users={league.users} />;
         }
       }
-      case "submission": {
+      case 'submission': {
         if (!round._id) {
           return (
             <div>
@@ -90,7 +90,7 @@ export function Round({
 
         return (
           <Fragment
-            key={round.userSubmission?.trackInfo.trackId ?? "no-submission"}
+            key={round.userSubmission?.trackInfo.trackId ?? 'no-submission'}
           >
             <SongSubmission round={round} isRoundPage={isRoundPage} />
             <SubmittedUsers
@@ -104,8 +104,8 @@ export function Round({
           </Fragment>
         );
       }
-      case "voting":
-      case "currentUserVotingCompleted": {
+      case 'voting':
+      case 'currentUserVotingCompleted': {
         return (
           <VotingRound
             key={round.stage}
@@ -115,7 +115,7 @@ export function Round({
           />
         );
       }
-      case "upcoming": {
+      case 'upcoming': {
         return null;
       }
       default: {
@@ -169,7 +169,7 @@ export function Round({
       </div>
 
       {/* Song Submission Section */}
-      {round.stage === "completed" && (
+      {round.stage === 'completed' && (
         <div className="flex justify-center gap-2">
           <ToggleButton
             onClick={() => setShowVotesView(false)}
@@ -207,9 +207,9 @@ export function Round({
                 const response = await fetch(
                   `/api/leagues/${league._id}/rounds`,
                   {
-                    method: "PUT",
+                    method: 'PUT',
                     headers: {
-                      "Content-Type": "application/json",
+                      'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                       roundId: round._id,
@@ -218,13 +218,13 @@ export function Round({
                       isBonusRound: round.isBonusRound,
                       isKickoffRound: round.isKickoffRound,
                     }),
-                  }
+                  },
                 );
 
                 if (response.ok) {
                   toast.show({
-                    variant: "success",
-                    message: "Round updated successfully",
+                    variant: 'success',
+                    message: 'Round updated successfully',
                   });
                   return;
                 }
@@ -232,13 +232,13 @@ export function Round({
                 try {
                   const data = await response.json();
                   toast.show({
-                    variant: "error",
-                    message: data.error || "Error updating round",
+                    variant: 'error',
+                    message: data.error || 'Error updating round',
                   });
                 } catch {
                   toast.show({
-                    variant: "error",
-                    message: "Error updating round",
+                    variant: 'error',
+                    message: 'Error updating round',
                   });
                 }
               } catch {

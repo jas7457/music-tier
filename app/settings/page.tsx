@@ -1,18 +1,18 @@
-import { getUser } from "@/lib/data";
-import { redirect } from "next/navigation";
-import { UserSettingsClient } from "./UserSettingsClient";
-import { verifySessionToken } from "@/lib/auth";
+import { getUser } from '@/lib/data';
+import { redirect } from 'next/navigation';
+import { UserSettingsClient } from './UserSettingsClient';
+import { verifySessionToken } from '@/lib/auth';
 
 export default async function SettingsPage() {
   const payload = await verifySessionToken();
   if (!payload) {
-    redirect("/");
+    redirect('/');
   }
 
-  const user = await getUser(payload.userId, "any");
+  const user = await getUser(payload.userId, 'any');
 
   if (!user) {
-    redirect("/");
+    redirect('/');
   }
 
   return (

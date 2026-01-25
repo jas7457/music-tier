@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { twMerge } from "tailwind-merge";
+import { useEffect } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 export interface ToastProps {
   id: string;
   title?: string;
   message: string;
-  variant?: "default" | "error" | "warning" | "info" | "success";
+  variant?: 'default' | 'error' | 'warning' | 'info' | 'success';
   timeout?: number;
   onDismiss: (id: string) => void;
 }
@@ -16,7 +16,7 @@ export function Toast({
   id,
   title,
   message,
-  variant = "default",
+  variant = 'default',
   timeout = 8_000,
   onDismiss,
 }: ToastProps) {
@@ -31,11 +31,11 @@ export function Toast({
   }, [id, timeout, onDismiss]);
 
   const variantStyles = {
-    default: "bg-gray-800 text-white border-gray-700",
-    error: "bg-red-600 text-white border-red-700",
-    warning: "bg-yellow-500 text-gray-900 border-yellow-600",
-    info: "bg-blue-600 text-white border-blue-700",
-    success: "bg-green-600 text-white border-green-700",
+    default: 'bg-gray-800 text-white border-gray-700',
+    error: 'bg-red-600 text-white border-red-700',
+    warning: 'bg-yellow-500 text-gray-900 border-yellow-600',
+    info: 'bg-blue-600 text-white border-blue-700',
+    success: 'bg-green-600 text-white border-green-700',
   };
 
   const iconStyles = {
@@ -81,8 +81,8 @@ export function Toast({
   return (
     <div
       className={twMerge(
-        "pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border min-w-[300px] max-w-full animate-in slide-in-from-right duration-300",
-        variantStyles[variant]
+        'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border min-w-[300px] max-w-full animate-in slide-in-from-right duration-300',
+        variantStyles[variant],
       )}
     >
       {iconStyles[variant] && (

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   createContext,
@@ -7,7 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
-} from "react";
+} from 'react';
 
 type ServiceWorkerContextType = {
   registration: ServiceWorkerRegistration | null;
@@ -21,13 +21,13 @@ type ServiceWorkerContextType = {
 };
 
 const ServiceWorkerContext = createContext<ServiceWorkerContextType | null>(
-  null
+  null,
 );
 
 // Helper function to convert VAPID public key
 function urlBase64ToUint8Array(base64String: string): BufferSource {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
 
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
@@ -49,18 +49,18 @@ export function ServiceWorkerProvider({
     useState<ServiceWorkerRegistration | null>(null);
   const [isSupported, setIsSupported] = useState(false);
   const [notificationPermission, setNotificationPermission] =
-    useState<NotificationPermission>("default");
+    useState<NotificationPermission>('default');
 
   const hasInitializedServiceWorkerRef = useRef(false);
   const isEnabled = true;
 
   useLayoutEffect(() => {
     setIsSupported(
-      typeof window !== "undefined" && "serviceWorker" in navigator
+      typeof window !== 'undefined' && 'serviceWorker' in navigator,
     );
 
     // Check initial notification permission
-    if ("Notification" in window) {
+    if ('Notification' in window) {
       setNotificationPermission(Notification.permission);
     }
   }, []);
@@ -74,44 +74,47 @@ export function ServiceWorkerProvider({
 
     // Register the service worker
     navigator.serviceWorker
-      .register("/sw.js")
+      .register('/sw.js')
       .then(async (reg) => {
-        console.log("[App] Service Worker registered:", reg);
+        console.log('[App] Service Worker registered:', reg);
         setRegistration(reg);
 
         // Check for updates periodically
-        setInterval(() => {
-          reg.update();
-        }, 60 * 60 * 1000); // Check every hour
+        setInterval(
+          () => {
+            reg.update();
+          },
+          60 * 60 * 1000,
+        ); // Check every hour
 
         // Listen for controller change (new service worker activated)
-        navigator.serviceWorker.addEventListener("controllerchange", () => {
-          console.log("[App] New service worker activated, reloading...");
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          console.log('[App] New service worker activated, reloading...');
           window.location.reload();
         });
 
         // If notification permission is granted, subscribe to push
-        if (Notification.permission === "granted") {
+        if (Notification.permission === 'granted') {
           try {
             await subscribeToPushNotifications(reg);
           } catch (error) {
-            console.error("[App] Failed to subscribe to push:", error);
+            console.error('[App] Failed to subscribe to push:', error);
           }
         }
       })
       .catch((error) => {
-        console.error("[App] Service Worker registration failed:", error);
+        console.error('[App] Service Worker registration failed:', error);
       });
   }, [isEnabled, isSupported, userId]);
 
   async function subscribeToPushNotifications(
-    reg: ServiceWorkerRegistration
+    reg: ServiceWorkerRegistration,
   ): Promise<boolean> {
     try {
       // Get the VAPID public key from the server
-      const response = await fetch("/api/push/subscribe");
+      const response = await fetch('/api/push/subscribe');
       if (!response.ok) {
-        throw new Error("Failed to get VAPID public key");
+        throw new Error('Failed to get VAPID public key');
       }
 
       const { publicKey } = await response.json();
@@ -123,22 +126,22 @@ export function ServiceWorkerProvider({
       });
 
       // Send subscription to server
-      const subscribeResponse = await fetch("/api/push/subscribe", {
-        method: "POST",
+      const subscribeResponse = await fetch('/api/push/subscribe', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(subscription.toJSON()),
       });
 
       if (!subscribeResponse.ok) {
-        throw new Error("Failed to save subscription");
+        throw new Error('Failed to save subscription');
       }
 
-      console.log("[App] Push subscription successful");
+      console.log('[App] Push subscription successful');
       return true;
     } catch (error) {
-      console.error("[App] Error subscribing to push:", error);
+      console.error('[App] Error subscribing to push:', error);
       return false;
     }
   }
@@ -151,28 +154,28 @@ export function ServiceWorkerProvider({
       notificationPermission,
       requestNotificationPermission:
         async (): Promise<NotificationPermission> => {
-          if (!("Notification" in window)) {
-            console.warn("[App] Notifications not supported");
-            return "denied";
+          if (!('Notification' in window)) {
+            console.warn('[App] Notifications not supported');
+            return 'denied';
           }
 
           try {
             const permission = await Notification.requestPermission();
             setNotificationPermission(permission);
-            console.log("[App] Notification permission:", permission);
+            console.log('[App] Notification permission:', permission);
 
             // If permission granted and we have a registration, subscribe to push
-            if (permission === "granted" && registration) {
+            if (permission === 'granted' && registration) {
               await subscribeToPushNotifications(registration);
             }
 
             return permission;
           } catch (error) {
             console.error(
-              "[App] Error requesting notification permission:",
-              error
+              '[App] Error requesting notification permission:',
+              error,
             );
-            return "denied";
+            return 'denied';
           }
         },
       unregisterServiceWorker: async (): Promise<boolean> => {
@@ -187,7 +190,7 @@ export function ServiceWorkerProvider({
 
           // Unregister the service worker
           const success = await registration.unregister();
-          console.log("[App] Service Worker unregistered:", success);
+          console.log('[App] Service Worker unregistered:', success);
 
           if (success) {
             setRegistration(null);
@@ -197,7 +200,7 @@ export function ServiceWorkerProvider({
 
           return success;
         } catch (error) {
-          console.error("[App] Error unregistering service worker:", error);
+          console.error('[App] Error unregistering service worker:', error);
           return false;
         }
       },
@@ -208,7 +211,7 @@ export function ServiceWorkerProvider({
       },
       subscribeToPush: async (): Promise<boolean> => {
         if (!registration) {
-          console.error("[App] No service worker registration");
+          console.error('[App] No service worker registration');
           return false;
         }
         return subscribeToPushNotifications(registration);
@@ -227,7 +230,7 @@ export function useServiceWorker() {
   const context = useContext(ServiceWorkerContext);
   if (!context) {
     throw new Error(
-      "useServiceWorker must be used within a ServiceWorkerProvider"
+      'useServiceWorker must be used within a ServiceWorkerProvider',
     );
   }
   return context;

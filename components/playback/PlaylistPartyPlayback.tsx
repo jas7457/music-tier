@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef, Activity } from "react";
-import { twMerge } from "tailwind-merge";
-import type { PopulatedLeague } from "@/lib/types";
-import { useAuth } from "@/lib/AuthContext";
-import { HapticButton } from "@/components/HapticButton";
-import { PLAYBACK_SCREENS } from "./screenConfig";
+import { useState, useEffect, useRef, Activity } from 'react';
+import { twMerge } from 'tailwind-merge';
+import type { PopulatedLeague } from '@/lib/types';
+import { useAuth } from '@/lib/AuthContext';
+import { HapticButton } from '@/components/HapticButton';
+import { PLAYBACK_SCREENS } from './screenConfig';
 
 interface PlaylistPartyPlaybackProps {
   league: PopulatedLeague;
@@ -29,27 +29,27 @@ export function PlaylistPartyPlayback({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
-        case "ArrowDown":
-        case " ": // Spacebar
+        case 'ArrowDown':
+        case ' ': // Spacebar
           e.preventDefault();
           if (currentScreenIndex < PLAYBACK_SCREENS.length - 1) {
             setCurrentScreenIndex((prev) => prev + 1);
           }
           break;
-        case "ArrowUp":
+        case 'ArrowUp':
           e.preventDefault();
           if (currentScreenIndex > 0) {
             setCurrentScreenIndex((prev) => prev - 1);
           }
           break;
-        case "Escape":
+        case 'Escape':
           onClose();
           break;
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, currentScreenIndex, onClose]);
 
   // Sync scroll position when currentScreenIndex changes
@@ -59,7 +59,7 @@ export function PlaylistPartyPlayback({
     const targetScrollTop = currentScreenIndex * window.innerHeight;
     containerRef.current.scrollTo({
       top: targetScrollTop,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
   }, [isOpen, currentScreenIndex]);
 
@@ -88,10 +88,10 @@ export function PlaylistPartyPlayback({
     };
 
     const container = containerRef.current;
-    container.addEventListener("scroll", handleScroll, { passive: true });
+    container.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      container.removeEventListener("scroll", handleScroll);
+      container.removeEventListener('scroll', handleScroll);
       clearTimeout(scrollTimeout);
     };
   }, [isOpen, currentScreenIndex]);
@@ -109,9 +109,9 @@ export function PlaylistPartyPlayback({
       ref={containerRef}
       className="fixed inset-0 z-200 bg-black overflow-y-scroll snap-y snap-mandatory scroll-smooth"
       style={{
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
-        WebkitOverflowScrolling: "touch",
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       <style jsx>{`
@@ -148,10 +148,10 @@ export function PlaylistPartyPlayback({
             key={screen.key}
             onClick={() => scrollToScreen(index)}
             className={twMerge(
-              "h-2 rounded-full transition-all duration-300",
+              'h-2 rounded-full transition-all duration-300',
               index === currentScreenIndex
-                ? "bg-white w-8"
-                : "bg-white/40 hover:bg-white/60 w-2"
+                ? 'bg-white w-8'
+                : 'bg-white/40 hover:bg-white/60 w-2',
             )}
             aria-label={`Go to screen ${index + 1}`}
           />
@@ -171,7 +171,7 @@ export function PlaylistPartyPlayback({
             className="h-screen w-screen snap-start snap-always relative"
           >
             <div className="h-full w-full overflow-hidden">
-              <Activity mode={isActiveActivity ? "visible" : "hidden"}>
+              <Activity mode={isActiveActivity ? 'visible' : 'hidden'}>
                 <Screen
                   playback={playback}
                   league={league}

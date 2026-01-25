@@ -1,13 +1,13 @@
-import { redirect } from "next/navigation";
-import { verifySessionToken } from "@/lib/auth";
-import Card from "@/components/Card";
-import { ProfileData, UserProfileClient } from "./UserProfileClient";
-import { Breadcrumb, HomeIcon } from "@/components/Breadcrumb";
-import { getUserLeagues, getUser } from "@/lib/data";
-import { PopulatedLeague } from "@/lib/types";
-import { getPlaces } from "@/lib/utils/getPlaces";
+import { redirect } from 'next/navigation';
+import { verifySessionToken } from '@/lib/auth';
+import Card from '@/components/Card';
+import { ProfileData, UserProfileClient } from './UserProfileClient';
+import { Breadcrumb, HomeIcon } from '@/components/Breadcrumb';
+import { getUserLeagues, getUser } from '@/lib/data';
+import { PopulatedLeague } from '@/lib/types';
+import { getPlaces } from '@/lib/utils/getPlaces';
 
-type ProfileStats = ProfileData["stats"];
+type ProfileStats = ProfileData['stats'];
 
 type PageProps = {
   params: Promise<{ userId: string }>;
@@ -20,12 +20,12 @@ export default async function UserProfilePage(props: PageProps) {
   // Verify the session
   const payload = await verifySessionToken();
   if (!payload) {
-    redirect("/");
+    redirect('/');
   }
 
   // Fetch user and their leagues directly
   const [user, _leagues] = await Promise.all([
-    getUser(userId, "any"),
+    getUser(userId, 'any'),
     getUserLeagues(userId),
   ]);
   const leagues = [..._leagues].sort((leagueA, leagueB) => {
@@ -50,10 +50,10 @@ export default async function UserProfilePage(props: PageProps) {
   const stats = calculateUserStats(userId, leagues);
 
   const addExtra = (
-    league: PopulatedLeague
+    league: PopulatedLeague,
   ): PopulatedLeague & { yourPoints: number } => {
     const pointsForLeague = stats.pointsPerLeague.find(
-      (stat) => stat.league._id === league._id
+      (stat) => stat.league._id === league._id,
     );
     const yourPoints = pointsForLeague ? pointsForLeague.points : 0;
     return {
@@ -65,17 +65,17 @@ export default async function UserProfilePage(props: PageProps) {
   // Separate current and past leagues
   const currentLeagues = leagues
     .filter(
-      (league) => league.status === "active" || league.status === "upcoming"
+      (league) => league.status === 'active' || league.status === 'upcoming',
     )
     .map(addExtra);
   const pastLeagues = leagues
-    .filter((league) => league.status === "completed")
+    .filter((league) => league.status === 'completed')
     .map(addExtra);
 
   const userIndex = (() => {
     for (const league of [...currentLeagues, ...pastLeagues]) {
       const indexInLeague = league.users.findIndex(
-        (leagueUser) => leagueUser._id === user._id.toString()
+        (leagueUser) => leagueUser._id === user._id.toString(),
       );
       if (indexInLeague !== -1) {
         return indexInLeague;
@@ -100,7 +100,7 @@ export default async function UserProfilePage(props: PageProps) {
       <div className="max-w-4xl mx-auto">
         <Breadcrumb
           items={[
-            { label: "", icon: <HomeIcon />, href: "/" },
+            { label: '', icon: <HomeIcon />, href: '/' },
             { label: `${profileData.user.userName}'s Profile` },
           ]}
         />
@@ -114,18 +114,18 @@ export default async function UserProfilePage(props: PageProps) {
 
 function calculateUserStats(
   userId: string,
-  leagues: PopulatedLeague[]
+  leagues: PopulatedLeague[],
 ): ProfileStats {
   let totalPoints = 0;
-  const pointsPerLeague: ProfileStats["pointsPerLeague"] = [];
-  const totalPointsDetails: ProfileStats["totalPointsDetails"] = [];
-  const firstPlaceLeagues: ProfileStats["firstPlaceLeagues"] = [];
-  const secondPlaceLeagues: ProfileStats["secondPlaceLeagues"] = [];
-  const thirdPlaceLeagues: ProfileStats["thirdPlaceLeagues"] = [];
-  const mostVotedSongDetails: ProfileStats["mostVotedSongDetails"] = [];
+  const pointsPerLeague: ProfileStats['pointsPerLeague'] = [];
+  const totalPointsDetails: ProfileStats['totalPointsDetails'] = [];
+  const firstPlaceLeagues: ProfileStats['firstPlaceLeagues'] = [];
+  const secondPlaceLeagues: ProfileStats['secondPlaceLeagues'] = [];
+  const thirdPlaceLeagues: ProfileStats['thirdPlaceLeagues'] = [];
+  const mostVotedSongDetails: ProfileStats['mostVotedSongDetails'] = [];
 
   const completedLeagues = leagues.filter(
-    (league) => league.status === "completed"
+    (league) => league.status === 'completed',
   );
 
   // Calculate totalPoints, pointsPerLeague, and mostVotedSongCount for ALL leagues
@@ -161,7 +161,7 @@ function calculateUserStats(
 
       round.votes.forEach((vote) => {
         const submission = round.submissions.find(
-          (s) => s._id === vote.submissionId
+          (s) => s._id === vote.submissionId,
         );
         if (submission) {
           userPoints[submission.userId] =
@@ -194,7 +194,7 @@ function calculateUserStats(
 
       if (sortedSubmissions.length > 0) {
         const userSubmission = round.submissions.find(
-          (s) => s.userId === userId
+          (s) => s.userId === userId,
         );
         const topSubmission = sortedSubmissions[0];
         const userPoints =
@@ -230,7 +230,7 @@ function calculateUserStats(
     league.rounds.completed.forEach((round) => {
       round.votes.forEach((vote) => {
         const submission = round.submissions.find(
-          (s) => s._id === vote.submissionId
+          (s) => s._id === vote.submissionId,
         );
         if (submission) {
           userPoints[submission.userId] =
@@ -244,7 +244,7 @@ function calculateUserStats(
         user,
         points: userPoints[user._id] || 0,
         wins: 0,
-      }))
+      })),
     );
     const userIndex = places.findIndex((up) => up.user._id === userId);
     if (userIndex === -1 || userIndex > places.length - 1) {

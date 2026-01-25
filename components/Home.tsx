@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import Card from "./Card";
-import { PopulatedLeague, PopulatedUser } from "@/lib/types";
-import { League } from "./League";
-import { useRealTimeUpdates } from "@/lib/PusherContext";
-import { useEffect, useState } from "react";
-import { twMerge } from "tailwind-merge";
-import { Expandable } from "./Expandable";
+import Card from './Card';
+import { PopulatedLeague, PopulatedUser } from '@/lib/types';
+import { League } from './League';
+import { useRealTimeUpdates } from '@/lib/PusherContext';
+import { useEffect, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
+import { Expandable } from './Expandable';
 
 export default function Home({
   leagues,
@@ -16,7 +16,7 @@ export default function Home({
   user: PopulatedUser;
 }) {
   const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(
-    new Set(leagues.length > 0 ? [leagues[0]._id] : [])
+    new Set(leagues.length > 0 ? [leagues[0]._id] : []),
   );
 
   // eslint-disable-next-line react-hooks/purity
@@ -24,13 +24,13 @@ export default function Home({
   useRealTimeUpdates();
 
   useEffect(() => {
-    if (!("Notification" in window)) {
+    if (!('Notification' in window)) {
       return;
     }
 
     if (
-      Notification.permission === "denied" ||
-      Notification.permission === "granted"
+      Notification.permission === 'denied' ||
+      Notification.permission === 'granted'
     ) {
       return;
     }
@@ -39,9 +39,9 @@ export default function Home({
       Notification.requestPermission();
     };
 
-    document.addEventListener("click", requestPermission, { once: true });
+    document.addEventListener('click', requestPermission, { once: true });
     return () => {
-      document.removeEventListener("click", requestPermission);
+      document.removeEventListener('click', requestPermission);
     };
   }, []);
 
@@ -81,7 +81,7 @@ export default function Home({
         (acc, league) => {
           if (league.leagueStartDate > now) {
             acc.upcomingLeagues.push(league);
-          } else if (league.status === "completed") {
+          } else if (league.status === 'completed') {
             acc.completedLeagues.push(league);
           } else {
             acc.otherLeagues.push(league);
@@ -92,7 +92,7 @@ export default function Home({
           upcomingLeagues: [] as PopulatedLeague[],
           completedLeagues: [] as PopulatedLeague[],
           otherLeagues: [] as PopulatedLeague[],
-        }
+        },
       );
 
     const getOtherLeaguesMarkup = ({
@@ -125,7 +125,7 @@ export default function Home({
                   >
                     <div className="text-left">
                       <span className="sm:text-xl font-bold">
-                        {league.title}{" "}
+                        {league.title}{' '}
                       </span>
                       <span className="text-sm text-gray-500">
                         ({league.users.length} members)
@@ -133,8 +133,8 @@ export default function Home({
                     </div>
                     <svg
                       className={twMerge(
-                        "w-6 h-6 text-gray-400 transition-transform",
-                        isExpanded ? "rotate-180" : ""
+                        'w-6 h-6 text-gray-400 transition-transform',
+                        isExpanded ? 'rotate-180' : '',
                       )}
                       fill="none"
                       viewBox="0 0 24 24"
@@ -179,19 +179,19 @@ export default function Home({
         {/* Upcoming Leagues */}
         {getOtherLeaguesMarkup({
           leagues: upcomingLeagues,
-          title: "Upcoming Leagues",
+          title: 'Upcoming Leagues',
         })}
 
         {/* Completed Leagues */}
         {getOtherLeaguesMarkup({
           leagues: completedLeagues,
-          title: "Completed Leagues",
+          title: 'Completed Leagues',
         })}
 
         {/* Other Leagues */}
         {getOtherLeaguesMarkup({
           leagues: otherLeagues,
-          title: "Other Leagues",
+          title: 'Other Leagues',
         })}
       </div>
     );

@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Screen } from "../components/Screen";
-import type { PlaybackScreenProps } from "../types";
-import { SongScreen } from "./SongScreen";
-import { NEON_COLORS } from "../constants";
-import { HorizontalCarousel } from "../components/HorizontalCarousel";
-import { AnimatedImageBackdrop } from "@/components/AnimatedImageBackdrop";
+import { Screen } from '../components/Screen';
+import type { PlaybackScreenProps } from '../types';
+import { SongScreen } from './SongScreen';
+import { NEON_COLORS } from '../constants';
+import { HorizontalCarousel } from '../components/HorizontalCarousel';
+import { AnimatedImageBackdrop } from '@/components/AnimatedImageBackdrop';
 
 export function AllUserTopSongsCarouselScreen({
   playback,
@@ -15,7 +15,7 @@ export function AllUserTopSongsCarouselScreen({
 
   if (!songs || songs.length === 0) {
     return (
-      <Screen background={{ from: "#f97316", via: "#ec4899", to: "#8b5cf6" }}>
+      <Screen background={{ from: '#f97316', via: '#ec4899', to: '#8b5cf6' }}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-white">
           <p className="text-2xl text-purple-300">No song data available</p>
         </div>
@@ -38,7 +38,7 @@ export function AllUserTopSongsCarouselScreen({
                 <div
                   className="absolute top-[15%] left-[12%] text-5xl opacity-40 z-0"
                   style={{
-                    animation: "star-twirl 4s ease-in-out infinite",
+                    animation: 'star-twirl 4s ease-in-out infinite',
                   }}
                 >
                   ⭐
@@ -46,7 +46,7 @@ export function AllUserTopSongsCarouselScreen({
                 <div
                   className="absolute top-[20%] right-[15%] text-4xl opacity-50 z-0"
                   style={{
-                    animation: "star-twirl 3.5s ease-in-out 0.5s infinite",
+                    animation: 'star-twirl 3.5s ease-in-out 0.5s infinite',
                   }}
                 >
                   ⭐
@@ -54,7 +54,7 @@ export function AllUserTopSongsCarouselScreen({
                 <div
                   className="absolute bottom-[25%] left-[10%] text-6xl opacity-35 z-0"
                   style={{
-                    animation: "star-twirl 4.2s ease-in-out 1s infinite",
+                    animation: 'star-twirl 4.2s ease-in-out 1s infinite',
                   }}
                 >
                   ⭐
@@ -62,7 +62,7 @@ export function AllUserTopSongsCarouselScreen({
                 <div
                   className="absolute bottom-[30%] right-[12%] text-5xl opacity-45 z-0"
                   style={{
-                    animation: "star-twirl 3.8s ease-in-out 1.5s infinite",
+                    animation: 'star-twirl 3.8s ease-in-out 1.5s infinite',
                   }}
                 >
                   ⭐

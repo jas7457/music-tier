@@ -1,16 +1,16 @@
-import { sendEmail, sendTextEmail } from "./emailService";
-import { triggerNotifications } from "./pusher-server";
-import { PopulatedLeague, PopulatedRound, PopulatedUser } from "./types";
-import { APP_NAME, PRODUCTION_URL, logo } from "./utils/constants";
-import { getAllRounds } from "./utils/getAllRounds";
-import { sendPushNotification } from "./webPush";
-import { getCollection } from "./mongodb";
-import type { User } from "@/databaseTypes";
-import { ObjectId } from "mongodb";
+import { sendEmail, sendTextEmail } from './emailService';
+import { triggerNotifications } from './pusher-server';
+import { PopulatedLeague, PopulatedRound, PopulatedUser } from './types';
+import { APP_NAME, PRODUCTION_URL, logo } from './utils/constants';
+import { getAllRounds } from './utils/getAllRounds';
+import { sendPushNotification } from './webPush';
+import { getCollection } from './mongodb';
+import type { User } from '@/databaseTypes';
+import { ObjectId } from 'mongodb';
 
 export type Notification =
   | {
-      code: "NOTIFICATION.FORCE";
+      code: 'NOTIFICATION.FORCE';
       userIds: string[];
       title: string;
       message: string;
@@ -18,7 +18,7 @@ export type Notification =
       link?: string;
     }
   | {
-      code: "VOTING.STARTED";
+      code: 'VOTING.STARTED';
       userIds: string[];
       title: string;
       message: string;
@@ -26,7 +26,7 @@ export type Notification =
       link?: string;
     }
   | {
-      code: "VOTING.REMINDER";
+      code: 'VOTING.REMINDER';
       userIds: string[];
       title: string;
       message: string;
@@ -34,7 +34,7 @@ export type Notification =
       link?: string;
     }
   | {
-      code: "SUBMISSION.REMINDER";
+      code: 'SUBMISSION.REMINDER';
       userIds: string[];
       title: string;
       message: string;
@@ -42,7 +42,7 @@ export type Notification =
       link?: string;
     }
   | {
-      code: "SUBMISSIONS.HALF_SUBMITTED";
+      code: 'SUBMISSIONS.HALF_SUBMITTED';
       userIds: string[];
       title: string;
       message: string;
@@ -50,7 +50,7 @@ export type Notification =
       link?: string;
     }
   | {
-      code: "SUBMISSIONS.LAST_TO_SUBMIT";
+      code: 'SUBMISSIONS.LAST_TO_SUBMIT';
       userIds: string[];
       title: string;
       message: string;
@@ -58,7 +58,7 @@ export type Notification =
       link?: string;
     }
   | {
-      code: "ROUND.REMINDER";
+      code: 'ROUND.REMINDER';
       userIds: string[];
       title: string;
       message: string;
@@ -66,7 +66,7 @@ export type Notification =
       link?: string;
     }
   | {
-      code: "ROUND.STARTED";
+      code: 'ROUND.STARTED';
       userIds: string[];
       title: string;
       message: string;
@@ -74,7 +74,7 @@ export type Notification =
       link?: string;
     }
   | {
-      code: "ROUND.COMPLETED";
+      code: 'ROUND.COMPLETED';
       userIds: string[];
       title: string;
       message: string;
@@ -82,7 +82,7 @@ export type Notification =
       link?: string;
     }
   | {
-      code: "ROUND.HALF_VOTED";
+      code: 'ROUND.HALF_VOTED';
       userIds: string[];
       title: string;
       message: string;
@@ -90,7 +90,7 @@ export type Notification =
       link?: string;
     }
   | {
-      code: "ROUND.LAST_TO_VOTE";
+      code: 'ROUND.LAST_TO_VOTE';
       userIds: string[];
       title: string;
       message: string;
@@ -98,7 +98,7 @@ export type Notification =
       link?: string;
     }
   | {
-      code: "LEAGUE.COMPLETED";
+      code: 'LEAGUE.COMPLETED';
       userIds: string[];
       title: string;
       message: string;
@@ -113,7 +113,7 @@ export async function roundNotifications({
   after,
 }: {
   isNewRound: boolean;
-  round: Pick<PopulatedRound, "_id" | "isBonusRound" | "isKickoffRound">;
+  round: Pick<PopulatedRound, '_id' | 'isBonusRound' | 'isKickoffRound'>;
   before: { league: PopulatedLeague };
   after: { league: PopulatedLeague };
 }) {
@@ -151,14 +151,14 @@ export async function roundNotifications({
   }
 
   if (
-    foundRound.stage === "submission" &&
-    (beforeRound.stage === "upcoming" ||
-      (beforeRound.stage === "submission" && beforeRound.isPending))
+    foundRound.stage === 'submission' &&
+    (beforeRound.stage === 'upcoming' ||
+      (beforeRound.stage === 'submission' && beforeRound.isPending))
   ) {
     notifications.push({
-      code: "ROUND.STARTED",
+      code: 'ROUND.STARTED',
       userIds: league.users.map((user) => user._id),
-      title: "Round started",
+      title: 'Round started',
       message: `The round "${foundRound.title}" has started! Get ready to submit your songs.`,
       additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and view details.</a></p>`,
       link: roundLink,
@@ -208,9 +208,9 @@ export async function submissionNotifications({
     const roundLink = `${leagueLink}/rounds/${before.round._id}`;
     if (unsubmittedUsers.length === 0) {
       notifications.push({
-        code: "VOTING.STARTED",
+        code: 'VOTING.STARTED',
         userIds: league.users.map((user) => user._id),
-        title: "Voting has started",
+        title: 'Voting has started',
         message: `All submissions are in. It's time to vote on ${before.round.title}!`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and cast your vote.</a></p>`,
         link: roundLink,
@@ -220,9 +220,9 @@ export async function submissionNotifications({
 
     if (unsubmittedUsers.length === 1) {
       notifications.push({
-        code: "SUBMISSIONS.LAST_TO_SUBMIT",
+        code: 'SUBMISSIONS.LAST_TO_SUBMIT',
         userIds: [unsubmittedUsers[0]._id],
-        title: "Last to submit",
+        title: 'Last to submit',
         message: `You are the last to submit your song for ${before.round.title}.`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and submit your song.</a></p>`,
         link: roundLink,
@@ -235,9 +235,9 @@ export async function submissionNotifications({
       submittedUsers.length >= halfOfUsers
     ) {
       notifications.push({
-        code: "SUBMISSIONS.HALF_SUBMITTED",
+        code: 'SUBMISSIONS.HALF_SUBMITTED',
         userIds: unsubmittedUsers.map((user) => user._id),
-        title: "Half of users have submitted",
+        title: 'Half of users have submitted',
         message: `Half of the users have submitted their songs for ${before.round.title}. Don't forget to submit yours!`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and submit your song.</a></p>`,
         link: roundLink,
@@ -291,22 +291,22 @@ export async function voteNotifications({
 
     if (unvotedUsers.length === 0) {
       if (
-        afterLeague.status === "completed" &&
-        before.league.status !== "completed"
+        afterLeague.status === 'completed' &&
+        before.league.status !== 'completed'
       ) {
         notifications.push({
-          code: "LEAGUE.COMPLETED",
+          code: 'LEAGUE.COMPLETED',
           userIds: afterLeague.users.map((user) => user._id),
-          title: "League completed",
+          title: 'League completed',
           message: `The league "${afterLeague.title}" has been completed. Check out the final results!`,
           additionalHTML: `<p><a href="${leagueLink}">Click here to go to the league and view the final results.</a></p>`,
           link: leagueLink,
         });
       } else {
         notifications.push({
-          code: "ROUND.COMPLETED",
+          code: 'ROUND.COMPLETED',
           userIds: afterLeague.users.map((user) => user._id),
-          title: "Round completed",
+          title: 'Round completed',
           message: `All votes are in for ${afterRound.title}. Check out the results!`,
           additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and view the results.</a></p>`,
           link: roundLink,
@@ -322,9 +322,9 @@ export async function voteNotifications({
 
         for (const round of next3Rounds) {
           notifications.push({
-            code: "ROUND.REMINDER",
+            code: 'ROUND.REMINDER',
             userIds: [round.creatorId],
-            title: "Round reminder",
+            title: 'Round reminder',
             message:
               "You still have to submit your round, and it's coming up soon!",
             additionalHTML: `<p><a href="${PRODUCTION_URL}/leagues/${afterLeague._id}">Click here to add your round.</a></p>`,
@@ -342,9 +342,9 @@ export async function voteNotifications({
 
     if (unvotedUsers.length === 1) {
       notifications.push({
-        code: "ROUND.LAST_TO_VOTE",
+        code: 'ROUND.LAST_TO_VOTE',
         userIds: [unvotedUsers[0]._id],
-        title: "Last to vote",
+        title: 'Last to vote',
         message: `You are the last to vote for ${afterRound.title}.`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and cast your vote.</a></p>`,
         link: roundLink,
@@ -357,9 +357,9 @@ export async function voteNotifications({
       votedUsers.length >= halfOfUsers
     ) {
       notifications.push({
-        code: "ROUND.HALF_VOTED",
+        code: 'ROUND.HALF_VOTED',
         userIds: unvotedUsers.map((user) => user._id),
-        title: "Half of users have voted",
+        title: 'Half of users have voted',
         message: `Half of the users have voted for ${afterRound.title}. Don't forget to cast your vote!`,
         additionalHTML: `<p><a href="${roundLink}">Click here to go to the round and cast your vote.</a></p>`,
         link: roundLink,
@@ -398,7 +398,7 @@ export async function sendNotifications(
     });
 
     // Fetch full user data with push subscriptions from database
-    const usersCollection = await getCollection<User>("users");
+    const usersCollection = await getCollection<User>('users');
     const usersWithPushData = await usersCollection
       .find({
         _id: {
@@ -433,7 +433,7 @@ export async function sendNotifications(
           return;
         }
         if (
-          notification.code !== "NOTIFICATION.FORCE" &&
+          notification.code !== 'NOTIFICATION.FORCE' &&
           !preferences[notification.code]
         ) {
           return;
@@ -455,7 +455,7 @@ export async function sendNotifications(
               },
             }).catch((error) => {
               console.error(
-                "[Notifications] Error sending push notification:",
+                '[Notifications] Error sending push notification:',
                 error,
               );
             });
@@ -471,7 +471,7 @@ export async function sendNotifications(
             },
             subject: `${APP_NAME} Update: ${notification.title}`,
             html: `<p>${notification.message}</p>${
-              notification.additionalHTML || ""
+              notification.additionalHTML || ''
             }`,
           });
         }
@@ -494,6 +494,6 @@ export async function sendNotifications(
     // Wait for all push notifications to be sent
     await Promise.all(notificationPromises);
   } catch (error) {
-    console.error("[Notifications] Error sending notifications", error);
+    console.error('[Notifications] Error sending notifications', error);
   }
 }

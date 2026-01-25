@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 interface UsePullToRefreshOptions {
   onRefresh: () => void | Promise<void>;
@@ -66,18 +66,18 @@ export function usePullToRefresh({
     };
 
     // Add event listeners with { passive: false } to allow preventDefault
-    document.addEventListener("touchstart", handleTouchStart, {
+    document.addEventListener('touchstart', handleTouchStart, {
       passive: true,
     });
-    document.addEventListener("touchmove", handleTouchMove, {
+    document.addEventListener('touchmove', handleTouchMove, {
       passive: false,
     });
-    document.addEventListener("touchend", handleTouchEnd);
+    document.addEventListener('touchend', handleTouchEnd);
 
     return () => {
-      document.removeEventListener("touchstart", handleTouchStart);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleTouchEnd);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
     };
   }, [
     pullDistance,

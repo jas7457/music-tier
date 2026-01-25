@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ComponentProps } from "react";
-import { twMerge } from "tailwind-merge";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { ComponentProps } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 type MaybeLinkProps = ComponentProps<typeof Link> & {
   forceNormalText?: boolean;
@@ -19,7 +19,7 @@ export function MaybeLink({
   const pathname = usePathname();
 
   // Convert href to string for comparison
-  const hrefString = typeof href === "string" ? href : href.pathname || "";
+  const hrefString = typeof href === 'string' ? href : href.pathname || '';
 
   // Check if the link is to the current route
   const isCurrentRoute = pathname === hrefString;
@@ -37,7 +37,7 @@ export function MaybeLink({
   return (
     <Link
       href={href}
-      className={twMerge("hover:text-primary transition-colors", className)}
+      className={twMerge('hover:text-primary transition-colors', className)}
       {...props}
     >
       {children}

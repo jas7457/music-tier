@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { generateReactHelpers } from "@uploadthing/react";
-import type { OurFileRouter } from "../app/api/uploadthing/core";
+import { useState } from 'react';
+import { generateReactHelpers } from '@uploadthing/react';
+import type { OurFileRouter } from '../app/api/uploadthing/core';
 
 const { useUploadThing } = generateReactHelpers<OurFileRouter>();
 
@@ -29,16 +29,16 @@ export function ConfirmUploadButton({
   onUploadError,
   onImagePreview,
   onCancel = () => {},
-  accept = "image/*",
+  accept = 'image/*',
   className,
   buttonClassName,
   texts = {},
 }: ConfirmUploadButtonProps) {
   const {
-    chooseFile = "Choose File",
-    confirmUpload = "Confirm Upload",
-    cancel = "Cancel",
-    uploading = "Uploading...",
+    chooseFile = 'Choose File',
+    confirmUpload = 'Confirm Upload',
+    cancel = 'Cancel',
+    uploading = 'Uploading...',
   } = texts;
   const [file, setFile] = useState<File | null>(null);
 
@@ -46,7 +46,7 @@ export function ConfirmUploadButton({
     onClientUploadComplete: (res) => {
       const url = res[0]?.url;
       if (!url) {
-        throw new Error("No URL returned from upload");
+        throw new Error('No URL returned from upload');
       }
       setFile(null);
       onUploadComplete?.(url);
@@ -64,7 +64,7 @@ export function ConfirmUploadButton({
             htmlFor="file-upload"
             className={
               buttonClassName ||
-              "cursor-pointer inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+              'cursor-pointer inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors'
             }
           >
             {chooseFile}
@@ -78,7 +78,7 @@ export function ConfirmUploadButton({
                 const file = selectedFiles[0];
                 setFile(file);
 
-                if (file.type.startsWith("image/")) {
+                if (file.type.startsWith('image/')) {
                   const url = URL.createObjectURL(file);
                   onImagePreview?.(url);
                 }

@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { initiateSpotifyAuth } from "@/lib/spotify";
-import Cookies from "js-cookie";
-import { APP_NAME } from "@/lib/utils/constants";
-import { useToast } from "@/lib/ToastContext";
-import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
+import { useState, useEffect } from 'react';
+import { initiateSpotifyAuth } from '@/lib/spotify';
+import Cookies from 'js-cookie';
+import { APP_NAME } from '@/lib/utils/constants';
+import { useToast } from '@/lib/ToastContext';
+import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
 
 interface SpotifyProfile {
   id: string;
@@ -17,39 +17,39 @@ export default function Landing() {
   const toast = useToast();
   const [hasSpotifyToken, setHasSpotifyToken] = useState(false);
   const [spotifyProfile, setSpotifyProfile] = useState<SpotifyProfile | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    userName: "",
-    inviteCode: "",
-    photoUrl: "",
+    firstName: '',
+    lastName: '',
+    userName: '',
+    inviteCode: '',
+    photoUrl: '',
   });
 
   useEffect(() => {
     const checkSpotifyToken = async () => {
-      const token = Cookies.get("spotify_access_token");
+      const token = Cookies.get('spotify_access_token');
 
       if (token) {
         setHasSpotifyToken(true);
 
         // Fetch Spotify profile
         try {
-          const response = await fetch("/api/spotify/profile");
+          const response = await fetch('/api/spotify/profile');
           if (response.ok) {
             const profile = await response.json();
             setSpotifyProfile(profile);
 
             // Check if user already exists with this Spotify ID
-            const checkResponse = await fetch("/api/auth/check-spotify", {
-              method: "POST",
+            const checkResponse = await fetch('/api/auth/check-spotify', {
+              method: 'POST',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
               },
               body: JSON.stringify({ spotifyId: profile.id }),
             });
@@ -58,30 +58,30 @@ export default function Landing() {
 
             if (checkData.exists) {
               // User already exists, refresh auth context to log them in
-              window.location.href = "/";
+              window.location.href = '/';
               return; // This will redirect to Home automatically
             }
 
             // User doesn't exist, pre-fill form with Spotify data
             if (profile.display_name) {
               setFormData({
-                firstName: "",
-                lastName: "",
-                userName: profile.id || "",
-                inviteCode: "",
-                photoUrl: profile.images?.[0]?.url || "",
+                firstName: '',
+                lastName: '',
+                userName: profile.id || '',
+                inviteCode: '',
+                photoUrl: profile.images?.[0]?.url || '',
               });
             }
           }
         } catch (err) {
           const message = unknownToErrorString(
             err,
-            "Failed to fetch Spotify profile"
+            'Failed to fetch Spotify profile',
           );
           toast.show({
-            title: "Error fetching Spotify profile",
+            title: 'Error fetching Spotify profile',
             message,
-            variant: "error",
+            variant: 'error',
           });
         }
       }
@@ -98,11 +98,11 @@ export default function Landing() {
     } catch (error) {
       const message = unknownToErrorString(
         error,
-        "Error initiating Spotify auth"
+        'Error initiating Spotify auth',
       );
       toast.show({
         message,
-        variant: "error",
+        variant: 'error',
       });
       setError(message);
     }
@@ -114,10 +114,10 @@ export default function Landing() {
     setSubmitting(true);
 
     try {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           firstName: formData.firstName,
@@ -132,17 +132,17 @@ export default function Landing() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Failed to create account");
+        setError(data.error || 'Failed to create account');
         setSubmitting(false);
         return;
       }
 
-      window.location.href = "/";
+      window.location.href = '/';
     } catch (err) {
-      const message = unknownToErrorString(err, "Failed to create account");
+      const message = unknownToErrorString(err, 'Failed to create account');
       toast.show({
         message,
-        variant: "error",
+        variant: 'error',
       });
       setError(message);
       setSubmitting(false);
@@ -296,7 +296,7 @@ export default function Landing() {
             disabled={submitting}
             className="w-full bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {submitting ? "Creating Account..." : "Create Account"}
+            {submitting ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
       </div>

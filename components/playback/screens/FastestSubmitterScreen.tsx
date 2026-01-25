@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { Screen } from "../components/Screen";
-import { NEON_COLORS } from "../constants";
-import type { PlaybackScreenProps } from "../types";
-import { formatTime } from "./utils";
-import { HorizontalCarousel } from "../components/HorizontalCarousel";
-import { UserStatScreen } from "./UserStatScreen";
+import { Screen } from '../components/Screen';
+import { NEON_COLORS } from '../constants';
+import type { PlaybackScreenProps } from '../types';
+import { formatTime } from './utils';
+import { HorizontalCarousel } from '../components/HorizontalCarousel';
+import { UserStatScreen } from './UserStatScreen';
 
 export function FastestSubmitterScreen({
   playback,
   isActive,
 }: PlaybackScreenProps) {
   const stat = playback.fastestSubmitters;
-  const background = { from: "#06b6d4", via: "#10b981", to: "#8b5cf6" };
+  const background = { from: '#06b6d4', via: '#10b981', to: '#8b5cf6' };
 
   if (stat.length === 0) {
     return (
@@ -40,36 +40,36 @@ export function FastestSubmitterScreen({
                 <div
                   className="absolute top-1/4 left-0 h-1 bg-linear-to-r from-transparent via-cyan-400 to-transparent opacity-40 z-10"
                   style={{
-                    width: "100%",
-                    animation: "speed-line 1.5s ease-in-out infinite",
+                    width: '100%',
+                    animation: 'speed-line 1.5s ease-in-out infinite',
                   }}
                 />
                 <div
                   className="absolute top-1/3 left-0 h-1 bg-linear-to-r from-transparent via-green-400 to-transparent opacity-40 z-10"
                   style={{
-                    width: "100%",
-                    animation: "speed-line 1.8s ease-in-out 0.3s infinite",
+                    width: '100%',
+                    animation: 'speed-line 1.8s ease-in-out 0.3s infinite',
                   }}
                 />
                 <div
                   className="absolute top-1/2 left-0 h-1 bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-40 z-10"
                   style={{
-                    width: "100%",
-                    animation: "speed-line 1.6s ease-in-out 0.6s infinite",
+                    width: '100%',
+                    animation: 'speed-line 1.6s ease-in-out 0.6s infinite',
                   }}
                 />
                 <div
                   className="absolute top-2/3 left-0 h-1 bg-linear-to-r from-transparent via-cyan-400 to-transparent opacity-40 z-10"
                   style={{
-                    width: "100%",
-                    animation: "speed-line 1.7s ease-in-out 0.9s infinite",
+                    width: '100%',
+                    animation: 'speed-line 1.7s ease-in-out 0.9s infinite',
                   }}
                 />
                 <div
                   className="absolute top-3/4 left-0 h-1 bg-linear-to-r from-transparent via-green-400 to-transparent opacity-40 z-10"
                   style={{
-                    width: "100%",
-                    animation: "speed-line 1.9s ease-in-out 1.2s infinite",
+                    width: '100%',
+                    animation: 'speed-line 1.9s ease-in-out 1.2s infinite',
                   }}
                 />
 
@@ -77,7 +77,7 @@ export function FastestSubmitterScreen({
                 <div
                   className="absolute top-[15%] right-[20%] text-6xl opacity-50 z-10"
                   style={{
-                    animation: "pulse-lightning 2s ease-in-out infinite",
+                    animation: 'pulse-lightning 2s ease-in-out infinite',
                   }}
                 >
                   ⚡
@@ -85,7 +85,7 @@ export function FastestSubmitterScreen({
                 <div
                   className="absolute bottom-[12%] left-[15%] text-5xl opacity-50 z-10"
                   style={{
-                    animation: "pulse-lightning 2s ease-in-out 0.5s infinite",
+                    animation: 'pulse-lightning 2s ease-in-out 0.5s infinite',
                   }}
                 >
                   ⚡
@@ -93,7 +93,7 @@ export function FastestSubmitterScreen({
                 <div
                   className="absolute top-[60%] right-[15%] text-4xl opacity-40 z-10"
                   style={{
-                    animation: "pulse-lightning 2.2s ease-in-out 1s infinite",
+                    animation: 'pulse-lightning 2.2s ease-in-out 1s infinite',
                   }}
                 >
                   💨
@@ -108,14 +108,14 @@ export function FastestSubmitterScreen({
               title={
                 stat.length > 1
                   ? `#${index + 1} Fastest Submitter`
-                  : "Fastest Submitter"
+                  : 'Fastest Submitter'
               }
               user={submitter.user}
               color={NEON_COLORS.MintyGreen}
               stat={{
                 value: formatTime(submitter.avgTime),
-                icon: "⚡",
-                label: "average time",
+                icon: '⚡',
+                label: 'average time',
                 songPrefix: (
                   <div className="text-center">Fastest submission:</div>
                 ),

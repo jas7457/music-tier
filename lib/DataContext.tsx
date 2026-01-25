@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { createContext, useContext, useMemo, useRef } from "react";
-import { assertNever } from "./utils/never";
+import { useRouter } from 'next/navigation';
+import { createContext, useContext, useMemo, useRef } from 'react';
+import { assertNever } from './utils/never';
 
 type DataContextType = {
-  refreshData: (refreshReason: "manual" | "pusherUpdate") => void;
+  refreshData: (refreshReason: 'manual' | 'pusherUpdate') => void;
 };
 
 const DataContext = createContext<DataContextType>({
@@ -25,9 +25,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       refreshData: (reason) => {
         const forceUpdate = (() => {
           switch (reason) {
-            case "manual":
+            case 'manual':
               return true;
-            case "pusherUpdate":
+            case 'pusherUpdate':
               return false;
             default: {
               assertNever(reason);

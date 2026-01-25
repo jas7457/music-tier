@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState, useRef, useEffect } from "react";
-import { PopulatedUser } from "@/lib/types";
-import { Avatar } from "./Avatar";
-import { twMerge } from "tailwind-merge";
-import { GuessFeedback } from "./GuessFeedback";
-import { HapticButton } from "./HapticButton";
+import { useState, useRef, useEffect } from 'react';
+import { PopulatedUser } from '@/lib/types';
+import { Avatar } from './Avatar';
+import { twMerge } from 'tailwind-merge';
+import { GuessFeedback } from './GuessFeedback';
+import { HapticButton } from './HapticButton';
 
 type UserGuessProps = {
   users: PopulatedUser[];
@@ -13,7 +13,7 @@ type UserGuessProps = {
   onSelectUser: (user: PopulatedUser | undefined) => void;
   disabled?: boolean;
   isCorrect: boolean | undefined;
-  stage: "voting" | "guessing" | "submitted";
+  stage: 'voting' | 'guessing' | 'submitted';
 };
 
 export function UserGuess({
@@ -39,9 +39,9 @@ export function UserGuess({
     };
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
       return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener('mousedown', handleClickOutside);
       };
     }
   }, [isOpen]);
@@ -54,7 +54,7 @@ export function UserGuess({
   const innerMarkup = (() => {
     return (
       <div>
-        {typeof isCorrect === "boolean" && (
+        {typeof isCorrect === 'boolean' && (
           <GuessFeedback
             className="absolute -top-0.5 -right-0.5 z-10"
             isCorrect={isCorrect}
@@ -84,25 +84,25 @@ export function UserGuess({
     if (selectedUser) {
       return `Your guess: ${selectedUser.userName}`;
     }
-    if (stage === "guessing") {
-      return "Guess who submitted this";
+    if (stage === 'guessing') {
+      return 'Guess who submitted this';
     }
-    return "No guess made";
+    return 'No guess made';
   })();
 
   const fullMarkup = (() => {
-    if (stage === "voting") {
+    if (stage === 'voting') {
       return <div className="w-10 h-10"></div>;
     }
-    if (stage === "guessing") {
+    if (stage === 'guessing') {
       return (
         <HapticButton
           title={titleText}
           onClick={() => setIsOpen(!isOpen)}
           disabled={disabled}
           className={twMerge(
-            "disabled:opacity-50 disabled:cursor-not-allowed group relative w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center transition-colors border-2 border-primary",
-            selectedUser ? "" : "bg-gray-100"
+            'disabled:opacity-50 disabled:cursor-not-allowed group relative w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center transition-colors border-2 border-primary',
+            selectedUser ? '' : 'bg-gray-100',
           )}
         >
           {innerMarkup}
@@ -142,8 +142,8 @@ export function UserGuess({
               key={user._id}
               onClick={() => handleSelectUser(user)}
               className={twMerge(
-                "w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors flex items-center gap-2",
-                selectedUser?._id === user._id ? "bg-blue-50" : ""
+                'w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors flex items-center gap-2',
+                selectedUser?._id === user._id ? 'bg-blue-50' : '',
               )}
             >
               <Avatar user={user} size={6} includeLink={false} />

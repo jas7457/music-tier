@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 interface PullToRefreshIndicatorProps {
   pullDistance: number;
@@ -26,7 +26,7 @@ export function PullToRefreshIndicator({
         className="bg-white rounded-full shadow-lg p-3 mt-4 text-primary"
         style={{
           opacity: opacity,
-          transition: "opacity 0.2s ease-out",
+          transition: 'opacity 0.2s ease-out',
         }}
       >
         <svg
@@ -38,10 +38,10 @@ export function PullToRefreshIndicator({
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className={isRefreshing ? "animate-spin" : ""}
+          className={isRefreshing ? 'animate-spin' : ''}
           style={{
-            transition: isRefreshing ? "none" : "transform 0.1s linear",
-            color: shouldTriggerRefresh ? "currentColor" : "#6b7280",
+            transition: isRefreshing ? 'none' : 'transform 0.1s linear',
+            color: shouldTriggerRefresh ? 'currentColor' : '#6b7280',
           }}
         >
           <polyline points="23 4 23 10 17 10" />

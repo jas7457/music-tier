@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { PopulatedRound } from "@/lib/types";
-import { Screen } from "./Screen";
+import { PopulatedRound } from '@/lib/types';
+import { Screen } from './Screen';
 
 interface RoundListItem {
   round: PopulatedRound;
@@ -45,7 +45,7 @@ export function RoundList({
                   style={{
                     animation: isActive
                       ? `slide-in-round 0.4s ease-out ${index * 80}ms both`
-                      : "none",
+                      : 'none',
                   }}
                 >
                   <div className="flex-1 min-w-0">
@@ -69,14 +69,14 @@ export function RoundList({
                             }ms both, points-bounce 3.6s ease-in-out ${
                               index * 80 + 3200
                             }ms infinite`
-                          : "none",
+                          : 'none',
                       }}
                     >
                       <div
                         className="text-lg font-bold text-white drop-shadow-lg transition-all duration-300"
                         style={{
                           textShadow:
-                            "0 0 10px rgba(251, 191, 36, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3)",
+                            '0 0 10px rgba(251, 191, 36, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3)',
                         }}
                       >
                         {item.rightText}

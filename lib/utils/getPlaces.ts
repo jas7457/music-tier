@@ -1,7 +1,7 @@
-import { PopulatedUser } from "../types";
+import { PopulatedUser } from '../types';
 
 export function getPlaces<
-  TEntry extends { user: PopulatedUser; points: number; wins: number }
+  TEntry extends { user: PopulatedUser; points: number; wins: number },
 >(entries: Array<TEntry>) {
   const sortedEntries = [...entries].sort((a, b) => {
     if (a.points !== b.points) {
@@ -30,11 +30,11 @@ export function getPlaces<
 export function getPlaceString(place: number) {
   const suffix =
     place % 10 === 1 && place % 100 !== 11
-      ? "st"
+      ? 'st'
       : place % 10 === 2 && place % 100 !== 12
-      ? "nd"
-      : place % 10 === 3 && place % 100 !== 13
-      ? "rd"
-      : "th";
+        ? 'nd'
+        : place % 10 === 3 && place % 100 !== 13
+          ? 'rd'
+          : 'th';
   return `${place}${suffix}`;
 }

@@ -1,4 +1,4 @@
-import Pusher from "pusher";
+import Pusher from 'pusher';
 import {
   PUSHER_APP_ID,
   PUSHER_REAL_TIME_UPDATES,
@@ -6,9 +6,9 @@ import {
   PUSHER_PUBLIC_KEY,
   PUSHER_SECRET_KEY,
   PUSHER_NOTIFICATIONS,
-} from "./utils/constants";
+} from './utils/constants';
 
-import type { Notification } from "./notifications";
+import type { Notification } from './notifications';
 
 let pusherInstance: Pusher | null = null;
 
@@ -31,7 +31,7 @@ export async function triggerRealTimeUpdate({
   userIds,
 }: { userIds?: string[] } = {}) {
   const pusher = getPusherServer();
-  await pusher.trigger(PUSHER_REAL_TIME_UPDATES, "update", { userIds });
+  await pusher.trigger(PUSHER_REAL_TIME_UPDATES, 'update', { userIds });
 }
 
 export async function triggerNotifications(notifications: Notification[]) {
@@ -39,5 +39,5 @@ export async function triggerNotifications(notifications: Notification[]) {
     return;
   }
   const pusher = getPusherServer();
-  await pusher.trigger(PUSHER_NOTIFICATIONS, "notification", { notifications });
+  await pusher.trigger(PUSHER_NOTIFICATIONS, 'notification', { notifications });
 }

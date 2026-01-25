@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken } from "@/lib/auth";
-import { getCollection } from "@/lib/mongodb";
-import { OnDeckSongSubmission, SongSubmission } from "@/databaseTypes";
-import { ObjectId } from "mongodb";
-import { triggerRealTimeUpdate } from "@/lib/pusher-server";
-import { SIDE_PLAYLIST_ID } from "@/lib/utils/constants";
-import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from 'next/server';
+import { verifySessionToken } from '@/lib/auth';
+import { getCollection } from '@/lib/mongodb';
+import { OnDeckSongSubmission, SongSubmission } from '@/databaseTypes';
+import { ObjectId } from 'mongodb';
+import { triggerRealTimeUpdate } from '@/lib/pusher-server';
+import { SIDE_PLAYLIST_ID } from '@/lib/utils/constants';
+import { cookies } from 'next/headers';
 
 export async function POST(
   request: NextRequest,
-  props: { params: Promise<{ roundId: string }> }
+  props: { params: Promise<{ roundId: string }> },
 ) {
   const params = await props.params;
   return handleRequest(request, { roundId: params.roundId });
@@ -17,7 +17,7 @@ export async function POST(
 
 export async function PUT(
   request: NextRequest,
-  props: { params: Promise<{ roundId: string }> }
+  props: { params: Promise<{ roundId: string }> },
 ) {
   const params = await props.params;
   return handleRequest(request, { roundId: params.roundId });
@@ -25,18 +25,18 @@ export async function PUT(
 
 async function handleRequest(
   request: NextRequest,
-  { roundId }: { roundId: string }
+  { roundId }: { roundId: string },
 ) {
   try {
     const payload = await verifySessionToken();
     if (!payload) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
 
     if (!roundId) {
       return NextResponse.json(
-        { error: "Round ID is required" },
-        { status: 400 }
+        { error: 'Round ID is required' },
+        { status: 400 },
       );
     }
 
@@ -44,7 +44,7 @@ async function handleRequest(
     const { action } = body;
 
     const onDeckSongSubmissions = await getCollection<OnDeckSongSubmission>(
-      "onDeckSongSubmissions"
+      'onDeckSongSubmissions',
     );
 
     const currentOnDeckSubmissions = await onDeckSongSubmissions
@@ -55,20 +55,20 @@ async function handleRequest(
       .toArray();
 
     switch (action) {
-      case "update": {
+      case 'update': {
         const { payload: data } = body;
 
         if (!data || !data.onDeckSubmissions) {
           return NextResponse.json(
-            { error: "On deck submissions are required" },
-            { status: 400 }
+            { error: 'On deck submissions are required' },
+            { status: 400 },
           );
         }
         const { onDeckSubmissions } = data;
         await onDeckSongSubmissions.deleteMany({
           roundId,
           userId: payload.userId,
-          "trackInfo.trackId": {
+          'trackInfo.trackId': {
             $nin: onDeckSubmissions.map((s: any) => s.trackInfo.trackId),
           },
         });
@@ -76,7 +76,7 @@ async function handleRequest(
         const newSubmissions = onDeckSubmissions.filter((submission: any) => {
           return !currentOnDeckSubmissions.some(
             (current) =>
-              current.trackInfo.trackId === submission.trackInfo.trackId
+              current.trackInfo.trackId === submission.trackInfo.trackId,
           );
         });
 
@@ -91,42 +91,41 @@ async function handleRequest(
                 isAddedToSidePlaylist: false,
               };
               return populatedSubmission;
-            })
+            }),
           );
         }
 
         triggerRealTimeUpdate({ userIds: [payload.userId] });
         return NextResponse.json({ success: true });
       }
-      case "saveToSidePlaylist": {
+      case 'saveToSidePlaylist': {
         const { payload: submissionsToAdd } = body as {
           payload?: Pick<
             OnDeckSongSubmission,
-            "trackInfo" | "isAddedToSidePlaylist"
+            'trackInfo' | 'isAddedToSidePlaylist'
           >[];
         };
 
         if (currentOnDeckSubmissions.length === 0) {
           return NextResponse.json(
-            { error: "No on deck submissions to save" },
-            { status: 400 }
+            { error: 'No on deck submissions to save' },
+            { status: 400 },
           );
         }
 
         // Get real submissions for this round to filter them out
-        const songSubmissions = await getCollection<SongSubmission>(
-          "songSubmissions"
-        );
+        const songSubmissions =
+          await getCollection<SongSubmission>('songSubmissions');
         const realSubmissions = await songSubmissions
           .find({ roundId })
           .toArray();
 
         const realSubmissionTrackIds = new Set(
-          realSubmissions.map((s) => s.trackInfo.trackId)
+          realSubmissions.map((s) => s.trackInfo.trackId),
         );
 
         const cookieStore = await cookies();
-        const accessToken = cookieStore.get("spotify_access_token")?.value;
+        const accessToken = cookieStore.get('spotify_access_token')?.value;
 
         // Filter out submissions that are already added to playlist OR are real submissions
         const tracksToAdd = (
@@ -134,7 +133,7 @@ async function handleRequest(
         ).filter(
           (onDeckSubmission) =>
             !onDeckSubmission.isAddedToSidePlaylist &&
-            !realSubmissionTrackIds.has(onDeckSubmission.trackInfo.trackId)
+            !realSubmissionTrackIds.has(onDeckSubmission.trackInfo.trackId),
         );
 
         if (tracksToAdd.length === 0) {
@@ -142,30 +141,30 @@ async function handleRequest(
 
           return NextResponse.json({
             success: true,
-            message: "No new tracks to add",
+            message: 'No new tracks to add',
           });
         }
 
         const res = await fetch(
           `https://api.spotify.com/v1/playlists/${SIDE_PLAYLIST_ID}/tracks`,
           {
-            method: "POST",
+            method: 'POST',
             headers: {
               Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({
               uris: tracksToAdd.map(
                 (onDeckSubmission) =>
-                  `spotify:track:${onDeckSubmission.trackInfo.trackId}`
+                  `spotify:track:${onDeckSubmission.trackInfo.trackId}`,
               ),
             }),
-          }
+          },
         );
 
         if (!res.ok) {
           throw new Error(
-            `Failed to add tracks: ${res.status} ${await res.text()}`
+            `Failed to add tracks: ${res.status} ${await res.text()}`,
           );
         }
 
@@ -174,7 +173,7 @@ async function handleRequest(
           {
             roundId,
             userId: payload.userId,
-            "trackInfo.trackId": {
+            'trackInfo.trackId': {
               $in: tracksToAdd.map((s) => s.trackInfo.trackId),
             },
           },
@@ -182,7 +181,7 @@ async function handleRequest(
             $set: {
               isAddedToSidePlaylist: true,
             },
-          }
+          },
         );
 
         triggerRealTimeUpdate({ userIds: [payload.userId] });
@@ -190,10 +189,10 @@ async function handleRequest(
       }
     }
   } catch (error) {
-    console.error("Error submitting on deck submission:", error);
+    console.error('Error submitting on deck submission:', error);
     return NextResponse.json(
-      { error: "Failed to submit on deck submission" },
-      { status: 500 }
+      { error: 'Failed to submit on deck submission' },
+      { status: 500 },
     );
   }
 }

@@ -1,33 +1,33 @@
-"use client";
+'use client';
 
-import Cookies from "js-cookie";
+import Cookies from 'js-cookie';
 import {
   createContext,
   useContext,
   useLayoutEffect,
   useState,
   useCallback,
-} from "react";
+} from 'react';
 
 // Map color names to their Tailwind CSS variable shades
 const TAILWIND_COLOR_SHADES = [
-  "red",
-  "orange",
-  "amber",
-  "yellow",
-  "lime",
-  "green",
-  "emerald",
-  "teal",
-  "cyan",
-  "sky",
-  "blue",
-  "indigo",
-  "violet",
-  "purple",
-  "fuchsia",
-  "pink",
-  "rose",
+  'red',
+  'orange',
+  'amber',
+  'yellow',
+  'lime',
+  'green',
+  'emerald',
+  'teal',
+  'cyan',
+  'sky',
+  'blue',
+  'indigo',
+  'violet',
+  'purple',
+  'fuchsia',
+  'pink',
+  'rose',
 ] as const;
 
 export type ColorName = (typeof TAILWIND_COLOR_SHADES)[number];
@@ -43,7 +43,7 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
 }
@@ -62,26 +62,26 @@ export function ThemeProvider({
 
     // Reference Tailwind's built-in CSS variables
     root.style.setProperty(
-      "--color-primary-lightest",
-      `var(--color-${color}-50)`
+      '--color-primary-lightest',
+      `var(--color-${color}-50)`,
     );
     root.style.setProperty(
-      "--color-primary-lighter",
-      `var(--color-${color}-200)`
+      '--color-primary-lighter',
+      `var(--color-${color}-200)`,
     );
     root.style.setProperty(
-      "--color-primary-light",
-      `var(--color-${color}-300)`
+      '--color-primary-light',
+      `var(--color-${color}-300)`,
     );
-    root.style.setProperty("--color-primary", `var(--color-${color}-500)`);
-    root.style.setProperty("--color-primary-dark", `var(--color-${color}-600)`);
+    root.style.setProperty('--color-primary', `var(--color-${color}-500)`);
+    root.style.setProperty('--color-primary-dark', `var(--color-${color}-600)`);
     root.style.setProperty(
-      "--color-primary-darker",
-      `var(--color-${color}-700)`
+      '--color-primary-darker',
+      `var(--color-${color}-700)`,
     );
     root.style.setProperty(
-      "--color-primary-darkest",
-      `var(--color-${color}-800)`
+      '--color-primary-darkest',
+      `var(--color-${color}-800)`,
     );
   }, []);
 
@@ -92,11 +92,11 @@ export function ThemeProvider({
 
   const setPrimaryColor = useCallback(
     (color: ColorName) => {
-      Cookies.set("primaryColor", color, { path: "/", expires: 365 * 5 });
+      Cookies.set('primaryColor', color, { path: '/', expires: 365 * 5 });
       setStyles(color);
       setPrimaryColorState(color);
     },
-    [setStyles]
+    [setStyles],
   );
 
   return (

@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useAuth } from "@/lib/AuthContext";
-import Card from "./Card";
-import { Round } from "./Round";
-import { PopulatedLeague, PopulatedRound } from "@/lib/types";
-import { ListenResultsDuo } from "./ListenResultsDuo";
-import { RoundInfo } from "./RoundInfo";
+import { useAuth } from '@/lib/AuthContext';
+import Card from './Card';
+import { Round } from './Round';
+import { PopulatedLeague, PopulatedRound } from '@/lib/types';
+import { ListenResultsDuo } from './ListenResultsDuo';
+import { RoundInfo } from './RoundInfo';
 
 export function LeagueRounds({ league }: { league: PopulatedLeague }) {
   const { user } = useAuth();
@@ -43,7 +43,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
     }> = [
       {
         rounds: league.rounds.kickoff,
-        title: "Kickoff Rounds",
+        title: 'Kickoff Rounds',
         roundInfo: (round) => (
           <div className="flex flex-col gap-2">
             <RoundInfo round={round} league={league} />
@@ -59,12 +59,12 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
       },
       {
         rounds: league.rounds.upcoming,
-        title: "Upcoming Rounds",
+        title: 'Upcoming Rounds',
         roundInfo: (round) => <RoundInfo round={round} league={league} />,
       },
       {
         rounds: league.rounds.bonus,
-        title: "Bonus Rounds",
+        title: 'Bonus Rounds',
         roundInfo: (round) => (
           <div className="flex flex-col gap-2">
             <RoundInfo round={round} league={league} />
@@ -80,7 +80,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
       },
       {
         rounds: league.rounds.completed,
-        title: "Completed Rounds",
+        title: 'Completed Rounds',
         roundInfo: (round) => <RoundInfo round={round} league={league} />,
       },
     ];

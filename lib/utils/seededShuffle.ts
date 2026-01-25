@@ -1,5 +1,5 @@
 // Small seeded PRNG utilities
-const seed = "music-tier-seed-2025";
+const seed = 'music-tier-seed-2025';
 
 // Hash a string into a 32-bit integer seed
 function xmur3(str: string): () => number {
@@ -46,20 +46,20 @@ export function seededShuffle<T>(items: T[]): T[] {
   }
 
   if (arr.length !== items.length) {
-    console.error("Seeded shuffle produced array of different length");
+    console.error('Seeded shuffle produced array of different length');
     return items;
   }
   for (const item of items) {
     if (!arr.includes(item)) {
       console.error(
-        "Seeded shuffle is missing an item from the original array"
+        'Seeded shuffle is missing an item from the original array',
       );
       return items;
     }
   }
   for (let i = 0; i < items.length; i++) {
-    if (typeof arr[i] === "undefined") {
-      console.error("Seeded shuffle produced undefined item in array");
+    if (typeof arr[i] === 'undefined') {
+      console.error('Seeded shuffle produced undefined item in array');
       return items;
     }
   }

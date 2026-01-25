@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { twMerge } from "tailwind-merge";
-import Card, { CardProps } from "@/components/Card";
-import { HapticButton } from "@/components/HapticButton";
-import type { User } from "@/databaseTypes";
-import type { PopulatedUser } from "@/lib/types";
-import { useToast } from "@/lib/ToastContext";
-import { useServiceWorker } from "@/lib/ServiceWorkerContext";
-import { unknownToErrorString } from "@/lib/utils/unknownToErrorString";
-import { JASON_ID } from "@/lib/utils/constants";
-import { useTheme } from "@/lib/ThemeContext";
+import { useEffect, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
+import Card, { CardProps } from '@/components/Card';
+import { HapticButton } from '@/components/HapticButton';
+import type { User } from '@/databaseTypes';
+import type { PopulatedUser } from '@/lib/types';
+import { useToast } from '@/lib/ToastContext';
+import { useServiceWorker } from '@/lib/ServiceWorkerContext';
+import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
+import { JASON_ID } from '@/lib/utils/constants';
+import { useTheme } from '@/lib/ThemeContext';
 
 type UserSettingsClientProps = {
   user: PopulatedUser;
@@ -30,36 +30,36 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     unregisterServiceWorker,
   } = useServiceWorker();
   const [isUnregistering, setIsUnregistering] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || "");
-  const [phoneCarrier, setPhoneCarrier] = useState<User["phoneCarrier"]>(
-    user.phoneCarrier || undefined
+  const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || '');
+  const [phoneCarrier, setPhoneCarrier] = useState<User['phoneCarrier']>(
+    user.phoneCarrier || undefined,
   );
   const [phoneVerified, setPhoneVerified] = useState(
-    user.phoneVerified || false
+    user.phoneVerified || false,
   );
-  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationCode, setVerificationCode] = useState('');
   const [isSendingCode, setIsSendingCode] = useState(false);
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
   const [isSendingTestPushNotification, setIsSendingTestPushNotification] =
     useState(false);
   const [testNotificationDelay, setTestNotificationDelay] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [emailAddress, setEmailAddress] = useState(user.emailAddress || "");
+  const [emailAddress, setEmailAddress] = useState(user.emailAddress || '');
   const [notificationSettings, setNotificationSettings] = useState<
-    NonNullable<User["notificationSettings"]>
+    NonNullable<User['notificationSettings']>
   >({
-    "NOTIFICATION.FORCE": true,
-    "VOTING.STARTED": false,
-    "VOTING.REMINDER": false,
-    "SUBMISSION.REMINDER": false,
-    "SUBMISSIONS.HALF_SUBMITTED": false,
-    "SUBMISSIONS.LAST_TO_SUBMIT": false,
-    "ROUND.REMINDER": false,
-    "ROUND.STARTED": false,
-    "ROUND.COMPLETED": false,
-    "ROUND.HALF_VOTED": false,
-    "ROUND.LAST_TO_VOTE": false,
-    "LEAGUE.COMPLETED": false,
+    'NOTIFICATION.FORCE': true,
+    'VOTING.STARTED': false,
+    'VOTING.REMINDER': false,
+    'SUBMISSION.REMINDER': false,
+    'SUBMISSIONS.HALF_SUBMITTED': false,
+    'SUBMISSIONS.LAST_TO_SUBMIT': false,
+    'ROUND.REMINDER': false,
+    'ROUND.STARTED': false,
+    'ROUND.COMPLETED': false,
+    'ROUND.HALF_VOTED': false,
+    'ROUND.LAST_TO_VOTE': false,
+    'LEAGUE.COMPLETED': false,
     textNotificationsEnabled: false,
     emailNotificationsEnabled: false,
     ...user.notificationSettings,
@@ -69,18 +69,18 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   const handleSendVerificationCode = async () => {
     if (!phoneNumber || !phoneCarrier) {
       toast.show({
-        variant: "error",
-        message: "Please enter your phone number and select your carrier",
+        variant: 'error',
+        message: 'Please enter your phone number and select your carrier',
       });
       return;
     }
 
     setIsSendingCode(true);
     try {
-      const response = await fetch("/api/users/phone/send-code", {
-        method: "POST",
+      const response = await fetch('/api/users/phone/send-code', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           phoneNumber,
@@ -90,20 +90,20 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to send verification code");
+        throw new Error(errorData.error || 'Failed to send verification code');
       }
 
       toast.show({
-        variant: "success",
-        message: "Verification code sent! Check your text messages.",
+        variant: 'success',
+        message: 'Verification code sent! Check your text messages.',
       });
     } catch (error) {
       const errorMessage = unknownToErrorString(
         error,
-        "Failed to send verification code. Please try again."
+        'Failed to send verification code. Please try again.',
       );
       toast.show({
-        variant: "error",
+        variant: 'error',
         message: errorMessage,
       });
     } finally {
@@ -114,25 +114,25 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   const handleVerifyCode = async () => {
     if (!verificationCode) {
       toast.show({
-        variant: "error",
-        message: "Please enter the verification code",
+        variant: 'error',
+        message: 'Please enter the verification code',
       });
       return;
     }
     if (!phoneNumber || !phoneCarrier) {
       toast.show({
-        variant: "error",
-        message: "Please enter your phone number and select your carrier",
+        variant: 'error',
+        message: 'Please enter your phone number and select your carrier',
       });
       return;
     }
 
     setIsVerifying(true);
     try {
-      const response = await fetch("/api/users/phone/verify-code", {
-        method: "POST",
+      const response = await fetch('/api/users/phone/verify-code', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           code: verificationCode,
@@ -143,22 +143,22 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to verify code");
+        throw new Error(errorData.error || 'Failed to verify code');
       }
 
       setPhoneVerified(true);
-      setVerificationCode("");
+      setVerificationCode('');
       toast.show({
-        variant: "success",
-        message: "Phone number verified successfully!",
+        variant: 'success',
+        message: 'Phone number verified successfully!',
       });
     } catch (error) {
       const errorMessage = unknownToErrorString(
         error,
-        "Invalid verification code. Please try again."
+        'Invalid verification code. Please try again.',
       );
       toast.show({
-        variant: "error",
+        variant: 'error',
         message: errorMessage,
       });
     } finally {
@@ -171,9 +171,9 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
 
     try {
       const response = await fetch(`/api/users/${user._id}/settings`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           phoneNumber,
@@ -184,33 +184,33 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save settings");
+        throw new Error(errorData.error || 'Failed to save settings');
       }
 
       const data = await response.json();
       if (!data.success) {
-        throw new Error("Failed to save settings");
+        throw new Error('Failed to save settings');
       }
 
       toast.show({
-        variant: "success",
-        message: "Settings saved successfully!",
+        variant: 'success',
+        message: 'Settings saved successfully!',
       });
       setNotificationSettings((current) => ({
         ...current,
         ...data.notificationSettings,
       }));
-      setPhoneNumber(data.phoneNumber || "");
+      setPhoneNumber(data.phoneNumber || '');
       setPhoneCarrier(data.phoneCarrier || undefined);
       setPhoneVerified(data.phoneVerified || false);
-      setEmailAddress(data.emailAddress || "");
+      setEmailAddress(data.emailAddress || '');
     } catch (error) {
       const errorMessage = unknownToErrorString(
         error,
-        "Failed to save settings. Please try again."
+        'Failed to save settings. Please try again.',
       );
       toast.show({
-        variant: "error",
+        variant: 'error',
         message: errorMessage,
       });
     } finally {
@@ -219,7 +219,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   };
 
   const handleNotificationToggle = (
-    key: keyof NonNullable<User["notificationSettings"]>
+    key: keyof NonNullable<User['notificationSettings']>,
   ) => {
     setNotificationSettings((prev) => ({
       ...prev,
@@ -229,8 +229,8 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
 
   const notificationMethodOptions = [
     {
-      key: "textNotificationsEnabled",
-      label: "Enable Text Notifications",
+      key: 'textNotificationsEnabled',
+      label: 'Enable Text Notifications',
       description: (
         <div className="grid gap-2">
           <div>Receive SMS notifications to your phone number</div>
@@ -244,74 +244,74 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
       disabled: !phoneNumber || !phoneVerified,
     },
     {
-      key: "emailNotificationsEnabled",
-      label: "Enable Email Notifications",
-      description: "Receive notifications via email",
+      key: 'emailNotificationsEnabled',
+      label: 'Enable Email Notifications',
+      description: 'Receive notifications via email',
       disabled: !emailAddress,
     },
   ] as const;
 
   const notificationOptions = [
     {
-      key: "SUBMISSION.REMINDER",
-      label: "Submission Reminder",
+      key: 'SUBMISSION.REMINDER',
+      label: 'Submission Reminder',
       description:
-        "Reminder to submit your song 12 hours before song submission ends",
+        'Reminder to submit your song 12 hours before song submission ends',
     },
     {
-      key: "SUBMISSIONS.HALF_SUBMITTED",
-      label: "Half Submitted Songs",
+      key: 'SUBMISSIONS.HALF_SUBMITTED',
+      label: 'Half Submitted Songs',
       description:
         "When half the users have submitted their songs for a round, and you haven't yet",
     },
     {
-      key: "SUBMISSIONS.LAST_TO_SUBMIT",
-      label: "Last to Submit Song",
+      key: 'SUBMISSIONS.LAST_TO_SUBMIT',
+      label: 'Last to Submit Song',
       description:
-        "When you are the last person to submit your song for a round",
+        'When you are the last person to submit your song for a round',
     },
     {
-      key: "VOTING.STARTED",
-      label: "Voting Started",
-      description: "When voting starts for a round",
+      key: 'VOTING.STARTED',
+      label: 'Voting Started',
+      description: 'When voting starts for a round',
     },
     {
-      key: "VOTING.REMINDER",
-      label: "Voting Reminder",
-      description: "Reminder to vote 12 hours before a round ends",
+      key: 'VOTING.REMINDER',
+      label: 'Voting Reminder',
+      description: 'Reminder to vote 12 hours before a round ends',
     },
     {
-      key: "ROUND.REMINDER",
-      label: "Round Reminder",
+      key: 'ROUND.REMINDER',
+      label: 'Round Reminder',
       description:
         "Sent when a round ends and your round hasn't been submitted yet. Only notifies the next 3 rounds in line.",
     },
     {
-      key: "ROUND.HALF_VOTED",
-      label: "Half Voted",
+      key: 'ROUND.HALF_VOTED',
+      label: 'Half Voted',
       description:
         "When half the users have voted in a round, and you haven't yet",
     },
     {
-      key: "ROUND.LAST_TO_VOTE",
-      label: "Last to Vote",
-      description: "When you are the last person to vote in a round",
+      key: 'ROUND.LAST_TO_VOTE',
+      label: 'Last to Vote',
+      description: 'When you are the last person to vote in a round',
     },
     {
-      key: "ROUND.STARTED",
-      label: "Round Started",
+      key: 'ROUND.STARTED',
+      label: 'Round Started',
       description:
-        "When a currently pending round begins, otherwise you just get a round completed notification",
+        'When a currently pending round begins, otherwise you just get a round completed notification',
     },
     {
-      key: "ROUND.COMPLETED",
-      label: "Round Completed",
-      description: "When a round is completed",
+      key: 'ROUND.COMPLETED',
+      label: 'Round Completed',
+      description: 'When a round is completed',
     },
     {
-      key: "LEAGUE.COMPLETED",
-      label: "League Completed",
-      description: "When a league is completed",
+      key: 'LEAGUE.COMPLETED',
+      label: 'League Completed',
+      description: 'When a league is completed',
     },
   ] as const;
 
@@ -354,7 +354,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   const handleUnregisterServiceWorker = async () => {
     if (
       !confirm(
-        "Are you sure you want to unregister the service worker? This will clear all cached data and reload the page."
+        'Are you sure you want to unregister the service worker? This will clear all cached data and reload the page.',
       )
     ) {
       return;
@@ -365,19 +365,19 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
       const success = await unregisterServiceWorker();
       if (success) {
         toast.show({
-          variant: "success",
-          message: "Service worker unregistered successfully!",
+          variant: 'success',
+          message: 'Service worker unregistered successfully!',
         });
       } else {
         toast.show({
-          variant: "error",
-          message: "Failed to unregister service worker",
+          variant: 'error',
+          message: 'Failed to unregister service worker',
         });
       }
     } catch {
       toast.show({
-        variant: "error",
-        message: "Error unregistering service worker",
+        variant: 'error',
+        message: 'Error unregistering service worker',
       });
     } finally {
       setIsUnregistering(false);
@@ -400,13 +400,13 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
           onClick={handleUnregisterServiceWorker}
           disabled={isUnregistering}
           className={twMerge(
-            "w-full px-4 py-2 rounded-md font-semibold transition-colors",
+            'w-full px-4 py-2 rounded-md font-semibold transition-colors',
             isUnregistering
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-red-600 hover:bg-red-700 text-white"
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-red-600 hover:bg-red-700 text-white',
           )}
         >
-          {isUnregistering ? "Unregistering..." : "Unregister Service Worker"}
+          {isUnregistering ? 'Unregistering...' : 'Unregister Service Worker'}
         </HapticButton>
       </div>
     );
@@ -414,21 +414,21 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
 
   const pushNotificationMarkup = (() => {
     switch (notificationPermission) {
-      case "default": {
+      case 'default': {
         return (
           <HapticButton
             onClick={async () => {
               const permission = await requestNotificationPermission();
-              if (permission === "granted") {
+              if (permission === 'granted') {
                 toast.show({
-                  variant: "success",
-                  message: "Push notifications enabled!",
+                  variant: 'success',
+                  message: 'Push notifications enabled!',
                 });
-              } else if (permission === "denied") {
+              } else if (permission === 'denied') {
                 toast.show({
-                  variant: "error",
+                  variant: 'error',
                   message:
-                    "Push notifications denied. Please enable them in your browser settings.",
+                    'Push notifications denied. Please enable them in your browser settings.',
                 });
               }
             }}
@@ -438,7 +438,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
           </HapticButton>
         );
       }
-      case "denied": {
+      case 'denied': {
         return (
           <p className="text-sm text-red-600">
             You have denied notification permissions. To enable them, please go
@@ -446,7 +446,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
           </p>
         );
       }
-      case "granted": {
+      case 'granted': {
         return (
           <div className="grid sm:grid-cols-[1fr_auto] gap-2">
             <select
@@ -462,10 +462,10 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
               onClick={async () => {
                 setIsSendingTestPushNotification(true);
                 try {
-                  const response = await fetch("/api/push/test", {
-                    method: "POST",
+                  const response = await fetch('/api/push/test', {
+                    method: 'POST',
                     headers: {
-                      "Content-Type": "application/json",
+                      'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                       delay: testNotificationDelay,
@@ -475,7 +475,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                   if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(
-                      errorData.error || "Failed to send test notification"
+                      errorData.error || 'Failed to send test notification',
                     );
                   }
 
@@ -484,19 +484,19 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                       ? `Test push notification scheduled! You should receive it in ${
                           testNotificationDelay / 1000
                         } seconds.`
-                      : "Test push notification sent! You should receive it shortly.";
+                      : 'Test push notification sent! You should receive it shortly.';
 
                   toast.show({
-                    variant: "success",
+                    variant: 'success',
                     message,
                   });
                 } catch (error) {
                   const errorMessage = unknownToErrorString(
                     error,
-                    "Failed to send test notification. Please try again."
+                    'Failed to send test notification. Please try again.',
                   );
                   toast.show({
-                    variant: "error",
+                    variant: 'error',
                     message: errorMessage,
                   });
                 } finally {
@@ -507,8 +507,8 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
               className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-primary-dark hover:bg-primary-darker text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {isSendingTestPushNotification
-                ? "Sending..."
-                : "Send Test Push Notification"}
+                ? 'Sending...'
+                : 'Send Test Push Notification'}
             </HapticButton>
           </div>
         );
@@ -557,11 +557,11 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
               </label>
               <select
                 id="phoneCarrier"
-                value={phoneCarrier || ""}
+                value={phoneCarrier || ''}
                 disabled={!phoneNumber || phoneVerified}
                 onChange={(e) =>
                   setPhoneCarrier(
-                    e.target.value as User["phoneCarrier"] | undefined
+                    e.target.value as User['phoneCarrier'] | undefined,
                   )
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
@@ -584,13 +584,13 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                     onClick={handleSendVerificationCode}
                     disabled={isSendingCode}
                     className={twMerge(
-                      "px-4 py-2 rounded-md font-semibold transition-colors",
+                      'px-4 py-2 rounded-md font-semibold transition-colors',
                       isSendingCode
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-primary-dark hover:bg-primary-darker text-white"
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-primary-dark hover:bg-primary-darker text-white',
                     )}
                   >
-                    {isSendingCode ? "Sending..." : "Send Verification Code"}
+                    {isSendingCode ? 'Sending...' : 'Send Verification Code'}
                   </HapticButton>
 
                   <div>
@@ -613,10 +613,10 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                         onClick={handleVerifyCode}
                         disabled={isVerifying || !verificationCode}
                         className={twMerge(
-                          "px-4 py-2 rounded-md font-semibold transition-colors whitespace-nowrap bg-primary-dark hover:bg-primary-darker text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+                          'px-4 py-2 rounded-md font-semibold transition-colors whitespace-nowrap bg-primary-dark hover:bg-primary-darker text-white disabled:bg-gray-400 disabled:cursor-not-allowed',
                         )}
                       >
-                        {isVerifying ? "Verifying..." : "Verify"}
+                        {isVerifying ? 'Verifying...' : 'Verify'}
                       </HapticButton>
                     </div>
                   </div>
@@ -663,15 +663,15 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 <HapticButton
                   disabled={isSendingTestEmail || !looksLikeEmailAddress}
                   className={twMerge(
-                    "px-4 py-2 rounded-md font-semibold transition-colors bg-primary-dark hover:bg-primary-darker text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    'px-4 py-2 rounded-md font-semibold transition-colors bg-primary-dark hover:bg-primary-darker text-white disabled:bg-gray-400 disabled:cursor-not-allowed',
                   )}
                   onClick={async () => {
                     setIsSendingTestEmail(true);
                     try {
-                      const response = await fetch("/api/users/email/test", {
-                        method: "POST",
+                      const response = await fetch('/api/users/email/test', {
+                        method: 'POST',
                         headers: {
-                          "Content-Type": "application/json",
+                          'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
                           emailAddress,
@@ -681,21 +681,21 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                       if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(
-                          errorData.error || "Failed to send test email"
+                          errorData.error || 'Failed to send test email',
                         );
                       }
 
                       toast.show({
-                        variant: "success",
-                        message: "Test email sent! Check your email inbox.",
+                        variant: 'success',
+                        message: 'Test email sent! Check your email inbox.',
                       });
                     } catch (error) {
                       const errorMessage = unknownToErrorString(
                         error,
-                        "Failed to send test email. Please try again."
+                        'Failed to send test email. Please try again.',
                       );
                       toast.show({
-                        variant: "error",
+                        variant: 'error',
                         message: errorMessage,
                       });
                     } finally {
@@ -735,10 +735,10 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 key={color}
                 onClick={() => setPrimaryColor(color)}
                 className={twMerge(
-                  "relative px-4 py-3 rounded-lg border-2 transition-all capitalize font-medium",
+                  'relative px-4 py-3 rounded-lg border-2 transition-all capitalize font-medium',
                   primaryColor === color
-                    ? "border-gray-900 shadow-md scale-105"
-                    : "border-gray-300 hover:border-gray-400"
+                    ? 'border-gray-900 shadow-md scale-105'
+                    : 'border-gray-300 hover:border-gray-400',
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -831,13 +831,13 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
             onClick={handleSaveSettings}
             disabled={isSaving}
             className={twMerge(
-              "w-full px-4 py-3 rounded-md font-semibold transition-colors",
+              'w-full px-4 py-3 rounded-md font-semibold transition-colors',
               isSaving
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-primary-dark hover:bg-primary-darker text-white"
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-primary-dark hover:bg-primary-darker text-white',
             )}
           >
-            {isSaving ? "Saving..." : "Save Settings"}
+            {isSaving ? 'Saving...' : 'Save Settings'}
           </HapticButton>
         </div>
       </GenericStatCard>
@@ -850,16 +850,16 @@ function GenericStatCard({
   className,
   color,
   ...rest
-}: CardProps & { color: "white" | "gray" }) {
+}: CardProps & { color: 'white' | 'gray' }) {
   return (
     <Card
       {...rest}
       className={twMerge(
-        "p-4 border-gray-200 rounded-lg transition-all",
-        color === "white"
-          ? "bg-white"
-          : "bg-linear-to-br from-gray-50 to-gray-100 border-2",
-        className
+        'p-4 border-gray-200 rounded-lg transition-all',
+        color === 'white'
+          ? 'bg-white'
+          : 'bg-linear-to-br from-gray-50 to-gray-100 border-2',
+        className,
       )}
     >
       {children}

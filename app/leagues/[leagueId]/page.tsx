@@ -1,8 +1,8 @@
-import { redirect } from "next/navigation";
-import { getLeagueById, getUserByCookies } from "@/lib/data";
-import { LeaguePageClient } from "./LeaguePageClient";
-import Card from "@/components/Card";
-import { verifySessionToken } from "@/lib/auth";
+import { redirect } from 'next/navigation';
+import { getLeagueById, getUserByCookies } from '@/lib/data';
+import { LeaguePageClient } from './LeaguePageClient';
+import Card from '@/components/Card';
+import { verifySessionToken } from '@/lib/auth';
 
 type PageProps = {
   params: Promise<{ leagueId: string }>;
@@ -15,7 +15,7 @@ export default async function LeaguePage(props: PageProps) {
   // Verify the session
   const payload = await verifySessionToken();
   if (!payload) {
-    redirect("/");
+    redirect('/');
   }
 
   const league = await getLeagueById(leagueId, payload.userId);

@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useState, useRef, useEffect } from "react";
-import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
-import { PlayIcon, PauseIcon, NextIcon, PreviousIcon } from "./PlayerIcons";
-import Link from "next/link";
-import { twMerge } from "tailwind-merge";
-import { HapticButton } from "./HapticButton";
-import { AnimatedImageBackdrop } from "./AnimatedImageBackdrop";
+import { useState, useRef, useEffect } from 'react';
+import { useSpotifyPlayer } from '@/lib/SpotifyPlayerContext';
+import { PlayIcon, PauseIcon, NextIcon, PreviousIcon } from './PlayerIcons';
+import Link from 'next/link';
+import { twMerge } from 'tailwind-merge';
+import { HapticButton } from './HapticButton';
+import { AnimatedImageBackdrop } from './AnimatedImageBackdrop';
 
 export default function MusicPlayer({
   isExpanded,
@@ -58,18 +58,18 @@ export default function MusicPlayer({
     }
 
     function handleEscapeKey(event: KeyboardEvent) {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         setShowPlaylist(false);
         setIsExpanded(false);
       }
     }
 
     if (showPlaylist || isExpanded) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleEscapeKey);
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
       return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-        document.removeEventListener("keydown", handleEscapeKey);
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('keydown', handleEscapeKey);
       };
     }
   }, [showPlaylist, isExpanded, setIsExpanded]);
@@ -83,29 +83,29 @@ export default function MusicPlayer({
       }
     };
 
-    document.addEventListener("visibilitychange", resetDragState);
-    window.addEventListener("blur", resetDragState);
+    document.addEventListener('visibilitychange', resetDragState);
+    window.addEventListener('blur', resetDragState);
 
     return () => {
-      document.removeEventListener("visibilitychange", resetDragState);
-      window.removeEventListener("blur", resetDragState);
+      document.removeEventListener('visibilitychange', resetDragState);
+      window.removeEventListener('blur', resetDragState);
     };
   }, [isDragging]);
 
   const formatTime = (ms: number) => {
     const minutes = Math.floor(ms / 1000 / 60);
     const seconds = Math.floor((ms / 1000) % 60);
-    return `${minutes}:${String(seconds).padStart(2, "0")}`;
+    return `${minutes}:${String(seconds).padStart(2, '0')}`;
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     // Don't start drag on interactive elements
     const target = e.target as HTMLElement;
     if (
-      target.tagName === "BUTTON" ||
-      target.tagName === "INPUT" ||
-      target.closest("button") ||
-      target.closest("input")
+      target.tagName === 'BUTTON' ||
+      target.tagName === 'INPUT' ||
+      target.closest('button') ||
+      target.closest('input')
     ) {
       return;
     }
@@ -202,11 +202,11 @@ export default function MusicPlayer({
                     return (
                       <button
                         key={trackInfo.trackId}
-                        onClick={() => playTrack({ trackInfo, round: "same" })}
+                        onClick={() => playTrack({ trackInfo, round: 'same' })}
                         disabled={isDisabled}
                         className={twMerge(
-                          "w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed",
-                          isCurrentTrack ? "bg-white/20" : ""
+                          'w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed',
+                          isCurrentTrack ? 'bg-white/20' : '',
                         )}
                       >
                         <div className="relative shrink-0">
@@ -222,7 +222,7 @@ export default function MusicPlayer({
                             {trackInfo.title}
                           </div>
                           <div className="text-xs text-white/80 truncate drop-shadow-md">
-                            {trackInfo.artists.join(", ")}
+                            {trackInfo.artists.join(', ')}
                           </div>
                         </div>
                       </button>
@@ -254,8 +254,8 @@ export default function MusicPlayer({
                 src={currentTrack.album.images[0]?.url}
                 alt="Current track"
                 className={twMerge(
-                  "relative w-12 h-12 rounded-lg object-cover shrink-0 shadow-xl border-2",
-                  isPlaying ? "border-white/60" : "border-white/30"
+                  'relative w-12 h-12 rounded-lg object-cover shrink-0 shadow-xl border-2',
+                  isPlaying ? 'border-white/60' : 'border-white/30',
                 )}
               />
             </div>
@@ -266,7 +266,7 @@ export default function MusicPlayer({
                 {currentTrack.name}
               </div>
               <div className="text-xs text-white/90 truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
-                {currentTrack.artists.map((artist) => artist.name).join(", ")}
+                {currentTrack.artists.map((artist) => artist.name).join(', ')}
               </div>
             </div>
 
@@ -320,17 +320,17 @@ export default function MusicPlayer({
       {/* Mobile Expanded Player */}
       <div
         className={twMerge(
-          "md:hidden fixed inset-0 z-100 touch-none overflow-hidden",
-          !isDragging && "transition-transform duration-300 ease-out",
-          !isDragging && (isExpanded ? "translate-y-0" : "translate-y-full"),
-          !isExpanded && !isDragging && "pointer-events-none"
+          'md:hidden fixed inset-0 z-100 touch-none overflow-hidden',
+          !isDragging && 'transition-transform duration-300 ease-out',
+          !isDragging && (isExpanded ? 'translate-y-0' : 'translate-y-full'),
+          !isExpanded && !isDragging && 'pointer-events-none',
         )}
         style={
           isDragging && !isExpanded
             ? { transform: `translateY(calc(100% - ${dragY}px))` }
             : isDragging && isExpanded
-            ? { transform: `translateY(${dragY}px)` }
-            : undefined
+              ? { transform: `translateY(${dragY}px)` }
+              : undefined
         }
         onTouchStart={isExpanded ? handleTouchStart : undefined}
         onTouchMove={isExpanded ? handleTouchMove : undefined}
@@ -383,7 +383,7 @@ export default function MusicPlayer({
               {currentTrack.name}
             </h2>
             <p className="text-lg text-white/90 mb-1 drop-shadow-md">
-              {currentTrack.artists.map((artist) => artist.name).join(", ")}
+              {currentTrack.artists.map((artist) => artist.name).join(', ')}
             </p>
             <p className="text-sm text-white/70 drop-shadow-md">
               {currentTrack.album.name}
@@ -466,8 +466,8 @@ export default function MusicPlayer({
                     src={currentTrack.album.images[0]?.url}
                     alt="Current track"
                     className={twMerge(
-                      "relative w-15 h-15 rounded-2xl object-cover shrink-0 shadow-xl border-2",
-                      isPlaying ? "border-white/60" : "border-white/30"
+                      'relative w-15 h-15 rounded-2xl object-cover shrink-0 shadow-xl border-2',
+                      isPlaying ? 'border-white/60' : 'border-white/30',
                     )}
                   />
                   <div className="absolute inset-0 rounded-2xl bg-linear-to-tr from-white/10 to-transparent pointer-events-none"></div>
@@ -480,7 +480,7 @@ export default function MusicPlayer({
                     <div className="text-xs text-white/90 truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
                       {currentTrack.artists
                         .map((artist) => artist.name)
-                        .join(", ")}
+                        .join(', ')}
                     </div>
                   </div>
                 </div>
@@ -511,7 +511,7 @@ export default function MusicPlayer({
                     }}
                     disabled={isDisabled || !currentTrack}
                     className="w-14 h-14 rounded-full backdrop-blur-xl bg-linear-to-br from-green-400 to-emerald-500 border-2 border-white/60 text-white flex items-center justify-center transition-all hover:from-green-300 hover:to-emerald-400 hover:scale-110 hover:shadow-[0_0_35px_rgba(16,185,129,0.8)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
-                    title={isPlaying ? "Pause" : "Play"}
+                    title={isPlaying ? 'Pause' : 'Play'}
                   >
                     {isPlaying ? (
                       <PauseIcon
@@ -626,12 +626,12 @@ export default function MusicPlayer({
                               <button
                                 key={trackInfo.trackId}
                                 onClick={() =>
-                                  playTrack({ trackInfo, round: "same" })
+                                  playTrack({ trackInfo, round: 'same' })
                                 }
                                 disabled={isDisabled}
                                 className={twMerge(
-                                  "w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed",
-                                  isCurrentTrack ? "bg-white/20" : ""
+                                  'w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed',
+                                  isCurrentTrack ? 'bg-white/20' : '',
                                 )}
                               >
                                 <div className="relative shrink-0">
@@ -647,7 +647,7 @@ export default function MusicPlayer({
                                     {trackInfo.title}
                                   </div>
                                   <div className="text-xs text-white/80 truncate drop-shadow-md">
-                                    {trackInfo.artists.join(", ")}
+                                    {trackInfo.artists.join(', ')}
                                   </div>
                                 </div>
                               </button>

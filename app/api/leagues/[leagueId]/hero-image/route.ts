@@ -1,47 +1,47 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifySessionToken } from "@/lib/auth";
-import { getCollection } from "@/lib/mongodb";
-import { League } from "@/databaseTypes";
-import { ObjectId } from "mongodb";
-import { triggerRealTimeUpdate } from "@/lib/pusher-server";
+import { NextRequest, NextResponse } from 'next/server';
+import { verifySessionToken } from '@/lib/auth';
+import { getCollection } from '@/lib/mongodb';
+import { League } from '@/databaseTypes';
+import { ObjectId } from 'mongodb';
+import { triggerRealTimeUpdate } from '@/lib/pusher-server';
 
 export async function PATCH(
   request: NextRequest,
-  props: { params: Promise<{ leagueId: string }> }
+  props: { params: Promise<{ leagueId: string }> },
 ) {
   const params = await props.params;
   try {
     const payload = await verifySessionToken();
     if (!payload) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
 
     const { leagueId } = params;
     const body = await request.json();
     const { heroImageUrl } = body;
 
-    if (!heroImageUrl || typeof heroImageUrl !== "string") {
+    if (!heroImageUrl || typeof heroImageUrl !== 'string') {
       return NextResponse.json(
-        { error: "heroImageUrl is required and must be a string" },
-        { status: 400 }
+        { error: 'heroImageUrl is required and must be a string' },
+        { status: 400 },
       );
     }
 
     // Get the league from the database
-    const leaguesCollection = await getCollection<League>("leagues");
+    const leaguesCollection = await getCollection<League>('leagues');
     const league = await leaguesCollection.findOne({
       _id: new ObjectId(leagueId),
     });
 
     if (!league) {
-      return NextResponse.json({ error: "League not found" }, { status: 404 });
+      return NextResponse.json({ error: 'League not found' }, { status: 404 });
     }
 
     // Check if user is authorized to update the hero image
     if (league.heroImageUserId !== payload.userId) {
       return NextResponse.json(
         { error: "You are not authorized to update this league's hero image" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -53,13 +53,13 @@ export async function PATCH(
           heroImageUrl: heroImageUrl.trim(),
         },
       },
-      { returnDocument: "after" }
+      { returnDocument: 'after' },
     );
 
     if (!result) {
       return NextResponse.json(
-        { error: "Failed to update league" },
-        { status: 500 }
+        { error: 'Failed to update league' },
+        { status: 500 },
       );
     }
 
@@ -71,10 +71,10 @@ export async function PATCH(
       heroImageUrl: result.heroImageUrl,
     });
   } catch (error) {
-    console.error("Error updating hero image:", error);
+    console.error('Error updating hero image:', error);
     return NextResponse.json(
-      { error: "Failed to update hero image" },
-      { status: 500 }
+      { error: 'Failed to update hero image' },
+      { status: 500 },
     );
   }
 }

@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { twMerge } from "tailwind-merge";
-import type { PlaybackScreenProps } from "../types";
-import { DataText } from "@/components/DataText";
-import { NEON_COLORS } from "../constants";
-import { Screen } from "../components/Screen";
+import { twMerge } from 'tailwind-merge';
+import type { PlaybackScreenProps } from '../types';
+import { DataText } from '@/components/DataText';
+import { NEON_COLORS } from '../constants';
+import { Screen } from '../components/Screen';
 
 function getPlaceText(place: number): string {
-  if (place === 1) return "1st";
-  if (place === 2) return "2nd";
-  if (place === 3) return "3rd";
+  if (place === 1) return '1st';
+  if (place === 2) return '2nd';
+  if (place === 3) return '3rd';
   return `${place}th`;
 }
 
 function getPlaceMedal(place: number): string {
-  if (place === 1) return "🥇";
-  if (place === 2) return "🥈";
-  if (place === 3) return "🥉";
-  return "🎖️";
+  if (place === 1) return '🥇';
+  if (place === 2) return '🥈';
+  if (place === 3) return '🥉';
+  return '🎖️';
 }
 
 export function TotalPointsScreen({ playback, isActive }: PlaybackScreenProps) {
@@ -36,12 +36,14 @@ export function TotalPointsScreen({ playback, isActive }: PlaybackScreenProps) {
   const medal = getPlaceMedal(userStats.place);
 
   return (
-    <Screen background={{ from: "#d946ef", via: "#f59e0b", to: "#ec4899" }}>
+    <Screen background={{ from: '#d946ef', via: '#f59e0b', to: '#ec4899' }}>
       <div className="h-full flex flex-col items-center justify-center p-8 text-white gap-8">
         <div
           className={twMerge(
-            "transition-all duration-700 transform",
-            isActive ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"
+            'transition-all duration-700 transform',
+            isActive
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 -translate-y-10',
           )}
         >
           <p className="text-3xl text-white/90 text-center font-semibold">
@@ -51,13 +53,13 @@ export function TotalPointsScreen({ playback, isActive }: PlaybackScreenProps) {
 
         <div
           className={twMerge(
-            "transition-all duration-700 delay-200 transform",
-            isActive ? "opacity-100 scale-100" : "opacity-0 scale-75"
+            'transition-all duration-700 delay-200 transform',
+            isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-75',
           )}
           style={{
             animation: isActive
-              ? "pulse-scale 2s ease-in-out infinite"
-              : "none",
+              ? 'pulse-scale 2s ease-in-out infinite'
+              : 'none',
           }}
         >
           <DataText
@@ -70,8 +72,8 @@ export function TotalPointsScreen({ playback, isActive }: PlaybackScreenProps) {
 
         <div
           className={twMerge(
-            "text-center transition-all duration-700 delay-400 transform",
-            isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            'text-center transition-all duration-700 delay-400 transform',
+            isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10',
           )}
         >
           <p className="text-5xl md:text-6xl font-bold mb-4">

@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useState, useMemo, ReactNode } from "react";
-import { Toast, ToastProps } from "@/components/Toast";
+import { createContext, useContext, useState, useMemo, ReactNode } from 'react';
+import { Toast, ToastProps } from '@/components/Toast';
 
-export type ToastOptions = Omit<ToastProps, "id" | "onDismiss">;
-type ToastItem = Omit<ToastProps, "onDismiss">;
+export type ToastOptions = Omit<ToastProps, 'id' | 'onDismiss'>;
+type ToastItem = Omit<ToastProps, 'onDismiss'>;
 
 interface ToastContextValue {
   show: (options: ToastOptions) => string;
@@ -57,7 +57,7 @@ export function useToast() {
   const contextValue = useContext(ToastContext);
 
   if (!contextValue) {
-    throw new Error("useToast must be used within a ToastProvider");
+    throw new Error('useToast must be used within a ToastProvider');
   }
   return contextValue;
 }

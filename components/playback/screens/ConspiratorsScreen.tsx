@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { twMerge } from "tailwind-merge";
-import { Screen } from "../components/Screen";
-import type { PlaybackScreenProps } from "../types";
-import { Avatar } from "@/components/Avatar";
-import { DataText } from "@/components/DataText";
-import { NEON_COLORS } from "../constants";
-import { HorizontalCarousel } from "../components/HorizontalCarousel";
-import { StatBounce } from "../components/Animations";
+import { twMerge } from 'tailwind-merge';
+import { Screen } from '../components/Screen';
+import type { PlaybackScreenProps } from '../types';
+import { Avatar } from '@/components/Avatar';
+import { DataText } from '@/components/DataText';
+import { NEON_COLORS } from '../constants';
+import { HorizontalCarousel } from '../components/HorizontalCarousel';
+import { StatBounce } from '../components/Animations';
 
 export function ConspiratorsScreen({
   playback,
@@ -15,7 +15,7 @@ export function ConspiratorsScreen({
 }: PlaybackScreenProps) {
   if (!playback.conspirators || playback.conspirators.length === 0) {
     return (
-      <Screen background={{ from: "#a855f7", via: "#1e1b4b", to: "#f97316" }}>
+      <Screen background={{ from: '#a855f7', via: '#1e1b4b', to: '#f97316' }}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-white">
           <p className="text-2xl text-purple-300">
             No conspiracy data available
@@ -26,7 +26,7 @@ export function ConspiratorsScreen({
   }
 
   return (
-    <Screen background={{ from: "#a855f7", via: "#1e1b4b", to: "#f97316" }}>
+    <Screen background={{ from: '#a855f7', via: '#1e1b4b', to: '#f97316' }}>
       <HorizontalCarousel
         isActive={isActive}
         items={playback.conspirators}
@@ -43,7 +43,7 @@ export function ConspiratorsScreen({
                   <div
                     className="absolute top-[8%] left-[10%] text-5xl opacity-25 z-10"
                     style={{
-                      animation: "eye-blink 5s ease-in-out infinite",
+                      animation: 'eye-blink 5s ease-in-out infinite',
                     }}
                   >
                     👁️
@@ -51,7 +51,7 @@ export function ConspiratorsScreen({
                   <div
                     className="absolute top-[15%] right-[12%] text-4xl opacity-30 z-10"
                     style={{
-                      animation: "eye-blink 4.5s ease-in-out 1s infinite",
+                      animation: 'eye-blink 4.5s ease-in-out 1s infinite',
                     }}
                   >
                     👁️
@@ -59,7 +59,7 @@ export function ConspiratorsScreen({
                   <div
                     className="absolute bottom-[25%] left-[8%] text-6xl opacity-20 z-10"
                     style={{
-                      animation: "eye-blink 5.5s ease-in-out 2s infinite",
+                      animation: 'eye-blink 5.5s ease-in-out 2s infinite',
                     }}
                   >
                     👁️
@@ -67,7 +67,7 @@ export function ConspiratorsScreen({
                   <div
                     className="absolute bottom-[15%] right-[15%] text-5xl opacity-25 z-10"
                     style={{
-                      animation: "eye-blink 4.8s ease-in-out 0.5s infinite",
+                      animation: 'eye-blink 4.8s ease-in-out 0.5s infinite',
                     }}
                   >
                     👁️
@@ -77,7 +77,7 @@ export function ConspiratorsScreen({
                   <div
                     className="absolute top-[30%] left-[20%] text-3xl opacity-40 z-10"
                     style={{
-                      animation: "sparkle-twinkle 3s ease-in-out infinite",
+                      animation: 'sparkle-twinkle 3s ease-in-out infinite',
                     }}
                   >
                     ✨
@@ -86,7 +86,7 @@ export function ConspiratorsScreen({
                     className="absolute top-[70%] right-[25%] text-4xl opacity-35 z-10"
                     style={{
                       animation:
-                        "sparkle-twinkle 3.5s ease-in-out 0.8s infinite",
+                        'sparkle-twinkle 3.5s ease-in-out 0.8s infinite',
                     }}
                   >
                     ✨
@@ -95,7 +95,7 @@ export function ConspiratorsScreen({
                     className="absolute top-[45%] right-[10%] text-3xl opacity-30 z-10"
                     style={{
                       animation:
-                        "sparkle-twinkle 3.2s ease-in-out 1.5s infinite",
+                        'sparkle-twinkle 3.2s ease-in-out 1.5s infinite',
                     }}
                   >
                     ⭐
@@ -104,7 +104,7 @@ export function ConspiratorsScreen({
                     className="absolute bottom-[40%] left-[15%] text-4xl opacity-35 z-10"
                     style={{
                       animation:
-                        "sparkle-twinkle 3.8s ease-in-out 2.2s infinite",
+                        'sparkle-twinkle 3.8s ease-in-out 2.2s infinite',
                     }}
                   >
                     ⭐
@@ -114,7 +114,7 @@ export function ConspiratorsScreen({
                   <div
                     className="absolute top-[20%] right-[20%] text-4xl opacity-20 z-10"
                     style={{
-                      animation: "float-spin 6s ease-in-out infinite",
+                      animation: 'float-spin 6s ease-in-out infinite',
                     }}
                   >
                     ❓
@@ -122,7 +122,7 @@ export function ConspiratorsScreen({
                   <div
                     className="absolute bottom-[30%] right-[8%] text-5xl opacity-25 z-10"
                     style={{
-                      animation: "float-spin 5.5s ease-in-out 1.5s infinite",
+                      animation: 'float-spin 5.5s ease-in-out 1.5s infinite',
                     }}
                   >
                     ❓
@@ -130,7 +130,7 @@ export function ConspiratorsScreen({
                   <div
                     className="absolute top-[50%] left-[5%] text-4xl opacity-20 z-10"
                     style={{
-                      animation: "float-spin 6.5s ease-in-out 3s infinite",
+                      animation: 'float-spin 6.5s ease-in-out 3s infinite',
                     }}
                   >
                     ❓
@@ -141,10 +141,10 @@ export function ConspiratorsScreen({
               {/* Titles */}
               <div
                 className={twMerge(
-                  "transition-all duration-700 transform relative z-10",
+                  'transition-all duration-700 transform relative z-10',
                   isItemActive
-                    ? "opacity-100 delay-0 scale-100"
-                    : "opacity-0 scale-95"
+                    ? 'opacity-100 delay-0 scale-100'
+                    : 'opacity-0 scale-95',
                 )}
               >
                 <h2 className="text-center text-white drop-shadow-lg">
@@ -158,10 +158,10 @@ export function ConspiratorsScreen({
               {/* User 1 with mysterious glow */}
               <div
                 className={twMerge(
-                  "flex items-center gap-8 transition-all duration-700 relative z-10",
+                  'flex items-center gap-8 transition-all duration-700 relative z-10',
                   isItemActive
-                    ? "opacity-100 scale-100 delay-200"
-                    : "opacity-0 scale-50"
+                    ? 'opacity-100 scale-100 delay-200'
+                    : 'opacity-0 scale-50',
                 )}
               >
                 {/* User 1 with mysterious glow */}
@@ -169,18 +169,18 @@ export function ConspiratorsScreen({
                   <div
                     className="absolute inset-0 rounded-full opacity-50 z-0"
                     style={{
-                      background: "radial-gradient(circle, #a855f7, #6366f1)",
-                      filter: "blur(40px)",
+                      background: 'radial-gradient(circle, #a855f7, #6366f1)',
+                      filter: 'blur(40px)',
                       animation: isItemActive
-                        ? "pulse-mysterious 3s ease-in-out infinite"
-                        : "none",
+                        ? 'pulse-mysterious 3s ease-in-out infinite'
+                        : 'none',
                     }}
                   />
                   <div
                     style={{
                       animation: isItemActive
-                        ? "avatar-bump-right 5s ease-in-out infinite"
-                        : "none",
+                        ? 'avatar-bump-right 5s ease-in-out infinite'
+                        : 'none',
                     }}
                   >
                     <Avatar
@@ -197,11 +197,11 @@ export function ConspiratorsScreen({
                     className="absolute top-0 left-0 w-full h-full text-6xl font-bold"
                     style={{
                       animation: isItemActive
-                        ? "points-flow-to-handshake 5s ease-in infinite"
-                        : "none",
-                      color: "#a855f7",
-                      textShadow: "0px 2px 5px rgba(0, 0, 0, 1)",
-                      transformOrigin: "center",
+                        ? 'points-flow-to-handshake 5s ease-in infinite'
+                        : 'none',
+                      color: '#a855f7',
+                      textShadow: '0px 2px 5px rgba(0, 0, 0, 1)',
+                      transformOrigin: 'center',
                     }}
                   >
                     +{conspirator.user1Points}
@@ -214,20 +214,20 @@ export function ConspiratorsScreen({
                   <div
                     className="absolute top-1/2 left-0 right-0 h-1 -z-10"
                     style={{
-                      background: "linear-gradient(90deg, #a855f7, #f97316)",
+                      background: 'linear-gradient(90deg, #a855f7, #f97316)',
                       animation: isItemActive
-                        ? "pulse-line 2s ease-in-out infinite"
-                        : "none",
-                      transform: "translateY(-50%)",
-                      filter: "blur(2px)",
+                        ? 'pulse-line 2s ease-in-out infinite'
+                        : 'none',
+                      transform: 'translateY(-50%)',
+                      filter: 'blur(2px)',
                     }}
                   />
                   <div
                     className="text-6xl"
                     style={{
                       animation: isItemActive
-                        ? "handshake-pulse 2s ease-in-out infinite"
-                        : "none",
+                        ? 'handshake-pulse 2s ease-in-out infinite'
+                        : 'none',
                     }}
                   >
                     🤝
@@ -239,18 +239,18 @@ export function ConspiratorsScreen({
                   <div
                     className="absolute inset-0 rounded-full opacity-50 z-0"
                     style={{
-                      background: "radial-gradient(circle, #f97316, #fbbf24)",
-                      filter: "blur(40px)",
+                      background: 'radial-gradient(circle, #f97316, #fbbf24)',
+                      filter: 'blur(40px)',
                       animation: isItemActive
-                        ? "pulse-mysterious 3s ease-in-out 0.5s infinite"
-                        : "none",
+                        ? 'pulse-mysterious 3s ease-in-out 0.5s infinite'
+                        : 'none',
                     }}
                   />
                   <div
                     style={{
                       animation: isItemActive
-                        ? "avatar-bump-left 5s ease-in-out infinite"
-                        : "none",
+                        ? 'avatar-bump-left 5s ease-in-out infinite'
+                        : 'none',
                     }}
                   >
                     <Avatar
@@ -267,11 +267,11 @@ export function ConspiratorsScreen({
                     className="absolute top-0 left-0 w-full h-full text-right text-6xl font-bold"
                     style={{
                       animation: isItemActive
-                        ? "points-flow-to-handshake-left 5s ease-in infinite"
-                        : "none",
-                      color: "#f97316",
-                      textShadow: "0px 2px 5px rgba(0, 0, 0, 1)",
-                      transformOrigin: "center left",
+                        ? 'points-flow-to-handshake-left 5s ease-in infinite'
+                        : 'none',
+                      color: '#f97316',
+                      textShadow: '0px 2px 5px rgba(0, 0, 0, 1)',
+                      transformOrigin: 'center left',
                     }}
                   >
                     +{conspirator.user2Points}
@@ -281,18 +281,18 @@ export function ConspiratorsScreen({
 
               <div
                 className={twMerge(
-                  "text-center transition-all duration-700 transform relative z-10",
+                  'text-center transition-all duration-700 transform relative z-10',
                   isItemActive
-                    ? "opacity-100 delay-400 translate-y-0"
-                    : "opacity-0 translate-y-10"
+                    ? 'opacity-100 delay-400 translate-y-0'
+                    : 'opacity-0 translate-y-10',
                 )}
               >
                 <p
                   className="text-2xl text-white md:text-3xl font-bold mb-2 drop-shadow-lg"
                   style={{
                     animation: isItemActive
-                      ? "fade-in-bounce 0.6s ease-out 0.6s both"
-                      : "none",
+                      ? 'fade-in-bounce 0.6s ease-out 0.6s both'
+                      : 'none',
                   }}
                 >
                   {user1.firstName} & {user2.firstName}
@@ -301,8 +301,8 @@ export function ConspiratorsScreen({
                   className="text-xl text-purple-200 mb-4 drop-shadow-md"
                   style={{
                     animation: isItemActive
-                      ? "fade-in-bounce 0.6s ease-out 0.8s both"
-                      : "none",
+                      ? 'fade-in-bounce 0.6s ease-out 0.8s both'
+                      : 'none',
                   }}
                 >
                   exchanged a total of
@@ -312,8 +312,8 @@ export function ConspiratorsScreen({
                   <div
                     style={{
                       animation: isItemActive
-                        ? "points-explode 0.8s ease-out 1s both"
-                        : "none",
+                        ? 'points-explode 0.8s ease-out 1s both'
+                        : 'none',
                     }}
                   >
                     <DataText

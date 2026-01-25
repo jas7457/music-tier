@@ -1,9 +1,9 @@
-import { redirect } from "next/navigation";
-import { getLeagueById, getUser } from "@/lib/data";
-import { RoundPageClient } from "./RoundPageClient";
-import Card from "@/components/Card";
-import { getAllRounds } from "@/lib/utils/getAllRounds";
-import { verifySessionToken } from "@/lib/auth";
+import { redirect } from 'next/navigation';
+import { getLeagueById, getUser } from '@/lib/data';
+import { RoundPageClient } from './RoundPageClient';
+import Card from '@/components/Card';
+import { getAllRounds } from '@/lib/utils/getAllRounds';
+import { verifySessionToken } from '@/lib/auth';
 
 type PageProps = {
   params: Promise<{ roundId: string; leagueId: string }>;
@@ -16,7 +16,7 @@ export default async function RoundPage(props: PageProps) {
   // Verify the session
   const payload = await verifySessionToken();
   if (!payload) {
-    redirect("/");
+    redirect('/');
   }
 
   const [user, league] = await Promise.all([
@@ -30,9 +30,9 @@ export default async function RoundPage(props: PageProps) {
     }
 
     const allRounds = getAllRounds(league);
-    if (roundId === "current") {
+    if (roundId === 'current') {
       const currentRound = allRounds.find(
-        (round) => !["upcoming", "unknown", "completed"].includes(round.stage),
+        (round) => !['upcoming', 'unknown', 'completed'].includes(round.stage),
       );
       if (currentRound) {
         return currentRound;

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useCallback, useContext, useEffect, useState } from "react";
-import { twMerge } from "tailwind-merge";
-import { CarouselContext } from "./HorizontalCarousel";
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
+import { CarouselContext } from './HorizontalCarousel';
 
 interface DualScreenProps {
   children: React.ReactNode;
@@ -36,22 +36,22 @@ export function DualScreen({
   const backfaceMarkup = backFace(isFlipped);
 
   return (
-    <div className={twMerge("relative w-full h-full", className)}>
+    <div className={twMerge('relative w-full h-full', className)}>
       {/* Flip Button */}
       {backfaceMarkup && (
         <button
           onClick={handleFlip}
           className={twMerge(
-            "absolute bottom-4 right-4 z-50 backdrop-blur-sm text-white rounded-full p-3 transition-all duration-300",
+            'absolute bottom-4 right-4 z-50 backdrop-blur-sm text-white rounded-full p-3 transition-all duration-300',
             isFlipped
-              ? "bg-purple-500/80 border-2 border-purple-300 hover:bg-purple-400/80 shadow-lg shadow-purple-500/50"
-              : "bg-white/10 border border-white/20 hover:bg-white/20"
+              ? 'bg-purple-500/80 border-2 border-purple-300 hover:bg-purple-400/80 shadow-lg shadow-purple-500/50'
+              : 'bg-white/10 border border-white/20 hover:bg-white/20',
           )}
           style={{
             animation:
               isActive && !isFlipped
-                ? "hint-flip 5.6s ease-in-out 3s infinite"
-                : "none",
+                ? 'hint-flip 5.6s ease-in-out 3s infinite'
+                : 'none',
           }}
           aria-label="Flip screen"
         >
@@ -77,26 +77,26 @@ export function DualScreen({
       <div
         className="relative w-full h-full"
         style={{
-          perspective: "3000px",
+          perspective: '3000px',
         }}
       >
         <div
           className="relative w-full h-full transition-transform duration-700"
           style={{
-            transformStyle: "preserve-3d",
-            WebkitTransformStyle: "preserve-3d",
-            transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+            transformStyle: 'preserve-3d',
+            WebkitTransformStyle: 'preserve-3d',
+            transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
           }}
         >
           {/* Front Face */}
           <div
             className="absolute inset-0 w-full h-full"
             style={{
-              backfaceVisibility: "hidden",
-              WebkitBackfaceVisibility: "hidden",
-              transform: "rotateY(0deg)",
-              WebkitTransform: "rotateY(0deg)",
-              pointerEvents: isFlipped ? "none" : "auto",
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(0deg)',
+              WebkitTransform: 'rotateY(0deg)',
+              pointerEvents: isFlipped ? 'none' : 'auto',
             }}
           >
             {children}
@@ -106,11 +106,11 @@ export function DualScreen({
           <div
             className="absolute inset-0 w-full h-full"
             style={{
-              backfaceVisibility: "hidden",
-              WebkitBackfaceVisibility: "hidden",
-              transform: "rotateY(180deg)",
-              WebkitTransform: "rotateY(180deg)",
-              pointerEvents: isFlipped ? "auto" : "none",
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)',
+              WebkitTransform: 'rotateY(180deg)',
+              pointerEvents: isFlipped ? 'auto' : 'none',
             }}
           >
             {backfaceMarkup}

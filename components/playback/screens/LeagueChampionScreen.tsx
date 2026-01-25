@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useState, useRef, useEffect } from "react";
-import { twMerge } from "tailwind-merge";
-import { Avatar } from "@/components/Avatar";
-import type { PlaybackScreenProps } from "../types";
-import { Screen } from "../components/Screen";
-import { DualScreen } from "../components/DualScreen";
-import AlbumArt from "@/components/AlbumArt";
-import { MultiLine } from "@/components/MultiLine";
-import Image from "next/image";
-import crownImage from "../images/crown.png";
-import trumpetImage from "../images/trumpet.jpg";
-import { USER_IDS } from "@/lib/utils/constants";
-import { getRoundTitle } from "@/lib/utils/getRoundTitle";
-import { useSpotifyPlayer } from "@/lib/SpotifyPlayerContext";
+import { useState, useRef, useEffect } from 'react';
+import { twMerge } from 'tailwind-merge';
+import { Avatar } from '@/components/Avatar';
+import type { PlaybackScreenProps } from '../types';
+import { Screen } from '../components/Screen';
+import { DualScreen } from '../components/DualScreen';
+import AlbumArt from '@/components/AlbumArt';
+import { MultiLine } from '@/components/MultiLine';
+import Image from 'next/image';
+import crownImage from '../images/crown.png';
+import trumpetImage from '../images/trumpet.jpg';
+import { USER_IDS } from '@/lib/utils/constants';
+import { getRoundTitle } from '@/lib/utils/getRoundTitle';
+import { useSpotifyPlayer } from '@/lib/SpotifyPlayerContext';
 
 // Crown positioning map by user ID - adjust these per user for perfect crown placement
 const CROWN_POSITIONS: Record<
@@ -21,57 +21,57 @@ const CROWN_POSITIONS: Record<
   { x: string; y: string; rotate: string; scale: number }
 > = {
   [USER_IDS.JASON]: {
-    x: "27.5%",
-    y: "4%",
-    rotate: "rotate(2deg)",
+    x: '27.5%',
+    y: '4%',
+    rotate: 'rotate(2deg)',
     scale: 0.4,
   },
   [USER_IDS.KELSEY]: {
-    x: "40%",
-    y: "-19%",
-    rotate: "rotate(15deg)",
+    x: '40%',
+    y: '-19%',
+    rotate: 'rotate(15deg)',
     scale: 1.2,
   },
   [USER_IDS.TJ]: {
-    x: "31%",
-    y: "-2%",
-    rotate: "rotate(15deg)",
+    x: '31%',
+    y: '-2%',
+    rotate: 'rotate(15deg)',
     scale: 1.4,
   },
   [USER_IDS.CODY]: {
-    x: "38%",
-    y: "8%",
-    rotate: "rotate(0deg)",
+    x: '38%',
+    y: '8%',
+    rotate: 'rotate(0deg)',
     scale: 0.4,
   },
   [USER_IDS.DHARAM]: {
-    x: "28%",
-    y: "-27%",
-    rotate: "rotate(5deg)",
+    x: '28%',
+    y: '-27%',
+    rotate: 'rotate(5deg)',
     scale: 1.8,
   },
   [USER_IDS.KAYLA]: {
-    x: "19%",
-    y: "3%",
-    rotate: "rotate(-2deg)",
+    x: '19%',
+    y: '3%',
+    rotate: 'rotate(-2deg)',
     scale: 0.6,
   },
   [USER_IDS.JEN]: {
-    x: "29%",
-    y: "-15%",
-    rotate: "rotate(1deg)",
+    x: '29%',
+    y: '-15%',
+    rotate: 'rotate(1deg)',
     scale: 1.1,
   },
   [USER_IDS.JAMES]: {
-    x: "39%",
-    y: "-5%",
-    rotate: "rotate(10deg)",
+    x: '39%',
+    y: '-5%',
+    rotate: 'rotate(10deg)',
     scale: 0.8,
   },
   default: {
-    x: "27.5%",
-    y: "4%",
-    rotate: "rotate(2deg)",
+    x: '27.5%',
+    y: '4%',
+    rotate: 'rotate(2deg)',
     scale: 0.4,
   },
 };
@@ -79,7 +79,7 @@ const CROWN_POSITIONS: Record<
 const randomData = [...Array(20)].map(() => ({
   left: `${Math.random() * 100}%`,
   top: `${Math.random() * 100}%`,
-  background: ["#fbbf24", "#f59e0b", "#d97706", "#ffffff"][
+  background: ['#fbbf24', '#f59e0b', '#d97706', '#ffffff'][
     Math.floor(Math.random() * 4)
   ],
   animation: `confetti-fall ${2 + Math.random() * 3}s ease-in ${
@@ -106,12 +106,12 @@ export function LeagueChampionScreen({
 
   // Preload audio on mount
   useEffect(() => {
-    const audio1 = new Audio("/audio/fanfare1.mp3");
-    audio1.preload = "auto";
+    const audio1 = new Audio('/audio/fanfare1.mp3');
+    audio1.preload = 'auto';
     audio1Ref.current = audio1;
 
-    const audio2 = new Audio("/audio/fanfare2.mp3?v=2");
-    audio2.preload = "auto";
+    const audio2 = new Audio('/audio/fanfare2.mp3?v=2');
+    audio2.preload = 'auto';
     audio2Ref.current = audio2;
     if (isActive) {
       setVolume(0.4);
@@ -122,7 +122,7 @@ export function LeagueChampionScreen({
       if (audio2Ref.current) {
         audio2Ref.current.currentTime = 0;
         audio2Ref.current.play().catch((error) => {
-          console.error("Error playing fanfare2 audio:", error);
+          console.error('Error playing fanfare2 audio:', error);
         });
       }
     };
@@ -131,13 +131,13 @@ export function LeagueChampionScreen({
       setVolume(1);
     };
 
-    audio1.addEventListener("ended", handleAudio1End);
-    audio2.addEventListener("ended", handleAudio2End);
+    audio1.addEventListener('ended', handleAudio1End);
+    audio2.addEventListener('ended', handleAudio2End);
 
     // Cleanup on unmount
     return () => {
-      audio1.removeEventListener("ended", handleAudio1End);
-      audio2.removeEventListener("ended", handleAudio2End);
+      audio1.removeEventListener('ended', handleAudio1End);
+      audio2.removeEventListener('ended', handleAudio2End);
       if (isActive) {
         setVolume(1);
       }
@@ -162,7 +162,7 @@ export function LeagueChampionScreen({
         if (audio1Ref.current) {
           audio1Ref.current.currentTime = 0;
           audio1Ref.current.play().catch((error) => {
-            console.error("Error playing fanfare1 audio:", error);
+            console.error('Error playing fanfare1 audio:', error);
           });
         }
       }, 2000);
@@ -208,7 +208,7 @@ export function LeagueChampionScreen({
 
   if (!winner) {
     return (
-      <Screen background={{ from: "#fbbf24", via: "#f59e0b", to: "#d97706" }}>
+      <Screen background={{ from: '#fbbf24', via: '#f59e0b', to: '#d97706' }}>
         <div className="h-full flex flex-col items-center justify-center p-8 text-white">
           <p className="text-2xl text-yellow-200">No champion data available</p>
         </div>
@@ -220,7 +220,7 @@ export function LeagueChampionScreen({
     CROWN_POSITIONS[winner.user._id] || CROWN_POSITIONS.default;
 
   return (
-    <Screen background={{ from: "#fbbf24", via: "#f59e0b", to: "#d97706" }}>
+    <Screen background={{ from: '#fbbf24', via: '#f59e0b', to: '#d97706' }}>
       <DualScreen
         isActive={isActive}
         backFace={(isFlipped) => (
@@ -245,7 +245,7 @@ export function LeagueChampionScreen({
                   style={{
                     animation: isFlipped
                       ? `slide-in-submission 0.4s ease-out ${index * 80}ms both`
-                      : "none",
+                      : 'none',
                   }}
                 >
                   <div className="flex items-start gap-3 mb-2">
@@ -259,7 +259,7 @@ export function LeagueChampionScreen({
                         {submission.trackInfo.title}
                       </p>
                       <p className="text-xs text-white/70 truncate">
-                        {submission.trackInfo.artists.join(", ")}
+                        {submission.trackInfo.artists.join(', ')}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-white/50">
@@ -326,10 +326,10 @@ export function LeagueChampionScreen({
           {/* Title */}
           <div
             className={twMerge(
-              "text-center mb-8 transition-all duration-1000",
+              'text-center mb-8 transition-all duration-1000',
               revealed
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 -translate-y-10"
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 -translate-y-10',
             )}
           >
             <h2 className="text-4xl md:text-6xl font-bold drop-shadow-lg mb-2">
@@ -377,12 +377,12 @@ export function LeagueChampionScreen({
                           style={{
                             left: `calc(50% + clamp(160px, 32vw, 256px) * ${cosAngle})`,
                             top: `calc(50% + clamp(160px, 32vw, 256px) * ${sinAngle})`,
-                            transform: "translate(-50%, -50%)",
+                            transform: 'translate(-50%, -50%)',
                             animation: trumpetFadingOut
                               ? `user-fade-out 1s ease-out forwards`
                               : `user-appear 0.6s ease-out both`,
-                            width: "65px",
-                            height: "65px",
+                            width: '65px',
+                            height: '65px',
                           }}
                         >
                           <Avatar
@@ -399,12 +399,12 @@ export function LeagueChampionScreen({
                           style={{
                             left: `calc(50% + clamp(120px, 24vw, 192px) * ${cosAngle})`,
                             top: `calc(50% + clamp(120px, 24vw, 192px) * ${sinAngle})`,
-                            transform: "translate(-50%, -50%)",
+                            transform: 'translate(-50%, -50%)',
                             animation: trumpetFadingOut
                               ? `user-fade-out 1s ease-out forwards`
                               : `user-appear 0.6s ease-out both`,
-                            width: "60px",
-                            height: "60px",
+                            width: '60px',
+                            height: '60px',
                             zIndex: 20,
                           }}
                         >
@@ -414,15 +414,15 @@ export function LeagueChampionScreen({
                             width={60}
                             height={60}
                             style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "contain",
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'contain',
                               transform: shouldFlipTrumpet
-                                ? "scaleX(-1)"
-                                : "none",
+                                ? 'scaleX(-1)'
+                                : 'none',
                               animation: revealed
-                                ? "trumpet-flourish 0.6s ease-in-out infinite"
-                                : "none",
+                                ? 'trumpet-flourish 0.6s ease-in-out infinite'
+                                : 'none',
                             }}
                           />
                         </div>
@@ -435,16 +435,16 @@ export function LeagueChampionScreen({
               {/* Avatar with crown (centered in its container) */}
               <div
                 className={twMerge(
-                  "relative transition-all duration-1000 delay-500",
+                  'relative transition-all duration-1000 delay-500',
                   revealed
-                    ? "opacity-100 scale-100"
-                    : "opacity-0 scale-50 blur-sm"
+                    ? 'opacity-100 scale-100'
+                    : 'opacity-0 scale-50 blur-sm',
                 )}
                 style={{
-                  width: "clamp(250px, 50vw, 400px)",
+                  width: 'clamp(250px, 50vw, 400px)',
                   animation: winnerPulsing
-                    ? "winner-pulse 2s ease-in-out infinite"
-                    : "none",
+                    ? 'winner-pulse 2s ease-in-out infinite'
+                    : 'none',
                 }}
               >
                 {/* Crown */}
@@ -453,22 +453,22 @@ export function LeagueChampionScreen({
                     className="absolute z-10"
                     style={
                       {
-                        left: "50%",
-                        top: "-60%",
-                        transform: "translateX(-50%)",
+                        left: '50%',
+                        top: '-60%',
+                        transform: 'translateX(-50%)',
                         animation:
-                          "crown-bounce-twice 2s cubic-bezier(0.45, 0, 0.55, 1) forwards, crown-move-to-position 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 2s forwards",
-                        width: "46.67%",
-                        height: "38.67%",
-                        "--final-x": crownPosition.x,
-                        "--final-y": crownPosition.y,
-                        "--final-rotate": crownPosition.rotate,
-                        "--final-scale": crownPosition.scale,
+                          'crown-bounce-twice 2s cubic-bezier(0.45, 0, 0.55, 1) forwards, crown-move-to-position 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 2s forwards',
+                        width: '46.67%',
+                        height: '38.67%',
+                        '--final-x': crownPosition.x,
+                        '--final-y': crownPosition.y,
+                        '--final-rotate': crownPosition.rotate,
+                        '--final-scale': crownPosition.scale,
                       } as React.CSSProperties & {
-                        "--final-x": string;
-                        "--final-y": string;
-                        "--final-rotate": string;
-                        "--final-scale": number;
+                        '--final-x': string;
+                        '--final-y': string;
+                        '--final-rotate': string;
+                        '--final-scale': number;
                       }
                     }
                   >
@@ -478,10 +478,10 @@ export function LeagueChampionScreen({
                       width={140}
                       height={116}
                       style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                        animation: "crown-shine 2s ease-in-out 1.5s infinite",
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        animation: 'crown-shine 2s ease-in-out 1.5s infinite',
                       }}
                     />
                   </div>
@@ -500,10 +500,10 @@ export function LeagueChampionScreen({
             {/* Winner info - outside the relative container */}
             <div
               className={twMerge(
-                "text-center mt-6 transition-all duration-1000 delay-700",
+                'text-center mt-6 transition-all duration-1000 delay-700',
                 revealed
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-10"
+                  ? 'opacity-100 translate-y-0'
+                  : 'opacity-0 translate-y-10',
               )}
             >
               <p className="text-3xl md:text-5xl font-bold mb-2 drop-shadow-lg">
@@ -518,18 +518,18 @@ export function LeagueChampionScreen({
           {/* Stats */}
           <div
             className={twMerge(
-              "mt-8 w-full grid grid-cols-[1fr_1fr] transition-all duration-1000 delay-1000",
+              'mt-8 w-full grid grid-cols-[1fr_1fr] transition-all duration-1000 delay-1000',
               revealed
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-10',
             )}
           >
             <div
               className="text-center"
               style={{
                 animation: revealed
-                  ? "stat-pulse 3s ease-in-out infinite"
-                  : "none",
+                  ? 'stat-pulse 3s ease-in-out infinite'
+                  : 'none',
               }}
             >
               <p className="text-6xl md:text-7xl font-bold text-yellow-300 drop-shadow-lg">
@@ -543,8 +543,8 @@ export function LeagueChampionScreen({
               className="text-center"
               style={{
                 animation: revealed
-                  ? "stat-pulse 3s ease-in-out 1.5s infinite"
-                  : "none",
+                  ? 'stat-pulse 3s ease-in-out 1.5s infinite'
+                  : 'none',
               }}
             >
               <p className="text-6xl md:text-7xl font-bold text-yellow-300 drop-shadow-lg">

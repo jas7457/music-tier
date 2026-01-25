@@ -1,6 +1,6 @@
-import { PopulatedUser } from "@/lib/types";
-import { twMerge } from "tailwind-merge";
-import { MaybeLink } from "./MaybeLink";
+import { PopulatedUser } from '@/lib/types';
+import { twMerge } from 'tailwind-merge';
+import { MaybeLink } from './MaybeLink';
 
 export interface AvatarProps {
   user: PopulatedUser;
@@ -27,19 +27,19 @@ export function Avatar({
   const initial = user.userName.charAt(0).toUpperCase();
 
   const gradients = [
-    "from-blue-500 to-primary-dark",
-    "from-pink-500 to-rose-600",
-    "from-green-500 to-emerald-600",
-    "from-orange-500 to-red-600",
-    "from-cyan-500 to-blue-600",
-    "from-violet-500 to-primary-dark",
-    "from-amber-500 to-orange-600",
-    "from-teal-500 to-cyan-600",
-    "from-indigo-500 to-blue-600",
-    "from-fuchsia-500 to-pink-600",
+    'from-blue-500 to-primary-dark',
+    'from-pink-500 to-rose-600',
+    'from-green-500 to-emerald-600',
+    'from-orange-500 to-red-600',
+    'from-cyan-500 to-blue-600',
+    'from-violet-500 to-primary-dark',
+    'from-amber-500 to-orange-600',
+    'from-teal-500 to-cyan-600',
+    'from-indigo-500 to-blue-600',
+    'from-fuchsia-500 to-pink-600',
   ];
 
-  const sizeStr = isSizePercent ? "" : `w-${size}`;
+  const sizeStr = isSizePercent ? '' : `w-${size}`;
 
   const index = user.index === -1 ? 0 : user.index;
   const gradient = gradients[index % gradients.length];
@@ -57,9 +57,9 @@ export function Avatar({
           alt={fullName}
           className={twMerge(
             sizeStr,
-            "rounded-full object-cover border-2 border-gray-300 aspect-square max-w-full",
-            isSizePercent ? "w-full" : "",
-            className
+            'rounded-full object-cover border-2 border-gray-300 aspect-square max-w-full',
+            isSizePercent ? 'w-full' : '',
+            className,
           )}
         />
       ) : (
@@ -67,8 +67,8 @@ export function Avatar({
           className={twMerge(
             sizeStr,
             gradient,
-            "rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-300 aspect-square max-w-full",
-            className
+            'rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-300 aspect-square max-w-full',
+            className,
           )}
         >
           {initial}

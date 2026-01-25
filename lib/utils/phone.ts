@@ -2,9 +2,9 @@ export function getFormattedPhoneNumber(phoneNumber: string): string {
   const reg = /^[\d\s\(\)\+\-]+$/;
   const match = reg.exec(phoneNumber);
   if (!match) {
-    return "";
+    return '';
   }
-  const digits = phoneNumber.replace(/\D/g, "");
+  const digits = phoneNumber.replace(/\D/g, '');
 
   if (digits.length === 10) {
     return digits;
@@ -13,5 +13,5 @@ export function getFormattedPhoneNumber(phoneNumber: string): string {
     return digits;
   }
 
-  return "";
+  return '';
 }
