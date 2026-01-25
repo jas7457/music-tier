@@ -123,12 +123,11 @@ export async function roundNotifications({
 
   const league = after.league;
   const foundRound =
-    getAllRounds(league, { includeFake: true, includePending: true }).find(
-      (r) => r._id === round._id
+    getAllRounds(league, { includeFake: true }).find(
+      (r) => r._id === round._id,
     ) ?? null;
 
   const beforeRound = getAllRounds(before.league, {
-    includePending: true,
     includeFake: true,
   }).find((currentRound) => {
     if (isNewRound) {
@@ -187,7 +186,7 @@ export async function submissionNotifications({
   const { submittedUsers, unsubmittedUsers } = league.users.reduce(
     (acc, user) => {
       const userHasSubmitted = afterRound.submissions.some(
-        (submission) => submission.userId === user._id
+        (submission) => submission.userId === user._id,
       );
       if (userHasSubmitted) {
         acc.submittedUsers.push(user);
@@ -199,7 +198,7 @@ export async function submissionNotifications({
     {
       submittedUsers: [] as PopulatedUser[],
       unsubmittedUsers: [] as PopulatedUser[],
-    }
+    },
   );
 
   const halfOfUsers = league.users.length / 2;
@@ -269,7 +268,7 @@ export async function voteNotifications({
   const { unvotedUsers, votedUsers } = afterLeague.users.reduce(
     (acc, user) => {
       const userHasVoted = afterRound.votes.some(
-        (vote) => vote.userId === user._id
+        (vote) => vote.userId === user._id,
       );
       if (userHasVoted) {
         acc.votedUsers.push(user);
@@ -281,7 +280,7 @@ export async function voteNotifications({
     {
       votedUsers: [] as PopulatedUser[],
       unvotedUsers: [] as PopulatedUser[],
-    }
+    },
   );
 
   const halfOfUsers = afterLeague.users.length / 2;
@@ -338,7 +337,7 @@ export async function voteNotifications({
     }
 
     const beforeUsersVotes = new Set(
-      before.round.votes.map((vote) => vote.userId)
+      before.round.votes.map((vote) => vote.userId),
     );
 
     if (unvotedUsers.length === 1) {
@@ -374,7 +373,7 @@ export async function voteNotifications({
 
 export async function sendNotifications(
   notifications: Notification[],
-  league: PopulatedLeague
+  league: PopulatedLeague,
 ) {
   if (notifications.length === 0) {
     return;
@@ -382,10 +381,13 @@ export async function sendNotifications(
   try {
     triggerNotifications(notifications);
 
-    const usersById = league.users.reduce((acc, user) => {
-      acc[user._id] = user;
-      return acc;
-    }, {} as Record<string, PopulatedUser>);
+    const usersById = league.users.reduce(
+      (acc, user) => {
+        acc[user._id] = user;
+        return acc;
+      },
+      {} as Record<string, PopulatedUser>,
+    );
 
     // Collect all user IDs that need notifications
     const userIdsNeedingNotifications = new Set<string>();
@@ -401,16 +403,19 @@ export async function sendNotifications(
       .find({
         _id: {
           $in: Array.from(userIdsNeedingNotifications).map(
-            (id) => new ObjectId(id)
+            (id) => new ObjectId(id),
           ),
         },
       })
       .toArray();
 
-    const usersWithPushById = usersWithPushData.reduce((acc, user) => {
-      acc[user._id.toString()] = user;
-      return acc;
-    }, {} as Record<string, User>);
+    const usersWithPushById = usersWithPushData.reduce(
+      (acc, user) => {
+        acc[user._id.toString()] = user;
+        return acc;
+      },
+      {} as Record<string, User>,
+    );
 
     // Send all notifications
     const notificationPromises: Promise<void>[] = [];
@@ -451,7 +456,7 @@ export async function sendNotifications(
             }).catch((error) => {
               console.error(
                 "[Notifications] Error sending push notification:",
-                error
+                error,
               );
             });
             notificationPromises.push(pushPromise as Promise<void>);

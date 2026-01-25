@@ -280,7 +280,6 @@ export type PopulatedLeague = WithStringId<Omit<League, "users">> & {
     current: PopulatedRound | undefined;
     completed: PopulatedRound[];
     upcoming: PopulatedRound[];
-    pending: PopulatedRound[];
     bonus: PopulatedRound[];
     kickoff: PopulatedRound[];
   };

@@ -13,7 +13,7 @@ import { assertNever } from "@/lib/utils/never";
 
 export async function POST(
   request: NextRequest,
-  props: { params: Promise<{ roundId: string }> }
+  props: { params: Promise<{ roundId: string }> },
 ) {
   const params = await props.params;
   return handleRequest(request, { roundId: params.roundId, method: "ADD" });
@@ -21,7 +21,7 @@ export async function POST(
 
 export async function PUT(
   request: NextRequest,
-  props: { params: Promise<{ roundId: string }> }
+  props: { params: Promise<{ roundId: string }> },
 ) {
   const params = await props.params;
   return handleRequest(request, { roundId: params.roundId, method: "UPDATE" });
@@ -29,7 +29,7 @@ export async function PUT(
 
 async function handleRequest(
   request: NextRequest,
-  { roundId, method }: { roundId: string; method: "ADD" | "UPDATE" }
+  { roundId, method }: { roundId: string; method: "ADD" | "UPDATE" },
 ) {
   try {
     const payload = await verifySessionToken();
@@ -40,7 +40,7 @@ async function handleRequest(
     if (!roundId) {
       return NextResponse.json(
         { error: "Round ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -50,7 +50,7 @@ async function handleRequest(
     if (!trackInfo || !trackInfo.trackId) {
       return NextResponse.json(
         { error: "Track URL is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -59,7 +59,6 @@ async function handleRequest(
 
       for (const league of userLeagues) {
         const rounds = getAllRounds(league, {
-          includePending: false,
           includeFake: false,
         });
 
@@ -77,7 +76,7 @@ async function handleRequest(
     if (!foundRound) {
       return NextResponse.json(
         { error: "No roound was found, Charlie Brown" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -86,12 +85,12 @@ async function handleRequest(
         {
           error: `Submissions are not open for this round. The round is currently in the "${foundRound.stage}" stage.`,
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const existingSubmission = foundRound.submissions.find(
-      (sub) => sub.userId === payload.userId
+      (sub) => sub.userId === payload.userId,
     );
 
     if (existingSubmission && method === "ADD") {
@@ -100,13 +99,13 @@ async function handleRequest(
           error:
             "You have already submitted a song for this round. Use PUT to update it.",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     const getDuplicateReturnResponse = (
       round: PopulatedRound,
-      trackInfo: TrackInfo
+      trackInfo: TrackInfo,
     ) => {
       const songsInfo = getExistingSongsInfo(round, trackInfo);
       for (const songInfo of songsInfo) {
@@ -120,7 +119,7 @@ async function handleRequest(
                     error:
                       "You have great taste! This song has already been submitted by another user in this round.",
                   },
-                  { status: 409 }
+                  { status: 409 },
                 );
               }
               case "ARTIST_MATCH":
@@ -134,7 +133,7 @@ async function handleRequest(
                     code: matchReason,
                     trackInfo: songInfo.trackInfo,
                   },
-                  { status: 200 }
+                  { status: 200 },
                 );
               }
               default: {
@@ -152,9 +151,8 @@ async function handleRequest(
       return duplicateResponse;
     }
 
-    const submissionsCollection = await getCollection<SongSubmission>(
-      "songSubmissions"
-    );
+    const submissionsCollection =
+      await getCollection<SongSubmission>("songSubmissions");
 
     const now = Date.now();
 
@@ -190,7 +188,7 @@ async function handleRequest(
             },
             ...(youtubeURL ? {} : { $unset: { youtubeURL: "" } }),
           },
-          { returnDocument: "after" }
+          { returnDocument: "after" },
         );
 
         if (!result) {
@@ -210,7 +208,7 @@ async function handleRequest(
     if (newData.round) {
       const newDuplicateResponse = getDuplicateReturnResponse(
         newData.round,
-        trackInfo
+        trackInfo,
       );
       if (newDuplicateResponse) {
         await submissionsCollection.deleteOne({
@@ -245,14 +243,14 @@ async function handleRequest(
     console.error("Error submitting song:", error);
     return NextResponse.json(
       { error: "Failed to submit song" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 function getExistingSongsInfo(
   round: PopulatedRound,
-  trackInfo: TrackInfo
+  trackInfo: TrackInfo,
 ): Array<
   | {
       isMatch: true;
@@ -268,7 +266,7 @@ function getExistingSongsInfo(
     // Remove content in parentheses and brackets that contains common suffixes
     title = title.replace(
       /\s*[\(\[].*?(remaster|remix|mix|version|edition|live|acoustic|clean|explicit|original).*?[\)\]]\s*/gi,
-      " "
+      " ",
     );
 
     // Remove common suffixes with optional whitespace
@@ -304,7 +302,7 @@ function getExistingSongsInfo(
     }
 
     const atLeastOneArtistMatches = trackInfo.artists.some((artist) =>
-      sub.trackInfo.artists.includes(artist)
+      sub.trackInfo.artists.includes(artist),
     );
 
     if (sub.trackInfo.title === trackInfo.title && atLeastOneArtistMatches) {

@@ -11,7 +11,7 @@ import { setScheduledNotifications } from "@/lib/scheduledNotifications";
 
 export async function POST(
   request: NextRequest,
-  props: { params: Promise<{ roundId: string }> }
+  props: { params: Promise<{ roundId: string }> },
 ) {
   const params = await props.params;
   try {
@@ -24,7 +24,7 @@ export async function POST(
     if (!roundId) {
       return NextResponse.json(
         { error: "Round ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -34,7 +34,6 @@ export async function POST(
       const userLeagues = await getUserLeagues(payload.userId);
       for (const league of userLeagues) {
         const leagueRounds = getAllRounds(league, {
-          includePending: false,
           includeFake: false,
         });
         for (const round of leagueRounds) {
@@ -101,7 +100,7 @@ export async function POST(
     console.error("Error saving vote:", error);
     return NextResponse.json(
       { error: "Failed to submit vote" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

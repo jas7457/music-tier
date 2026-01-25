@@ -29,10 +29,10 @@ export default async function RoundPage(props: PageProps) {
       return;
     }
 
-    const allRounds = getAllRounds(league, { includePending: true });
+    const allRounds = getAllRounds(league);
     if (roundId === "current") {
       const currentRound = allRounds.find(
-        (round) => !["upcoming", "unknown", "completed"].includes(round.stage)
+        (round) => !["upcoming", "unknown", "completed"].includes(round.stage),
       );
       if (currentRound) {
         return currentRound;

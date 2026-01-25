@@ -120,7 +120,7 @@ export function RoundInfo({
           } catch (err) {
             const message = unknownToErrorString(
               err,
-              "Error creating playlist"
+              "Error creating playlist",
             );
             toast.show({
               title: "Error creating playlist",
@@ -172,17 +172,33 @@ export function RoundInfo({
       ),
     });
 
-    if (
-      now > round.submissionEndDate &&
-      round.submissions.length < league.users.length
-    ) {
+    const usersThatVoted = new Set(round.votes.map((vote) => vote.userId));
+    const usersThatSubmitted = new Set(
+      round.submissions.map((submission) => submission.userId),
+    );
+    const usersThatDidNotVote = league.users
+      .filter((user) => !usersThatVoted.has(user._id))
+      .map((user) => user._id);
+    const usersThatDidNotSubmit = league.users
+      .filter((user) => !usersThatSubmitted.has(user._id))
+      .map((user) => user._id);
+
+    const didAllUsersSubmit = (() => {
+      if (usersThatSubmitted.size >= league.users.length) {
+        return true;
+      }
+      const hasOnlyUsersThatMissedBoth = usersThatDidNotSubmit.every((user) =>
+        usersThatDidNotVote.includes(user),
+      );
+      return hasOnlyUsersThatMissedBoth;
+    })();
+
+    if (now > round.submissionEndDate && !didAllUsersSubmit) {
       pills.push({
         key: "submissions",
         pill: <Pill status="error">Not all users submitted</Pill>,
       });
     }
-
-    const usersThatVoted = new Set(round.votes.map((vote) => vote.userId));
 
     if (
       now > round.votingEndDate &&
@@ -272,7 +288,7 @@ export function RoundInfo({
       <div
         className={twMerge(
           "flex flex-wrap gap-x-2 text-xs text-gray-500",
-          dateTimeClassName
+          dateTimeClassName,
         )}
       >
         {round.submissionDate !== round.lastUpdatedDate && (

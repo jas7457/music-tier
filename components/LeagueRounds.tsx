@@ -63,24 +63,6 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
         roundInfo: (round) => <RoundInfo round={round} league={league} />,
       },
       {
-        rounds: league.rounds.pending,
-        title: "Pending Rounds",
-        roundInfo: (round) => (
-          <div className="flex flex-col gap-2">
-            <RoundInfo round={round} league={league} />
-
-            {round._id ? (
-              <div>Waiting for others to create their rounds.</div>
-            ) : (
-              <div>
-                Waiting for {round.creatorObject.userName} to create their
-                round.
-              </div>
-            )}
-          </div>
-        ),
-      },
-      {
         rounds: league.rounds.bonus,
         title: "Bonus Rounds",
         roundInfo: (round) => (

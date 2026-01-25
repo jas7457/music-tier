@@ -11,7 +11,7 @@ import { setScheduledNotifications } from "@/lib/scheduledNotifications";
 
 export async function POST(
   request: NextRequest,
-  props: { params: Promise<{ leagueId: string }> }
+  props: { params: Promise<{ leagueId: string }> },
 ) {
   const params = await props.params;
   const { leagueId } = params;
@@ -20,7 +20,7 @@ export async function POST(
 
 export async function PUT(
   request: NextRequest,
-  props: { params: Promise<{ leagueId: string }> }
+  props: { params: Promise<{ leagueId: string }> },
 ) {
   const params = await props.params;
   const { leagueId } = params;
@@ -29,7 +29,7 @@ export async function PUT(
 
 async function handleRequest(
   request: NextRequest,
-  { leagueId, method }: { leagueId: string; method: "ADD" | "UPDATE" }
+  { leagueId, method }: { leagueId: string; method: "ADD" | "UPDATE" },
 ) {
   const now = Date.now();
   try {
@@ -52,14 +52,14 @@ async function handleRequest(
     if (!title || !description) {
       return NextResponse.json(
         { error: "Title and description are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (method === "UPDATE" && !roundId) {
       return NextResponse.json(
         { error: "Round ID is required for update" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -69,21 +69,20 @@ async function handleRequest(
         if (league._id === leagueId) {
           const allRounds = getAllRounds(league, {
             includeFake: false,
-            includePending: true,
           });
 
           const existingRound = allRounds.find(
             (round) =>
               round.creatorId === payload.userId &&
               !round.isBonusRound &&
-              !round.isKickoffRound
+              !round.isKickoffRound,
           );
           const existingBonusRound = allRounds.find(
-            (round) => round.creatorId === payload.userId && round.isBonusRound
+            (round) => round.creatorId === payload.userId && round.isBonusRound,
           );
           const existingKickoffRound = allRounds.find(
             (round) =>
-              round.creatorId === payload.userId && round.isKickoffRound
+              round.creatorId === payload.userId && round.isKickoffRound,
           );
 
           return {
@@ -114,26 +113,26 @@ async function handleRequest(
     if (!league.users.map((user) => user._id).includes(payload.userId)) {
       return NextResponse.json(
         { error: "You are not a member of this league" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     if (method === "ADD" && existingBonusRound && isBonusRound) {
       return NextResponse.json(
         { error: "You have already created a bonus round for this league" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (method === "ADD" && existingKickoffRound && isKickoffRound) {
       return NextResponse.json(
         { error: "You have already created a kickoff round for this league" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (method === "ADD" && existingRound && !isBonusRound && !isKickoffRound) {
       return NextResponse.json(
         { error: "You have already created a round for this league" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -167,7 +166,7 @@ async function handleRequest(
               lastUpdatedDate: now,
             },
           },
-          { returnDocument: "after" }
+          { returnDocument: "after" },
         );
         if (!result) {
           throw new Error("No round found to update");
@@ -202,7 +201,7 @@ async function handleRequest(
     console.error("Error creating round:", error);
     return NextResponse.json(
       { error: "Failed to create round" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

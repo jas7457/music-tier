@@ -28,11 +28,11 @@ export function League({
   const toast = useToast();
   const { playTrack } = useSpotifyPlayer();
   const [showStandings, setShowStandings] = useState(
-    league.status === "completed"
+    league.status === "completed",
   );
   const [leagueImageUrl, setLeagueImageUrl] = useState(league.heroImageUrl);
   const [heroStage, setHeroState] = useState(
-    leagueImageUrl ? ("edit" as const) : ("add" as const)
+    leagueImageUrl ? ("edit" as const) : ("add" as const),
   );
   const [isImageFullScreen, setIsImageFullScreen] = useState(false);
   const [imageScale, setImageScale] = useState(1);
@@ -75,7 +75,7 @@ export function League({
       const touch2 = e.touches[1];
       const distance = Math.hypot(
         touch2.clientX - touch1.clientX,
-        touch2.clientY - touch1.clientY
+        touch2.clientY - touch1.clientY,
       );
       const centerX = (touch1.clientX + touch2.clientX) / 2;
       const centerY = (touch1.clientY + touch2.clientY) / 2;
@@ -107,7 +107,7 @@ export function League({
       const touch2 = e.touches[1];
       const distance = Math.hypot(
         touch2.clientX - touch1.clientX,
-        touch2.clientY - touch1.clientY
+        touch2.clientY - touch1.clientY,
       );
       const scale =
         (distance / touchStartRef.current.distance) *
@@ -153,7 +153,6 @@ export function League({
 
     // Check if user has created their round for this league
     const allRounds = getAllRounds(league, {
-      includePending: true,
       includeFake: false,
     });
 
@@ -177,9 +176,9 @@ export function League({
         userHasCreatedKickoffRound: false,
         userCanCreateBonusRound: league.bonusRoundUserIds.includes(user._id),
         userCanCreateKickoffRound: league.kickoffRoundUserIds.includes(
-          user._id
+          user._id,
         ),
-      }
+      },
     );
   }, [league, user]);
 
@@ -187,7 +186,7 @@ export function League({
     const allVotes = league.rounds.completed.flatMap((round) => round.votes);
     return allVotes.reduce(
       (latest, vote) => Math.max(latest, vote.voteDate),
-      0
+      0,
     );
   }, [league]);
 
@@ -232,13 +231,13 @@ export function League({
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ heroImageUrl: url }),
-                    }
+                    },
                   );
 
                   if (!response.ok) {
                     const error = await response.json();
                     throw new Error(
-                      error.error || "Failed to update hero image"
+                      error.error || "Failed to update hero image",
                     );
                   }
 
