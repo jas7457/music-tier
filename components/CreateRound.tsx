@@ -6,6 +6,7 @@ import { useData } from '@/lib/DataContext';
 import { useToast } from '@/lib/ToastContext';
 import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
 import { HapticButton } from './HapticButton';
+import { MAX_DESCRIPTION_LENGTH } from '@/lib/utils/constants';
 
 type CreateRoundProps = {
   leagueId: string;
@@ -139,13 +140,13 @@ export function CreateRound({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
-            maxLength={1200}
+            maxLength={MAX_DESCRIPTION_LENGTH}
             placeholder="Describe the theme or criteria for this round..."
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none field-sizing-content"
             disabled={isSubmitting}
           />
           <p className="text-sm text-gray-500 mt-1">
-            {description.length}/1200 characters
+            {description.length}/{MAX_DESCRIPTION_LENGTH} characters
           </p>
         </div>
 

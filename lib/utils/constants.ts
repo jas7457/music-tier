@@ -29,4 +29,6 @@ export const SIDE_PLAYLIST_ID = '4H61DjOnkWyw3b1jqcvoAP';
 
 export const UPCOMING_ROUNDS_TO_SHOW = 3;
 
+export const MAX_DESCRIPTION_LENGTH = 1500;
+
 export { logo, logoLarge };

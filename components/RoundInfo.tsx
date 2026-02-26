@@ -15,6 +15,7 @@ import { createSpotifyPlaylist } from '@/lib/utils/createSpotifyPlaylist';
 import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
 import { assertNever } from '@/lib/utils/never';
 import { InlineGap } from './InlineGap';
+import { MAX_DESCRIPTION_LENGTH } from '@/lib/utils/constants';
 
 export function RoundInfo({
   round,
@@ -229,7 +230,7 @@ export function RoundInfo({
         <textarea
           value={round.description}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none field-sizing-content"
-          maxLength={500}
+          maxLength={MAX_DESCRIPTION_LENGTH}
           onChange={(e) => onDescriptionUpdate(e.target.value)}
         />
       );
