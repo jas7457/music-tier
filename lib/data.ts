@@ -556,6 +556,10 @@ export async function getUserLeagues(
           kickoff: [] as PopulatedRound[],
         },
       );
+      roundsObject.completed.sort(
+        (a, b) => b.submissionStartDate - a.submissionStartDate,
+      );
+
       roundsWithData.forEach((round) => {
         const isCompleted = roundsObject.completed.some(
           (r) => r._id === round._id,
