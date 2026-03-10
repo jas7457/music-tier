@@ -770,6 +770,23 @@ function getStartOfDay(date: number): number {
   const month = parts.find((p) => p.type === 'month')!.value;
   const day = parts.find((p) => p.type === 'day')!.value;
 
+  // America/New_York uses either EDT (UTC-4) or EST (UTC-5).
+  // Determine the correct offset by checking which one actually produces
+  // midnight (hour 0) in Eastern time for this date.
+  const edtMidnight = new Date(
+    `${year}-${month}-${day}T00:00:00-04:00`,
+  ).getTime();
+
+  const hourFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    hourCycle: 'h23',
+    hour: '2-digit',
+  });
+
+  if (Number(hourFormatter.format(new Date(edtMidnight))) === 0) {
+    return edtMidnight;
+  }
+
   return new Date(`${year}-${month}-${day}T00:00:00-05:00`).getTime();
 }
 
