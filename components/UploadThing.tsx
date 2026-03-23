@@ -122,3 +122,63 @@ export function ConfirmUploadButton({
     </div>
   );
 }
+
+type ImmediateUploadButtonProps = {
+  endpoint: keyof OurFileRouter;
+  onUploadComplete?: (url: string) => void;
+  onUploadError?: (error: Error) => void;
+  accept?: string;
+  className?: string;
+  buttonClassName?: string;
+  label?: string;
+  uploadingLabel?: string;
+};
+
+export function ImmediateUploadButton({
+  endpoint,
+  onUploadComplete,
+  onUploadError,
+  accept = 'image/*',
+  className,
+  buttonClassName,
+  label = 'Choose File',
+  uploadingLabel = 'Uploading...',
+}: ImmediateUploadButtonProps) {
+  const { startUpload, isUploading } = useUploadThing(endpoint, {
+    onClientUploadComplete: (res) => {
+      const url = res[0]?.ufsUrl;
+      if (!url) {
+        throw new Error('No URL returned from upload');
+      }
+      onUploadComplete?.(url);
+    },
+    onUploadError: (error) => {
+      onUploadError?.(error);
+    },
+  });
+
+  return (
+    <div className={className}>
+      <label
+        className={
+          buttonClassName ||
+          'cursor-pointer inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors'
+        }
+      >
+        {isUploading ? uploadingLabel : label}
+        <input
+          type="file"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              await startUpload([file]);
+            }
+          }}
+          accept={accept}
+          disabled={isUploading}
+          className="hidden"
+        />
+      </label>
+    </div>
+  );
+}
