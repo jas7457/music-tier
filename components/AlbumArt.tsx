@@ -73,9 +73,9 @@ export default function AlbumArt({
       return 'bg-gray-500/80 cursor-not-allowed opacity-60';
     }
     if (isCurrentlyPlaying) {
-      return 'bg-[#1DB954]/90 opacity-100 scale-110';
+      return 'bg-[#1DB954]/90 opacity-0 pointer-fine:opacity-100 scale-110';
     }
-    return 'bg-[#1DB954]/90 opacity-100 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 hover:bg-[#1ed760] hover:scale-110';
+    return 'bg-[#1DB954]/90 opacity-0 group-hover:opacity-100 hover:bg-[#1ed760] hover:scale-110';
   })();
 
   return (

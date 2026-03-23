@@ -7,6 +7,7 @@ import { useRealTimeUpdates } from '@/lib/PusherContext';
 import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Expandable } from './Expandable';
+import { SearchBar } from './SearchBar';
 
 export default function Home({
   leagues,
@@ -197,5 +198,10 @@ export default function Home({
     );
   })();
 
-  return <div className="max-w-4xl mx-auto">{leagueMarkup}</div>;
+  return (
+    <div className="max-w-4xl mx-auto">
+      <SearchBar leagues={leagues} />
+      {leagueMarkup}
+    </div>
+  );
 }
