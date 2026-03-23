@@ -57,6 +57,7 @@ export function SongSubmission({
   const [warningInfo, setWarningInfo] = useState<
     | { code: 'ARTIST_MATCH'; artist: string }
     | { code: 'TITLE_AND_ARTIST_MATCH'; trackInfo: TrackInfo }
+    | { code: 'PREVIOUSLY_SUBMITTED'; trackInfo: TrackInfo }
     | null
   >(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -155,6 +156,14 @@ export function SongSubmission({
         }
         if (data.code === 'ARTIST_MATCH') {
           setWarningInfo({ code: 'ARTIST_MATCH', artist: data.artist });
+          setIsSubmitting(false);
+          return;
+        }
+        if (data.code === 'PREVIOUSLY_SUBMITTED') {
+          setWarningInfo({
+            code: 'PREVIOUSLY_SUBMITTED',
+            trackInfo: data.trackInfo,
+          });
           setIsSubmitting(false);
           return;
         }
@@ -300,6 +309,19 @@ export function SongSubmission({
             } by ${warningInfo.trackInfo.artists.join(', ')}`}</span>{' '}
             has already been submitted. You can still submit by clicking the
             button again.
+          </Card>
+        );
+      }
+      case 'PREVIOUSLY_SUBMITTED': {
+        return (
+          <Card
+            className={
+              'bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded text-sm mb-3'
+            }
+          >
+            <span className="font-semibold">{`${warningInfo.trackInfo.title} by ${warningInfo.trackInfo.artists.join(', ')}`}</span>{' '}
+            has already been submitted in one of your leagues. You can still
+            submit by clicking the button again.
           </Card>
         );
       }

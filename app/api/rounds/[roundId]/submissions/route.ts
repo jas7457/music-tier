@@ -54,9 +54,9 @@ async function handleRequest(
       );
     }
 
-    const getData = async () => {
-      const userLeagues = await getUserLeagues(payload.userId);
+    const userLeagues = await getUserLeagues(payload.userId);
 
+    const getData = async () => {
       for (const league of userLeagues) {
         const rounds = getAllRounds(league, {
           includeFake: false,
@@ -149,6 +149,27 @@ async function handleRequest(
     const duplicateResponse = getDuplicateReturnResponse(foundRound, trackInfo);
     if (duplicateResponse) {
       return duplicateResponse;
+    }
+
+    if (!force) {
+      for (const league of userLeagues) {
+        for (const round of getAllRounds(league, { includeFake: false })) {
+          if (round._id.toString() === roundId) continue;
+          const previousSub = round.submissions.find(
+            (sub) => getTrackMatchReason(trackInfo, sub.trackInfo) !== null,
+          );
+          if (previousSub) {
+            return NextResponse.json(
+              {
+                success: false,
+                code: 'PREVIOUSLY_SUBMITTED',
+                trackInfo: previousSub.trackInfo,
+              },
+              { status: 200 },
+            );
+          }
+        }
+      }
     }
 
     const submissionsCollection =
@@ -248,6 +269,60 @@ async function handleRequest(
   }
 }
 
+function getSimplifiedTitle(trackInfo: TrackInfo) {
+  let title = trackInfo.title.toLowerCase();
+
+  // Remove content in parentheses and brackets that contains common suffixes
+  title = title.replace(
+    /\s*[\(\[].*?(remaster|remix|mix|version|edition|live|acoustic|clean|explicit|original).*?[\)\]]\s*/gi,
+    ' ',
+  );
+
+  // Remove common suffixes with optional whitespace
+  const suffixPatterns = [
+    /\s*-.*(remaster|remastered|remaster edition)(\s|$)/gi,
+    /\s*-\s*(remix|remixed)(\s|$)/gi,
+    /\s+(feat|feat\.|featuring|ft|ft\.)\s+.+$/gi, // Remove "feat Artist" and everything after
+    /\s+(live|acoustic|clean|explicit|radio edit|album version|original mix)(\s|$)/gi,
+    /\s+\(.*?\)\s*/g, // Generic parentheses removal
+    /\s+\[.*?\]\s*/g, // Generic brackets removal
+  ];
+
+  suffixPatterns.forEach((pattern) => {
+    title = title.replace(pattern, '');
+  });
+
+  // Clean up extra whitespace
+  return title.trim().replace(/\s+/g, ' ');
+}
+
+function getTrackMatchReason(
+  a: TrackInfo,
+  b: TrackInfo,
+): 'EXACT_MATCH' | 'TITLE_AND_ARTIST_MATCH' | 'ARTIST_MATCH' | null {
+  if (a.trackId === b.trackId) {
+    return 'EXACT_MATCH';
+  }
+
+  const atLeastOneArtistMatches = a.artists.some((artist) =>
+    b.artists.includes(artist),
+  );
+
+  if (a.title === b.title && atLeastOneArtistMatches) {
+    return 'EXACT_MATCH';
+  }
+
+  if (getSimplifiedTitle(a) === getSimplifiedTitle(b) && atLeastOneArtistMatches) {
+    return 'TITLE_AND_ARTIST_MATCH';
+  }
+
+  if (atLeastOneArtistMatches) {
+    return 'ARTIST_MATCH';
+  }
+
+  return null;
+}
+
 function getExistingSongsInfo(
   round: PopulatedRound,
   trackInfo: TrackInfo,
@@ -260,79 +335,10 @@ function getExistingSongsInfo(
     }
   | { isMatch: false; matchReason: null }
 > {
-  const getSimplifiedTitle = (trackInfo: TrackInfo) => {
-    let title = trackInfo.title.toLowerCase();
-
-    // Remove content in parentheses and brackets that contains common suffixes
-    title = title.replace(
-      /\s*[\(\[].*?(remaster|remix|mix|version|edition|live|acoustic|clean|explicit|original).*?[\)\]]\s*/gi,
-      ' ',
-    );
-
-    // Remove common suffixes with optional whitespace
-    const suffixPatterns = [
-      /\s*-.*(remaster|remastered|remaster edition)(\s|$)/gi,
-      /\s*-\s*(remix|remixed)(\s|$)/gi,
-      /\s+(feat|feat\.|featuring|ft|ft\.)\s+.+$/gi, // Remove "feat Artist" and everything after
-      /\s+(live|acoustic|clean|explicit|radio edit|album version|original mix)(\s|$)/gi,
-      /\s+\(.*?\)\s*/g, // Generic parentheses removal
-      /\s+\[.*?\]\s*/g, // Generic brackets removal
-    ];
-
-    suffixPatterns.forEach((pattern) => {
-      title = title.replace(pattern, '');
-    });
-
-    // Clean up extra whitespace
-    title = title.trim().replace(/\s+/g, ' ');
-
-    return title;
-  };
-
-  const simplifiedTitle = getSimplifiedTitle(trackInfo);
-
   return round.submissions.map((sub) => {
-    if (sub.trackInfo.trackId === trackInfo.trackId) {
-      return {
-        isMatch: true,
-        matchReason: 'EXACT_MATCH',
-        user: sub.userObject!,
-        trackInfo: sub.trackInfo,
-      };
-    }
-
-    const atLeastOneArtistMatches = trackInfo.artists.some((artist) =>
-      sub.trackInfo.artists.includes(artist),
-    );
-
-    if (sub.trackInfo.title === trackInfo.title && atLeastOneArtistMatches) {
-      return {
-        isMatch: true,
-        matchReason: 'EXACT_MATCH',
-        user: sub.userObject!,
-        trackInfo: sub.trackInfo,
-      };
-    }
-
-    if (
-      simplifiedTitle === getSimplifiedTitle(sub.trackInfo) &&
-      atLeastOneArtistMatches
-    ) {
-      return {
-        isMatch: true,
-        matchReason: 'TITLE_AND_ARTIST_MATCH',
-        user: sub.userObject!,
-        trackInfo: sub.trackInfo,
-      };
-    }
-
-    if (atLeastOneArtistMatches) {
-      return {
-        isMatch: true,
-        matchReason: 'ARTIST_MATCH',
-        user: sub.userObject!,
-        trackInfo: sub.trackInfo,
-      };
+    const matchReason = getTrackMatchReason(trackInfo, sub.trackInfo);
+    if (matchReason) {
+      return { isMatch: true, matchReason, user: sub.userObject!, trackInfo: sub.trackInfo };
     }
     return { isMatch: false, matchReason: null };
   });
