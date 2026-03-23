@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Avatar } from '@/components/Avatar';
 import { MaybeLink } from '@/components/MaybeLink';
 import {
@@ -17,6 +18,8 @@ import Card, { CardProps } from '@/components/Card';
 import { HapticButton } from '@/components/HapticButton';
 import { DateTime } from '@/components/DateTime';
 import { useAuth } from '@/lib/AuthContext';
+import { ImmediateUploadButton } from '@/components/UploadThing';
+import { updateUserPhoto } from './actions';
 
 type LeagueInfo = PopulatedLeague & {
   yourPoints: number;
@@ -54,6 +57,7 @@ type UserProfileClientProps = {
 };
 
 export function UserProfileClient({ profileData }: UserProfileClientProps) {
+  const router = useRouter();
   const { user: youUser } = useAuth();
   const { user, currentLeagues, pastLeagues, stats } = profileData;
   const fullName = `${user.firstName} ${user.lastName}`;
@@ -241,12 +245,27 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
       {/* User Header */}
       <div className="border-b border-gray-300 pb-4">
         <div className="flex items-center gap-4 mb-4">
-          <Avatar
-            user={user}
-            size={20}
-            className="text-3xl"
-            includeLink={false}
-          />
+          <div className="relative">
+            <Avatar
+              user={user}
+              size={20}
+              className="text-3xl"
+              includeLink={false}
+            />
+            {isYou && (
+              <div className="absolute -bottom-1 -right-1">
+                <ImmediateUploadButton
+                  endpoint="imageUploader"
+                  onUploadComplete={async (url: string) => {
+                    await updateUserPhoto(url);
+                    router.refresh();
+                  }}
+                  buttonClassName="flex items-center justify-center w-7 h-7 bg-gray-800 text-white rounded-full hover:bg-gray-700 transition-colors text-xs"
+                  label="✏️"
+                />
+              </div>
+            )}
+          </div>
           <div>
             <h1 className="text-3xl font-bold">{fullName}</h1>
             <p className="text-gray-600">{user.userName}</p>
