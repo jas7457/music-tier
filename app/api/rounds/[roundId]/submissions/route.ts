@@ -57,7 +57,8 @@ async function handleRequest(
     const userLeagues = await getUserLeagues(payload.userId);
 
     const getData = async () => {
-      for (const league of userLeagues) {
+      const leagues = await getUserLeagues(payload.userId);
+      for (const league of leagues) {
         const rounds = getAllRounds(league, {
           includeFake: false,
         });
