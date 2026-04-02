@@ -156,9 +156,18 @@ async function handleRequest(
       for (const league of userLeagues) {
         for (const round of getAllRounds(league, { includeFake: false })) {
           if (round._id.toString() === roundId) continue;
-          const previousSub = round.submissions.find(
-            (sub) => getTrackMatchReason(trackInfo, sub.trackInfo) !== null,
-          );
+          const previousSub = round.submissions.find((sub) => {
+            const matchReason = getTrackMatchReason(trackInfo, sub.trackInfo);
+            switch (matchReason) {
+              case 'EXACT_MATCH':
+              case 'TITLE_AND_ARTIST_MATCH':
+                return true;
+              case 'ARTIST_MATCH':
+                return false;
+              default:
+                return false;
+            }
+          });
           if (previousSub) {
             return NextResponse.json(
               {
@@ -313,7 +322,10 @@ function getTrackMatchReason(
     return 'EXACT_MATCH';
   }
 
-  if (getSimplifiedTitle(a) === getSimplifiedTitle(b) && atLeastOneArtistMatches) {
+  if (
+    getSimplifiedTitle(a) === getSimplifiedTitle(b) &&
+    atLeastOneArtistMatches
+  ) {
     return 'TITLE_AND_ARTIST_MATCH';
   }
 
@@ -339,7 +351,12 @@ function getExistingSongsInfo(
   return round.submissions.map((sub) => {
     const matchReason = getTrackMatchReason(trackInfo, sub.trackInfo);
     if (matchReason) {
-      return { isMatch: true, matchReason, user: sub.userObject!, trackInfo: sub.trackInfo };
+      return {
+        isMatch: true,
+        matchReason,
+        user: sub.userObject!,
+        trackInfo: sub.trackInfo,
+      };
     }
     return { isMatch: false, matchReason: null };
   });
