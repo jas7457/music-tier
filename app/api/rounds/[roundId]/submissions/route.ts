@@ -180,7 +180,10 @@ async function handleRequest(
             );
           }
 
-          const previousArtistSub = round.submissions.find((sub) => getTrackMatchReason(trackInfo, sub.trackInfo) === 'ARTIST_MATCH');
+          const previousArtistSub = round.submissions.find(
+            (sub) =>
+              getTrackMatchReason(trackInfo, sub.trackInfo) === 'ARTIST_MATCH',
+          );
           if (previousArtistSub) {
             return NextResponse.json(
               {
@@ -191,6 +194,7 @@ async function handleRequest(
               },
               { status: 200 },
             );
+          }
         }
       }
     }
