@@ -174,10 +174,23 @@ async function handleRequest(
                 success: false,
                 code: 'PREVIOUSLY_SUBMITTED',
                 trackInfo: previousSub.trackInfo,
+                variant: 'SONG',
               },
               { status: 200 },
             );
           }
+
+          const previousArtistSub = round.submissions.find((sub) => getTrackMatchReason(trackInfo, sub.trackInfo) === 'ARTIST_MATCH');
+          if (previousArtistSub) {
+            return NextResponse.json(
+              {
+                success: false,
+                code: 'PREVIOUSLY_SUBMITTED',
+                trackInfo: previousArtistSub.trackInfo,
+                variant: 'ARTIST',
+              },
+              { status: 200 },
+            );
         }
       }
     }

@@ -57,7 +57,11 @@ export function SongSubmission({
   const [warningInfo, setWarningInfo] = useState<
     | { code: 'ARTIST_MATCH'; artist: string }
     | { code: 'TITLE_AND_ARTIST_MATCH'; trackInfo: TrackInfo }
-    | { code: 'PREVIOUSLY_SUBMITTED'; trackInfo: TrackInfo }
+    | {
+        code: 'PREVIOUSLY_SUBMITTED';
+        trackInfo: TrackInfo;
+        variant: 'SONG' | 'ARTIST';
+      }
     | null
   >(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -163,6 +167,7 @@ export function SongSubmission({
           setWarningInfo({
             code: 'PREVIOUSLY_SUBMITTED',
             trackInfo: data.trackInfo,
+            variant: data.variant,
           });
           setIsSubmitting(false);
           return;
@@ -313,17 +318,34 @@ export function SongSubmission({
         );
       }
       case 'PREVIOUSLY_SUBMITTED': {
-        return (
-          <Card
-            className={
-              'bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded text-sm mb-3'
-            }
-          >
-            <span className="font-semibold">{`${warningInfo.trackInfo.title} by ${warningInfo.trackInfo.artists.join(', ')}`}</span>{' '}
-            has already been submitted in one of your leagues. You can still
-            submit by clicking the button again.
-          </Card>
-        );
+        switch (warningInfo.variant) {
+          case 'ARTIST': {
+            return (
+              <Card
+                className={
+                  'bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded text-sm mb-3'
+                }
+              >
+                <span className="font-semibold">{`Songs from ${warningInfo.trackInfo.artists.join(', ')}`}</span>{' '}
+                have already been submitted in one of your leagues. You can
+                still submit by clicking the button again.
+              </Card>
+            );
+          }
+          case 'SONG': {
+            return (
+              <Card
+                className={
+                  'bg-orange-50 border border-orange-200 text-orange-700 px-3 py-2 rounded text-sm mb-3'
+                }
+              >
+                <span className="font-semibold">{`${warningInfo.trackInfo.title} by ${warningInfo.trackInfo.artists.join(', ')}`}</span>{' '}
+                has already been submitted in one of your leagues. You can still
+                submit by clicking the button again.
+              </Card>
+            );
+          }
+        }
       }
       default: {
         assertNever(warningCode);
