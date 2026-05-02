@@ -432,25 +432,27 @@ export default function VotingRound({
                 )}
               </div>
               {/* Note Input */}
-              {!isYourSubmission && (
-                <div>
-                  {round.stage === 'voting' ? (
-                    <textarea
-                      className="w-full px-3 py-2 text-xs border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
-                      value={votes[submission._id]?.note || ''}
-                      onChange={(e) =>
-                        handleNoteChange(submission._id, e.target.value)
-                      }
-                      placeholder="Add a note about why you voted for this track (optional)..."
-                      rows={2}
-                    />
-                  ) : votes[submission._id]?.note ? (
-                    <BlockQuote className="text-xs text-gray-500">
-                      {votes[submission._id].note}
-                    </BlockQuote>
-                  ) : null}
-                </div>
-              )}
+              <div>
+                {round.stage === 'voting' ? (
+                  <textarea
+                    className="w-full px-3 py-2 text-xs border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
+                    value={votes[submission._id]?.note || ''}
+                    onChange={(e) =>
+                      handleNoteChange(submission._id, e.target.value)
+                    }
+                    placeholder={
+                      isYourSubmission
+                        ? 'Add a comment about your submission (optional)...'
+                        : 'Add a note about why you voted for this track (optional)...'
+                    }
+                    rows={2}
+                  />
+                ) : votes[submission._id]?.note ? (
+                  <BlockQuote className="text-xs text-gray-500">
+                    {votes[submission._id].note}
+                  </BlockQuote>
+                ) : null}
+              </div>
 
               <YouTubePlayer
                 className="mb-2"

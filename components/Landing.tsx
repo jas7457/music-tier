@@ -19,7 +19,9 @@ export default function Landing() {
   const [spotifyProfile, setSpotifyProfile] = useState<SpotifyProfile | null>(
     null,
   );
-  const [loading, setLoading] = useState(false);
+  // Default true so we don't flash the "Create Account" form before the
+  // check-spotify lookup has confirmed the user doesn't already exist.
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

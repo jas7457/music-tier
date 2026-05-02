@@ -3,6 +3,10 @@
 const CACHE_VERSION = 'v2';
 const CACHE_NAME = `playlist-party-${CACHE_VERSION}`;
 
+// Time before falling back to cache when the network is slow/hanging.
+// Android PWAs can hang on the splash screen if a launch fetch never resolves.
+const NETWORK_TIMEOUT_MS = 4000;
+
 // Assets to cache (minimal - we use network-first for everything)
 const STATIC_ASSETS = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
@@ -55,30 +59,49 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first strategy for everything else
+  // Network-first with a timeout fallback to cache.
   event.respondWith(
     (async () => {
+      const cache = await caches.open(CACHE_NAME);
+
+      let timeoutId;
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(
+          () => reject(new Error('Network timeout')),
+          NETWORK_TIMEOUT_MS,
+        );
+      });
+      // Prevent unhandled rejection if the orphan timeout fires after a fast response.
+      timeoutPromise.catch(() => {});
+
+      const networkPromise = fetch(request).then(
+        (response) => {
+          clearTimeout(timeoutId);
+          // Update the cache in the background so future fallbacks stay fresh,
+          // even if we already returned the cached response on timeout.
+          if (response.status === 200) {
+            cache.put(request, response.clone()).catch(() => {});
+          }
+          return response;
+        },
+        (error) => {
+          clearTimeout(timeoutId);
+          throw error;
+        },
+      );
+
       try {
-        const response = await fetch(request);
-
-        // Clone the response before caching
-        const responseToCache = response.clone();
-
-        // Only cache successful responses
-        if (response.status === 200) {
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put(request, responseToCache);
-        }
-
-        return response;
+        return await Promise.race([networkPromise, timeoutPromise]);
       } catch (error) {
         console.error(
-          '[SW] Fetch failed; returning cached resource if available.',
+          '[SW] Fetch failed or timed out; returning cached resource if available.',
           error,
         );
 
-        // If network fails, try cache as fallback
-        const cachedResponse = await caches.match(request);
+        // Don't let an eventual network failure surface as an unhandled rejection.
+        networkPromise.catch(() => {});
+
+        const cachedResponse = await cache.match(request);
         if (cachedResponse) {
           return cachedResponse;
         }
