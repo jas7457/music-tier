@@ -67,6 +67,10 @@ export type League = {
 
   heroImageUserId?: string;
   heroImageUrl?: string;
+  // Focal point as percentages (0-100) used for background-position when
+  // rendering the hero image with background-size: cover.
+  heroImageFocalX?: number;
+  heroImageFocalY?: number;
 };
 
 /* "rounds" collection */

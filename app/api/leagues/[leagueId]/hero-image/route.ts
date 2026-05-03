@@ -18,11 +18,33 @@ export async function PATCH(
 
     const { leagueId } = params;
     const body = await request.json();
-    const { heroImageUrl } = body;
+    const { heroImageUrl, heroImageFocalX, heroImageFocalY } = body;
 
-    if (!heroImageUrl || typeof heroImageUrl !== 'string') {
+    const updates: Partial<League> = {};
+
+    if (heroImageUrl !== undefined) {
+      if (typeof heroImageUrl !== 'string' || !heroImageUrl.trim()) {
+        return NextResponse.json(
+          { error: 'heroImageUrl must be a non-empty string' },
+          { status: 400 },
+        );
+      }
+      updates.heroImageUrl = heroImageUrl.trim();
+      // Reset focal point on image change unless explicitly provided.
+      if (heroImageFocalX === undefined) updates.heroImageFocalX = 50;
+      if (heroImageFocalY === undefined) updates.heroImageFocalY = 50;
+    }
+
+    if (heroImageFocalX !== undefined) {
+      updates.heroImageFocalX = heroImageFocalX;
+    }
+    if (heroImageFocalY !== undefined) {
+      updates.heroImageFocalY = heroImageFocalY;
+    }
+
+    if (Object.keys(updates).length === 0) {
       return NextResponse.json(
-        { error: 'heroImageUrl is required and must be a string' },
+        { error: 'No valid fields provided to update' },
         { status: 400 },
       );
     }
@@ -45,14 +67,9 @@ export async function PATCH(
       );
     }
 
-    // Update the hero image URL
     const result = await leaguesCollection.findOneAndUpdate(
       { _id: new ObjectId(leagueId) },
-      {
-        $set: {
-          heroImageUrl: heroImageUrl.trim(),
-        },
-      },
+      { $set: updates },
       { returnDocument: 'after' },
     );
 
@@ -69,6 +86,8 @@ export async function PATCH(
     return NextResponse.json({
       success: true,
       heroImageUrl: result.heroImageUrl,
+      heroImageFocalX: result.heroImageFocalX,
+      heroImageFocalY: result.heroImageFocalY,
     });
   } catch (error) {
     console.error('Error updating hero image:', error);
