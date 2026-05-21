@@ -5,7 +5,6 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { PopulatedLeague } from '@/lib/types';
 import AlbumArt from './AlbumArt';
-import { getAllRounds } from '@/lib/utils/getAllRounds';
 import type { PopulatedRound } from '@/lib/types';
 import type { TrackInfo } from '@/databaseTypes';
 
@@ -90,8 +89,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
     const allRoundEntries: RoundEntry[] = [];
 
     for (const league of leagues) {
-      const rounds = getAllRounds(league, { includeFake: false });
-      for (const round of rounds) {
+      for (const round of league.rounds.completed) {
         allRoundEntries.push({ round, league });
         for (const submission of round.submissions) {
           allEntries.push({ trackInfo: submission.trackInfo, round, league });
