@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { refreshAccessToken } from '@/lib/spotify';
+import {
+  refreshAccessToken,
+  SpotifyRefreshTokenExpiredError,
+} from '@/lib/spotify';
 
 export async function POST(request: NextRequest) {
   const refreshToken = request.cookies.get('spotify_refresh_token')?.value;
@@ -41,6 +44,18 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
+    if (error instanceof SpotifyRefreshTokenExpiredError) {
+      // Refresh token is past its 6-month lifetime. Discard the stored
+      // tokens and signal the client to send the user through sign-in again.
+      const response = NextResponse.json(
+        { error: 'invalid_grant' },
+        { status: 401 },
+      );
+      response.cookies.delete('spotify_access_token');
+      response.cookies.delete('spotify_refresh_token');
+      response.cookies.delete('spotify_token_expires_at');
+      return response;
+    }
     console.error('Error refreshing Spotify token:', error);
     return NextResponse.json(
       { error: 'Failed to refresh token' },

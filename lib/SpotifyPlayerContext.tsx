@@ -106,7 +106,10 @@ export function SpotifyPlayerProvider({
     playlist.length > 0 && currentTrackIndex < playlist.length - 1;
   const hasPreviousTrack = playlist.length > 0 && currentTrackIndex > 0;
 
-  const refreshToken = useCallback(async (): Promise<{ success: boolean }> => {
+  const refreshToken = useCallback(async (): Promise<{
+    success: boolean;
+    expired?: boolean;
+  }> => {
     const refreshToken = Cookies.get('spotify_refresh_token');
     if (!refreshToken) {
       return { success: false };
@@ -115,16 +118,15 @@ export function SpotifyPlayerProvider({
       const response = await fetch('/api/spotify/refresh', {
         method: 'POST',
       });
+      if (response.status === 401) {
+        // Refresh token has expired (Spotify enforces a 6-month lifetime).
+        // The server has already discarded the tokens; the user must reauth.
+        return { success: false, expired: true };
+      }
       if (!response.ok) {
         throw new Error(`${response.status} error: ${response.statusText}`);
       }
-      try {
-        const data = await response.json();
-        return data;
-      } catch {
-      } finally {
-        return { success: true };
-      }
+      return { success: true };
     } catch (error) {
       const errorMessage = unknownToErrorString(
         error,
@@ -139,48 +141,125 @@ export function SpotifyPlayerProvider({
     }
   }, [toast]);
 
+  const handleExpiredRefreshToken = useCallback(() => {
+    toast.show({
+      title: 'Spotify session expired',
+      message: 'Please reconnect your Spotify account to keep listening.',
+      variant: 'error',
+    });
+    // Cookies were cleared server-side; reload so the app routes the user
+    // back to the Landing/sign-in flow.
+    window.location.reload();
+  }, [toast]);
+
+  // Wraps a direct call to api.spotify.com so that a stale/revoked access
+  // token gets refreshed and retried once. A failing refresh (invalid_grant)
+  // triggers the reauthorization flow.
+  const spotifyApiFetch = useCallback(
+    async (url: string, init: RequestInit = {}): Promise<Response> => {
+      const buildInit = (token: string): RequestInit => ({
+        ...init,
+        headers: {
+          ...(init.headers ?? {}),
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const token = Cookies.get('spotify_access_token');
+      if (!token) {
+        return new Response(null, { status: 401, statusText: 'Unauthorized' });
+      }
+
+      const response = await fetch(url, buildInit(token));
+      if (response.status !== 401) {
+        return response;
+      }
+
+      const result = await refreshToken();
+      if (result.expired) {
+        handleExpiredRefreshToken();
+        return response;
+      }
+      if (!result.success) {
+        return response;
+      }
+
+      const newToken = Cookies.get('spotify_access_token');
+      if (!newToken) {
+        return response;
+      }
+      return fetch(url, buildInit(newToken));
+    },
+    [refreshToken, handleExpiredRefreshToken],
+  );
+
   // Auto-refresh Spotify token before expiration
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    async function setup() {
-      const checkAndRefreshToken = async () => {
-        const expiresAt = Cookies.get('spotify_token_expires_at');
-        const currentRefreshToken = Cookies.get('spotify_refresh_token');
-        if (!expiresAt) {
-          if (currentRefreshToken) {
-            await refreshToken();
-            return checkAndRefreshToken();
+    let cancelled = false;
+
+    const checkAndRefreshToken = async () => {
+      if (cancelled) return;
+      const expiresAt = Cookies.get('spotify_token_expires_at');
+      const currentRefreshToken = Cookies.get('spotify_refresh_token');
+      if (!expiresAt) {
+        if (currentRefreshToken) {
+          const result = await refreshToken();
+          if (cancelled) return;
+          if (result.expired) {
+            handleExpiredRefreshToken();
+            return;
           }
+          if (!result.success) {
+            return;
+          }
+          return checkAndRefreshToken();
+        }
+        return;
+      }
+
+      const expiresAtTime = parseInt(expiresAt, 10);
+      const timeUntilExpiry = expiresAtTime - Date.now();
+      const fiveMinutes = 5 * 60 * 1000;
+
+      // If token expires in less than 5 minutes, refresh it now
+      if (timeUntilExpiry < fiveMinutes) {
+        const result = await refreshToken();
+        if (cancelled) return;
+        if (result.expired) {
+          handleExpiredRefreshToken();
           return;
         }
-
-        const expiresAtTime = parseInt(expiresAt, 10);
-        const timeUntilExpiry = expiresAtTime - Date.now();
-        const fiveMinutes = 5 * 60 * 1000;
-
-        // If token expires in less than 5 minutes, refresh it now
-        if (timeUntilExpiry < fiveMinutes) {
-          await refreshToken();
-          checkAndRefreshToken();
-        } else {
-          // Schedule refresh for 5 minutes before expiration
-          const refreshTime = timeUntilExpiry - fiveMinutes;
-          clearTimeout(timeoutId);
-          timeoutId = setTimeout(async () => {
-            await refreshToken();
-            checkAndRefreshToken();
-          }, refreshTime);
+        if (!result.success) {
+          return;
         }
-      };
+        checkAndRefreshToken();
+      } else {
+        // Schedule refresh for 5 minutes before expiration
+        const refreshTime = timeUntilExpiry - fiveMinutes;
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(async () => {
+          const result = await refreshToken();
+          if (cancelled) return;
+          if (result.expired) {
+            handleExpiredRefreshToken();
+            return;
+          }
+          if (!result.success) {
+            return;
+          }
+          checkAndRefreshToken();
+        }, refreshTime);
+      }
+    };
 
-      checkAndRefreshToken();
-    }
-    setup();
+    checkAndRefreshToken();
 
     return () => {
+      cancelled = true;
       clearTimeout(timeoutId);
     };
-  }, [refreshToken]);
+  }, [refreshToken, handleExpiredRefreshToken]);
 
   const value: SpotifyPlayerContextType = useMemo(() => {
     const updateWithNewState = (state: Spotify.WebPlaybackState | null) => {
@@ -353,19 +432,6 @@ export function SpotifyPlayerProvider({
         return;
       }
 
-      const accessToken = Cookies.get('spotify_access_token');
-      if (!accessToken) {
-        if (skipErrors) {
-          return;
-        }
-        const errorMessage = 'No Spotify access token';
-        toast.show({
-          message: errorMessage,
-          variant: 'error',
-        });
-        return;
-      }
-
       if (trackInfo.trackId === currentTrack?.id && isPlaying) {
         return;
       }
@@ -400,12 +466,11 @@ export function SpotifyPlayerProvider({
         const trackUri = `spotify:track:${trackInfo.trackId}`;
         const offset = uris.indexOf(trackUri);
 
-        const response = await fetch(
+        const response = await spotifyApiFetch(
           `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
           {
             method: 'PUT',
             headers: {
-              Authorization: `Bearer ${accessToken}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -445,6 +510,19 @@ export function SpotifyPlayerProvider({
         });
       }
     };
+    const setVolume = async (volume: number): Promise<void> => {
+      try {
+        await spotifyApiFetch(
+          `https://api.spotify.com/v1/me/player/volume?volume_percent=${Math.floor(
+            volume * 100,
+          )}`,
+          {
+            method: 'PUT',
+          },
+        );
+      } catch {}
+    };
+
     return {
       currentTrack,
       isPlaying,
@@ -457,15 +535,9 @@ export function SpotifyPlayerProvider({
       playTrack,
       setVolume,
       pausePlayback: async () => {
-        const accessToken = Cookies.get('spotify_access_token');
-        if (!accessToken) return;
-
         try {
-          await fetch('https://api.spotify.com/v1/me/player/pause', {
+          await spotifyApiFetch('https://api.spotify.com/v1/me/player/pause', {
             method: 'PUT',
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
           });
           setIsPlaying(false);
         } catch (error) {
@@ -483,17 +555,10 @@ export function SpotifyPlayerProvider({
             round: 'same',
           });
         }
-        const accessToken = Cookies.get('spotify_access_token');
-        if (!accessToken) {
-          return;
-        }
 
         try {
-          await fetch('https://api.spotify.com/v1/me/player/play', {
+          await spotifyApiFetch('https://api.spotify.com/v1/me/player/play', {
             method: 'PUT',
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
           });
           setIsPlaying(true);
         } catch (error) {
@@ -520,21 +585,13 @@ export function SpotifyPlayerProvider({
         }
       },
       seekToPosition: async (position: number) => {
-        const accessToken = Cookies.get('spotify_access_token');
-        if (!accessToken) {
-          return;
-        }
-
         try {
-          await fetch(
+          await spotifyApiFetch(
             `https://api.spotify.com/v1/me/player/seek?position_ms=${Math.floor(
               position,
             )}`,
             {
               method: 'PUT',
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
             },
           );
           setTimeListeners((listeners) => {
@@ -569,19 +626,13 @@ export function SpotifyPlayerProvider({
           return;
         }
 
-        const token = Cookies.get('spotify_access_token');
-        if (!token) {
-          return;
-        }
         try {
-          const response = await fetch(
+          const response = await spotifyApiFetch(
             `https://api.spotify.com/v1/tracks/${track.trackId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            },
           );
+          if (!response.ok) {
+            return;
+          }
 
           const data = await response.json();
 
@@ -620,6 +671,7 @@ export function SpotifyPlayerProvider({
     isPlaying,
     playlist,
     playlistRound,
+    spotifyApiFetch,
     toast,
     user?._id,
   ]);
@@ -652,25 +704,4 @@ function getPlaylistForRound({
       }
     })
     .map((submission) => submission.trackInfo);
-}
-
-async function setVolume(volume: number): Promise<void> {
-  const accessToken = Cookies.get('spotify_access_token');
-  if (!accessToken) {
-    return;
-  }
-
-  try {
-    await fetch(
-      `https://api.spotify.com/v1/me/player/volume?volume_percent=${Math.floor(
-        volume * 100,
-      )}`,
-      {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    );
-  } catch {}
 }

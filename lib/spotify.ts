@@ -131,6 +131,13 @@ export async function callbackAuth(
   };
 }
 
+export class SpotifyRefreshTokenExpiredError extends Error {
+  constructor() {
+    super('Spotify refresh token expired');
+    this.name = 'SpotifyRefreshTokenExpiredError';
+  }
+}
+
 export async function refreshAccessToken(
   refreshToken: string,
 ): Promise<SpotifyTokenResponse> {
@@ -150,6 +157,17 @@ export async function refreshAccessToken(
   });
 
   if (!response.ok) {
+    // Spotify returns invalid_grant once the refresh token has expired
+    // (6-month lifetime from the user's original authorization). The user
+    // must reauthorize — do not retry with the same refresh token.
+    let errorCode: string | undefined;
+    try {
+      const errorBody = await response.json();
+      errorCode = errorBody?.error;
+    } catch {}
+    if (errorCode === 'invalid_grant') {
+      throw new SpotifyRefreshTokenExpiredError();
+    }
     throw new Error('Failed to refresh access token');
   }
 
