@@ -206,44 +206,47 @@ export function calculatePlaybackStats(
         }
         pointInfo.votes.push(vote);
 
-        const pointsByFriend = submissionUser.pointsByFriends[vote.userId] ?? {
-          points: 0,
-          votes: 0,
-          songs: [],
-          user: usersById[vote.userId],
-        };
+        // Exclude self-votes: a user can't be their own biggest fan/critic.
+        if (vote.userId !== submission.userId) {
+          const pointsByFriend = submissionUser.pointsByFriends[vote.userId] ?? {
+            points: 0,
+            votes: 0,
+            songs: [],
+            user: usersById[vote.userId],
+          };
 
-        pointsByFriend.points += vote.points;
-        if (vote.points > 0) {
-          pointsByFriend.votes += 1;
-        }
-        pointsByFriend.songs.push({
-          trackInfo: submission.trackInfo,
-          points: vote.points,
-          round,
-          note: vote.note,
-        });
-        submissionUser.pointsByFriends[vote.userId] = pointsByFriend;
+          pointsByFriend.points += vote.points;
+          if (vote.points > 0) {
+            pointsByFriend.votes += 1;
+          }
+          pointsByFriend.songs.push({
+            trackInfo: submission.trackInfo,
+            points: vote.points,
+            round,
+            note: vote.note,
+          });
+          submissionUser.pointsByFriends[vote.userId] = pointsByFriend;
 
-        const pointsForFriend = voteUser.pointsForFriends[
-          submissionUser.user._id
-        ] ?? {
-          points: 0,
-          votes: 0,
-          songs: [],
-          user: usersById[submissionUser.user._id],
-        };
-        pointsForFriend.points += vote.points;
-        if (vote.points > 0) {
-          pointsForFriend.votes += 1;
+          const pointsForFriend = voteUser.pointsForFriends[
+            submissionUser.user._id
+          ] ?? {
+            points: 0,
+            votes: 0,
+            songs: [],
+            user: usersById[submissionUser.user._id],
+          };
+          pointsForFriend.points += vote.points;
+          if (vote.points > 0) {
+            pointsForFriend.votes += 1;
+          }
+          pointsForFriend.songs.push({
+            trackInfo: submission.trackInfo,
+            points: vote.points,
+            round,
+            note: vote.note,
+          });
+          voteUser.pointsForFriends[submissionUser.user._id] = pointsForFriend;
         }
-        pointsForFriend.songs.push({
-          trackInfo: submission.trackInfo,
-          points: vote.points,
-          round,
-          note: vote.note,
-        });
-        voteUser.pointsForFriends[submissionUser.user._id] = pointsForFriend;
       }
 
       if (!currentPointInfo) {
@@ -358,8 +361,8 @@ export function calculatePlaybackStats(
     }
     return a.user.index - b.user.index;
   });
-  const biggestFan = fans[0];
-  const biggestCritic = fans[fans.length - 1];
+  const biggestFan = fans[0] ?? null;
+  const biggestCritic = fans[fans.length - 1] ?? null;
 
   const yourLoves = Object.values(yourInfo.pointsForFriends).sort((a, b) => {
     if (a === null || b === null) {
@@ -373,8 +376,8 @@ export function calculatePlaybackStats(
     }
     return a.user.index - b.user.index;
   });
-  const biggestStan = yourLoves[0];
-  const hardestSell = yourLoves[yourLoves.length - 1];
+  const biggestStan = yourLoves[0] ?? null;
+  const hardestSell = yourLoves[yourLoves.length - 1] ?? null;
 
   const pointsGiven = new Map<
     string,
