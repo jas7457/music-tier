@@ -25,15 +25,15 @@ export function UsersList({
   if (users.length === 0) {
     return (
       <div className={twMerge(className, 'flex flex-col')}>
-        <h6 className="text-xs font-semibold text-gray-600">{formattedVerb}</h6>
-        <p className="text-xs text-gray-500">No {text.noun} yet</p>
+        <h6 className="text-xs font-semibold text-ink-muted">{formattedVerb}</h6>
+        <p className="text-xs text-ink-subtle">No {text.noun} yet</p>
       </div>
     );
   }
 
   return (
     <div className={twMerge(className, 'flex flex-col gap-1')}>
-      <h6 className="text-xs font-semibold text-gray-600">
+      <h6 className="text-xs font-semibold text-ink-muted">
         {formattedVerb} ({users.length})
       </h6>
       <div className="flex flex-wrap gap-1">

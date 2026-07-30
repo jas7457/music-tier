@@ -166,8 +166,8 @@ export default function MusicPlayer({
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 w-screen">
         {/* Playlist Panel - Mobile */}
         {showPlaylist && playlist.length > 0 && (
-          <div className="absolute bottom-full left-0 right-0 mb-2 mx-2 max-h-96 overflow-y-auto rounded-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] bg-white">
-            <div className="relative backdrop-blur-3xl bg-linear-to-b from-primary/50 to-primary-dark/50 border-2 border-white/30 rounded-2xl overflow-hidden">
+          <div className="absolute bottom-full left-0 right-0 mb-2 mx-2 max-h-96 overflow-y-auto rounded-2xl shadow-[0_-8px_32px_-4px_rgba(0,0,0,0.35)]">
+            <div className="relative backdrop-blur-3xl bg-linear-to-b from-primary/50 to-primary-dark/50 ring-1 ring-white/25 rounded-2xl overflow-hidden">
               <div className="absolute inset-0 bg-black/40"></div>
 
               <div className="relative">
@@ -213,7 +213,7 @@ export default function MusicPlayer({
                           <img
                             src={trackInfo.albumImageUrl}
                             alt={trackInfo.title}
-                            className="w-12 h-12 rounded-lg object-cover shadow-lg border border-white/30"
+                            className="w-12 h-12 rounded-lg object-cover shadow-lg ring-1 ring-white/25"
                           />
                         </div>
 
@@ -239,7 +239,7 @@ export default function MusicPlayer({
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="relative backdrop-blur-md bg-linear-to-b from-primary/60 to-primary-dark/60 border-t-2 border-white/30 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] cursor-pointer active:opacity-90 touch-none"
+          className="relative backdrop-blur-md bg-linear-to-b from-primary/60 to-primary-dark/60 border-t border-white/25 shadow-[0_-8px_32px_-4px_rgba(0,0,0,0.35)] cursor-pointer active:opacity-90 touch-none"
         >
           <div className="absolute inset-0 bg-black/30"></div>
           <div className="relative p-4 flex items-center gap-3">
@@ -277,7 +277,7 @@ export default function MusicPlayer({
                 setShowPlaylist(!showPlaylist);
               }}
               disabled={playlist.length === 0}
-              className="flex items-center gap-1.5 p-3 rounded-full backdrop-blur-xl bg-white/20 border-2 border-white/40 text-white transition-all hover:bg-white/30 disabled:opacity-30 touch-auto"
+              className="flex items-center gap-1.5 p-3 rounded-full backdrop-blur-xl bg-white/20 ring-1 ring-white/30 text-white transition-all hover:bg-white/30 disabled:opacity-30 touch-auto"
             >
               <svg
                 className="w-4 h-4"
@@ -305,7 +305,7 @@ export default function MusicPlayer({
                 }
               }}
               disabled={isDisabled}
-              className="w-12 h-12 rounded-full backdrop-blur-xl bg-linear-to-br from-green-400 to-emerald-500 border-2 border-white/60 text-white flex items-center justify-center transition-all hover:from-green-300 hover:to-emerald-400 disabled:opacity-30 shadow-lg touch-auto"
+              className="w-12 h-12 rounded-full backdrop-blur-xl bg-linear-to-br from-emerald-400 to-emerald-500 ring-1 ring-white/50 text-white flex items-center justify-center transition-all hover:from-emerald-300 hover:to-emerald-400 disabled:opacity-30 shadow-lg touch-auto"
             >
               {isPlaying ? (
                 <PauseIcon size={20} className="text-white" />
@@ -344,7 +344,7 @@ export default function MusicPlayer({
           <div className="flex items-center justify-between mb-8">
             <HapticButton
               onClick={() => setIsExpanded(false)}
-              className="w-10 h-10 rounded-full backdrop-blur-xl bg-white/20 border-2 border-white/40 text-white flex items-center justify-center touch-auto"
+              className="w-10 h-10 rounded-full backdrop-blur-xl bg-white/20 ring-1 ring-white/30 text-white flex items-center justify-center touch-auto"
             >
               <svg
                 width="24"
@@ -372,7 +372,7 @@ export default function MusicPlayer({
               <img
                 src={currentTrack.album.images[0]?.url}
                 alt="Current track"
-                className="relative w-full h-full rounded-3xl object-cover shadow-2xl border-4 border-white/40"
+                className="relative w-full h-full rounded-3xl object-cover shadow-2xl ring-2 ring-white/30"
               />
             </div>
           </div>
@@ -412,7 +412,7 @@ export default function MusicPlayer({
             <HapticButton
               onClick={previousTrack}
               disabled={isDisabled || !hasPreviousTrack}
-              className="w-16 h-16 rounded-full backdrop-blur-xl bg-white/20 border-2 border-white/40 text-white flex items-center justify-center transition-all hover:bg-white/30 hover:scale-105 disabled:opacity-30 touch-auto"
+              className="w-16 h-16 rounded-full backdrop-blur-xl bg-white/20 ring-1 ring-white/30 text-white flex items-center justify-center transition-all hover:bg-white/30 hover:scale-105 disabled:opacity-30 touch-auto"
             >
               <PreviousIcon size={28} className="text-white" />
             </HapticButton>
@@ -426,7 +426,7 @@ export default function MusicPlayer({
                 }
               }}
               disabled={isDisabled}
-              className="w-20 h-20 rounded-full backdrop-blur-xl bg-linear-to-br from-green-400 to-emerald-500 border-2 border-white/60 text-white flex items-center justify-center transition-all hover:scale-105 shadow-2xl disabled:opacity-30 touch-auto"
+              className="w-20 h-20 rounded-full backdrop-blur-xl bg-linear-to-br from-emerald-400 to-emerald-500 ring-1 ring-white/50 text-white flex items-center justify-center transition-all hover:scale-105 shadow-2xl disabled:opacity-30 touch-auto"
             >
               {isPlaying ? (
                 <PauseIcon size={32} className="text-white" />
@@ -438,7 +438,7 @@ export default function MusicPlayer({
             <HapticButton
               onClick={nextTrack}
               disabled={isDisabled || !hasNextTrack}
-              className="w-16 h-16 rounded-full backdrop-blur-xl bg-white/20 border-2 border-white/40 text-white flex items-center justify-center transition-all hover:bg-white/30 hover:scale-105 disabled:opacity-30 touch-auto"
+              className="w-16 h-16 rounded-full backdrop-blur-xl bg-white/20 ring-1 ring-white/30 text-white flex items-center justify-center transition-all hover:bg-white/30 hover:scale-105 disabled:opacity-30 touch-auto"
             >
               <NextIcon size={28} className="text-white" />
             </HapticButton>
@@ -448,7 +448,7 @@ export default function MusicPlayer({
 
       {/* Desktop Player */}
       <div className="hidden md:block fixed bottom-0 left-0 right-0 z-50 w-screen">
-        <div className="relative backdrop-blur-md bg-linear-to-b from-primary/60 to-primary-dark/60 border-t-2 border-white/30 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+        <div className="relative backdrop-blur-md bg-linear-to-b from-primary/60 to-primary-dark/60 border-t border-white/25 shadow-[0_-8px_32px_-4px_rgba(0,0,0,0.35)]">
           <div className="absolute inset-0 bg-black/30"></div>
 
           <div className="relative px-5 py-3">
@@ -510,7 +510,7 @@ export default function MusicPlayer({
                       }
                     }}
                     disabled={isDisabled || !currentTrack}
-                    className="w-14 h-14 rounded-full backdrop-blur-xl bg-linear-to-br from-green-400 to-emerald-500 border-2 border-white/60 text-white flex items-center justify-center transition-all hover:from-green-300 hover:to-emerald-400 hover:scale-110 hover:shadow-[0_0_35px_rgba(16,185,129,0.8)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
+                    className="w-14 h-14 rounded-full backdrop-blur-xl bg-linear-to-br from-emerald-400 to-emerald-500 ring-1 ring-white/50 text-white flex items-center justify-center transition-all hover:from-emerald-300 hover:to-emerald-400 hover:scale-110 hover:shadow-[0_0_35px_rgba(16,185,129,0.8)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
                     title={isPlaying ? 'Pause' : 'Play'}
                   >
                     {isPlaying ? (
@@ -547,7 +547,7 @@ export default function MusicPlayer({
                   <div className="flex-1 relative">
                     <input
                       type="range"
-                      className="w-full h-2.5 bg-white/30 backdrop-blur-sm rounded-full appearance-none cursor-pointer border-2 border-white/40 shadow-inner [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-linear-to-br [&::-webkit-slider-thumb]:from-white [&::-webkit-slider-thumb]:to-white [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-3 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7),0_2px_6px_rgba(0,0,0,0.35)] [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-125 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-linear-to-br [&::-moz-range-thumb]:from-white [&::-moz-range-thumb]:to-green-300 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-3 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
+                      className="w-full h-2.5 bg-white/30 backdrop-blur-sm rounded-full appearance-none cursor-pointer ring-1 ring-white/30 shadow-inner [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-linear-to-br [&::-webkit-slider-thumb]:from-white [&::-webkit-slider-thumb]:to-white [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-3 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7),0_2px_6px_rgba(0,0,0,0.35)] [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-125 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-linear-to-br [&::-moz-range-thumb]:from-white [&::-moz-range-thumb]:to-green-300 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-3 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.7)]"
                       min="0"
                       max={currentTrack?.duration_ms || 0}
                       value={currentTime}
@@ -589,8 +589,8 @@ export default function MusicPlayer({
 
                 {/* Playlist Panel - Floating */}
                 {showPlaylist && playlist.length > 0 && (
-                  <div className="absolute bottom-full right-0 mb-2 w-96 max-h-96 overflow-y-auto rounded-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] bg-white">
-                    <div className="relative backdrop-blur-3xl bg-linear-to-b from-primary/50 to-primary-dark/50 border-2 border-white/30 rounded-2xl overflow-hidden">
+                  <div className="absolute bottom-full right-0 mb-2 w-96 max-h-96 overflow-y-auto rounded-2xl shadow-[0_-8px_32px_-4px_rgba(0,0,0,0.35)]">
+                    <div className="relative backdrop-blur-3xl bg-linear-to-b from-primary/50 to-primary-dark/50 ring-1 ring-white/25 rounded-2xl overflow-hidden">
                       <div className="absolute inset-0 bg-black/40"></div>
 
                       <div className="relative">
@@ -638,7 +638,7 @@ export default function MusicPlayer({
                                   <img
                                     src={trackInfo.albumImageUrl}
                                     alt={trackInfo.title}
-                                    className="w-12 h-12 rounded-lg object-cover shadow-lg border border-white/30"
+                                    className="w-12 h-12 rounded-lg object-cover shadow-lg ring-1 ring-white/25"
                                   />
                                 </div>
 

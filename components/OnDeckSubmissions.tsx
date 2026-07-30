@@ -108,10 +108,10 @@ export function OnDeckSubmissionsList({
   return (
     <div className="grid gap-2">
       <div>
-        <div className="block text-xs font-medium text-gray-700">
+        <div className="block text-xs font-medium text-ink-muted">
           On deck songs
         </div>
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-ink-subtle">
           Add songs you may want to submit later, but aren&apos;t totally sold
           yet. You can then add these to the Side Playlist when the submissions
           end.
@@ -149,7 +149,7 @@ export function OnDeckSubmissionsList({
           <div
             key={index}
             className={twMerge(
-              'grid grid-cols-[1fr_auto] items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-md',
+              'grid grid-cols-[1fr_auto] items-center gap-3 p-3 bg-white/45 ring-1 ring-white/60 rounded-control',
               className,
             )}
           >
@@ -183,7 +183,7 @@ export function OnDeckSubmissionsList({
                 <p className="font-semibold text-xs truncate">
                   {submission.trackInfo.title}
                 </p>
-                <p className="text-xs text-gray-600 truncate">
+                <p className="text-xs text-ink-muted truncate">
                   {submission.trackInfo.artists.join(', ')}
                 </p>
 
@@ -194,7 +194,7 @@ export function OnDeckSubmissionsList({
                   !isYourSubmission && (
                     <div className="flex">
                       <HapticButton
-                        className="duration-150 ease-out active:scale-95 p-1 text-white bg-primary hover:bg-primary-dark rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+                        className="duration-150 ease-out active:scale-95 p-1 text-white bg-primary hover:bg-primary-dark rounded-control shadow-soft hover:shadow-float disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed transition-all"
                         disabled={isSaving}
                         onClick={async () => {
                           setIsSaving(true);
@@ -268,7 +268,7 @@ export function OnDeckSubmissionsList({
                 onUpdate(newOnDecks);
                 await saveOnDeckToDatabase(newOnDecks);
               }}
-              className="text-gray-400 hover:text-red-600 p-1 disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-ink-subtle hover:text-red-600 p-1 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <svg
                 className="w-5 h-5"
@@ -320,7 +320,7 @@ export function OnDeckSubmissionsList({
 
       {onDeckSubmissions.length > 0 && onDeckInfo.canSubmit && (
         <HapticButton
-          className="duration-150 ease-out active:scale-95 w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+          className="duration-150 ease-out active:scale-95 w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-control shadow-soft hover:shadow-float disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed transition-all"
           disabled={allSaved || isSaving}
           onClick={async () => {
             setIsSaving(true);

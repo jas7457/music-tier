@@ -15,7 +15,7 @@ export function LeaguePageClient({ league, user }: LeaguePageClientProps) {
   useRealTimeUpdates();
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <div className="max-w-4xl mx-auto">
         <Breadcrumb
           items={[
@@ -23,7 +23,7 @@ export function LeaguePageClient({ league, user }: LeaguePageClientProps) {
             { label: league.title, icon: <LeagueIcon /> },
           ]}
         />
-        <Card className="p-2 md:p-6">
+        <Card className="p-4 md:p-6">
           <League league={league} user={user} />
         </Card>
       </div>

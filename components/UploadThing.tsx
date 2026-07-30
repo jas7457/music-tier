@@ -102,7 +102,7 @@ export function ConfirmUploadButton({
                 await startUpload([file]);
               }}
               disabled={isUploading}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2.5 bg-emerald-600 text-white rounded-control shadow-soft hover:bg-emerald-700 hover:shadow-float disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed transition-colors"
             >
               {isUploading ? uploading : confirmUpload}
             </button>
@@ -112,7 +112,7 @@ export function ConfirmUploadButton({
                 onCancel();
               }}
               disabled={isUploading}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2.5 bg-red-600 text-white rounded-control shadow-soft hover:bg-red-700 hover:shadow-float disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed transition-colors"
             >
               {cancel}
             </button>

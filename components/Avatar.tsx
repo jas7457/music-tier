@@ -57,7 +57,7 @@ export function Avatar({
           alt={fullName}
           className={twMerge(
             sizeStr,
-            'rounded-full object-cover border-2 border-gray-300 aspect-square max-w-full',
+            'rounded-full object-cover ring-2 ring-white shadow-soft aspect-square max-w-full',
             isSizePercent ? 'w-full' : '',
             className,
           )}
@@ -67,7 +67,7 @@ export function Avatar({
           className={twMerge(
             sizeStr,
             gradient,
-            'rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-300 aspect-square max-w-full',
+            'rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm ring-2 ring-white shadow-soft aspect-square max-w-full',
             className,
           )}
         >

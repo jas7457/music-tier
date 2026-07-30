@@ -20,21 +20,34 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
 
   return (
     <nav className="mb-4 overflow-x-auto max-w-full" aria-label="Breadcrumb">
-      <ol className="flex items-center space-x-2 text-sm flex-nowrap whitespace-nowrap">
+      <ol className="flex items-center text-sm flex-nowrap whitespace-nowrap">
         {items.map((item, index) => {
           return (
             <li key={index} className="flex items-center">
-              {index > 0 && <span className="mx-2 text-gray-400">/</span>}
+              {index > 0 && (
+                <svg
+                  className="mx-0.5 w-4 h-4 text-ink-subtle/60 shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              )}
               {item.href ? (
                 <Link
                   href={item.href}
-                  className="flex items-center gap-1.5 text-primary-darker hover:text-primary-darkest hover:underline transition-colors"
+                  className="flex items-center gap-1.5 rounded-md px-2 py-1 font-medium text-ink-muted hover:bg-white/60 hover:text-primary-darker transition-colors"
                 >
                   {item.icon}
                   {item.label}
                 </Link>
               ) : (
-                <span className="flex items-center gap-1.5 text-gray-700 font-medium">
+                <span className="flex items-center gap-1.5 px-2 py-1 text-ink font-semibold">
                   {item.icon}
                   {item.label}
                 </span>

@@ -175,7 +175,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
           <GenericStatCard className="flex flex-col gap-2" color="gray">
             <div>
               <h3 className="font-semibold">Points Per League</h3>
-              <div className="text-xs text-gray-500">{infoMap.avgPoints}</div>
+              <div className="text-xs text-ink-subtle">{infoMap.avgPoints}</div>
             </div>
 
             {stats.pointsPerLeague.length === 0 ? (
@@ -243,7 +243,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* User Header */}
-      <div className="border-b border-gray-300 pb-4">
+      <div className="border-b border-white/50 pb-4">
         <div className="flex items-center gap-4 mb-4">
           <div className="relative">
             <Avatar
@@ -260,7 +260,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
                     await updateUserPhoto(url);
                     router.refresh();
                   }}
-                  buttonClassName="flex items-center justify-center w-7 h-7 bg-gray-800 text-white rounded-full hover:bg-gray-700 transition-colors text-xs"
+                  buttonClassName="flex items-center justify-center w-7 h-7 bg-white/80 ring-1 ring-white/90 shadow-soft rounded-full hover:bg-white transition-colors text-xs"
                   label="✏️"
                 />
               </div>
@@ -268,8 +268,8 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
           </div>
           <div>
             <h1 className="text-3xl font-bold">{fullName}</h1>
-            <p className="text-gray-600">{user.userName}</p>
-            <p className="text-sm text-gray-500">
+            <p className="text-ink-muted">{user.userName}</p>
+            <p className="text-sm text-ink-subtle">
               <DateTime prefix="Joined">{user.signupDate}</DateTime>
             </p>
           </div>
@@ -278,7 +278,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
 
       {/* Stats Overview */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Stats</h2>
+        <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">Stats</h2>
 
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -377,10 +377,12 @@ function GenericStatCard({
     <Card
       {...rest}
       className={twMerge(
-        'p-4 border-gray-200 rounded-lg transition-all',
+        'p-4 rounded-tile bento-tile transition-all',
+        // These sit on a glass parent, so they need to be *more* opaque than it
+        // to separate — a gray fill just reads as muddy against frosted white.
         color === 'white'
-          ? 'bg-white'
-          : 'bg-linear-to-br from-gray-50 to-gray-100 border-2',
+          ? 'bg-white/80 ring-1 ring-white/90'
+          : 'bg-white/60 ring-1 ring-white/80',
         className,
       )}
     >
@@ -407,7 +409,7 @@ function LeaguesCards({
 
         <div>
           <h3 className="font-semibold">{title}</h3>
-          <div className="text-xs text-gray-500">{info}</div>
+          <div className="text-xs text-ink-subtle">{info}</div>
         </div>
       </div>
 
@@ -456,7 +458,7 @@ function LeaguesCards({
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-semibold text-lg">{league.title}</h3>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-ink-muted">
                         {league.yourPoints} points • {league.numberOfRounds}{' '}
                         rounds • {league.users.length} participants •{' '}
                         {dateString}
@@ -498,7 +500,7 @@ function SubmissionsCards({
     <GenericStatCard color="gray" className="flex flex-col gap-2">
       <div>
         <h3 className="font-semibold">{title}</h3>
-        <div className="text-xs text-gray-500">{info}</div>
+        <div className="text-xs text-ink-subtle">{info}</div>
       </div>
       {sortedDetails.length === 0 ? (
         <div>No songs.</div>
@@ -518,10 +520,10 @@ function SubmissionsCards({
                 <div className="font-medium truncate">
                   {detail.submission.trackInfo.title}
                 </div>
-                <div className="text-xs text-gray-500 truncate">
+                <div className="text-xs text-ink-subtle truncate">
                   by {detail.submission.trackInfo.artists.join(', ')}
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-ink-subtle">
                   <MaybeLink href={`/leagues/${detail.league._id}`}>
                     {detail.league.title}
                   </MaybeLink>{' '}
@@ -574,16 +576,20 @@ function StatCard({
       color="gray"
       className={twMerge(
         isClickable
-          ? 'cursor-pointer hover:shadow-md hover:border-primary'
+          ? 'cursor-pointer hover:shadow-float hover:ring-primary'
           : '',
-        isExpanded ? 'ring-2 ring-primary shadow-md' : '',
+        isExpanded ? 'ring-2 ring-primary shadow-float' : '',
       )}
     >
-      <div className="text-4xl mb-3 text-center">{icon}</div>
-      <div className="text-2xl font-bold text-gray-800 text-center">
+      {/* The number is the point of a stat tile, so it leads; the emoji shrinks
+          to a marker rather than competing with it. */}
+      <div className="text-2xl mb-1.5 text-center leading-none">{icon}</div>
+      <div className="text-3xl font-bold tabular-nums text-ink text-center">
         {value}
       </div>
-      <div className="text-xs text-gray-600 text-center">{label}</div>
+      <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle text-center mt-1">
+        {label}
+      </div>
     </GenericStatCard>
   );
 }

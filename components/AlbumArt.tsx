@@ -81,7 +81,7 @@ export default function AlbumArt({
   return (
     <div
       className={twMerge(
-        'relative shrink-0 overflow-hidden rounded group',
+        'relative shrink-0 overflow-hidden rounded-media group',
         className,
       )}
       style={{ width: `${size}px`, height: `${size}px` }}

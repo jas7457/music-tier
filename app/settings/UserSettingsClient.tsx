@@ -390,8 +390,8 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     }
 
     return (
-      <div className="pt-4 border-t border-gray-200">
-        <p className="text-sm text-gray-600 mb-2">
+      <div className="pt-4 border-t border-line">
+        <p className="text-sm text-ink-muted mb-2">
           <strong>Developer Tools:</strong> If you&apos;re experiencing issues
           with caching or want to reset the app, you can unregister the service
           worker below.
@@ -432,7 +432,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 });
               }
             }}
-            className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-primary-dark hover:bg-primary-darker text-white"
+            className="w-full px-4 py-2.5 rounded-control font-semibold shadow-soft hover:shadow-float transition-all bg-primary-dark hover:bg-primary-darker text-white"
           >
             Enable Push Notifications
           </HapticButton>
@@ -450,7 +450,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
         return (
           <div className="grid sm:grid-cols-[1fr_auto] gap-2">
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-3 py-2 field rounded-control"
               value={testNotificationDelay}
               onChange={(e) => setTestNotificationDelay(Number(e.target.value))}
             >
@@ -504,7 +504,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 }
               }}
               disabled={isSendingTestPushNotification}
-              className="w-full px-4 py-2 rounded-md font-semibold transition-colors bg-primary-dark hover:bg-primary-darker text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full px-4 py-2.5 rounded-control font-semibold shadow-soft hover:shadow-float transition-all bg-primary-dark hover:bg-primary-darker text-white disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
             >
               {isSendingTestPushNotification
                 ? 'Sending...'
@@ -520,7 +520,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     <div className="flex flex-col gap-6 max-w-4xl mx-auto p-6">
       <div>
         <h1 className="text-3xl font-bold mb-2">Settings</h1>
-        <p className="text-gray-600">
+        <p className="text-ink-muted">
           Manage your contact information and notification preferences
         </p>
       </div>
@@ -533,7 +533,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
             <div>
               <label
                 htmlFor="phoneNumber"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-ink-muted mb-1"
               >
                 Phone Number
               </label>
@@ -544,14 +544,14 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 disabled={phoneVerified}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="555-123-4567"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 field rounded-control disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
             <div>
               <label
                 htmlFor="phoneCarrier"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-ink-muted mb-1"
               >
                 Phone Carrier * Needed for text notifications
               </label>
@@ -564,7 +564,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                     e.target.value as User['phoneCarrier'] | undefined,
                   )
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 field rounded-control disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">Select a carrier</option>
                 <option value="verizon">Verizon</option>
@@ -574,7 +574,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
             </div>
 
             {phoneNumber && phoneCarrier && !phoneVerified && (
-              <div className="p-4 bg-primary-lightest border border-primary-lighter rounded-md">
+              <div className="p-4 bg-primary-lightest ring-1 ring-primary/20 rounded-control">
                 <p className="text-sm text-primary-darkest mb-3">
                   Your phone number needs to be verified before you can receive
                   text notifications.
@@ -596,7 +596,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                   <div>
                     <label
                       htmlFor="verificationCode"
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="block text-sm font-medium text-ink-muted mb-1"
                     >
                       Verification Code
                     </label>
@@ -607,13 +607,13 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                         value={verificationCode}
                         onChange={(e) => setVerificationCode(e.target.value)}
                         placeholder="Enter code"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="flex-1 px-3 py-2 field rounded-control"
                       />
                       <HapticButton
                         onClick={handleVerifyCode}
                         disabled={isVerifying || !verificationCode}
                         className={twMerge(
-                          'px-4 py-2 rounded-md font-semibold transition-colors whitespace-nowrap bg-primary-dark hover:bg-primary-darker text-white disabled:bg-gray-400 disabled:cursor-not-allowed',
+                          'px-4 py-2 rounded-md font-semibold transition-colors whitespace-nowrap bg-primary-dark hover:bg-primary-darker text-white disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed',
                         )}
                       >
                         {isVerifying ? 'Verifying...' : 'Verify'}
@@ -625,7 +625,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
             )}
 
             {phoneVerified && (
-              <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+              <div className="p-4 bg-emerald-50 ring-1 ring-emerald-600/20 rounded-control">
                 <p className="text-sm text-green-800 flex items-center gap-2">
                   <svg
                     width="16"
@@ -646,7 +646,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
             <div>
               <label
                 htmlFor="emailAddress"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-ink-muted mb-1"
               >
                 Email Address
               </label>
@@ -657,13 +657,13 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                   value={emailAddress}
                   onChange={(e) => setEmailAddress(e.target.value)}
                   placeholder="your.email@example.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 field rounded-control"
                 />
 
                 <HapticButton
                   disabled={isSendingTestEmail || !looksLikeEmailAddress}
                   className={twMerge(
-                    'px-4 py-2 rounded-md font-semibold transition-colors bg-primary-dark hover:bg-primary-darker text-white disabled:bg-gray-400 disabled:cursor-not-allowed',
+                    'px-4 py-2.5 rounded-control font-semibold shadow-soft hover:shadow-float transition-all bg-primary-dark hover:bg-primary-darker text-white disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed',
                   )}
                   onClick={async () => {
                     setIsSendingTestEmail(true);
@@ -711,7 +711,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
             {/* Push Notifications - Only show for enabled users */}
             {isEnabled && (
               <div>
-                <h3 className="block text-sm font-medium text-gray-700 mb-1">
+                <h3 className="block text-sm font-medium text-ink-muted mb-1">
                   Push Notifications
                 </h3>
                 {pushNotificationMarkup}
@@ -726,7 +726,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
         {/* Theme Color */}
         <div>
           <h3 className="font-semibold mb-3 text-lg">Theme Color</h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-sm text-ink-muted mb-4">
             Choose your preferred accent color for the app
           </p>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -737,13 +737,13 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 className={twMerge(
                   'relative px-4 py-3 rounded-lg border-2 transition-all capitalize font-medium',
                   primaryColor === color
-                    ? 'border-gray-900 shadow-md scale-105'
-                    : 'border-gray-300 hover:border-gray-400',
+                    ? 'border-ink shadow-float scale-105'
+                    : 'border-line hover:border-line-strong',
                 )}
               >
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-6 h-6 rounded-full border border-gray-300 shrink-0"
+                    className="w-6 h-6 rounded-full ring-1 ring-line shrink-0"
                     style={{
                       backgroundColor: `var(--color-${color}-500)`,
                     }}
@@ -776,7 +776,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
           </h3>
 
           {/* Enable/Disable toggles */}
-          <div className="mb-4 p-4 bg-primary-lightest rounded-md border border-primary-lighter">
+          <div className="mb-4 p-4 bg-primary-lightest rounded-control ring-1 ring-primary/20">
             <div className="flex flex-col gap-3">
               {notificationMethodOptions.map((option) => (
                 <label
@@ -792,7 +792,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                   />
                   <div>
                     <div className="font-medium">{option.label}</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-ink-muted">
                       {option.description}
                     </div>
                   </div>
@@ -816,7 +816,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 />
                 <div>
                   <div className="font-medium">{option.label}</div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-ink-muted">
                     {option.description}
                   </div>
                 </div>
@@ -855,10 +855,12 @@ function GenericStatCard({
     <Card
       {...rest}
       className={twMerge(
-        'p-4 border-gray-200 rounded-lg transition-all',
+        'p-4 rounded-tile bento-tile transition-all',
+        // These sit on a glass parent, so they need to be *more* opaque than it
+        // to separate — a gray fill just reads as muddy against frosted white.
         color === 'white'
-          ? 'bg-white'
-          : 'bg-linear-to-br from-gray-50 to-gray-100 border-2',
+          ? 'bg-white/80 ring-1 ring-white/90'
+          : 'bg-white/60 ring-1 ring-white/80',
         className,
       )}
     >

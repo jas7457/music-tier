@@ -23,7 +23,7 @@ export function PullToRefreshIndicator({
       }}
     >
       <div
-        className="bg-white rounded-full shadow-lg p-3 mt-4 text-primary"
+        className="glass-strong rounded-full p-3 mt-4 text-primary"
         style={{
           opacity: opacity,
           transition: 'opacity 0.2s ease-out',

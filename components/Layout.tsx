@@ -72,7 +72,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       return null;
     }
     return (
-      <div className="grid grid-cols-[auto_1fr_auto] gap-2 items-center bg-linear-to-r from-primary-dark via-primary to-primary-dark text-white p-3 shadow-lg border-b-2 border-primary-light/30 backdrop-blur-sm relative z-10">
+      <div className="sticky top-0 grid grid-cols-[auto_1fr_auto] gap-2 items-center glass-strong text-ink px-3 py-2.5 relative z-50 rounded-none">
         <Link href="/" className="flex items-center gap-4">
           <Image
             src={logo.src}
@@ -92,27 +92,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="relative" ref={dropdownRef}>
           <HapticButton
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-2 rounded-full transition-all hover:ring-2 hover:ring-white hover:ring-offset-2 hover:ring-offset-primary-dark"
+            className="flex items-center gap-2 rounded-full transition-all hover:ring-2 hover:ring-primary hover:ring-offset-2 hover:ring-offset-white/60"
           >
             <Avatar user={user} size={12} includeLink={false} />
           </HapticButton>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border-2 border-gray-300 z-50 overflow-hidden">
+            <div className="absolute right-0 mt-2 w-64 origin-top-right glass-strong rounded-card z-50 overflow-hidden animate-menu-in">
               {/* User Info Section */}
-              <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
-                <h2 className="text-gray-900 font-bold text-base">
-                  {user.userName}
-                </h2>
-                <p className="text-gray-600 text-sm">@{user.userName}</p>
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-white/40">
+                <Avatar user={user} size={10} includeLink={false} />
+                <div className="min-w-0">
+                  <h2 className="text-ink font-semibold text-sm truncate">
+                    {user.firstName} {user.lastName}
+                  </h2>
+                  <p className="text-ink-subtle text-xs truncate">
+                    @{user.userName}
+                  </p>
+                </div>
               </div>
 
               {/* Actions Section */}
-              <div className="py-1">
+              <div className="p-1.5">
                 <Link
                   href={`/users/${user._id}`}
                   onClick={() => setIsDropdownOpen(false)}
-                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-white/60 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
                 >
                   <svg
                     width="16"
@@ -131,7 +136,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Link
                   href="/settings"
                   onClick={() => setIsDropdownOpen(false)}
-                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-white/60 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
                 >
                   <svg
                     width="16"
@@ -152,7 +157,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Link
                   href="/leagues/current"
                   onClick={() => setIsDropdownOpen(false)}
-                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-white/60 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
                 >
                   <svg
                     width="16"
@@ -172,7 +177,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Link
                   href="/leagues/current/rounds/current"
                   onClick={() => setIsDropdownOpen(false)}
-                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-white/60 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
                 >
                   <svg
                     width="16"
@@ -193,7 +198,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     logout();
                     setIsDropdownOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-white/60 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
                 >
                   <svg
                     width="16"
@@ -218,7 +223,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   })();
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-28">
+    <div className="min-h-screen app-canvas pb-28">
+      {/* Colour field the frosted surfaces above refract */}
+      <div className="aurora" aria-hidden="true">
+        <div className="aurora-blob aurora-blob-1" />
+        <div className="aurora-blob aurora-blob-2" />
+        <div className="aurora-blob aurora-blob-3" />
+      </div>
+
       <PullToRefreshIndicator
         pullDistance={pullDistance}
         isRefreshing={isRefreshing}
@@ -238,7 +250,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         ></div>
       )}
-      <div className="p-2 md:p-4">{children}</div>
+      <div className="relative z-1 p-3 md:p-6">{children}</div>
       {hasSpotifyAccess && (
         <MusicPlayer
           isExpanded={isMusicPlayerExpanded}

@@ -249,11 +249,11 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
     return (
       <div className="space-y-6">
         <div className="text-center space-y-3">
-          <h3 className="text-3xl font-bold text-gray-900">
+          <h3 className="text-3xl font-bold text-ink">
             That&apos;s a wrap!
           </h3>
-          <p className="text-gray-600">The competition was fierce!</p>
-          <p className="text-base text-gray-800">
+          <p className="text-ink-muted">The competition was fierce!</p>
+          <p className="text-base text-ink">
             You finished the{' '}
             <span className="font-semibold">{league.title}</span> league in{' '}
             <span className="font-semibold">{placeText} place</span> with{' '}
@@ -287,12 +287,12 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
               <Avatar className="text-3xl" user={biggestFan.user} size={24} />
 
               {/* Username */}
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-ink">
                 {biggestFan.user.userName}
               </div>
 
               {/* Points */}
-              <div className="text-gray-600">
+              <div className="text-ink-muted">
                 {biggestFan.points} upvote{biggestFan.points !== 1 ? 's' : ''}{' '}
                 for you
               </div>
@@ -303,18 +303,18 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
             <div className="flex flex-col items-center space-y-3">
               {/* Ribbon Banner */}
               <div className="relative inline-block mx-10">
-                <div className="bg-gray-200 border-2 border-gray-400 px-8 py-2 text-center">
-                  <div className="text-sm font-bold text-gray-600 uppercase tracking-wide">
+                <div className="bg-surface-sunken border-2 border-line-strong px-8 py-2 text-center">
+                  <div className="text-sm font-bold text-ink-muted uppercase tracking-wide">
                     Your Biggest Critic
                   </div>
                 </div>
                 {/* Left ribbon tail */}
                 <div className="absolute left-0 top-0 -translate-x-full h-full w-6">
-                  <div className="absolute inset-0 bg-gray-200 border-y-2 border-l-2 border-gray-400 origin-right transform -skew-y-12"></div>
+                  <div className="absolute inset-0 bg-surface-sunken border-y-2 border-l-2 border-line-strong origin-right transform -skew-y-12"></div>
                 </div>
                 {/* Right ribbon tail */}
                 <div className="absolute right-0 top-0 translate-x-full h-full w-6">
-                  <div className="absolute inset-0 bg-gray-200 border-y-2 border-r-2 border-gray-400 origin-left transform skew-y-12"></div>
+                  <div className="absolute inset-0 bg-surface-sunken border-y-2 border-r-2 border-line-strong origin-left transform skew-y-12"></div>
                 </div>
               </div>
 
@@ -326,12 +326,12 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
               />
 
               {/* Username */}
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-ink">
                 {biggestCritic.user.userName}
               </div>
 
               {/* Points */}
-              <div className="text-gray-600">
+              <div className="text-ink-muted">
                 {biggestCritic.points} upvote
                 {biggestCritic.points !== 1 ? 's' : ''} for you
               </div>
@@ -352,7 +352,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
   if (league.rounds.completed.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">
+        <p className="text-ink-subtle">
           No completed rounds yet. Standings will appear once rounds are
           completed.
         </p>
@@ -374,13 +374,11 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
         <div
           key={standing.user._id}
           className={twMerge(
-            'p-2 md:p-4 flex items-center gap-2 md:gap-4',
-            isFirst && 'border border-yellow-400 bg-yellow-50',
-            isSecond && 'border border-gray-400 bg-gray-50',
-            isThird && 'border border-[#cd7f32] bg-[#f9f2ec]',
-            isOther && 'border border-gray-400 bg-white',
-            index === 0 && 'rounded-t-lg',
-            index === standings.length - 1 && 'rounded-b-lg',
+            'p-3 md:p-4 flex items-center gap-2 md:gap-4 border-b border-white/40 last:border-b-0 transition-colors',
+            isFirst && 'bg-linear-to-r from-amber-200/50 to-transparent',
+            isSecond && 'bg-linear-to-r from-slate-300/40 to-transparent',
+            isThird && 'bg-linear-to-r from-[#cd7f32]/25 to-transparent',
+            isOther && 'hover:bg-white/40',
           )}
         >
           {/* Rank */}
@@ -389,7 +387,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
             {isSecond && <span className="text-4xl">🥈</span>}
             {isThird && <span className="text-4xl">🥉</span>}
             {isOther && (
-              <span className="text-xl font-bold text-gray-500">
+              <span className="text-xl font-bold text-ink-subtle">
                 {currentPlace}
               </span>
             )}
@@ -400,20 +398,20 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
 
           {/* User Info */}
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-lg text-gray-800">
+            <div className="font-semibold text-lg text-ink">
               {standing.user.userName}
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-ink-muted">
               {standing.wins} {standing.wins === 1 ? 'win' : 'wins'}
             </div>
           </div>
 
           {/* Points */}
           <div className="text-right">
-            <div className="text-3xl font-bold text-gray-800">
+            <div className="text-3xl font-bold tabular-nums text-ink">
               {standing.points}
             </div>
-            <div className="text-sm text-gray-600">points</div>
+            <div className="text-sm text-ink-muted">points</div>
           </div>
         </div>
       );
@@ -427,7 +425,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
       {completedMarkup}
 
       <div>
-        <h3 className="text-lg font-semibold mb-3 text-gray-700">
+        <h3 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
           League Standings
         </h3>
 
@@ -439,12 +437,12 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
       {/* Guess Accuracy Section */}
       {filteredGuesses.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-3 text-gray-700">
+          <h3 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
             Guess Accuracy
           </h3>
 
           <Card variant="outlined">
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-white/40">
               {filteredGuesses.map((stat, index) => {
                 const isExpanded = expandedUsers.has(stat.user._id);
 
@@ -485,11 +483,11 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                           return next;
                         })
                       }
-                      className="w-full flex items-center gap-2 md:gap-4 hover:bg-gray-50 p-2 md:p-4 rounded transition-colors"
+                      className="w-full flex items-center gap-2 md:gap-4 hover:bg-white/40 p-3 md:p-4 rounded-card transition-colors"
                     >
                       {/* Rank */}
                       <div className="flex items-center justify-center min-w-10">
-                        <span className="text-lg font-bold text-gray-600">
+                        <span className="text-lg font-bold tabular-nums text-ink-subtle">
                           #{index + 1}
                         </span>
                       </div>
@@ -499,10 +497,10 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
 
                       {/* User Info */}
                       <div className="flex-1 min-w-0 text-left">
-                        <div className="font-semibold text-base text-gray-800">
+                        <div className="font-semibold text-base text-ink">
                           {stat.user.userName}
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-ink-muted">
                           {stat.correctCount} correct • {stat.incorrectCount}{' '}
                           incorrect
                         </div>
@@ -510,14 +508,14 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
 
                       {/* Accuracy */}
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-800">
+                        <div className="text-2xl font-bold tabular-nums text-ink">
                           {Math.round(stat.accuracy)}%
                         </div>
-                        <div className="text-xs text-gray-600">accuracy</div>
+                        <div className="text-xs text-ink-muted">accuracy</div>
                       </div>
 
                       {/* Expand Icon */}
-                      <div className="text-gray-400">
+                      <div className="text-ink-subtle">
                         <svg
                           className={twMerge(
                             'w-5 h-5 transition-transform',
@@ -544,7 +542,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                           ({ round, guesses }) => (
                             <div key={round._id} className="space-y-2">
                               {/* Round Title */}
-                              <div className="text-sm font-semibold text-gray-600">
+                              <div className="text-sm font-semibold text-ink-muted">
                                 {getRoundTitle(round)}
                               </div>
 
@@ -563,15 +561,15 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                     <div
                                       key={guessIdx}
                                       className={twMerge(
-                                        'p-2 md:p-3 rounded-lg border flex flex-col gap-1',
+                                        'p-2 md:p-3 rounded-control ring-1 flex flex-col gap-1',
                                         guess.isCorrect
-                                          ? 'bg-green-50 border-green-200'
-                                          : 'bg-red-50 border-red-200',
+                                          ? 'bg-emerald-50 ring-emerald-600/20'
+                                          : 'bg-red-50 ring-red-600/20',
                                       )}
                                     >
                                       <div className="flex items-center justify-between">
                                         {guess.isCorrect ? (
-                                          <div className="flex items-center gap-1 text-green-700">
+                                          <div className="flex items-center gap-1 text-emerald-700">
                                             <svg
                                               className="w-4 h-4"
                                               fill="currentColor"
@@ -617,16 +615,16 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                         {/* Details */}
                                         <div className="flex-1 min-w-0">
                                           {/* Track */}
-                                          <div className="font-semibold text-sm text-gray-900">
+                                          <div className="font-semibold text-sm text-ink">
                                             {guess.submission.trackInfo.title}
                                           </div>
-                                          <div className="text-xs text-gray-600">
+                                          <div className="text-xs text-ink-muted">
                                             {guess.submission.trackInfo.artists.join(
                                               ', ',
                                             )}
                                           </div>
 
-                                          <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
+                                          <div className="flex items-center gap-1 text-xs text-ink-muted mb-2">
                                             <div className="shrink-0">
                                               <Avatar
                                                 user={guess.actualUser}

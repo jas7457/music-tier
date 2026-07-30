@@ -20,8 +20,8 @@ export function HapticButton({
     <button
       {...rest}
       className={twMerge(
-        'duration-150 ease-out active:scale-95',
-        isPressed && 'scale-95 opacity-90',
+        'duration-150 ease-out active:scale-[0.97] disabled:cursor-not-allowed',
+        isPressed && 'scale-[0.97] opacity-90',
         className,
         'transition-all',
       )}

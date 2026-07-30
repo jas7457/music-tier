@@ -153,23 +153,23 @@ export default function Landing() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <p className="text-lg">Loading...</p>
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <p className="text-ink-muted">Loading…</p>
       </div>
     );
   }
 
   if (!hasSpotifyToken) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
-          <h1 className="text-3xl font-bold mb-4">Welcome to {APP_NAME}</h1>
-          <p className="text-gray-600 mb-6">
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="glass-strong rounded-card p-8 max-w-md w-full animate-slide-up-fade-in">
+          <h1 className="text-3xl font-bold tracking-tight mb-3">Welcome to {APP_NAME}</h1>
+          <p className="text-ink-muted mb-6">
             Connect your Spotify account to get started
           </p>
           <button
             onClick={handleSpotifyLogin}
-            className="w-full bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition-colors font-semibold"
+            className="w-full bg-[#1db954] text-white px-6 py-3.5 rounded-control shadow-soft hover:bg-[#1ed760] hover:shadow-float active:scale-[0.99] transition-all font-semibold"
           >
             Connect to Spotify
           </button>
@@ -179,13 +179,13 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4">
-      <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
-        <h1 className="text-3xl font-bold mb-2">Create Your Account</h1>
-        <p className="text-gray-600 mb-6">Complete your profile to continue</p>
+    <div className="min-h-[70vh] flex items-center justify-center py-12 px-4">
+      <div className="glass-strong rounded-card p-8 max-w-md w-full animate-slide-up-fade-in">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">Create Your Account</h1>
+        <p className="text-ink-muted mb-6">Complete your profile to continue</p>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-50 ring-1 ring-red-600/20 text-red-700 text-sm px-4 py-3 rounded-control mb-4">
             {error}
           </div>
         )}
@@ -194,7 +194,7 @@ export default function Landing() {
           <div>
             <label
               htmlFor="firstName"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-ink-muted mb-1.5"
             >
               First Name *
             </label>
@@ -206,14 +206,14 @@ export default function Landing() {
               onChange={(e) =>
                 setFormData({ ...formData, firstName: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3.5 py-2.5 field rounded-control"
             />
           </div>
 
           <div>
             <label
               htmlFor="lastName"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-ink-muted mb-1.5"
             >
               Last Name *
             </label>
@@ -225,14 +225,14 @@ export default function Landing() {
               onChange={(e) =>
                 setFormData({ ...formData, lastName: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3.5 py-2.5 field rounded-control"
             />
           </div>
 
           <div>
             <label
               htmlFor="userName"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-ink-muted mb-1.5"
             >
               Username *
             </label>
@@ -244,20 +244,20 @@ export default function Landing() {
               onChange={(e) =>
                 setFormData({ ...formData, userName: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3.5 py-2.5 field rounded-control"
             />
           </div>
 
           <div>
             <label
               htmlFor="photoUrl"
-              className="flex justify-between items-center text-sm font-medium text-gray-700 mb-1"
+              className="flex justify-between items-center text-sm font-medium text-ink-muted mb-1.5"
             >
               Photo URL (optional)
               {formData.photoUrl && (
                 <img
                   alt=""
-                  className="w-8 h-8 rounded-full"
+                  className="w-8 h-8 rounded-full object-cover ring-1 ring-line"
                   src={formData.photoUrl}
                 />
               )}
@@ -269,14 +269,14 @@ export default function Landing() {
               onChange={(e) =>
                 setFormData({ ...formData, photoUrl: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3.5 py-2.5 field rounded-control"
             />
           </div>
 
           <div>
             <label
               htmlFor="inviteCode"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-ink-muted mb-1.5"
             >
               Invite code *
             </label>
@@ -289,14 +289,14 @@ export default function Landing() {
               onChange={(e) =>
                 setFormData({ ...formData, inviteCode: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full px-3.5 py-2.5 field rounded-control"
             />
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full bg-primary text-white px-6 py-3.5 rounded-control shadow-soft hover:bg-primary-dark hover:shadow-float active:scale-[0.99] transition-all font-semibold disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
           >
             {submitting ? 'Creating Account...' : 'Create Account'}
           </button>

@@ -90,11 +90,11 @@ export function CreateRound({
 
   if (!isOpen) {
     return (
-      <Card className="p-6 text-center border-2 border-dashed border-primary-light bg-primary-lightest">
-        <p className="text-gray-700 mb-3">{paragraphText}</p>
+      <Card className="p-8 text-center border-2 border-dashed border-primary-light bg-primary-lightest/60 ring-0 shadow-none transition-colors hover:bg-primary-lightest">
+        <p className="text-ink-muted mb-3">{paragraphText}</p>
         <HapticButton
           onClick={() => setIsOpen(true)}
-          className="bg-primary-dark hover:bg-primary-darker text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+          className="bg-primary-dark hover:bg-primary-darker text-white font-semibold py-2.5 px-6 rounded-control shadow-soft hover:shadow-float transition-all"
         >
           {buttonText}
         </HapticButton>
@@ -103,7 +103,7 @@ export function CreateRound({
   }
 
   return (
-    <Card className="p-6 border-2 border-primary-light bg-primary-lightest">
+    <Card className="p-6 ring-1 ring-primary/20 bg-primary-lightest/60">
       <h3 className="text-xl font-bold mb-4 text-primary-darkest">
         {buttonText}
       </h3>
@@ -111,7 +111,7 @@ export function CreateRound({
         <div>
           <label
             htmlFor="title"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-ink-muted mb-1"
           >
             Round Title
           </label>
@@ -123,7 +123,7 @@ export function CreateRound({
             required
             maxLength={100}
             placeholder="e.g., 90s Hip Hop, Summer Vibes, etc."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-3 py-2 field rounded-control"
             disabled={isSubmitting}
           />
         </div>
@@ -131,7 +131,7 @@ export function CreateRound({
         <div>
           <label
             htmlFor="description"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-ink-muted mb-1"
           >
             Description
           </label>
@@ -142,10 +142,10 @@ export function CreateRound({
             required
             maxLength={MAX_DESCRIPTION_LENGTH}
             placeholder="Describe the theme or criteria for this round..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none field-sizing-content"
+            className="w-full px-3 py-2 field rounded-control resize-none field-sizing-content"
             disabled={isSubmitting}
           />
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-ink-subtle mt-1">
             {description.length}/{MAX_DESCRIPTION_LENGTH} characters
           </p>
         </div>
@@ -160,7 +160,7 @@ export function CreateRound({
           <HapticButton
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 bg-primary-dark hover:bg-primary-darker text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="flex-1 bg-primary-dark hover:bg-primary-darker text-white font-semibold py-2.5 px-4 rounded-control shadow-soft hover:shadow-float transition-all disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Creating...' : 'Create Round'}
           </HapticButton>
@@ -173,7 +173,7 @@ export function CreateRound({
               setError(null);
             }}
             disabled={isSubmitting}
-            className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors disabled:bg-gray-200 disabled:cursor-not-allowed"
+            className="flex-1 bg-white/70 ring-1 ring-ink/15 hover:bg-white hover:ring-ink/25 text-ink font-semibold py-2.5 px-4 rounded-control transition-all disabled:cursor-not-allowed"
           >
             Cancel
           </HapticButton>

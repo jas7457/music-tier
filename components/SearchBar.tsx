@@ -29,7 +29,7 @@ function highlight(text: string, query: string): ReactNode {
   while (idx !== -1) {
     if (idx > last) parts.push(text.slice(last, idx));
     parts.push(
-      <mark key={idx} className="bg-yellow-200 text-inherit rounded-sm px-0">
+      <mark key={idx} className="bg-amber-200/70 text-inherit rounded-sm px-0">
         {text.slice(idx, idx + query.length)}
       </mark>,
     );
@@ -163,7 +163,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
     <div ref={containerRef} className="relative mb-6">
       <div className="relative">
         <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-subtle pointer-events-none"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -185,7 +185,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
           }}
           onFocus={() => setIsOpen(true)}
           placeholder="Search artists, songs, or rounds…"
-          className="w-full px-4 py-3 pl-10 pr-9 rounded-xl border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-gray-800 placeholder-gray-400"
+          className="w-full px-4 py-3.5 pl-10 pr-9 rounded-card field text-ink"
         />
         {query && (
           <button
@@ -195,7 +195,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
               setIsOpen(false);
               inputRef.current?.focus();
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-subtle hover:bg-white/50 hover:text-ink transition-colors"
             aria-label="Clear search"
           >
             <svg
@@ -216,17 +216,17 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
       </div>
 
       {showDropdown && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[70vh] overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 glass-strong rounded-card z-50 max-h-[70vh] overflow-y-auto animate-menu-in">
           {!hasResults ? (
-            <div className="p-5 text-gray-400 text-center text-sm">
+            <div className="p-5 text-ink-subtle text-center text-sm">
               No results for &ldquo;{query}&rdquo;
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-white/40">
               {/* Artist Section */}
               {results!.artistResults.length > 0 && (
                 <section className="p-4">
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                  <h3 className="text-[11px] font-semibold text-ink-subtle uppercase tracking-widest mb-2">
                     Artist
                   </h3>
                   <div className="space-y-1">
@@ -236,7 +236,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                           key={`artist-${matchedArtist}-${round._id}`}
                           href={`/leagues/${league._id}/rounds/${round._id}`}
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                          className="flex items-center gap-3 p-2 rounded-control hover:bg-white/50 transition-colors"
                         >
                           <AlbumArt
                             trackInfo={trackInfo}
@@ -244,10 +244,10 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                             size={40}
                           />
                           <div className="min-w-0">
-                            <div className="font-medium text-gray-900 truncate">
+                            <div className="font-medium text-ink truncate">
                               {highlight(matchedArtist, query)}
                             </div>
-                            <div className="text-sm text-gray-500 truncate">
+                            <div className="text-sm text-ink-muted truncate">
                               {trackInfo.title}
                             </div>
                           </div>
@@ -261,7 +261,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
               {/* Song Section */}
               {results!.songResults.length > 0 && (
                 <section className="p-4">
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                  <h3 className="text-[11px] font-semibold text-ink-subtle uppercase tracking-widest mb-2">
                     Song
                   </h3>
                   <div className="space-y-1">
@@ -271,7 +271,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                           key={`song-${trackInfo.trackId}-${round._id}`}
                           href={`/leagues/${league._id}/rounds/${round._id}`}
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                          className="flex items-center gap-3 p-2 rounded-control hover:bg-white/50 transition-colors"
                         >
                           <AlbumArt
                             trackInfo={trackInfo}
@@ -279,10 +279,10 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                             size={40}
                           />
                           <div className="min-w-0">
-                            <div className="font-medium text-gray-900 truncate">
+                            <div className="font-medium text-ink truncate">
                               {highlight(trackInfo.title, query)}
                             </div>
-                            <div className="text-sm text-gray-500 truncate">
+                            <div className="text-sm text-ink-muted truncate">
                               {trackInfo.artists.join(', ')}
                             </div>
                           </div>
@@ -296,7 +296,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
               {/* Round Section */}
               {results!.roundResults.length > 0 && (
                 <section className="p-4">
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                  <h3 className="text-[11px] font-semibold text-ink-subtle uppercase tracking-widest mb-2">
                     Round
                   </h3>
                   <div className="space-y-1">
@@ -306,20 +306,20 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                           key={`round-${round._id}`}
                           href={`/leagues/${league._id}/rounds/${round._id}`}
                           onClick={() => setIsOpen(false)}
-                          className="block p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                          className="block p-2 rounded-control hover:bg-white/50 transition-colors"
                         >
-                          <div className="font-medium text-gray-900">
+                          <div className="font-medium text-ink">
                             {highlight(round.title, query)}
                           </div>
                           {matchInDescription && (
-                            <div className="text-sm text-gray-500 mt-0.5">
+                            <div className="text-sm text-ink-muted mt-0.5">
                               {highlight(
                                 getDescriptionExcerpt(round.description, query),
                                 query,
                               )}
                             </div>
                           )}
-                          <div className="text-xs text-gray-400 mt-0.5">
+                          <div className="text-xs text-ink-subtle mt-0.5">
                             {league.title}
                           </div>
                         </Link>

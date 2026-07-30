@@ -65,9 +65,12 @@ export default function Home({
   const leagueMarkup = (() => {
     if (leagues.length === 0) {
       return (
-        <Card className="p-8 text-center">
+        <Card className="p-10 text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary-lightest text-2xl">
+            🎧
+          </div>
           <h2 className="text-xl font-semibold mb-2">No Leagues Yet</h2>
-          <p className="text-gray-600">
+          <p className="text-ink-muted max-w-sm mx-auto">
             You&apos;re not part of any leagues yet. Create or join one to get
             started!
           </p>
@@ -109,8 +112,8 @@ export default function Home({
 
       return (
         <div>
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">{title}</h2>
-          <div className="space-y-4">
+          <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">{title}</h2>
+          <div className="grid grid-cols-1 gap-3 md:gap-4">
             {leagues.map((league) => {
               const isExpanded = expandedLeagues.has(league._id);
 
@@ -122,19 +125,19 @@ export default function Home({
                 >
                   <button
                     onClick={() => toggleLeague(league._id)}
-                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    className="w-full p-4 md:p-5 flex items-center justify-between rounded-card hover:bg-white/40 transition-colors"
                   >
                     <div className="text-left">
                       <span className="sm:text-xl font-bold">
                         {league.title}{' '}
                       </span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-ink-subtle">
                         ({league.users.length} members)
                       </span>
                     </div>
                     <svg
                       className={twMerge(
-                        'w-6 h-6 text-gray-400 transition-transform',
+                        'w-5 h-5 text-ink-subtle transition-transform duration-200',
                         isExpanded ? 'rotate-180' : '',
                       )}
                       fill="none"
@@ -166,7 +169,7 @@ export default function Home({
         {/* Current League */}
         {leagues.length > 0 && (
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">
+            <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
               Current League
             </h2>
             <Card variant="elevated">
@@ -199,7 +202,7 @@ export default function Home({
   })();
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <SearchBar leagues={leagues} />
       {leagueMarkup}
     </div>

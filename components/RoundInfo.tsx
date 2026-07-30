@@ -229,7 +229,7 @@ export function RoundInfo({
       return (
         <textarea
           value={round.description}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none field-sizing-content"
+          className="w-full px-3 py-2 field rounded-control resize-none field-sizing-content"
           maxLength={MAX_DESCRIPTION_LENGTH}
           onChange={(e) => onDescriptionUpdate(e.target.value)}
         />
@@ -241,7 +241,7 @@ export function RoundInfo({
       : round.description;
 
     return (
-      <p className="text-gray-600 text-sm">
+      <p className="text-ink-muted text-sm leading-relaxed">
         <MultiLine>{roundDescription}</MultiLine>
       </p>
     );
@@ -255,13 +255,13 @@ export function RoundInfo({
             {onTitleUpdate ? (
               <input
                 value={round.title}
-                className="font-semibold text-lg w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="font-semibold text-lg w-full px-3 py-2 field rounded-control"
                 onChange={(e) => onTitleUpdate(e.target.value)}
               />
             ) : (
               <MaybeLink
                 href={`/leagues/${league._id}/rounds/${round._id}`}
-                className="font-semibold text-lg inline"
+                className="font-semibold text-lg tracking-tight inline"
                 forceNormalText={!round._id}
               >
                 {getRoundTitle(round)}
@@ -288,7 +288,7 @@ export function RoundInfo({
 
       <div
         className={twMerge(
-          'flex flex-wrap gap-x-2 text-xs text-gray-500',
+          'flex flex-wrap gap-x-2 text-xs text-ink-subtle',
           dateTimeClassName,
         )}
       >

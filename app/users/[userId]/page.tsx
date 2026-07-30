@@ -34,10 +34,10 @@ export default async function UserProfilePage(props: PageProps) {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <Card className="p-8 text-center">
           <h2 className="text-xl font-semibold mb-2">User not found</h2>
-          <p className="text-gray-600">
+          <p className="text-ink-muted">
             This user doesn&apos;t exist or you don&apos;t have access to view
             their profile.
           </p>
@@ -96,7 +96,7 @@ export default async function UserProfilePage(props: PageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <div className="max-w-4xl mx-auto">
         <Breadcrumb
           items={[
@@ -104,7 +104,7 @@ export default async function UserProfilePage(props: PageProps) {
             { label: `${profileData.user.userName}'s Profile` },
           ]}
         />
-        <Card className="p-2 md:p-6">
+        <Card className="p-4 md:p-6">
           <UserProfileClient profileData={profileData} />
         </Card>
       </div>

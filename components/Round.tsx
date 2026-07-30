@@ -138,7 +138,7 @@ export function Round({
               {round.previousRound && (
                 <Link
                   href={`/leagues/${league._id}/rounds/${round.previousRound._id}`}
-                  className="text-primary-dark hover:underline"
+                  className="inline-flex items-center gap-1 font-medium text-primary-dark hover:text-primary-darkest hover:underline"
                 >
                   ← Round {round.previousRound.roundIndex + 1}
                 </Link>
@@ -148,7 +148,7 @@ export function Round({
               {round.nextRound && (
                 <Link
                   href={`/leagues/${league._id}/rounds/${round.nextRound._id}`}
-                  className="text-primary-dark hover:underline"
+                  className="inline-flex items-center gap-1 font-medium text-primary-dark hover:text-primary-darkest hover:underline"
                 >
                   Round {round.nextRound.roundIndex + 1} →
                 </Link>
@@ -200,7 +200,7 @@ export function Round({
         <div>
           <HapticButton
             disabled={isUpdating}
-            className="w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors text-sm font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full bg-primary text-white px-4 py-2.5 rounded-control shadow-soft hover:bg-primary-dark hover:shadow-float transition-all text-sm font-semibold disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
             onClick={async () => {
               try {
                 setIsUpdating(true);

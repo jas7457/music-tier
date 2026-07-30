@@ -21,7 +21,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
 
     return (
       <div>
-        <h3 className="text-lg font-semibold mb-3 text-primary-dark">
+        <h3 className="text-xs font-semibold mb-3 text-primary-dark uppercase tracking-widest">
           Current Round
         </h3>
         <Round
@@ -92,8 +92,8 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
 
       return (
         <div key={title}>
-          <h3 className="text-lg font-semibold mb-3 text-gray-700">{title}</h3>
-          <div className="space-y-3">
+          <h3 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">{title}</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {rounds.map((round, index) => {
               const hasAllSubmissions =
                 round.submissions.length === league.users.length;
@@ -102,7 +102,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
                 <Card
                   key={round._id || index}
                   variant="outlined"
-                  className="border-gray-200 bg-gray-50 p-2 md:p-4 flex flex-col gap-4"
+                  className="bento-tile bento-tile-interactive p-3 md:p-4 flex flex-col gap-4"
                 >
                   {roundInfo(round)}
 
@@ -131,7 +131,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
         league.rounds.upcoming.length === 0 &&
         league.rounds.kickoff.length === 0 &&
         league.rounds.bonus.length === 0 && (
-          <p className="text-gray-500 text-center py-4">
+          <p className="text-ink-subtle text-center py-8">
             No rounds submitted in this league.
           </p>
         )}

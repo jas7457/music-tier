@@ -15,10 +15,10 @@ export function ToggleButton({
       type="button"
       onClick={onClick}
       className={twMerge(
-        'px-4 py-2 rounded-lg font-medium',
+        'px-4 py-1.5 rounded-[0.5rem] text-sm font-semibold tracking-tight',
         selected
-          ? 'bg-primary-dark text-white'
-          : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
+          ? 'bg-white/90 text-ink shadow-soft'
+          : 'bg-transparent text-ink-muted hover:bg-white/40 hover:text-ink',
       )}
     >
       {children}

@@ -73,7 +73,7 @@ export default async function DataPage() {
         </tbody>
       </table>
       {rows.length === 0 && (
-        <p className="text-gray-500 mt-4">No completed rounds found.</p>
+        <p className="text-ink-subtle mt-4">No completed rounds found.</p>
       )}
     </div>
   );

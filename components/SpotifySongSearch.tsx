@@ -202,12 +202,12 @@ export function SpotifySongSearch({
           }
         }}
         placeholder={placeholder}
-        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-100 disabled:cursor-not-allowed"
+        className="w-full px-3 py-2 text-sm field rounded-control disabled:cursor-not-allowed"
       />
 
       {/* Search Results Dropdown */}
       {showSearchResults && searchResults.length > 0 && !loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-80 overflow-y-auto">
+        <div className="absolute z-10 w-full mt-1 glass-strong rounded-card max-h-80 overflow-y-auto">
           {searchResults.map((result) => (
             <button
               key={result.trackId}
@@ -227,10 +227,10 @@ export function SpotifySongSearch({
                   <p className="font-semibold text-sm truncate">
                     {result.title}
                   </p>
-                  <p className="text-xs text-gray-600 truncate">
+                  <p className="text-xs text-ink-muted truncate">
                     {result.artists.join(', ')}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">
+                  <p className="text-xs text-ink-subtle truncate">
                     {result.albumName}
                   </p>
                 </div>
@@ -242,15 +242,15 @@ export function SpotifySongSearch({
 
       {/* Track Loading */}
       {loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3">
-          <p className="text-xs text-gray-500">Loading track preview...</p>
+        <div className="absolute z-10 w-full mt-1 glass-strong rounded-card p-3">
+          <p className="text-xs text-ink-subtle">Loading track preview...</p>
         </div>
       )}
 
       {/* Search Loading */}
       {isSearching && !loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3">
-          <p className="text-xs text-gray-500">Searching...</p>
+        <div className="absolute z-10 w-full mt-1 glass-strong rounded-card p-3">
+          <p className="text-xs text-ink-subtle">Searching...</p>
         </div>
       )}
     </>

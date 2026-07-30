@@ -26,7 +26,7 @@ export function RoundPageClient({
   useRealTimeUpdates();
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <div className="max-w-4xl mx-auto">
         <Breadcrumb
           items={[
@@ -42,7 +42,7 @@ export function RoundPageClient({
             },
           ]}
         />
-        <Card className="p-2 md:p-6">
+        <Card className="p-4 md:p-6">
           <Round
             key={round.stage}
             currentUser={currentUser}

@@ -360,7 +360,7 @@ export function League({
           <div className="absolute top-4 right-4 flex gap-2">
             {leagueImageUrl && (
               <HapticButton
-                className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+                className="p-2 rounded-full bg-black/25 ring-1 ring-white/25 backdrop-blur-md text-white hover:bg-black/40 transition-colors"
                 onClick={() => setHeroState('focal')}
                 aria-label="Set focal point"
               >
@@ -378,7 +378,7 @@ export function League({
               </HapticButton>
             )}
             <HapticButton
-              className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+              className="p-2 rounded-full bg-black/25 ring-1 ring-white/25 backdrop-blur-md text-white hover:bg-black/40 transition-colors"
               onClick={() => setHeroState('add')}
               aria-label="Change image"
             >
@@ -402,7 +402,7 @@ export function League({
       case 'focal': {
         return (
           <HapticButton
-            className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white text-sm font-medium disabled:opacity-50"
+            className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-black/40 ring-1 ring-white/25 backdrop-blur-md hover:bg-black/60 transition-colors text-white text-sm font-medium disabled:opacity-50"
             onClick={() => setHeroState('edit')}
             disabled={savingFocal}
             aria-label="Cancel focal point"
@@ -424,7 +424,7 @@ export function League({
         >
           <button
             onClick={() => setIsImageFullScreen(false)}
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors text-white"
+            className="absolute top-4 right-4 p-2 rounded-full bg-black/40 ring-1 ring-white/25 backdrop-blur-md hover:bg-black/60 transition-colors text-white"
             aria-label="Close"
           >
             <svg
@@ -459,7 +459,7 @@ export function League({
       )}
 
       {/* Hero Banner with Cover Photo */}
-      <div className="relative h-64 md:h-80 overflow-hidden rounded-lg">
+      <div className="relative h-64 md:h-80 overflow-hidden rounded-card bg-surface-sunken ring-1 ring-line shadow-soft">
         {/* Background Image - cover normally, contained + centered in focal-pick mode */}
         {leagueImageUrl &&
           (heroStage === 'focal' ? (
@@ -499,7 +499,7 @@ export function League({
 
         {/* Playlist Party Playback Overlay */}
         {heroStage !== 'focal' && league.playback && (
-          <div className="absolute inset-0 bg-linear-to-br from-purple-500/60 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="absolute inset-0 bg-linear-to-br from-primary/50 to-black/40 backdrop-blur-sm flex justify-center items-center z-50">
             <HapticButton
               onClick={() => {
                 if (league.playback?.topSong) {
@@ -510,7 +510,7 @@ export function League({
                 }
                 setPlaybackOpen(true);
               }}
-              className="p-4 rounded-2xl bg-black/40 border-2 border-white text-white font-bold text-xl shadow-2xl transition-all hover:scale-110 hover:bg-black/60 flex items-center"
+              className="px-6 py-3.5 rounded-full bg-white/10 ring-1 ring-white/40 backdrop-blur-md text-white font-semibold text-lg tracking-tight shadow-pop transition-all hover:scale-105 hover:bg-white/20 flex items-center gap-2"
             >
               🎵 Playlist Party Playback 🎵
             </HapticButton>
@@ -519,7 +519,7 @@ export function League({
 
         {/* Gradient Overlay for readability */}
         {heroStage !== 'focal' && (
-          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-black/10 pointer-events-none" />
         )}
 
         {/* Hero buttons (upload / pencil / focal / cancel) */}
@@ -530,7 +530,7 @@ export function League({
           <div className="absolute top-4 left-4">
             <HapticButton
               onClick={() => setIsImageFullScreen(true)}
-              className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+              className="p-2 rounded-full bg-black/25 ring-1 ring-white/25 backdrop-blur-md text-white hover:bg-black/40 transition-colors"
               aria-label="View full size"
             >
               <svg
@@ -552,7 +552,7 @@ export function League({
 
         {/* Focal-pick instruction */}
         {heroStage === 'focal' && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/70 text-white text-xs rounded-full backdrop-blur-sm pointer-events-none">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/60 ring-1 ring-white/20 text-white text-xs font-medium rounded-full backdrop-blur-md pointer-events-none">
             {savingFocal ? 'Saving…' : 'Tap the image to set the focal point'}
           </div>
         )}
@@ -563,7 +563,7 @@ export function League({
             <div className="flex flex-wrap items-center gap-3">
               <MaybeLink
                 href={`/leagues/${league._id}`}
-                className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg"
+                className="text-3xl md:text-4xl font-bold tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]"
               >
                 {league.title}
               </MaybeLink>
@@ -576,7 +576,7 @@ export function League({
       {/* League Info Section */}
       <div className="flex flex-col gap-4">
         {/* Avatars and Description */}
-        <div className="flex flex-wrap items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1.5">
           {league.users.map((user) => (
             <Avatar
               key={user._id}
@@ -587,36 +587,70 @@ export function League({
           ))}
         </div>
 
-        <p className="text-gray-600 mb-3">
+        <p className="text-ink-muted leading-relaxed">
           <MultiLine>{league.description}</MultiLine>
         </p>
 
-        {/* League Details and Toggle */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-gray-300">
-          <div className="flex flex-wrap gap-x-2 text-sm text-gray-500">
+        {/* League stats — bento tiles */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
+          <div className="bento-tile glass p-3 md:p-4">
+            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
+              {league.numberOfRounds}
+            </div>
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
+              Rounds
+            </div>
+          </div>
+
+          <div className="bento-tile glass p-3 md:p-4">
+            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
+              {league.users.length}
+            </div>
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
+              Members
+            </div>
+          </div>
+
+          <div className="bento-tile glass p-3 md:p-4">
+            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
+              {league.daysForSubmission}
+              <span className="text-base font-semibold text-ink-subtle ml-1">
+                d
+              </span>
+            </div>
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
+              To submit
+            </div>
+          </div>
+
+          <div className="bento-tile glass p-3 md:p-4">
+            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
+              {league.daysForVoting}
+              <span className="text-base font-semibold text-ink-subtle ml-1">
+                d
+              </span>
+            </div>
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
+              To vote
+            </div>
+          </div>
+        </div>
+
+        {/* Timeline note and Rounds/Standings toggle */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="text-sm text-ink-subtle">
             {league.status === 'completed' && finalVoteTimestamp > 0 && (
-              <>
-                <DateTime prefix="League ended:">{finalVoteTimestamp}</DateTime>
-                <span>•</span>
-              </>
+              <DateTime prefix="League ended:">{finalVoteTimestamp}</DateTime>
             )}
             {league.status === 'upcoming' && (
-              <>
-                <DateTime prefix="League starting:">
-                  {league.leagueStartDate}
-                </DateTime>
-                <span>•</span>
-              </>
+              <DateTime prefix="League starting:">
+                {league.leagueStartDate}
+              </DateTime>
             )}
-            <span>{league.numberOfRounds} rounds</span>
-            <span>•</span>
-            <span>{league.daysForSubmission} days for submissions</span>
-            <span>•</span>
-            <span>{league.daysForVoting} days for voting</span>
           </div>
 
           {/* Toggle between Rounds and Standings */}
-          <div className="flex gap-2">
+          <div className="inline-flex gap-1 p-1 rounded-control glass">
             <ToggleButton
               onClick={() => setShowStandings(false)}
               selected={!showStandings}

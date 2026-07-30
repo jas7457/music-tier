@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/lib/AuthContext';
 import { SpotifyPlayerProvider } from '@/lib/SpotifyPlayerContext';
@@ -12,6 +13,12 @@ import { DataProvider } from '@/lib/DataContext';
 import { ToastProvider } from '@/lib/ToastContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import { APP_NAME } from '@/lib/utils/constants';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: APP_NAME,
@@ -53,7 +60,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <head>
         <script src="https://sdk.scdn.co/spotify-player.js" async></script>
         <link rel="icon" href="/icon-192.png" />

@@ -31,11 +31,11 @@ export function Toast({
   }, [id, timeout, onDismiss]);
 
   const variantStyles = {
-    default: 'bg-gray-800 text-white border-gray-700',
-    error: 'bg-red-600 text-white border-red-700',
-    warning: 'bg-yellow-500 text-gray-900 border-yellow-600',
-    info: 'bg-blue-600 text-white border-blue-700',
-    success: 'bg-green-600 text-white border-green-700',
+    default: 'bg-gray-900/80 text-white ring-white/15',
+    error: 'bg-red-600/80 text-white ring-white/20',
+    warning: 'bg-amber-500/80 text-amber-950 ring-white/25',
+    info: 'bg-sky-600/80 text-white ring-white/20',
+    success: 'bg-emerald-600/80 text-white ring-white/20',
   };
 
   const iconStyles = {
@@ -81,7 +81,7 @@ export function Toast({
   return (
     <div
       className={twMerge(
-        'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border min-w-[300px] max-w-full animate-in slide-in-from-right duration-300',
+        'pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-card shadow-pop ring-1 backdrop-blur-xl saturate-150 min-w-[300px] max-w-full animate-toast-in',
         variantStyles[variant],
       )}
     >
@@ -90,13 +90,13 @@ export function Toast({
       )}
 
       <div className="flex-1">
-        {title && <div className="font-bold text-lg">{title}</div>}
-        <div className="text-sm font-medium">{message}</div>
+        {title && <div className="font-semibold text-base">{title}</div>}
+        <div className="text-sm font-medium opacity-90">{message}</div>
       </div>
 
       <button
         onClick={() => onDismiss(id)}
-        className="shrink-0 hover:opacity-70 transition-opacity"
+        className="shrink-0 -mr-1 p-1 rounded-md opacity-70 hover:opacity-100 hover:bg-white/10 transition"
         aria-label="Dismiss"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

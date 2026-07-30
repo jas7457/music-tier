@@ -70,7 +70,7 @@ export function UserGuess({
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
-            className="text-gray-400"
+            className="text-ink-subtle"
           >
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
             <circle cx="12" cy="7" r="4" />
@@ -101,8 +101,8 @@ export function UserGuess({
           onClick={() => setIsOpen(!isOpen)}
           disabled={disabled}
           className={twMerge(
-            'disabled:opacity-50 disabled:cursor-not-allowed group relative w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center transition-colors border-2 border-primary',
-            selectedUser ? '' : 'bg-gray-100',
+            'disabled:opacity-50 disabled:cursor-not-allowed group relative w-10 h-10 rounded-full bg-white/60 flex items-center justify-center transition-colors ring-2 ring-primary',
+            selectedUser ? '' : 'bg-white/50',
           )}
         >
           {innerMarkup}
@@ -122,14 +122,14 @@ export function UserGuess({
 
       {/* Dropdown */}
       {isOpen && !disabled && (
-        <div className="absolute right-0 mt-2 w-52 pt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-64 overflow-y-auto">
+        <div className="absolute right-0 mt-2 w-52 pt-2 glass-strong rounded-card z-10 max-h-64 overflow-y-auto">
           <div className="text-xs italic px-4">Who submitted this song?</div>
           {/* Clear selection option */}
           {selectedUser && (
             <>
               <button
                 onClick={() => handleSelectUser(undefined)}
-                className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors text-sm text-gray-600 border-b border-gray-200"
+                className="w-full px-4 py-2 text-left hover:bg-white/50 transition-colors text-sm text-ink-muted border-b border-white/50"
               >
                 Clear guess
               </button>
@@ -142,7 +142,7 @@ export function UserGuess({
               key={user._id}
               onClick={() => handleSelectUser(user)}
               className={twMerge(
-                'w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors flex items-center gap-2',
+                'w-full px-4 py-2 text-left hover:bg-white/50 transition-colors flex items-center gap-2',
                 selectedUser?._id === user._id ? 'bg-blue-50' : '',
               )}
             >

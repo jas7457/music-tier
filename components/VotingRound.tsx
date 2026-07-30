@@ -273,14 +273,14 @@ export default function VotingRound({
         className={twMerge(
           'py-2 md:py-4 flex flex-col gap-3',
           getStatusColor(round.stage),
-          'text-black',
+          'text-ink',
         )}
-        variant="outlined"
+        variant="plain"
       >
         <div className="px-2 md:px-4 flex items-center justify-between">
           <div>
-            <h6 className="font-semibold text-sm text-gray-700">{title}</h6>
-            <p className="text-xs text-gray-600">{subtitle}</p>
+            <h6 className="font-semibold text-sm text-ink-muted">{title}</h6>
+            <p className="text-xs text-ink-muted">{subtitle}</p>
           </div>
 
           {round.stage === 'voting' && (
@@ -288,7 +288,7 @@ export default function VotingRound({
               <div className="text-2xl font-bold text-yellow-600">
                 {remainingVotes}
               </div>
-              <div className="text-xs text-gray-600">votes left</div>
+              <div className="text-xs text-ink-muted">votes left</div>
             </div>
           )}
         </div>
@@ -302,7 +302,7 @@ export default function VotingRound({
           return (
             <div
               key={submission._id}
-              className="px-2 md:px-4 space-y-2 border-b pb-1 border-gray-300"
+              className="px-2 md:px-4 space-y-2 border-b pb-1 border-line"
             >
               <div className="flex items-center gap-4">
                 {/* Album Art */}
@@ -319,14 +319,14 @@ export default function VotingRound({
                   <h5 className="font-semibold text-base truncate">
                     {submission.trackInfo.title}
                   </h5>
-                  <p className="text-sm text-gray-600 truncate">
+                  <p className="text-sm text-ink-muted truncate">
                     {submission.trackInfo.artists.join(', ')}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">
+                  <p className="text-xs text-ink-subtle truncate">
                     {submission.trackInfo.albumName}
                   </p>
                   {submission.note && (
-                    <p className="text-xs text-gray-600 mt-1 italic">
+                    <p className="text-xs text-ink-muted mt-1 italic">
                       {submission.note}
                     </p>
                   )}
@@ -334,7 +334,7 @@ export default function VotingRound({
                   {round.stage === 'completed' && submission.userObject && (
                     <div className="flex items-center gap-1">
                       <Avatar user={submission.userObject} size={6} />
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-ink-muted">
                         Submitted by {`${submission.userObject.userName}`}
                       </p>
                     </div>
@@ -357,7 +357,7 @@ export default function VotingRound({
                         <HapticButton
                           onClick={() => handleVoteChange(submission._id, 1)}
                           disabled={!canVoteUp || saving}
-                          className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          className="w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center transition-colors disabled:bg-line-strong disabled:cursor-not-allowed"
                           title={canVoteUp ? 'Vote up' : 'No votes remaining'}
                         >
                           <svg
@@ -373,7 +373,7 @@ export default function VotingRound({
                         </HapticButton>
                       )}
 
-                      <div className="text-lg font-bold text-gray-700">
+                      <div className="text-lg font-bold text-ink-muted">
                         {savedSubmission?.points || 0}
                       </div>
 
@@ -381,7 +381,7 @@ export default function VotingRound({
                         <HapticButton
                           onClick={() => handleVoteChange(submission._id, -1)}
                           disabled={savedSubmission?.points === 0 || saving}
-                          className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors disabled:bg-line-strong disabled:cursor-not-allowed"
                           title="Vote down"
                         >
                           <svg
@@ -435,7 +435,7 @@ export default function VotingRound({
               <div>
                 {round.stage === 'voting' ? (
                   <textarea
-                    className="w-full px-3 py-2 text-xs border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"
+                    className="w-full px-3 py-2 text-xs field rounded-control resize-none"
                     value={votes[submission._id]?.note || ''}
                     onChange={(e) =>
                       handleNoteChange(submission._id, e.target.value)
@@ -448,7 +448,7 @@ export default function VotingRound({
                     rows={2}
                   />
                 ) : votes[submission._id]?.note ? (
-                  <BlockQuote className="text-xs text-gray-500">
+                  <BlockQuote className="text-xs text-ink-subtle">
                     {votes[submission._id].note}
                   </BlockQuote>
                 ) : null}
@@ -467,7 +467,7 @@ export default function VotingRound({
             <HapticButton
               onClick={() => setStage('guessing')}
               disabled={remainingVotes !== 0}
-              className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-control shadow-soft hover:shadow-float transition-colors disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
             >
               Continue to Guesses
             </HapticButton>
@@ -479,7 +479,7 @@ export default function VotingRound({
             <HapticButton
               onClick={handleSave}
               disabled={saving || remainingVotes !== 0}
-              className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-control shadow-soft hover:shadow-float transition-colors disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
             >
               {saving ? 'Submitting...' : 'Submit Votes'}
             </HapticButton>

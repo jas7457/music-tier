@@ -10,7 +10,7 @@ export function BlockQuote({
 }) {
   return (
     <blockquote
-      className={twMerge('border-l-2 border-gray-300 pl-2 italic', className)}
+      className={twMerge('border-l-2 border-line-strong pl-3 italic', className)}
     >
       <MultiLine>{children}</MultiLine>
     </blockquote>

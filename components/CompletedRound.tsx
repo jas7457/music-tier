@@ -81,19 +81,19 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
         if (isFirst) {
           return {
             emoji: '🥇',
-            cardClassName: 'border-2 border-yellow-400 bg-yellow-50',
-            innerClassName: 'border-yellow-400',
+            cardClassName: 'ring-2 ring-amber-400 bg-amber-50/70',
+            innerClassName: 'border-amber-400',
           };
         } else if (isSecond) {
           return {
             emoji: '🥈',
-            cardClassName: 'border-2 border-gray-400 bg-gray-50',
-            innerClassName: 'border-gray-400',
+            cardClassName: 'ring-1 ring-white/60 bg-white/40',
+            innerClassName: 'border-line-strong',
           };
         } else if (isThird) {
           return {
             emoji: '🥉',
-            cardClassName: 'border-2 border-[#cd7f32] bg-[#f9f2ec]',
+            cardClassName: 'ring-2 ring-[#cd7f32] bg-[#faf4ee]',
             innerClassName: 'border-[#cd7f32]',
           };
         } else {
@@ -135,10 +135,10 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                 {submission.trackInfo.title}
               </h5>
               <div>
-                <p className="text-base text-gray-700">
+                <p className="text-base text-ink-muted">
                   {submission.trackInfo.artists.join(', ')}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-ink-muted">
                   {submission.trackInfo.albumName}
                 </p>
               </div>
@@ -149,14 +149,14 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                     size={6}
                     includeLink={false}
                   />
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-ink-muted">
                     Submitted by {submission.userObject.userName}
                   </p>
                 </div>
               )}
 
               {submission.note && (
-                <p className="text-sm text-gray-700 italic">
+                <p className="text-sm text-ink-muted italic">
                   &quot;<MultiLine>{submission.note}</MultiLine>&quot;
                 </p>
               )}
@@ -168,7 +168,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                 <div className="text-4xl font-bold text-yellow-600">
                   {totalPoints} pts
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-ink-muted">
                   {votersWithPoints.length}{' '}
                   {votersWithPoints.length === 1 ? 'voter' : 'voters'}
                 </div>
@@ -215,7 +215,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
 
           {/* Voters List */}
           {voters.length > 0 && (
-            <div className="space-y-3 border-t p-6 border-gray-200 pt-4">
+            <div className="space-y-3 border-t p-6 border-line pt-4">
               {voters
                 .filter((voter) => voter.points > 0 || voter.note)
                 .map((voter) => (
@@ -228,18 +228,18 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
 
                     {/* User Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-gray-800">
+                      <div className="font-semibold text-ink">
                         {voter.user.userName}
                       </div>
                       {voter.note && (
-                        <div className="text-sm text-gray-600 mt-1">
+                        <div className="text-sm text-ink-muted mt-1">
                           <BlockQuote>{voter.note}</BlockQuote>
                         </div>
                       )}
                     </div>
 
                     {/* Points */}
-                    <div className="text-xl font-bold text-gray-700 shrink-0">
+                    <div className="text-xl font-bold text-ink-muted shrink-0">
                       {voter.points}
                     </div>
                   </div>
@@ -249,8 +249,8 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
 
           {/* Guesses List */}
           {submission.guesses && submission.guesses.length > 0 && (
-            <div className="border-t border-gray-200 p-6">
-              <h6 className="font-semibold text-gray-700 mb-3">Guesses</h6>
+            <div className="border-t border-line p-6">
+              <h6 className="font-semibold text-ink-muted mb-3">Guesses</h6>
               <div className="space-y-2">
                 {(() => {
                   const correctGuesses = submission.guesses
@@ -290,7 +290,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                       {correctGuesses.map((guess, idx) => (
                         <div
                           key={`correct-${idx}`}
-                          className="flex items-center gap-2 text-sm text-green-900 bg-green-50 border border-green-200 rounded-md p-2"
+                          className="flex items-center gap-2 text-sm text-green-900 bg-emerald-50 ring-1 ring-emerald-600/20 rounded-control p-2"
                         >
                           <Avatar user={guess.guesser} size={6} />
                           <span>{guess.guesser.userName} guessed</span>
@@ -302,7 +302,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                       {incorrectGuesses.map((guess, idx) => (
                         <div
                           key={`incorrect-${idx}`}
-                          className="flex items-center gap-2 text-sm text-red-900 bg-red-50 border border-red-200 rounded-md p-2"
+                          className="flex items-center gap-2 text-sm text-red-900 bg-red-50 ring-1 ring-red-600/20 rounded-control p-2"
                         >
                           <Avatar user={guess.guesser} size={6} />
                           <span>{guess.guesser.userName} guessed</span>

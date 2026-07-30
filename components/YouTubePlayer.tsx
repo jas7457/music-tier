@@ -12,7 +12,7 @@ export function YouTubePlayer({
   }
 
   return (
-    <div className={twMerge('aspect-video', className)}>
+    <div className={twMerge('aspect-video overflow-hidden rounded-media', className)}>
       <iframe
         width="100%"
         height="100%"

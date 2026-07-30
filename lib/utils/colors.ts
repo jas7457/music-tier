@@ -10,30 +10,30 @@ export type StatusColor =
 export function getStatusColor(status: StatusColor): string {
   switch (status) {
     case 'completed': {
-      return 'bg-green-50 text-green-800 border border-green-300';
+      return 'bg-emerald-50/80 text-emerald-800 ring-emerald-600/25';
     }
     case 'active': {
-      return 'bg-blue-50 text-blue-800 border border-blue-300';
+      return 'bg-blue-50/80 text-blue-800 ring-blue-600/25';
     }
     case 'upcoming': {
-      return 'bg-yellow-50 text-yellow-800 border border-yellow-300';
+      return 'bg-amber-50/80 text-amber-800 ring-amber-600/30';
     }
     case 'unknown':
     case 'pending': {
-      return 'bg-gray-50 text-gray-800 border border-gray-300';
+      return 'bg-white/60 text-ink-muted ring-black/10';
     }
     case 'submission': {
-      return 'bg-primary-lightest text-primary-darkest border border-primary-light';
+      return 'bg-primary-lightest/80 text-primary-darkest ring-primary/30';
     }
     case 'voting':
     case 'currentUserVotingCompleted': {
-      return 'bg-orange-50 text-orange-800 border border-orange-300';
+      return 'bg-orange-50/80 text-orange-800 ring-orange-600/30';
     }
     case 'error': {
-      return 'bg-red-50 text-red-800 border border-red-300';
+      return 'bg-red-50/80 text-red-800 ring-red-600/25';
     }
     case 'info': {
-      return 'bg-blue-50 text-blue-800 border border-blue-300';
+      return 'bg-sky-50/80 text-sky-800 ring-sky-600/25';
     }
     default: {
       assertNever(status);

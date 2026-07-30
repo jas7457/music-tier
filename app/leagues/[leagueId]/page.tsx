@@ -23,10 +23,10 @@ export default async function LeaguePage(props: PageProps) {
 
   if (!league || !user) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <Card className="p-8 text-center">
           <h2 className="text-xl font-semibold mb-2">League not found</h2>
-          <p className="text-gray-600">
+          <p className="text-ink-muted">
             This league doesn&apos;t exist or you don&apos;t have access to it.
           </p>
         </Card>
