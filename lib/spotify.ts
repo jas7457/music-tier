@@ -29,10 +29,32 @@ export interface SpotifyUserProfile {
 
 const CLIENT_ID = process.env.CLIENT_ID || '3b4aa4f5d652435db1d08f41ea973c44';
 const CLIENT_SECRET = process.env.CLIENT_SECRET || '';
-const REDIRECT_URI =
+const FALLBACK_REDIRECT_URI =
   process.env.NODE_ENV === 'development'
     ? 'https://127.0.0.1:3000/callback'
     : 'https://music-tier.vercel.app/callback';
+
+/**
+ * Resolves the Spotify redirect URI. The value sent to /authorize and the value
+ * sent to the token exchange must be byte-identical or Spotify rejects the
+ * exchange, so both sides go through here.
+ *
+ * `origin` is the deployment currently serving the user. Passing it is what
+ * makes preview deployments work — NODE_ENV is 'production' on a Vercel preview
+ * build, so a NODE_ENV-only check sends branch deploys to the production
+ * callback. Note that Spotify matches redirect URIs exactly and supports no
+ * wildcards, so each origin still has to be registered in the dashboard.
+ */
+export function getRedirectUri(origin?: string): string {
+  const configured = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI;
+  if (configured) {
+    return configured;
+  }
+  if (origin) {
+    return new URL('/callback', origin).toString();
+  }
+  return FALLBACK_REDIRECT_URI;
+}
 
 export const generateRandomString = (length: number): string => {
   const possible =
@@ -84,7 +106,7 @@ export const initiateSpotifyAuth = async (): Promise<void> => {
     response_type: 'code',
     client_id: CLIENT_ID,
     scope,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: getRedirectUri(window.location.origin),
   };
 
   authUrl.search = new URLSearchParams(params).toString();
@@ -100,6 +122,7 @@ export interface SpotifyTokenResponse {
 
 export async function callbackAuth(
   code: string,
+  redirectUri: string,
 ): Promise<SpotifyTokenResponse> {
   const response = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
@@ -113,7 +136,7 @@ export async function callbackAuth(
       client_id: CLIENT_ID,
       grant_type: 'authorization_code',
       code,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: redirectUri,
       code_verifier: codeVerifier,
     }),
   });
