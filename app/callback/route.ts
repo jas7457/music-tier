@@ -1,20 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { callbackAuth } from '@/lib/spotify';
+import { callbackAuth, getRedirectUri } from '@/lib/spotify';
 
-const DEV_URL = `https://127.0.0.1:3000`;
+/**
+ * The origin the user actually browsed to. Behind Vercel's proxy the forwarded
+ * headers carry the public host — including the per-branch preview host — while
+ * request.nextUrl can hold an internal one.
+ */
+function getOrigin(request: NextRequest): string {
+  const host =
+    request.headers.get('x-forwarded-host') ?? request.headers.get('host');
+
+  if (!host) {
+    return request.nextUrl.origin;
+  }
+
+  const proto =
+    request.headers.get('x-forwarded-proto') ??
+    request.nextUrl.protocol.replace(':', '');
+
+  return `${proto}://${host}`;
+}
 
 export async function GET(request: NextRequest) {
   const queryParams = request.nextUrl.searchParams;
   const code = queryParams.get('code');
 
-  const urlToUse =
-    process.env.NODE_ENV === 'development' ? DEV_URL : request.url;
+  const urlToUse = getOrigin(request);
 
   if (!code) {
     return NextResponse.redirect(new URL('/', urlToUse));
   }
 
-  const tokenData = await callbackAuth(code);
+  // Must match the redirect_uri sent to /authorize by the browser.
+  const tokenData = await callbackAuth(code, getRedirectUri(urlToUse));
   const response = NextResponse.redirect(new URL('/', urlToUse));
 
   // Store access token (expires in 1 hour typically)
