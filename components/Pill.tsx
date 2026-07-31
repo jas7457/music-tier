@@ -1,6 +1,7 @@
 import { getStatusColor, StatusColor } from '@/lib/utils/colors';
 import { twMerge } from 'tailwind-merge';
 
+/** A status chip drawn as a tiny bevelled badge rather than a rounded tag. */
 export function Pill({
   children,
   status,
@@ -13,7 +14,7 @@ export function Pill({
   return (
     <span
       className={twMerge(
-        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-tight whitespace-nowrap ring-1 ring-inset',
+        'inline-flex items-center px-1.5 py-px text-xs font-bold uppercase tracking-wide whitespace-nowrap w98-raised-thin',
         getStatusColor(status),
         className,
       )}

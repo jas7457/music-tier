@@ -172,7 +172,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
       }
       case 'avgPoints': {
         return (
-          <GenericStatCard className="flex flex-col gap-2" color="gray">
+          <GenericStatCard className="flex flex-col gap-2">
             <div>
               <h3 className="font-semibold">Points Per League</h3>
               <div className="text-xs text-ink-subtle">{infoMap.avgPoints}</div>
@@ -190,7 +190,6 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
                   .map((league) => (
                     <GenericStatCard
                       key={league.league._id}
-                      color="white"
                       className="p-0 overflow-clip"
                     >
                       <MaybeLink
@@ -243,7 +242,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* User Header */}
-      <div className="border-b border-white/50 pb-4">
+      <div className="border-b border-w98-shadow pb-4">
         <div className="flex items-center gap-4 mb-4">
           <div className="relative">
             <Avatar
@@ -260,7 +259,7 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
                     await updateUserPhoto(url);
                     router.refresh();
                   }}
-                  buttonClassName="flex items-center justify-center w-7 h-7 bg-white/80 ring-1 ring-white/90 shadow-soft rounded-full hover:bg-white transition-colors text-xs"
+                  buttonClassName="w98-btn w98-btn-sm !min-w-0 w-6 h-6 !p-0"
                   label="✏️"
                 />
               </div>
@@ -278,7 +277,9 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
 
       {/* Stats Overview */}
       <div>
-        <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">Stats</h2>
+        <h2 className="w98-accent text-sm mb-1.5">
+          Stats
+        </h2>
 
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -367,25 +368,11 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
   );
 }
 
-function GenericStatCard({
-  children,
-  className,
-  color,
-  ...rest
-}: CardProps & { color: 'white' | 'gray' }) {
+/** A raised panel. Every surface in 98 is the same face colour, separated only
+    by its bevel — so there is no light/dark variant left to choose. */
+function GenericStatCard({ children, className, ...rest }: CardProps) {
   return (
-    <Card
-      {...rest}
-      className={twMerge(
-        'p-4 rounded-tile bento-tile transition-all',
-        // These sit on a glass parent, so they need to be *more* opaque than it
-        // to separate — a gray fill just reads as muddy against frosted white.
-        color === 'white'
-          ? 'bg-white/80 ring-1 ring-white/90'
-          : 'bg-white/60 ring-1 ring-white/80',
-        className,
-      )}
-    >
+    <Card {...rest} className={twMerge('p-2 w98-raised', className)}>
       {children}
     </Card>
   );
@@ -403,7 +390,7 @@ function LeaguesCards({
   icon?: string;
 }) {
   return (
-    <GenericStatCard className="flex flex-col gap-2" color="gray">
+    <GenericStatCard className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         {icon && <div className="text-3xl">{icon}</div>}
 
@@ -446,11 +433,7 @@ function LeaguesCards({
             })();
 
             return (
-              <GenericStatCard
-                key={league._id}
-                className="p-0 overflow-clip"
-                color="white"
-              >
+              <GenericStatCard key={league._id} className="p-0 overflow-clip">
                 <MaybeLink
                   href={`/leagues/${league._id}`}
                   className="block p-4 bg-white transition-colors"
@@ -497,7 +480,7 @@ function SubmissionsCards({
   }, [details]);
 
   return (
-    <GenericStatCard color="gray" className="flex flex-col gap-2">
+    <GenericStatCard className="flex flex-col gap-2">
       <div>
         <h3 className="font-semibold">{title}</h3>
         <div className="text-xs text-ink-subtle">{info}</div>
@@ -509,7 +492,6 @@ function SubmissionsCards({
           {sortedDetails.map((detail) => (
             <GenericStatCard
               key={detail.submission._id}
-              color="white"
               className="flex flex-col sm:flex-row items-center gap-3"
             >
               <AlbumArt
@@ -566,20 +548,14 @@ function StatCard({
   onClick,
   isExpanded,
 }: StatCardProps) {
-  const isClickable = onClick !== undefined;
+  void onClick;
 
   return (
     <GenericStatCard
       title={info}
       element={HapticButton}
       onClick={onClick}
-      color="gray"
-      className={twMerge(
-        isClickable
-          ? 'cursor-pointer hover:shadow-float hover:ring-primary'
-          : '',
-        isExpanded ? 'ring-2 ring-primary shadow-float' : '',
-      )}
+      className={twMerge(isExpanded ? 'w98-btn-checked' : '')}
     >
       {/* The number is the point of a stat tile, so it leads; the emoji shrinks
           to a marker rather than competing with it. */}
@@ -587,9 +563,7 @@ function StatCard({
       <div className="text-3xl font-bold tabular-nums text-ink text-center">
         {value}
       </div>
-      <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle text-center mt-1">
-        {label}
-      </div>
+      <div className="text-sm text-center mt-1">{label}</div>
     </GenericStatCard>
   );
 }

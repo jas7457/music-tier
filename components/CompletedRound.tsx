@@ -78,23 +78,24 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
         const isSecond = currentPlace === 2;
         const isThird = currentPlace === 3;
 
+        // The podium reads through the bevel and a tinted fill, not a ring.
         if (isFirst) {
           return {
             emoji: '🥇',
-            cardClassName: 'ring-2 ring-amber-400 bg-amber-50/70',
-            innerClassName: 'border-amber-400',
+            cardClassName: 'bg-[#fff6d5]',
+            innerClassName: '',
           };
         } else if (isSecond) {
           return {
             emoji: '🥈',
-            cardClassName: 'ring-1 ring-white/60 bg-white/40',
-            innerClassName: 'border-line-strong',
+            cardClassName: 'bg-w98-face',
+            innerClassName: '',
           };
         } else if (isThird) {
           return {
             emoji: '🥉',
-            cardClassName: 'ring-2 ring-[#cd7f32] bg-[#faf4ee]',
-            innerClassName: 'border-[#cd7f32]',
+            cardClassName: 'bg-[#f6e6d8]',
+            innerClassName: '',
           };
         } else {
           return {
@@ -165,7 +166,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
             {/* Score */}
             <div className="flex flex-col gap-2 items-end">
               <div className="text-right">
-                <div className="text-4xl font-bold text-yellow-600">
+                <div className="text-3xl font-bold tabular-nums">
                   {totalPoints} pts
                 </div>
                 <div className="text-sm text-ink-muted">
@@ -205,7 +206,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
           {submitter && emoji && (
             <div
               className={twMerge(
-                'absolute -top-4 -left-4 bg-white rounded-full border-2 text-3xl w-12 h-12 grid items-center justify-items-center',
+                'absolute -top-2 -left-2 w98-raised text-2xl w-10 h-10 grid items-center justify-items-center',
                 innerClassName,
               )}
             >
@@ -215,7 +216,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
 
           {/* Voters List */}
           {voters.length > 0 && (
-            <div className="space-y-3 border-t p-6 border-line pt-4">
+            <div className="space-y-2 p-3 shadow-w98-in-thin">
               {voters
                 .filter((voter) => voter.points > 0 || voter.note)
                 .map((voter) => (
@@ -290,7 +291,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                       {correctGuesses.map((guess, idx) => (
                         <div
                           key={`correct-${idx}`}
-                          className="flex items-center gap-2 text-sm text-green-900 bg-emerald-50 ring-1 ring-emerald-600/20 rounded-control p-2"
+                          className="flex items-center gap-2 text-sm bg-[#d7ecd7] shadow-w98-out-thin p-2"
                         >
                           <Avatar user={guess.guesser} size={6} />
                           <span>{guess.guesser.userName} guessed</span>
@@ -302,7 +303,7 @@ export default function CompletedRound({ round, users }: CompletedRoundProps) {
                       {incorrectGuesses.map((guess, idx) => (
                         <div
                           key={`incorrect-${idx}`}
-                          className="flex items-center gap-2 text-sm text-red-900 bg-red-50 ring-1 ring-red-600/20 rounded-control p-2"
+                          className="flex items-center gap-2 text-sm bg-[#f2d7d7] shadow-w98-out-thin p-2"
                         >
                           <Avatar user={guess.guesser} size={6} />
                           <span>{guess.guesser.userName} guessed</span>

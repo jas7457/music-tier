@@ -45,7 +45,7 @@ export function DualScreen({
             'absolute bottom-4 right-4 z-50 backdrop-blur-sm text-white rounded-full p-3 transition-all duration-300',
             isFlipped
               ? 'bg-purple-500/80 border-2 border-purple-300 hover:bg-purple-400/80 shadow-lg shadow-purple-500/50'
-              : 'bg-white/10 border border-white/20 hover:bg-white/20',
+              : 'bg-w98-face border border-w98-shadow hover:bg-w98-face',
           )}
           style={{
             animation:

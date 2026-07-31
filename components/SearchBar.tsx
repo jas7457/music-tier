@@ -7,6 +7,8 @@ import { PopulatedLeague } from '@/lib/types';
 import AlbumArt from './AlbumArt';
 import type { PopulatedRound } from '@/lib/types';
 import type { TrackInfo } from '@/databaseTypes';
+import { SearchIcon } from './win98/Icons';
+import { W98Button } from './win98/Controls';
 
 type SearchEntry = {
   trackInfo: TrackInfo;
@@ -29,7 +31,7 @@ function highlight(text: string, query: string): ReactNode {
   while (idx !== -1) {
     if (idx > last) parts.push(text.slice(last, idx));
     parts.push(
-      <mark key={idx} className="bg-amber-200/70 text-inherit rounded-sm px-0">
+      <mark key={idx} className="bg-[#ffff00] text-black px-0">
         {text.slice(idx, idx + query.length)}
       </mark>,
     );
@@ -160,22 +162,18 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
   const showDropdown = isOpen && query.trim().length >= 2;
 
   return (
-    <div ref={containerRef} className="relative mb-6">
-      <div className="relative">
-        <svg
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-subtle pointer-events-none"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+    <div ref={containerRef} className="relative mb-2">
+      {/* Explorer's Find toolbar. */}
+      <div className="flex items-center gap-2">
+        <label
+          htmlFor="w98-find"
+          className="flex-none items-center gap-1 hidden sm:flex"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
+          <SearchIcon />
+          Find:
+        </label>
         <input
+          id="w98-find"
           ref={inputRef}
           type="text"
           value={query}
@@ -184,49 +182,35 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          placeholder="Search artists, songs, or rounds…"
-          className="w-full px-4 py-3.5 pl-10 pr-9 rounded-card field text-ink"
+          placeholder="Artists, songs, or rounds…"
+          className="grow min-w-0 w98-field"
         />
-        {query && (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery('');
-              setIsOpen(false);
-              inputRef.current?.focus();
-            }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-subtle hover:bg-white/50 hover:text-ink transition-colors"
-            aria-label="Clear search"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        )}
+        <W98Button
+          size="sm"
+          disabled={!query}
+          onClick={() => {
+            setQuery('');
+            setIsOpen(false);
+            inputRef.current?.focus();
+          }}
+          className="flex-none"
+        >
+          Clear
+        </W98Button>
       </div>
 
       {showDropdown && (
-        <div className="absolute top-full left-0 right-0 mt-2 glass-strong rounded-card z-50 max-h-[70vh] overflow-y-auto animate-menu-in">
+        <div className="absolute top-full left-0 right-0 mt-0.5 w98-raised z-50 max-h-[70vh] overflow-y-auto animate-menu-in p-0.5">
           {!hasResults ? (
-            <div className="p-5 text-ink-subtle text-center text-sm">
+            <div className="p-4 text-center text-sm">
               No results for &ldquo;{query}&rdquo;
             </div>
           ) : (
-            <div className="divide-y divide-white/40">
+            <div className="w98-paper divide-y divide-w98-face">
               {/* Artist Section */}
               {results!.artistResults.length > 0 && (
-                <section className="p-4">
-                  <h3 className="text-[11px] font-semibold text-ink-subtle uppercase tracking-widest mb-2">
+                <section className="p-1.5">
+                  <h3 className="text-xs font-bold uppercase mb-1 px-1 bg-w98-face">
                     Artist
                   </h3>
                   <div className="space-y-1">
@@ -236,7 +220,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                           key={`artist-${matchedArtist}-${round._id}`}
                           href={`/leagues/${league._id}/rounds/${round._id}`}
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-3 p-2 rounded-control hover:bg-white/50 transition-colors"
+                          className="w98-row flex items-center gap-2 no-underline text-black"
                         >
                           <AlbumArt
                             trackInfo={trackInfo}
@@ -244,10 +228,10 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                             size={40}
                           />
                           <div className="min-w-0">
-                            <div className="font-medium text-ink truncate">
+                            <div className="font-bold truncate">
                               {highlight(matchedArtist, query)}
                             </div>
-                            <div className="text-sm text-ink-muted truncate">
+                            <div className="text-sm truncate">
                               {trackInfo.title}
                             </div>
                           </div>
@@ -260,8 +244,8 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
 
               {/* Song Section */}
               {results!.songResults.length > 0 && (
-                <section className="p-4">
-                  <h3 className="text-[11px] font-semibold text-ink-subtle uppercase tracking-widest mb-2">
+                <section className="p-1.5">
+                  <h3 className="text-xs font-bold uppercase mb-1 px-1 bg-w98-face">
                     Song
                   </h3>
                   <div className="space-y-1">
@@ -271,7 +255,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                           key={`song-${trackInfo.trackId}-${round._id}`}
                           href={`/leagues/${league._id}/rounds/${round._id}`}
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-3 p-2 rounded-control hover:bg-white/50 transition-colors"
+                          className="w98-row flex items-center gap-2 no-underline text-black"
                         >
                           <AlbumArt
                             trackInfo={trackInfo}
@@ -279,10 +263,10 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                             size={40}
                           />
                           <div className="min-w-0">
-                            <div className="font-medium text-ink truncate">
+                            <div className="font-bold truncate">
                               {highlight(trackInfo.title, query)}
                             </div>
-                            <div className="text-sm text-ink-muted truncate">
+                            <div className="text-sm truncate">
                               {trackInfo.artists.join(', ')}
                             </div>
                           </div>
@@ -295,8 +279,8 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
 
               {/* Round Section */}
               {results!.roundResults.length > 0 && (
-                <section className="p-4">
-                  <h3 className="text-[11px] font-semibold text-ink-subtle uppercase tracking-widest mb-2">
+                <section className="p-1.5">
+                  <h3 className="text-xs font-bold uppercase mb-1 px-1 bg-w98-face">
                     Round
                   </h3>
                   <div className="space-y-1">
@@ -306,22 +290,20 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                           key={`round-${round._id}`}
                           href={`/leagues/${league._id}/rounds/${round._id}`}
                           onClick={() => setIsOpen(false)}
-                          className="block p-2 rounded-control hover:bg-white/50 transition-colors"
+                          className="w98-row block no-underline text-black"
                         >
-                          <div className="font-medium text-ink">
+                          <div className="font-bold">
                             {highlight(round.title, query)}
                           </div>
                           {matchInDescription && (
-                            <div className="text-sm text-ink-muted mt-0.5">
+                            <div className="text-sm mt-0.5">
                               {highlight(
                                 getDescriptionExcerpt(round.description, query),
                                 query,
                               )}
                             </div>
                           )}
-                          <div className="text-xs text-ink-subtle mt-0.5">
-                            {league.title}
-                          </div>
+                          <div className="text-xs mt-0.5">{league.title}</div>
                         </Link>
                       ),
                     )}

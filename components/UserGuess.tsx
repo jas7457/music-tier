@@ -101,8 +101,8 @@ export function UserGuess({
           onClick={() => setIsOpen(!isOpen)}
           disabled={disabled}
           className={twMerge(
-            'disabled:opacity-50 disabled:cursor-not-allowed group relative w-10 h-10 rounded-full bg-white/60 flex items-center justify-center transition-colors ring-2 ring-primary',
-            selectedUser ? '' : 'bg-white/50',
+            'w98-btn !min-w-0 group relative w-9 h-9 !p-0',
+            selectedUser ? '' : 'bg-w98-face',
           )}
         >
           {innerMarkup}
@@ -122,14 +122,16 @@ export function UserGuess({
 
       {/* Dropdown */}
       {isOpen && !disabled && (
-        <div className="absolute right-0 mt-2 w-52 pt-2 glass-strong rounded-card z-10 max-h-64 overflow-y-auto">
-          <div className="text-xs italic px-4">Who submitted this song?</div>
+        <div className="w98-menu absolute right-0 mt-1 w-52 z-10 max-h-64 overflow-y-auto">
+          <div className="text-xs px-2 py-1 font-bold">
+            Who submitted this song?
+          </div>
           {/* Clear selection option */}
           {selectedUser && (
             <>
               <button
                 onClick={() => handleSelectUser(undefined)}
-                className="w-full px-4 py-2 text-left hover:bg-white/50 transition-colors text-sm text-ink-muted border-b border-white/50"
+                className="w98-menuitem"
               >
                 Clear guess
               </button>
@@ -142,8 +144,8 @@ export function UserGuess({
               key={user._id}
               onClick={() => handleSelectUser(user)}
               className={twMerge(
-                'w-full px-4 py-2 text-left hover:bg-white/50 transition-colors flex items-center gap-2',
-                selectedUser?._id === user._id ? 'bg-blue-50' : '',
+                'w98-menuitem',
+                selectedUser?._id === user._id ? 'w98-selected' : '',
               )}
             >
               <Avatar user={user} size={6} includeLink={false} />
@@ -156,7 +158,7 @@ export function UserGuess({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
-                  className="ml-auto text-blue-600"
+                  className="ml-auto"
                 >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>

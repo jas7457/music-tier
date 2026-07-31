@@ -46,7 +46,7 @@ export function TotalPointsScreen({ playback, isActive }: PlaybackScreenProps) {
               : 'opacity-0 -translate-y-10',
           )}
         >
-          <p className="text-3xl text-white/90 text-center font-semibold">
+          <p className="text-3xl text-white text-center font-semibold">
             Your Total Points
           </p>
         </div>

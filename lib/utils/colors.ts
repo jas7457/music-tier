@@ -7,33 +7,37 @@ export type StatusColor =
   | 'error'
   | 'info';
 
+/**
+ * Status colours drawn from the VGA 16, which is all the shell ever had.
+ * Every value is a flat fill plus its legible foreground — no rings, no alpha.
+ */
 export function getStatusColor(status: StatusColor): string {
   switch (status) {
     case 'completed': {
-      return 'bg-emerald-50/80 text-emerald-800 ring-emerald-600/25';
+      return 'bg-[#008000] text-white';
     }
     case 'active': {
-      return 'bg-blue-50/80 text-blue-800 ring-blue-600/25';
+      return 'bg-[#000080] text-white';
     }
     case 'upcoming': {
-      return 'bg-amber-50/80 text-amber-800 ring-amber-600/30';
+      return 'bg-[#808000] text-white';
     }
     case 'unknown':
     case 'pending': {
-      return 'bg-white/60 text-ink-muted ring-black/10';
+      return 'bg-w98-face text-black';
     }
     case 'submission': {
-      return 'bg-primary-lightest/80 text-primary-darkest ring-primary/30';
+      return 'bg-[#008080] text-white';
     }
     case 'voting':
     case 'currentUserVotingCompleted': {
-      return 'bg-orange-50/80 text-orange-800 ring-orange-600/30';
+      return 'bg-[#800080] text-white';
     }
     case 'error': {
-      return 'bg-red-50/80 text-red-800 ring-red-600/25';
+      return 'bg-[#800000] text-white';
     }
     case 'info': {
-      return 'bg-sky-50/80 text-sky-800 ring-sky-600/25';
+      return 'bg-[#0000c0] text-white';
     }
     default: {
       assertNever(status);

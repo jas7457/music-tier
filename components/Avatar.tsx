@@ -26,27 +26,29 @@ export function Avatar({
   const fullName = `${user.firstName} ${user.lastName}`;
   const initial = user.userName.charAt(0).toUpperCase();
 
-  const gradients = [
-    'from-blue-500 to-primary-dark',
-    'from-pink-500 to-rose-600',
-    'from-green-500 to-emerald-600',
-    'from-orange-500 to-red-600',
-    'from-cyan-500 to-blue-600',
-    'from-violet-500 to-primary-dark',
-    'from-amber-500 to-orange-600',
-    'from-teal-500 to-cyan-600',
-    'from-indigo-500 to-blue-600',
-    'from-fuchsia-500 to-pink-600',
+  // Flat VGA fills instead of gradients — one per user, stable by index.
+  const colors = [
+    'bg-[#000080]',
+    'bg-[#800000]',
+    'bg-[#008000]',
+    'bg-[#808000]',
+    'bg-[#008080]',
+    'bg-[#800080]',
+    'bg-[#0000c0]',
+    'bg-[#c05000]',
+    'bg-[#005050]',
+    'bg-[#404080]',
   ];
 
   const sizeStr = isSizePercent ? '' : `w-${size}`;
 
   const index = user.index === -1 ? 0 : user.index;
-  const gradient = gradients[index % gradients.length];
+  const color = colors[index % colors.length];
+
   return (
     <MaybeLink
       href={`/users/${user._id}`}
-      className="relative group"
+      className="relative group no-underline"
       forceNormalText={!includeLink}
       {...(includeTooltip ? { title: tooltipText } : {})}
       style={{ width: isSizePercent ? `${size}%` : undefined, maxWidth }}
@@ -57,7 +59,7 @@ export function Avatar({
           alt={fullName}
           className={twMerge(
             sizeStr,
-            'rounded-full object-cover ring-2 ring-white shadow-soft aspect-square max-w-full',
+            'object-cover shadow-w98-out-thin aspect-square max-w-full',
             isSizePercent ? 'w-full' : '',
             className,
           )}
@@ -66,8 +68,8 @@ export function Avatar({
         <div
           className={twMerge(
             sizeStr,
-            gradient,
-            'rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm ring-2 ring-white shadow-soft aspect-square max-w-full',
+            color,
+            'flex items-center justify-center text-white font-bold text-sm aspect-square max-w-full shadow-w98-out-thin',
             className,
           )}
         >

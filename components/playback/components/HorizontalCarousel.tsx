@@ -151,7 +151,7 @@ export function HorizontalCarousel<T>({
       <div className={twMerge('relative h-full', className)}>
         {/* Page Counter */}
         {isActive && currentIndex !== undefined && (
-          <div className="absolute top-4 left-4 z-20 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-white/20">
+          <div className="absolute top-4 left-4 z-20 bg-w98-face backdrop-blur-sm rounded-lg px-3 py-1.5 border border-w98-shadow">
             <div className="flex items-center gap-1 text-white font-semibold">
               <div
                 className="relative inline-block overflow-hidden"
@@ -193,8 +193,8 @@ export function HorizontalCarousel<T>({
                   {currentIndex + 1}
                 </span>
               </div>
-              <span className="text-white/60">/</span>
-              <span className="text-white/80 tabular-nums">{items.length}</span>
+              <span className="text-white">/</span>
+              <span className="text-white tabular-nums">{items.length}</span>
             </div>
           </div>
         )}
@@ -247,11 +247,11 @@ export function HorizontalCarousel<T>({
             onClick={handlePrevious}
             disabled={isAtStart}
             className={twMerge(
-              'pointer-events-auto bg-white/10 backdrop-blur-sm text-white rounded-full p-4 transition-all duration-300 border border-white/80',
+              'pointer-events-auto bg-w98-face backdrop-blur-sm text-white rounded-full p-4 transition-all duration-300 border border-w98-shadow',
               !isActive && 'opacity-0',
               isActive &&
                 !isAtStart &&
-                'opacity-100 delay-600 hover:bg-white/20',
+                'opacity-100 delay-600 hover:bg-w98-face',
               isActive &&
                 isAtStart &&
                 'opacity-30 delay-600 cursor-not-allowed',
@@ -279,9 +279,9 @@ export function HorizontalCarousel<T>({
             onClick={handleNext}
             disabled={isAtEnd}
             className={twMerge(
-              'pointer-events-auto bg-white/10 backdrop-blur-sm text-white rounded-full p-4 transition-all duration-300 border border-white/80',
+              'pointer-events-auto bg-w98-face backdrop-blur-sm text-white rounded-full p-4 transition-all duration-300 border border-w98-shadow',
               !isActive && 'opacity-0',
-              isActive && !isAtEnd && 'opacity-100 delay-600 hover:bg-white/20',
+              isActive && !isAtEnd && 'opacity-100 delay-600 hover:bg-w98-face',
               isActive && isAtEnd && 'opacity-30 delay-600 cursor-not-allowed',
               shouldShowButtons ? '' : 'opacity-0 pointer-events-none',
             )}

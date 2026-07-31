@@ -4,7 +4,8 @@ import { useState, useEffect, useRef, Activity } from 'react';
 import { twMerge } from 'tailwind-merge';
 import type { PopulatedLeague } from '@/lib/types';
 import { useAuth } from '@/lib/AuthContext';
-import { HapticButton } from '@/components/HapticButton';
+import { CdIcon } from '@/components/win98/Icons';
+import { CloseGlyph, TitleBarButton } from '@/components/win98/Window';
 import { PLAYBACK_SCREENS } from './screenConfig';
 
 interface PlaylistPartyPlaybackProps {
@@ -120,38 +121,29 @@ export function PlaylistPartyPlayback({
         }
       `}</style>
 
-      {/* Close button */}
-      <HapticButton
-        onClick={onClose}
-        className="fixed top-4 right-4 z-210 w-12 h-12 rounded-full backdrop-blur-xl bg-white/20 border-2 border-white/40 text-white flex items-center justify-center hover:bg-white/30 transition-all hover:scale-110"
-        aria-label="Close Playlist Party Playback"
-      >
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </HapticButton>
+      {/* Title bar — the show runs inside a window, like everything else */}
+      <div className="fixed top-0 left-0 right-0 z-210 w98-titlebar">
+        <CdIcon />
+        <span className="grow truncate">
+          Playlist Party Playback - Screen {currentScreenIndex + 1} of{' '}
+          {PLAYBACK_SCREENS.length}
+        </span>
+        <TitleBarButton label="Close" onClick={onClose}>
+          <CloseGlyph />
+        </TitleBarButton>
+      </div>
 
-      {/* Progress indicator */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-210 flex gap-2 pr-6">
+      {/* Progress indicator, drawn as a segmented trackbar */}
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-210 flex gap-0.5 w98-raised p-1">
         {PLAYBACK_SCREENS.map((screen, index) => (
           <button
             key={screen.key}
             onClick={() => scrollToScreen(index)}
             className={twMerge(
-              'h-2 rounded-full transition-all duration-300',
+              'h-4 w-3',
               index === currentScreenIndex
-                ? 'bg-white w-8'
-                : 'bg-white/40 hover:bg-white/60 w-2',
+                ? 'bg-primary shadow-w98-in-thin'
+                : 'bg-w98-face shadow-w98-out-thin',
             )}
             aria-label={`Go to screen ${index + 1}`}
           />

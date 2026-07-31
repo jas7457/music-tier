@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { ErrorIcon, WarningIcon, InfoIcon, SuccessIcon } from './win98/Icons';
+import { CloseGlyph, TitleBarButton } from './win98/Window';
 
 export interface ToastProps {
   id: string;
@@ -12,6 +14,7 @@ export interface ToastProps {
   onDismiss: (id: string) => void;
 }
 
+/** Not a toast so much as a message box that dismisses itself. */
 export function Toast({
   id,
   title,
@@ -30,83 +33,43 @@ export function Toast({
     }
   }, [id, timeout, onDismiss]);
 
-  const variantStyles = {
-    default: 'bg-gray-900/80 text-white ring-white/15',
-    error: 'bg-red-600/80 text-white ring-white/20',
-    warning: 'bg-amber-500/80 text-amber-950 ring-white/25',
-    info: 'bg-sky-600/80 text-white ring-white/20',
-    success: 'bg-emerald-600/80 text-white ring-white/20',
+  const icons = {
+    default: <InfoIcon size={32} />,
+    error: <ErrorIcon size={32} />,
+    warning: <WarningIcon size={32} />,
+    info: <InfoIcon size={32} />,
+    success: <SuccessIcon size={32} />,
   };
 
-  const iconStyles = {
-    default: null,
-    error: (
-      <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fillRule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-          clipRule="evenodd"
-        />
-      </svg>
-    ),
-    warning: (
-      <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fillRule="evenodd"
-          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-          clipRule="evenodd"
-        />
-      </svg>
-    ),
-    info: (
-      <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fillRule="evenodd"
-          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-          clipRule="evenodd"
-        />
-      </svg>
-    ),
-    success: (
-      <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-        <path
-          fillRule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-          clipRule="evenodd"
-        />
-      </svg>
-    ),
+  const titles = {
+    default: 'Message',
+    error: 'Error',
+    warning: 'Warning',
+    info: 'Information',
+    success: 'Success',
   };
 
   return (
     <div
       className={twMerge(
-        'pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-card shadow-pop ring-1 backdrop-blur-xl saturate-150 min-w-[300px] max-w-full animate-toast-in',
-        variantStyles[variant],
+        'pointer-events-auto w98-window w-[300px] max-w-[calc(100vw-1rem)] animate-toast-in',
       )}
+      role="status"
     >
-      {iconStyles[variant] && (
-        <div className="flex items-center">{iconStyles[variant]}</div>
-      )}
-
-      <div className="flex-1">
-        {title && <div className="font-semibold text-base">{title}</div>}
-        <div className="text-sm font-medium opacity-90">{message}</div>
+      <div className="w98-titlebar">
+        <span className="truncate grow">{title || titles[variant]}</span>
+        <TitleBarButton label="Close" onClick={() => onDismiss(id)}>
+          <CloseGlyph />
+        </TitleBarButton>
       </div>
 
-      <button
-        onClick={() => onDismiss(id)}
-        className="shrink-0 -mr-1 p-1 rounded-md opacity-70 hover:opacity-100 hover:bg-white/10 transition"
-        aria-label="Dismiss"
-      >
-        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fillRule="evenodd"
-            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </button>
+      <div className="flex items-start gap-3 p-3">
+        <span className="flex-none pt-0.5">{icons[variant]}</span>
+        <div className="grow min-w-0 text-sm break-words">
+          {title && <div className="font-bold mb-0.5">{title}</div>}
+          {message}
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,13 +1,13 @@
 'use client';
 
-import Card from './Card';
 import { PopulatedLeague, PopulatedUser } from '@/lib/types';
 import { League } from './League';
 import { useRealTimeUpdates } from '@/lib/PusherContext';
 import { useEffect, useState } from 'react';
-import { twMerge } from 'tailwind-merge';
 import { Expandable } from './Expandable';
 import { SearchBar } from './SearchBar';
+import { GroupBox } from './win98/Controls';
+import { FolderIcon, FolderOpenIcon } from './win98/Icons';
 
 export default function Home({
   leagues,
@@ -65,16 +65,16 @@ export default function Home({
   const leagueMarkup = (() => {
     if (leagues.length === 0) {
       return (
-        <Card className="p-10 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary-lightest text-2xl">
-            🎧
+        <div className="w98-paper p-8 text-center">
+          <div className="mx-auto mb-3 w-8">
+            <FolderIcon size={32} />
           </div>
-          <h2 className="text-xl font-semibold mb-2">No Leagues Yet</h2>
-          <p className="text-ink-muted max-w-sm mx-auto">
+          <h2 className="text-lg mb-1">This folder is empty</h2>
+          <p className="max-w-sm mx-auto text-sm">
             You&apos;re not part of any leagues yet. Create or join one to get
             started!
           </p>
-        </Card>
+        </div>
       );
     }
 
@@ -111,73 +111,46 @@ export default function Home({
       }
 
       return (
-        <div>
-          <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">{title}</h2>
-          <div className="grid grid-cols-1 gap-3 md:gap-4">
+        <GroupBox label={title}>
+          <div className="grid grid-cols-1 gap-1.5">
             {leagues.map((league) => {
               const isExpanded = expandedLeagues.has(league._id);
 
               return (
-                <Card
-                  key={league._id.toString()}
-                  variant="elevated"
-                  className="overflow-hidden"
-                >
+                <div key={league._id.toString()} className="w98-raised-thin">
+                  {/* A tree node: the +/- box, the folder, the label. */}
                   <button
                     onClick={() => toggleLeague(league._id)}
-                    className="w-full p-4 md:p-5 flex items-center justify-between rounded-card hover:bg-white/40 transition-colors"
+                    className="w-full px-2 py-1.5 flex items-center gap-2 text-left hover:bg-w98-face"
                   >
-                    <div className="text-left">
-                      <span className="sm:text-xl font-bold">
-                        {league.title}{' '}
-                      </span>
-                      <span className="text-sm text-ink-subtle">
-                        ({league.users.length} members)
-                      </span>
-                    </div>
-                    <svg
-                      className={twMerge(
-                        'w-5 h-5 text-ink-subtle transition-transform duration-200',
-                        isExpanded ? 'rotate-180' : '',
-                      )}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
+                    <span className="flex-none w-3.5 h-3.5 flex items-center justify-center border border-w98-shadow bg-white text-black text-xs leading-none font-bold">
+                      {isExpanded ? '−' : '+'}
+                    </span>
+                    {isExpanded ? <FolderOpenIcon /> : <FolderIcon />}
+                    <span className="font-bold">{league.title}</span>
+                    <span className="text-sm">
+                      ({league.users.length} members)
+                    </span>
                   </button>
 
-                  <Expandable className="p-4" isExpanded={isExpanded}>
+                  <Expandable className="p-2" isExpanded={isExpanded}>
                     <League league={league} user={user} />
                   </Expandable>
-                </Card>
+                </div>
               );
             })}
           </div>
-        </div>
+        </GroupBox>
       );
     };
 
     return (
-      <div className="space-y-8">
+      <div className="space-y-4">
         {/* Current League */}
         {leagues.length > 0 && (
-          <div>
-            <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
-              Current League
-            </h2>
-            <Card variant="elevated">
-              <div className="p-3 md:p-6">
-                <League league={leagues[0]} user={user} />
-              </div>
-            </Card>
-          </div>
+          <GroupBox label="Current League">
+            <League league={leagues[0]} user={user} />
+          </GroupBox>
         )}
 
         {/* Upcoming Leagues */}
@@ -204,6 +177,7 @@ export default function Home({
   return (
     <div className="max-w-5xl mx-auto">
       <SearchBar leagues={leagues} />
+      <div className="w98-separator" />
       {leagueMarkup}
     </div>
   );

@@ -1,9 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { twMerge } from 'tailwind-merge';
-import Card, { CardProps } from '@/components/Card';
-import { HapticButton } from '@/components/HapticButton';
+import {
+  W98Button,
+  GroupBox,
+  Tabs,
+  TabPanel,
+} from '@/components/win98/Controls';
+import { SettingsIcon, SuccessIcon } from '@/components/win98/Icons';
 import type { User } from '@/databaseTypes';
 import type { PopulatedUser } from '@/lib/types';
 import { useToast } from '@/lib/ToastContext';
@@ -65,6 +69,9 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     ...user.notificationSettings,
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<
+    'contact' | 'appearance' | 'notifications'
+  >('contact');
 
   const handleSendVerificationCode = async () => {
     if (!phoneNumber || !phoneCarrier) {
@@ -390,25 +397,18 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     }
 
     return (
-      <div className="pt-4 border-t border-line">
-        <p className="text-sm text-ink-muted mb-2">
-          <strong>Developer Tools:</strong> If you&apos;re experiencing issues
-          with caching or want to reset the app, you can unregister the service
-          worker below.
+      <GroupBox label="Developer Tools" className="mt-3">
+        <p className="text-sm mb-2">
+          If you&apos;re experiencing issues with caching or want to reset the
+          app, you can unregister the service worker below.
         </p>
-        <HapticButton
+        <W98Button
           onClick={handleUnregisterServiceWorker}
           disabled={isUnregistering}
-          className={twMerge(
-            'w-full px-4 py-2 rounded-md font-semibold transition-colors',
-            isUnregistering
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-red-600 hover:bg-red-700 text-white',
-          )}
         >
-          {isUnregistering ? 'Unregistering...' : 'Unregister Service Worker'}
-        </HapticButton>
-      </div>
+          {isUnregistering ? 'Unregistering…' : 'Unregister Service Worker'}
+        </W98Button>
+      </GroupBox>
     );
   })();
 
@@ -416,7 +416,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
     switch (notificationPermission) {
       case 'default': {
         return (
-          <HapticButton
+          <W98Button
             onClick={async () => {
               const permission = await requestNotificationPermission();
               if (permission === 'granted') {
@@ -432,15 +432,14 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 });
               }
             }}
-            className="w-full px-4 py-2.5 rounded-control font-semibold shadow-soft hover:shadow-float transition-all bg-primary-dark hover:bg-primary-darker text-white"
           >
             Enable Push Notifications
-          </HapticButton>
+          </W98Button>
         );
       }
       case 'denied': {
         return (
-          <p className="text-sm text-red-600">
+          <p className="text-sm">
             You have denied notification permissions. To enable them, please go
             to your browser settings and allow notifications for this site.
           </p>
@@ -450,7 +449,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
         return (
           <div className="grid sm:grid-cols-[1fr_auto] gap-2">
             <select
-              className="w-full px-3 py-2 field rounded-control"
+              className="w-full w98-field"
               value={testNotificationDelay}
               onChange={(e) => setTestNotificationDelay(Number(e.target.value))}
             >
@@ -458,7 +457,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
               <option value={5000}>Delay by 5 seconds</option>
               <option value={10_000}>Delay by 10 seconds</option>
             </select>
-            <HapticButton
+            <W98Button
               onClick={async () => {
                 setIsSendingTestPushNotification(true);
                 try {
@@ -504,12 +503,11 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
                 }
               }}
               disabled={isSendingTestPushNotification}
-              className="w-full px-4 py-2.5 rounded-control font-semibold shadow-soft hover:shadow-float transition-all bg-primary-dark hover:bg-primary-darker text-white disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
             >
               {isSendingTestPushNotification
-                ? 'Sending...'
+                ? 'Sending…'
                 : 'Send Test Push Notification'}
-            </HapticButton>
+            </W98Button>
           </div>
         );
       }
@@ -517,354 +515,303 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   })();
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl mx-auto p-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Settings</h1>
-        <p className="text-ink-muted">
-          Manage your contact information and notification preferences
-        </p>
+    <div className="flex flex-col gap-2 max-w-3xl mx-auto">
+      <div className="flex items-center gap-2 px-1">
+        <SettingsIcon size={32} />
+        <div>
+          <h1 className="text-xl">Properties</h1>
+          <p className="text-sm">
+            Manage your contact information and notification preferences.
+          </p>
+        </div>
       </div>
 
-      <GenericStatCard color="gray" className="flex flex-col gap-6">
+      <Tabs
+        activeId={activeTab}
+        onChange={(id) => setActiveTab(id as typeof activeTab)}
+        tabs={[
+          { id: 'contact', label: 'Contact' },
+          { id: 'appearance', label: 'Appearance' },
+          { id: 'notifications', label: 'Notifications' },
+        ]}
+      />
+
+      <TabPanel className="flex flex-col gap-3">
         {/* Contact Information */}
-        <div>
-          <h3 className="font-semibold mb-3 text-lg">Contact Information</h3>
-          <div className="flex flex-col gap-4">
-            <div>
-              <label
-                htmlFor="phoneNumber"
-                className="block text-sm font-medium text-ink-muted mb-1"
-              >
-                Phone Number
-              </label>
-              <input
-                id="phoneNumber"
-                type="tel"
-                value={phoneNumber}
-                disabled={phoneVerified}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="555-123-4567"
-                className="w-full px-3 py-2 field rounded-control disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-            </div>
+        <div
+          className={activeTab === 'contact' ? 'flex flex-col gap-3' : 'hidden'}
+        >
+          <GroupBox label="Contact Information">
+            <div className="flex flex-col gap-3">
+              <div>
+                <label htmlFor="phoneNumber" className="block text-sm mb-1">
+                  Phone Number
+                </label>
+                <input
+                  id="phoneNumber"
+                  type="tel"
+                  value={phoneNumber}
+                  disabled={phoneVerified}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="555-123-4567"
+                  className="w-full w98-field"
+                />
+              </div>
 
-            <div>
-              <label
-                htmlFor="phoneCarrier"
-                className="block text-sm font-medium text-ink-muted mb-1"
-              >
-                Phone Carrier * Needed for text notifications
-              </label>
-              <select
-                id="phoneCarrier"
-                value={phoneCarrier || ''}
-                disabled={!phoneNumber || phoneVerified}
-                onChange={(e) =>
-                  setPhoneCarrier(
-                    e.target.value as User['phoneCarrier'] | undefined,
-                  )
-                }
-                className="w-full px-3 py-2 field rounded-control disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <option value="">Select a carrier</option>
-                <option value="verizon">Verizon</option>
-                <option value="att">AT&T</option>
-                <option value="tmobile">T-Mobile</option>
-              </select>
-            </div>
+              <div>
+                <label htmlFor="phoneCarrier" className="block text-sm mb-1">
+                  Phone Carrier * Needed for text notifications
+                </label>
+                <select
+                  id="phoneCarrier"
+                  value={phoneCarrier || ''}
+                  disabled={!phoneNumber || phoneVerified}
+                  onChange={(e) =>
+                    setPhoneCarrier(
+                      e.target.value as User['phoneCarrier'] | undefined,
+                    )
+                  }
+                  className="w-full w98-field"
+                >
+                  <option value="">Select a carrier</option>
+                  <option value="verizon">Verizon</option>
+                  <option value="att">AT&T</option>
+                  <option value="tmobile">T-Mobile</option>
+                </select>
+              </div>
 
-            {phoneNumber && phoneCarrier && !phoneVerified && (
-              <div className="p-4 bg-primary-lightest ring-1 ring-primary/20 rounded-control">
-                <p className="text-sm text-primary-darkest mb-3">
-                  Your phone number needs to be verified before you can receive
-                  text notifications.
-                </p>
-                <div className="flex flex-col gap-3">
-                  <HapticButton
-                    onClick={handleSendVerificationCode}
-                    disabled={isSendingCode}
-                    className={twMerge(
-                      'px-4 py-2 rounded-md font-semibold transition-colors',
-                      isSendingCode
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-primary-dark hover:bg-primary-darker text-white',
-                    )}
-                  >
-                    {isSendingCode ? 'Sending...' : 'Send Verification Code'}
-                  </HapticButton>
-
-                  <div>
-                    <label
-                      htmlFor="verificationCode"
-                      className="block text-sm font-medium text-ink-muted mb-1"
-                    >
-                      Verification Code
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        id="verificationCode"
-                        type="text"
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value)}
-                        placeholder="Enter code"
-                        className="flex-1 px-3 py-2 field rounded-control"
-                      />
-                      <HapticButton
-                        onClick={handleVerifyCode}
-                        disabled={isVerifying || !verificationCode}
-                        className={twMerge(
-                          'px-4 py-2 rounded-md font-semibold transition-colors whitespace-nowrap bg-primary-dark hover:bg-primary-darker text-white disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed',
-                        )}
+              {phoneNumber && phoneCarrier && !phoneVerified && (
+                <GroupBox label="Verification">
+                  <p className="text-sm mb-2">
+                    Your phone number needs to be verified before you can
+                    receive text notifications.
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <div>
+                      <W98Button
+                        onClick={handleSendVerificationCode}
+                        disabled={isSendingCode}
                       >
-                        {isVerifying ? 'Verifying...' : 'Verify'}
-                      </HapticButton>
+                        {isSendingCode ? 'Sending…' : 'Send Verification Code'}
+                      </W98Button>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="verificationCode"
+                        className="block text-sm mb-1"
+                      >
+                        Verification Code
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          id="verificationCode"
+                          type="text"
+                          value={verificationCode}
+                          onChange={(e) => setVerificationCode(e.target.value)}
+                          placeholder="Enter code"
+                          className="flex-1 w98-field"
+                        />
+                        <W98Button
+                          onClick={handleVerifyCode}
+                          disabled={isVerifying || !verificationCode}
+                        >
+                          {isVerifying ? 'Verifying…' : 'Verify'}
+                        </W98Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
+                </GroupBox>
+              )}
 
-            {phoneVerified && (
-              <div className="p-4 bg-emerald-50 ring-1 ring-emerald-600/20 rounded-control">
-                <p className="text-sm text-green-800 flex items-center gap-2">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                    <polyline points="22 4 12 14.01 9 11.01" />
-                  </svg>
+              {phoneVerified && (
+                <p className="text-sm flex items-center gap-2">
+                  <SuccessIcon />
                   Phone number verified!
                 </p>
-              </div>
-            )}
+              )}
 
-            <div>
-              <label
-                htmlFor="emailAddress"
-                className="block text-sm font-medium text-ink-muted mb-1"
-              >
-                Email Address
-              </label>
-              <div className="grid sm:grid-cols-[1fr_auto] gap-2">
-                <input
-                  id="emailAddress"
-                  type="email"
-                  value={emailAddress}
-                  onChange={(e) => setEmailAddress(e.target.value)}
-                  placeholder="your.email@example.com"
-                  className="w-full px-3 py-2 field rounded-control"
-                />
+              <div>
+                <label htmlFor="emailAddress" className="block text-sm mb-1">
+                  Email Address
+                </label>
+                <div className="grid sm:grid-cols-[1fr_auto] gap-2">
+                  <input
+                    id="emailAddress"
+                    type="email"
+                    value={emailAddress}
+                    onChange={(e) => setEmailAddress(e.target.value)}
+                    placeholder="your.email@example.com"
+                    className="w-full w98-field"
+                  />
 
-                <HapticButton
-                  disabled={isSendingTestEmail || !looksLikeEmailAddress}
-                  className={twMerge(
-                    'px-4 py-2.5 rounded-control font-semibold shadow-soft hover:shadow-float transition-all bg-primary-dark hover:bg-primary-darker text-white disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed',
-                  )}
-                  onClick={async () => {
-                    setIsSendingTestEmail(true);
-                    try {
-                      const response = await fetch('/api/users/email/test', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                          emailAddress,
-                        }),
-                      });
+                  <W98Button
+                    disabled={isSendingTestEmail || !looksLikeEmailAddress}
+                    onClick={async () => {
+                      setIsSendingTestEmail(true);
+                      try {
+                        const response = await fetch('/api/users/email/test', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            emailAddress,
+                          }),
+                        });
 
-                      if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(
-                          errorData.error || 'Failed to send test email',
+                        if (!response.ok) {
+                          const errorData = await response.json();
+                          throw new Error(
+                            errorData.error || 'Failed to send test email',
+                          );
+                        }
+
+                        toast.show({
+                          variant: 'success',
+                          message: 'Test email sent! Check your email inbox.',
+                        });
+                      } catch (error) {
+                        const errorMessage = unknownToErrorString(
+                          error,
+                          'Failed to send test email. Please try again.',
                         );
+                        toast.show({
+                          variant: 'error',
+                          message: errorMessage,
+                        });
+                      } finally {
+                        setIsSendingTestEmail(false);
                       }
+                    }}
+                  >
+                    Send Test Email
+                  </W98Button>
+                </div>
+              </div>
+            </div>
+          </GroupBox>
 
-                      toast.show({
-                        variant: 'success',
-                        message: 'Test email sent! Check your email inbox.',
-                      });
-                    } catch (error) {
-                      const errorMessage = unknownToErrorString(
-                        error,
-                        'Failed to send test email. Please try again.',
-                      );
-                      toast.show({
-                        variant: 'error',
-                        message: errorMessage,
-                      });
-                    } finally {
-                      setIsSendingTestEmail(false);
-                    }
-                  }}
-                >
-                  Send Test Email
-                </HapticButton>
+          {/* Push Notifications - Only show for enabled users */}
+          {isEnabled && (
+            <GroupBox label="Push Notifications">
+              {pushNotificationMarkup}
+              {developerToolsMarkup}
+            </GroupBox>
+          )}
+        </div>
+
+        {/* Appearance — the colour scheme, as Display Properties had it */}
+        <div
+          className={
+            activeTab === 'appearance' ? 'flex flex-col gap-3' : 'hidden'
+          }
+        >
+          <GroupBox label="Scheme">
+            <p className="text-sm mb-2">
+              Choose the accent colour used for title bars and selections.
+            </p>
+
+            {/* Preview window, exactly like the Display applet's */}
+            <div className="w98-sunken bg-w98-desktop p-4 mb-3">
+              <div className="w98-window max-w-xs">
+                <div className="w98-titlebar">
+                  <span className="grow">Active Window</span>
+                  <span className="w98-titlebar-btn">
+                    <span className="block w-1.5 h-0.5 bg-black mt-1" />
+                  </span>
+                </div>
+                <div className="p-2 mt-0.5 text-sm">
+                  Window Text
+                  <div className="w98-selected inline-block px-1 ml-1">
+                    Selected
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Push Notifications - Only show for enabled users */}
-            {isEnabled && (
-              <div>
-                <h3 className="block text-sm font-medium text-ink-muted mb-1">
-                  Push Notifications
-                </h3>
-                {pushNotificationMarkup}
-                <div className="flex flex-col gap-4">
-                  {developerToolsMarkup}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Theme Color */}
-        <div>
-          <h3 className="font-semibold mb-3 text-lg">Theme Color</h3>
-          <p className="text-sm text-ink-muted mb-4">
-            Choose your preferred accent color for the app
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {availableColors.map((color) => (
-              <HapticButton
-                key={color}
-                onClick={() => setPrimaryColor(color)}
-                className={twMerge(
-                  'relative px-4 py-3 rounded-lg border-2 transition-all capitalize font-medium',
-                  primaryColor === color
-                    ? 'border-ink shadow-float scale-105'
-                    : 'border-line hover:border-line-strong',
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-6 h-6 rounded-full ring-1 ring-line shrink-0"
-                    style={{
-                      backgroundColor: `var(--color-${color}-500)`,
-                    }}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1">
+              {availableColors.map((color) => (
+                <W98Button
+                  key={color}
+                  onClick={() => setPrimaryColor(color)}
+                  checked={primaryColor === color}
+                  className="justify-start capitalize !min-w-0"
+                >
+                  <span
+                    className="w-4 h-4 shrink-0 shadow-w98-in-thin"
+                    style={{ backgroundColor: `var(--color-${color}-900)` }}
                   />
-                  <span className="text-sm">{color}</span>
-                </div>
-                {primaryColor === color && (
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="white"
-                      strokeWidth="3"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                )}
-              </HapticButton>
-            ))}
-          </div>
+                  {color}
+                </W98Button>
+              ))}
+            </div>
+          </GroupBox>
         </div>
 
         {/* Notification Preferences */}
-        <div>
-          <h3 className="font-semibold mb-3 text-lg">
-            Notification Preferences
-          </h3>
-
-          {/* Enable/Disable toggles */}
-          <div className="mb-4 p-4 bg-primary-lightest rounded-control ring-1 ring-primary/20">
-            <div className="flex flex-col gap-3">
+        <div
+          className={
+            activeTab === 'notifications' ? 'flex flex-col gap-3' : 'hidden'
+          }
+        >
+          <GroupBox label="Delivery Method">
+            <div className="flex flex-col gap-2">
               {notificationMethodOptions.map((option) => (
                 <label
                   key={option.key}
-                  className="flex items-center gap-3 cursor-pointer has-disabled:opacity-50 has-disabled:cursor-not-allowed"
+                  className="flex items-start gap-2 has-disabled:text-w98-shadow"
                 >
                   <input
                     type="checkbox"
                     checked={notificationSettings[option.key]}
                     onChange={() => handleNotificationToggle(option.key)}
                     disabled={option.disabled}
-                    className="w-5 h-5 shrink-0 text-primary-dark rounded focus:ring-primary"
+                    className="shrink-0 mt-0.5"
                   />
                   <div>
-                    <div className="font-medium">{option.label}</div>
-                    <div className="text-sm text-ink-muted">
-                      {option.description}
-                    </div>
+                    <div className="font-bold text-sm">{option.label}</div>
+                    <div className="text-sm">{option.description}</div>
                   </div>
                 </label>
               ))}
             </div>
-          </div>
+          </GroupBox>
 
-          {/* Individual notification types */}
-          <div className="flex flex-col gap-3">
-            {notificationOptions.map((option) => (
-              <label
-                key={option.key}
-                className="flex items-start gap-3 cursor-pointer has-disabled:opacity-50 has-disabled:cursor-not-allowed"
-              >
-                <input
-                  type="checkbox"
-                  checked={notificationSettings[option.key]}
-                  onChange={() => handleNotificationToggle(option.key)}
-                  className="w-5 h-5 shrink-0 text-primary-dark rounded focus:ring-primary mt-0.5"
-                />
-                <div>
-                  <div className="font-medium">{option.label}</div>
-                  <div className="text-sm text-ink-muted">
-                    {option.description}
+          <GroupBox label="Notify Me When…">
+            <div className="w98-paper p-2 max-h-96 overflow-y-auto flex flex-col gap-2">
+              {notificationOptions.map((option) => (
+                <label key={option.key} className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={notificationSettings[option.key]}
+                    onChange={() => handleNotificationToggle(option.key)}
+                    className="shrink-0 mt-0.5"
+                  />
+                  <div>
+                    <div className="font-bold text-sm">{option.label}</div>
+                    <div className="text-sm">{option.description}</div>
                   </div>
-                </div>
-              </label>
-            ))}
-          </div>
+                </label>
+              ))}
+            </div>
+          </GroupBox>
         </div>
+      </TabPanel>
 
-        {/* Save button and message */}
-        <div>
-          <HapticButton
-            onClick={handleSaveSettings}
-            disabled={isSaving}
-            className={twMerge(
-              'w-full px-4 py-3 rounded-md font-semibold transition-colors',
-              isSaving
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-primary-dark hover:bg-primary-darker text-white',
-            )}
-          >
-            {isSaving ? 'Saving...' : 'Save Settings'}
-          </HapticButton>
-        </div>
-      </GenericStatCard>
+      {/* The property-sheet button row */}
+      <div className="flex justify-end gap-2">
+        <W98Button
+          variant="default"
+          onClick={handleSaveSettings}
+          disabled={isSaving}
+        >
+          {isSaving ? 'Saving…' : 'OK'}
+        </W98Button>
+        <W98Button onClick={handleSaveSettings} disabled={isSaving}>
+          Apply
+        </W98Button>
+      </div>
     </div>
-  );
-}
-
-function GenericStatCard({
-  children,
-  className,
-  color,
-  ...rest
-}: CardProps & { color: 'white' | 'gray' }) {
-  return (
-    <Card
-      {...rest}
-      className={twMerge(
-        'p-4 rounded-tile bento-tile transition-all',
-        // These sit on a glass parent, so they need to be *more* opaque than it
-        // to separate — a gray fill just reads as muddy against frosted white.
-        color === 'white'
-          ? 'bg-white/80 ring-1 ring-white/90'
-          : 'bg-white/60 ring-1 ring-white/80',
-        className,
-      )}
-    >
-      {children}
-    </Card>
   );
 }

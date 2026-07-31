@@ -3,66 +3,152 @@
 @source "../node_modules/@uploadthing/react/dist";
 @source inline("w-{{1..50}}");
 @source inline("h-{{1..50}}");
-@source inline("{{text,bg,border,ring}}-{{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}}-{{50,200,300,500,600,700,800,900}}");
+/* The colour-scheme picker builds `var(--color-<name>-<shade>)` references at
+   runtime, so every shade it can reach has to be emitted. */
+@source inline("{{text,bg,border,ring}}-{{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}}-{{50,100,200,300,500,600,700,800,900,950}}");
+
+/* ===========================================================================
+   Windows 98
+   ---------------------------------------------------------------------------
+   Everything here is built from the four-colour bevel: white / face / grey /
+   black. Nothing is rounded, nothing is blurred, nothing fades. Depth is
+   communicated by two-pixel inset borders, exactly as it was in 1998.
+   =========================================================================== */
 
 @theme {
-  --color-primary-lightest: theme(--color-purple-50);
-  --color-primary-lighter: theme(--color-purple-200);
-  --color-primary-light: theme(--color-purple-300);
-  --color-primary: theme(--color-purple-500);
-  --color-primary-dark: theme(--color-purple-600);
-  --color-primary-darker: theme(--color-purple-700);
-  --color-primary-darkest: theme(--color-purple-800);
+  /* --- The 98 system palette ------------------------------------------- */
+  --color-w98-desktop: #008080;
+  --color-w98-face: #c0c0c0;
+  --color-w98-light: #dfdfdf;
+  --color-w98-white: #ffffff;
+  --color-w98-shadow: #808080;
+  --color-w98-dark: #0a0a0a;
+  --color-w98-navy: #000080;
+  --color-w98-navy-light: #1084d0;
+  --color-w98-disabled: #808080;
+  --color-w98-info: #ffffe1; /* tooltip yellow */
 
-  /* Neutral scale — very slightly cool so the primary hue reads as intentional */
-  --color-canvas: oklch(0.972 0.004 285);
-  --color-surface: #fff;
-  --color-surface-muted: oklch(0.984 0.003 285);
-  --color-surface-sunken: oklch(0.965 0.005 285);
-  --color-line: oklch(0.922 0.005 285);
-  --color-line-strong: oklch(0.865 0.008 285);
-  --color-ink: oklch(0.255 0.017 285);
-  --color-ink-muted: oklch(0.51 0.015 285);
-  --color-ink-subtle: oklch(0.645 0.013 285);
+  /* Legacy token names kept so untouched markup inherits the new skin. */
+  --color-primary-lightest: #dfdfdf;
+  --color-primary-lighter: #c0c0c0;
+  --color-primary-light: #1084d0;
+  --color-primary: #000080;
+  --color-primary-dark: #000080;
+  --color-primary-darker: #00006b;
+  --color-primary-darkest: #000050;
 
-  --font-sans:
-    var(--font-inter), ui-sans-serif, system-ui, -apple-system,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --color-canvas: #008080;
+  --color-surface: #c0c0c0;
+  --color-surface-muted: #c0c0c0;
+  --color-surface-sunken: #ffffff;
+  --color-line: #808080;
+  --color-line-strong: #0a0a0a;
+  --color-ink: #000000;
+  --color-ink-muted: #202020;
+  --color-ink-subtle: #4a4a4a;
 
-  /* Bento corners are large — the radius is what reads as "tile" rather than "box" */
-  --radius-card: 1.25rem;
-  --radius-tile: 1rem;
-  --radius-media: 0.75rem;
-  --radius-control: 0.75rem;
+  /* --- Type ------------------------------------------------------------- */
+  /* Tahoma ships with Windows and with MS Office on Mac; the rest of the
+     stack degrades through the other grotesques of the era. */
+  --font-sans: Tahoma, 'MS Sans Serif', 'Segoe UI', Geneva, Verdana, sans-serif;
+  --font-mono: 'Fixedsys', 'Courier New', Courier, monospace;
 
-  /* Layered, low-alpha shadows read as depth rather than as a grey haze */
-  --shadow-soft:
-    0 1px 2px oklch(0.255 0.017 285 / 0.05),
-    0 6px 16px -8px oklch(0.255 0.017 285 / 0.12);
-  --shadow-float:
-    0 1px 2px oklch(0.255 0.017 285 / 0.05),
-    0 12px 28px -10px oklch(0.255 0.017 285 / 0.16);
-  --shadow-pop:
-    0 2px 4px oklch(0.255 0.017 285 / 0.05),
-    0 24px 48px -16px oklch(0.255 0.017 285 / 0.22);
+  /* The 98 shell drew everything at 11px. Tailwind's scale is retuned to it
+     so existing text-* classes land on period-correct sizes. */
+  --text-xs: 10px;
+  --text-xs--line-height: 1.35;
+  --text-sm: 11px;
+  --text-sm--line-height: 1.4;
+  --text-base: 12px;
+  --text-base--line-height: 1.45;
+  --text-lg: 13px;
+  --text-lg--line-height: 1.4;
+  --text-xl: 15px;
+  --text-xl--line-height: 1.35;
+  --text-2xl: 17px;
+  --text-2xl--line-height: 1.3;
+  --text-3xl: 20px;
+  --text-3xl--line-height: 1.25;
+  --text-4xl: 24px;
+  --text-4xl--line-height: 1.2;
+  --text-5xl: 30px;
+  --text-5xl--line-height: 1.1;
+  --text-6xl: 38px;
+  --text-6xl--line-height: 1.05;
+  --text-7xl: 46px;
+  --text-8xl: 58px;
+  --text-9xl: 74px;
 
-  /* Glass: the inset top highlight is what actually sells it as a lit surface */
-  --shadow-glass:
-    inset 0 1px 0 oklch(1 0 0 / 0.7),
-    inset 0 0 0 1px oklch(1 0 0 / 0.28),
-    0 8px 32px -12px oklch(0.255 0.017 285 / 0.25);
-  --shadow-glass-pop:
-    inset 0 1px 0 oklch(1 0 0 / 0.75),
-    inset 0 0 0 1px oklch(1 0 0 / 0.35),
-    0 24px 56px -20px oklch(0.255 0.017 285 / 0.35);
-  --blur-glass: 20px;
+  /* --- Shape ------------------------------------------------------------ */
+  /* Square. All of it. */
+  --radius-card: 0px;
+  --radius-tile: 0px;
+  --radius-media: 0px;
+  --radius-control: 0px;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
 
-  --animate-spin-slow: spin 8s linear infinite;
-  --animate-slide-up-fade-in: slide-up-fade-in 0.4s ease-out both;
-  --animate-scale-in: scale-in 0.18s ease-out both;
-  --animate-float: float 3s ease-in-out infinite;
-  --animate-toast-in: toast-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-menu-in: menu-in 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* Nothing was ever blurred. */
+  --blur-glass: 0px;
+  --blur-xs: 0px;
+  --blur-sm: 0px;
+  --blur-md: 0px;
+  --blur-lg: 0px;
+  --blur-xl: 0px;
+  --blur-2xl: 0px;
+  --blur-3xl: 0px;
+
+  /* --- Depth ------------------------------------------------------------
+     Every "shadow" in this app is really a bevel. Redefining the scale means
+     shadow-soft / shadow-lg / shadow-glass all resolve to chiselled edges. */
+  --shadow-w98-out:
+    inset -1px -1px #0a0a0a, inset 1px 1px #ffffff, inset -2px -2px #808080,
+    inset 2px 2px #dfdfdf;
+  --shadow-w98-in:
+    inset -1px -1px #ffffff, inset 1px 1px #808080, inset -2px -2px #dfdfdf,
+    inset 2px 2px #0a0a0a;
+  --shadow-w98-out-thin: inset -1px -1px #808080, inset 1px 1px #ffffff;
+  --shadow-w98-in-thin: inset -1px -1px #ffffff, inset 1px 1px #808080;
+
+  --shadow-soft: var(--shadow-w98-out);
+  --shadow-float: var(--shadow-w98-out);
+  --shadow-pop: var(--shadow-w98-out);
+  --shadow-glass: var(--shadow-w98-out);
+  --shadow-glass-pop: var(--shadow-w98-out);
+
+  --shadow-2xs: var(--shadow-w98-out-thin);
+  --shadow-xs: var(--shadow-w98-out-thin);
+  --shadow-sm: var(--shadow-w98-out);
+  --shadow-md: var(--shadow-w98-out);
+  --shadow-lg: var(--shadow-w98-out);
+  --shadow-xl: var(--shadow-w98-out);
+  --shadow-2xl: var(--shadow-w98-out);
+  --inset-shadow-2xs: var(--shadow-w98-in-thin);
+  --inset-shadow-xs: var(--shadow-w98-in-thin);
+  --inset-shadow-sm: var(--shadow-w98-in);
+  --drop-shadow-sm: 0 0 #0000;
+  --drop-shadow-md: 0 0 #0000;
+  --drop-shadow-lg: 0 0 #0000;
+  --drop-shadow-xl: 0 0 #0000;
+  --drop-shadow-2xl: 0 0 #0000;
+
+  /* --- Motion -----------------------------------------------------------
+     98 had two animations: the title-bar zoom and the hourglass. Keep the
+     handful the app needs functionally, drop the rest to instant. */
+  --animate-spin-slow: none;
+  --animate-slide-up-fade-in: none;
+  --animate-scale-in: none;
+  --animate-float: none;
+  --animate-toast-in: w98-open 0.12s steps(3, end) both;
+  --animate-menu-in: w98-open 0.08s steps(2, end) both;
+  --animate-blink: w98-blink 1s steps(1, end) infinite;
+  --animate-marquee: w98-marquee 12s linear infinite;
 }
 
 @layer base {
@@ -72,350 +158,718 @@
     box-sizing: border-box;
   }
 
+  /* The single most important rule in the file. */
+  *,
+  *::before,
+  *::after {
+    border-radius: 0 !important;
+  }
+
   html {
     -webkit-tap-highlight-color: transparent;
+    background: var(--color-w98-desktop);
   }
 
   body {
     font-family: var(--font-sans);
+    font-size: 12px;
     color: var(--color-ink);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-feature-settings: 'cv11', 'ss01';
+    background: var(--color-w98-desktop);
+    /* Aliased text is the period detail people actually notice. */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    text-rendering: geometricPrecision;
   }
 
-  /* Tighter tracking on large text is the single biggest "modern" typography cue */
+  /* Headings were bold system font at a slightly larger size — no tracking
+     games, no balancing, no serif display faces. */
   h1,
   h2,
-  h3 {
-    letter-spacing: -0.02em;
-    text-wrap: balance;
+  h3,
+  h4 {
+    letter-spacing: 0;
+    font-weight: bold;
   }
 
   button:not([disabled]),
   a[href] {
-    cursor: pointer;
+    cursor: default;
   }
 
+  a[href] {
+    color: var(--color-w98-navy);
+    text-decoration: underline;
+  }
+
+  /* Focus in 98 was a dotted rectangle inside the control. */
   :focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
+    outline: 1px dotted #000000;
+    outline-offset: -4px;
   }
 
   ::selection {
-    background: var(--color-primary-lighter);
-    color: var(--color-primary-darkest);
+    background: var(--color-w98-navy);
+    color: #ffffff;
   }
 
+  /* Kill leftover translucency/backdrop effects from the previous theme. */
+  [class*='backdrop-blur'],
+  [class*='backdrop-saturate'] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* --- Scrollbars ------------------------------------------------------- */
   * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-line-strong) transparent;
+    scrollbar-width: auto;
+    scrollbar-color: var(--color-w98-face) #ffffff;
   }
 
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: var(--color-line-strong);
-    border: 3px solid transparent;
-    background-clip: content-box;
-    border-radius: 9999px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--color-ink-subtle);
+    width: 16px;
+    height: 16px;
   }
 
   ::-webkit-scrollbar-track {
+    /* The classic 50% dither, drawn as a 2px checkerboard. */
+    background-color: #ffffff;
+    background-image:
+      linear-gradient(
+        45deg,
+        var(--color-w98-face) 25%,
+        transparent 25%,
+        transparent 75%,
+        var(--color-w98-face) 75%
+      ),
+      linear-gradient(
+        45deg,
+        var(--color-w98-face) 25%,
+        transparent 25%,
+        transparent 75%,
+        var(--color-w98-face) 75%
+      );
+    background-size: 4px 4px;
+    background-position:
+      0 0,
+      2px 2px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-out);
+    border: 0;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: var(--color-w98-face);
+  }
+
+  ::-webkit-scrollbar-button:single-button {
+    display: block;
+    background-color: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-out);
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 16px;
+    width: 16px;
+  }
+
+  ::-webkit-scrollbar-button:single-button:vertical:decrement {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='7' height='4'><path d='M3.5 0 7 4H0z' fill='black'/></svg>");
+  }
+
+  ::-webkit-scrollbar-button:single-button:vertical:increment {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='7' height='4'><path d='M0 0h7L3.5 4z' fill='black'/></svg>");
+  }
+
+  ::-webkit-scrollbar-button:single-button:horizontal:decrement {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='7'><path d='M0 3.5 4 0v7z' fill='black'/></svg>");
+  }
+
+  ::-webkit-scrollbar-button:single-button:horizontal:increment {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='7'><path d='M4 3.5 0 7V0z' fill='black'/></svg>");
+  }
+
+  /* --- Native controls -------------------------------------------------- */
+  input[type='text'],
+  input[type='search'],
+  input[type='number'],
+  input[type='email'],
+  input[type='tel'],
+  input[type='password'],
+  input[type='date'],
+  input[type='datetime-local'],
+  input[type='time'],
+  textarea,
+  select {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    background: #ffffff;
+    color: #000000;
+    border: 0;
+    box-shadow: var(--shadow-w98-in);
+    padding: 3px 4px;
+  }
+
+  input:disabled,
+  textarea:disabled,
+  select:disabled {
+    background: var(--color-w98-face);
+    color: var(--color-w98-shadow);
+  }
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    accent-color: var(--color-w98-navy);
+    width: 13px;
+    height: 13px;
+  }
+
+  input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
     background: transparent;
+    height: 20px;
   }
 
-  @keyframes subtle-zoom {
-    0% {
-      transform: scale(1) rotate(0deg);
-    }
-    33% {
-      transform: scale(1.5) rotate(20deg);
-    }
-    66% {
-      transform: scale(1.5) rotate(-20deg);
-    }
-    100% {
-      transform: scale(1) rotate(0deg);
-    }
+  input[type='range']::-webkit-slider-runnable-track {
+    height: 4px;
+    background: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-in-thin);
   }
 
-  @keyframes slide-up-fade-in {
-    0% {
+  input[type='range']::-moz-range-track {
+    height: 4px;
+    background: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-in-thin);
+  }
+
+  /* The 98 trackbar grip: a tall rectangular slug, not a dot. */
+  input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 11px;
+    height: 20px;
+    margin-top: -8px;
+    background: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-out);
+    cursor: default;
+  }
+
+  input[type='range']::-moz-range-thumb {
+    width: 11px;
+    height: 20px;
+    border: 0;
+    background: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-out);
+    cursor: default;
+  }
+
+  /* --- Keyframes -------------------------------------------------------- */
+  @keyframes w98-open {
+    from {
       opacity: 0;
-      transform: translateY(30px);
     }
-    100% {
+    to {
       opacity: 1;
-      transform: translateY(0);
+    }
+  }
+
+  @keyframes w98-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes w98-marquee {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes w98-barber {
+    to {
+      background-position: 16px 0;
+    }
+  }
+
+  /* Retained because live regions still reference them. */
+  @keyframes slide-up-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
     }
   }
 
   @keyframes scale-in {
-    0% {
+    from {
       opacity: 0;
-      transform: scale(0.8);
     }
-    100% {
+    to {
       opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
     }
   }
 
   @keyframes pulse-glow {
-    0%,
-    100% {
-      box-shadow: 0 0 20px var(--glow-color, rgba(168, 85, 247, 0.4));
-      opacity: 1;
-    }
     50% {
-      box-shadow: 0 0 40px var(--glow-color, rgba(168, 85, 247, 0.8));
-      opacity: 0.8;
-    }
-  }
-
-  @keyframes gradient-swirl-1 {
-    0%,
-    100% {
-      transform: translate(0%, 0%) rotate(0deg);
-    }
-    33% {
-      transform: translate(30%, 20%) rotate(120deg);
-    }
-    66% {
-      transform: translate(-20%, 30%) rotate(240deg);
-    }
-  }
-
-  @keyframes gradient-swirl-2 {
-    0%,
-    100% {
-      transform: translate(0%, 0%) rotate(0deg) scale(1);
-    }
-    50% {
-      transform: translate(-30%, -20%) rotate(-180deg) scale(1.2);
-    }
-  }
-
-  @keyframes gradient-swirl-3 {
-    0%,
-    100% {
-      transform: translate(0%, 0%) scale(1);
-    }
-    33% {
-      transform: translate(-25%, 15%) scale(1.3);
-    }
-    66% {
-      transform: translate(25%, -15%) scale(0.9);
-    }
-  }
-
-  @keyframes toast-in {
-    0% {
-      opacity: 0;
-      transform: translateX(16px) scale(0.97);
-    }
-    100% {
-      opacity: 1;
-      transform: translateX(0) scale(1);
-    }
-  }
-
-  @keyframes menu-in {
-    0% {
-      opacity: 0;
-      transform: translateY(-4px) scale(0.98);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
+      opacity: 0.6;
     }
   }
 }
 
 @layer utilities {
-  /* The app canvas. Glass has nothing to refract without colour behind it, so the
-     backdrop carries the hue and every surface above it stays translucent. */
-  .app-canvas {
-    background-color: var(--color-canvas);
+  /* ==== Surfaces ======================================================== */
+
+  /* The desktop itself. Teal, because of course it is. */
+  .app-canvas,
+  .w98-desktop {
+    background-color: var(--color-w98-desktop);
     isolation: isolate;
   }
 
-  .aurora {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-    contain: strict;
+  /* Raised panel — the default for anything that used to be a glass card. */
+  .glass,
+  .glass-strong,
+  .w98-raised {
+    background-color: var(--color-w98-face);
+    color: #000000;
+    box-shadow: var(--shadow-w98-out);
   }
 
-  .aurora-blob {
-    position: absolute;
-    border-radius: 9999px;
-    /* Just enough colour for glass to have something to refract. Raise
-       --aurora-strength if you ever want the backdrop more present. */
-    opacity: var(--aurora-strength, 0.16);
-    will-change: transform;
+  /* Recessed well — lists, content areas, anything that holds data. */
+  .w98-sunken {
+    background-color: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-in);
   }
 
-  .aurora-blob-1 {
-    top: -18%;
-    left: -12%;
-    width: 60vw;
-    height: 60vw;
-    background: radial-gradient(
-      circle at 30% 30%,
-      var(--color-primary),
-      transparent 68%
-    );
-    filter: blur(100px) saturate(115%);
-    animation: gradient-swirl-1 34s ease-in-out infinite;
+  /* White-paper well: the "document" area of an app. */
+  .w98-paper {
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: var(--shadow-w98-in);
   }
 
-  .aurora-blob-2 {
-    top: 6%;
-    right: -18%;
-    width: 55vw;
-    height: 55vw;
-    background: radial-gradient(
-      circle at 60% 40%,
-      var(--color-primary),
-      transparent 68%
-    );
-    filter: blur(100px) saturate(110%) hue-rotate(16deg);
-    animation: gradient-swirl-2 44s ease-in-out infinite;
+  .w98-raised-thin {
+    background-color: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-out-thin);
   }
 
-  .aurora-blob-3 {
-    bottom: -22%;
-    left: 18%;
-    width: 65vw;
-    height: 65vw;
-    background: radial-gradient(
-      circle at 40% 60%,
-      var(--color-primary-light),
-      transparent 70%
-    );
-    filter: blur(100px) saturate(110%) hue-rotate(-18deg);
-    animation: gradient-swirl-3 38s ease-in-out infinite;
+  .w98-sunken-thin {
+    box-shadow: var(--shadow-w98-in-thin);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .aurora-blob {
-      animation: none !important;
-    }
-  }
-
-  /* Frosted surface. Falls back to a near-opaque tint where backdrop-filter is absent. */
-  .glass {
-    background-color: oklch(1 0 0 / 0.55);
-    box-shadow: var(--shadow-glass);
-  }
-
-  .glass-strong {
-    background-color: oklch(1 0 0 / 0.75);
-    box-shadow: var(--shadow-glass-pop);
-  }
-
-  /* Dark glass, for overlays sitting on imagery */
+  /* Dark overlays become plain face panels — 98 had no scrims. */
   .glass-dark {
-    background-color: oklch(0.2 0.02 285 / 0.45);
+    background-color: var(--color-w98-face);
+    color: #000000;
+    box-shadow: var(--shadow-w98-out);
+  }
+
+  .hairline {
+    box-shadow: var(--shadow-w98-in-thin);
+  }
+
+  /* ==== Window chrome =================================================== */
+
+  .w98-window {
+    background-color: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-out);
+    padding: 3px;
+  }
+
+  .w98-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 2px 2px 3px;
+    background: linear-gradient(
+      90deg,
+      var(--color-primary) 0%,
+      var(--color-primary-light) 100%
+    );
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 11px;
+    user-select: none;
+  }
+
+  .w98-titlebar-inactive {
+    background: linear-gradient(90deg, #808080 0%, #b5b5b5 100%);
+    color: #dfdfdf;
+  }
+
+  /* 16×14 chrome buttons with a hard 1px outer edge. */
+  .w98-titlebar-btn {
+    width: 16px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-out);
+    color: #000000;
+    flex: none;
+  }
+
+  .w98-titlebar-btn:active:not(:disabled) {
+    box-shadow: var(--shadow-w98-in);
+  }
+
+  .w98-titlebar-btn:disabled {
+    color: var(--color-w98-shadow);
+  }
+
+  /* ==== Buttons ========================================================= */
+
+  .w98-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 75px;
+    padding: 4px 11px;
+    background-color: var(--color-w98-face);
+    color: #000000;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    line-height: 1.2;
+    text-decoration: none;
+    box-shadow: var(--shadow-w98-out);
+    cursor: default;
+    user-select: none;
+  }
+
+  /* The press is the whole interaction: bevel flips, content shifts 1px. */
+  .w98-btn:active:not(:disabled):not([aria-disabled='true']),
+  .w98-btn[data-pressed='true']:not(:disabled) {
+    box-shadow: var(--shadow-w98-in);
+    padding: 5px 10px 3px 12px;
+  }
+
+  .w98-btn:disabled,
+  .w98-btn[aria-disabled='true'] {
+    color: var(--color-w98-shadow);
+    text-shadow: 1px 1px 0 #ffffff;
+    cursor: default;
+  }
+
+  .w98-btn-sm {
+    min-width: 0;
+    padding: 2px 6px;
+  }
+
+  .w98-btn-sm:active:not(:disabled) {
+    padding: 3px 5px 1px 7px;
+  }
+
+  /* Default button in a dialog carries an extra black ring. */
+  .w98-btn-default {
     box-shadow:
-      inset 0 1px 0 oklch(1 0 0 / 0.18),
-      inset 0 0 0 1px oklch(1 0 0 / 0.14),
-      0 8px 32px -12px oklch(0 0 0 / 0.5);
+      var(--shadow-w98-out),
+      0 0 0 1px #000000;
+    outline-offset: 2px;
   }
 
-  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .glass,
-    .glass-strong,
-    .glass-dark {
-      -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(180%);
-      backdrop-filter: blur(var(--blur-glass)) saturate(180%);
-    }
-
-    .glass {
-      background-color: oklch(1 0 0 / 0.42);
-    }
-
-    .glass-strong {
-      background-color: oklch(1 0 0 / 0.62);
-    }
+  /* Toolbar buttons are flat until touched. */
+  .w98-btn-flat {
+    background-color: var(--color-w98-face);
+    box-shadow: none;
+    padding: 3px 6px;
+    min-width: 0;
   }
 
-  /* Inputs must read as *recessed* against a frosted card. A white hairline on
-     near-white glass is invisible, so the edge is a dark inset hairline plus a
-     slight inner shadow — the affordance comes from the recess, not a border. */
-  .field {
-    background-color: oklch(1 0 0 / 0.72);
-    box-shadow:
-      inset 0 0 0 1px oklch(0.255 0.017 285 / 0.16),
-      inset 0 1px 2px oklch(0.255 0.017 285 / 0.07);
-    transition:
-      background-color 0.15s ease,
-      box-shadow 0.15s ease;
+  .w98-btn-flat:hover:not(:disabled) {
+    box-shadow: var(--shadow-w98-out-thin);
   }
 
-  .field::placeholder {
-    color: var(--color-ink-subtle);
+  .w98-btn-flat:active:not(:disabled) {
+    box-shadow: var(--shadow-w98-in-thin);
+    padding: 4px 5px 2px 7px;
   }
 
-  .field:hover:not(:disabled):not(:focus) {
-    background-color: oklch(1 0 0 / 0.85);
-    box-shadow:
-      inset 0 0 0 1px oklch(0.255 0.017 285 / 0.24),
-      inset 0 1px 2px oklch(0.255 0.017 285 / 0.07);
+  /* Sticky/toggled state: pressed in, with the 50% dither showing through. */
+  .w98-btn-checked {
+    box-shadow: var(--shadow-w98-in-thin);
+    background-color: var(--color-w98-face);
+    background-image:
+      linear-gradient(
+        45deg,
+        #ffffff 25%,
+        transparent 25%,
+        transparent 75%,
+        #ffffff 75%
+      ),
+      linear-gradient(
+        45deg,
+        #ffffff 25%,
+        transparent 25%,
+        transparent 75%,
+        #ffffff 75%
+      );
+    background-size: 4px 4px;
+    background-position:
+      0 0,
+      2px 2px;
+  }
+
+  /* ==== Fields ========================================================== */
+
+  .field,
+  .w98-field {
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: var(--shadow-w98-in);
+    font-size: 11px;
+    padding: 3px 4px;
+  }
+
+  .field::placeholder,
+  .w98-field::placeholder {
+    color: var(--color-w98-shadow);
   }
 
   .field:focus,
-  .field:focus-visible {
+  .field:focus-visible,
+  .w98-field:focus,
+  .w98-field:focus-visible {
     outline: none;
-    background-color: oklch(1 0 0 / 0.96);
+    background-color: #ffffff;
+    box-shadow: var(--shadow-w98-in);
+  }
+
+  .field:disabled,
+  .w98-field:disabled {
+    background-color: var(--color-w98-face);
+    color: var(--color-w98-shadow);
+  }
+
+  /* ==== Structure ======================================================= */
+
+  /* Group box: the sunken/raised double hairline with a notched legend. */
+  .w98-group {
+    position: relative;
     box-shadow:
-      inset 0 0 0 1px var(--color-primary),
-      0 0 0 3px color-mix(in oklab, var(--color-primary) 25%, transparent);
+      inset -1px -1px #ffffff,
+      inset 1px 1px #808080,
+      inset -2px -2px #c0c0c0,
+      inset 2px 2px #ffffff;
+    padding: 14px 10px 10px;
+    margin-top: 6px;
   }
 
-  .field:disabled {
-    background-color: oklch(0.255 0.017 285 / 0.05);
-    box-shadow: inset 0 0 0 1px oklch(0.255 0.017 285 / 0.1);
-    cursor: not-allowed;
+  .w98-group-label {
+    position: absolute;
+    top: -6px;
+    left: 8px;
+    padding: 0 4px;
+    background: var(--color-w98-face);
+    font-size: 11px;
   }
 
-  /* Bento tile: a glass cell that lifts on hover */
-  .bento-tile {
-    border-radius: var(--radius-tile);
-    transition:
-      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.25s ease;
+  .w98-statusbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px;
+    background: var(--color-w98-face);
   }
 
+  .w98-statusbar-cell {
+    box-shadow: var(--shadow-w98-in-thin);
+    padding: 2px 5px;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  /* Menu bar / dropdown menus */
+  .w98-menubar {
+    display: flex;
+    align-items: center;
+    background: var(--color-w98-face);
+    padding: 1px 2px;
+    font-size: 11px;
+  }
+
+  .w98-menuitem {
+    padding: 3px 7px;
+    color: #000000;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    text-align: left;
+  }
+
+  .w98-menuitem:hover:not(:disabled),
+  .w98-menuitem[data-active='true'] {
+    background: var(--color-primary);
+    color: #ffffff;
+  }
+
+  .w98-menuitem:disabled {
+    color: var(--color-w98-shadow);
+    text-shadow: 1px 1px 0 #ffffff;
+  }
+
+  .w98-menu {
+    background: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-out);
+    padding: 2px;
+  }
+
+  .w98-separator {
+    height: 2px;
+    margin: 3px 1px;
+    box-shadow: var(--shadow-w98-in-thin);
+  }
+
+  .w98-separator-v {
+    width: 2px;
+    align-self: stretch;
+    margin: 1px 3px;
+    box-shadow: var(--shadow-w98-in-thin);
+  }
+
+  /* ==== Tabs ============================================================ */
+
+  .w98-tabs {
+    display: flex;
+    align-items: flex-end;
+    gap: 1px;
+    padding-left: 3px;
+    /* The active tab overlaps the panel edge below it. */
+    margin-bottom: -2px;
+    position: relative;
+    z-index: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .w98-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .w98-tab {
+    background: var(--color-w98-face);
+    box-shadow:
+      inset 1px 1px #ffffff,
+      inset -1px 0 #0a0a0a,
+      inset -2px 0 #808080;
+    padding: 3px 10px 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    position: relative;
+    top: 2px;
+    color: #000000;
+    text-decoration: none;
+  }
+
+  .w98-tab[aria-selected='true'],
+  .w98-tab[data-selected='true'] {
+    top: 0;
+    padding: 5px 12px 6px;
+    font-weight: bold;
+    z-index: 2;
+  }
+
+  /* ==== Selection & lists =============================================== */
+
+  /* Selection follows the colour scheme, the way an Appearance scheme set
+     both the title bar and the highlight colour together. */
+  .w98-selected,
+  .w98-accent {
+    background: var(--color-primary);
+    color: #ffffff;
+  }
+
+  /* A section heading: a solid accent strip across the content, like the
+     header bands in a 98 wizard or Explorer bar. */
+  .w98-accent {
+    font-weight: bold;
+    padding: 1px 4px;
+  }
+
+  /* Rows highlight on hover the way ListView items did. */
+  .w98-row {
+    padding: 2px 4px;
+  }
+
+  .w98-row:hover {
+    background: var(--color-primary);
+    color: #ffffff;
+  }
+
+  .w98-row:hover a,
+  .w98-row:hover .w98-row-sub {
+    color: #ffffff;
+  }
+
+  /* ==== Progress / meters =============================================== */
+
+  /* Segmented progress: 10px navy blocks with a 2px gap, drawn by gradient. */
+  .w98-progress {
+    background: var(--color-w98-face);
+    box-shadow: var(--shadow-w98-in);
+    padding: 2px;
+    height: 20px;
+  }
+
+  .w98-progress-fill {
+    height: 100%;
+    background-image: linear-gradient(
+      90deg,
+      var(--color-w98-navy) 0 10px,
+      transparent 10px 12px
+    );
+    background-size: 12px 100%;
+  }
+
+  /* ==== Misc ============================================================ */
+
+  .w98-tooltip {
+    background: var(--color-w98-info);
+    color: #000000;
+    border: 1px solid #000000;
+    padding: 2px 4px;
+    font-size: 11px;
+  }
+
+  .w98-inset-image {
+    box-shadow: var(--shadow-w98-in-thin);
+  }
+
+  /* The dotted focus rectangle, as a standalone decoration. */
+  .w98-focus-rect {
+    outline: 1px dotted #000000;
+    outline-offset: -3px;
+  }
+
+  .w98-title-shadow {
+    text-shadow: 1px 1px 0 #000000;
+  }
+
+  /* Bevelled text, as used on the Start button and section headers. */
+  .w98-emboss {
+    color: var(--color-w98-shadow);
+    text-shadow: 1px 1px 0 #ffffff;
+  }
+
+  /* Neutralised leftovers from the previous theme so stray markup can't
+     reintroduce blur or floating colour fields. */
+  .aurora,
+  .aurora-blob {
+    display: none !important;
+  }
+
+  .bento-tile,
   .bento-tile-interactive:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-glass-pop);
-  }
-
-  /* Hairline that survives on both white and tinted surfaces */
-  .hairline {
-    box-shadow: inset 0 0 0 1px var(--color-line);
+    transform: none;
+    transition: none;
   }
 }

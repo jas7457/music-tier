@@ -60,13 +60,7 @@ export function ConfirmUploadButton({
     return (
       <div className={className}>
         <div>
-          <label
-            htmlFor="file-upload"
-            className={
-              buttonClassName ||
-              'cursor-pointer inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors'
-            }
-          >
+          <label htmlFor="file-upload" className={buttonClassName || 'w98-btn'}>
             {chooseFile}
           </label>
           <input
@@ -102,7 +96,7 @@ export function ConfirmUploadButton({
                 await startUpload([file]);
               }}
               disabled={isUploading}
-              className="px-4 py-2.5 bg-emerald-600 text-white rounded-control shadow-soft hover:bg-emerald-700 hover:shadow-float disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed transition-colors"
+              className="w98-btn w98-btn-default"
             >
               {isUploading ? uploading : confirmUpload}
             </button>
@@ -112,7 +106,7 @@ export function ConfirmUploadButton({
                 onCancel();
               }}
               disabled={isUploading}
-              className="px-4 py-2.5 bg-red-600 text-white rounded-control shadow-soft hover:bg-red-700 hover:shadow-float disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed transition-colors"
+              className="w98-btn"
             >
               {cancel}
             </button>
@@ -159,12 +153,7 @@ export function ImmediateUploadButton({
 
   return (
     <div className={className}>
-      <label
-        className={
-          buttonClassName ||
-          'cursor-pointer inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors'
-        }
-      >
+      <label className={buttonClassName || 'w98-btn'}>
         {isUploading ? uploadingLabel : label}
         <input
           type="file"

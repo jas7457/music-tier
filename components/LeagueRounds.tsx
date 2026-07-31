@@ -21,9 +21,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
 
     return (
       <div>
-        <h3 className="text-xs font-semibold mb-3 text-primary-dark uppercase tracking-widest">
-          Current Round
-        </h3>
+        <h3 className="w98-accent text-sm mb-1.5">Current Round</h3>
         <Round
           key={league.rounds.current.stage}
           currentUser={user}
@@ -92,8 +90,8 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
 
       return (
         <div key={title}>
-          <h3 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">{title}</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <h3 className="w98-accent text-sm mb-1.5">{title}</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             {rounds.map((round, index) => {
               const hasAllSubmissions =
                 round.submissions.length === league.users.length;
@@ -101,8 +99,8 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
               return (
                 <Card
                   key={round._id || index}
-                  variant="outlined"
-                  className="bento-tile bento-tile-interactive p-3 md:p-4 flex flex-col gap-4"
+                  variant="default"
+                  className="p-2 flex flex-col gap-2"
                 >
                   {roundInfo(round)}
 
@@ -119,7 +117,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
   })();
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-3">
       {/* Current Round */}
       {roundsMarkup}
 
@@ -131,7 +129,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
         league.rounds.upcoming.length === 0 &&
         league.rounds.kickoff.length === 0 &&
         league.rounds.bonus.length === 0 && (
-          <p className="text-ink-subtle text-center py-8">
+          <p className="w98-paper text-center py-8">
             No rounds submitted in this league.
           </p>
         )}

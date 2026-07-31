@@ -13,41 +13,30 @@ type BreadcrumbProps = {
   items: BreadcrumbItem[];
 };
 
+/** Explorer's Address bar: a label, a sunken combo-like well, and a path. */
 export function Breadcrumb({ items }: BreadcrumbProps) {
   if (items.length === 0) {
     return null;
   }
 
   return (
-    <nav className="mb-4 overflow-x-auto max-w-full" aria-label="Breadcrumb">
-      <ol className="flex items-center text-sm flex-nowrap whitespace-nowrap">
+    <nav className="mb-2 flex items-center gap-2" aria-label="Breadcrumb">
+      <span className="text-sm flex-none hidden sm:inline">Address</span>
+      <ol className="w98-field flex items-center gap-0.5 grow min-w-0 overflow-x-auto whitespace-nowrap py-0.5">
         {items.map((item, index) => {
           return (
-            <li key={index} className="flex items-center">
-              {index > 0 && (
-                <svg
-                  className="mx-0.5 w-4 h-4 text-ink-subtle/60 shrink-0"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              )}
+            <li key={index} className="flex items-center flex-none">
+              {index > 0 && <span className="px-0.5 text-black">\</span>}
               {item.href ? (
                 <Link
                   href={item.href}
-                  className="flex items-center gap-1.5 rounded-md px-2 py-1 font-medium text-ink-muted hover:bg-white/60 hover:text-primary-darker transition-colors"
+                  className="flex items-center gap-1 px-1 text-black no-underline hover:bg-primary hover:text-white"
                 >
                   {item.icon}
                   {item.label}
                 </Link>
               ) : (
-                <span className="flex items-center gap-1.5 px-2 py-1 text-ink font-semibold">
+                <span className="flex items-center gap-1 px-1 font-bold">
                   {item.icon}
                   {item.label}
                 </span>
@@ -60,7 +49,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
   );
 }
 
-// Icon components
+// Icon components — drawn on the pixel grid to match the rest of the shell.
 export const HomeIcon = ({
   size = 16,
   className = '',
@@ -71,11 +60,15 @@ export const HomeIcon = ({
   <svg
     width={size}
     height={size}
-    viewBox="0 0 24 24"
-    fill="currentColor"
+    viewBox="0 0 16 16"
+    shapeRendering="crispEdges"
     className={className}
+    aria-hidden="true"
   >
-    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+    <path d="M8 1l7 7h-2v7H3V8H1z" fill="#000" />
+    <path d="M8 3l5 5v6H4V8z" fill="#c05000" />
+    <rect x="6" y="10" width="4" height="5" fill="#3f2000" />
+    <rect x="4" y="8" width="8" height="1" fill="#ffb080" />
   </svg>
 );
 
@@ -89,11 +82,16 @@ export const LeagueIcon = ({
   <svg
     width={size}
     height={size}
-    viewBox="0 0 24 24"
-    fill="currentColor"
+    viewBox="0 0 16 16"
+    shapeRendering="crispEdges"
     className={className}
+    aria-hidden="true"
   >
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+    <rect x="1" y="1" width="14" height="14" fill="#fff" stroke="#000" />
+    <rect x="3" y="8" width="2" height="5" fill="#ff3b30" />
+    <rect x="6" y="5" width="2" height="8" fill="#00a651" />
+    <rect x="9" y="3" width="2" height="10" fill="#0072ff" />
+    <rect x="12" y="7" width="2" height="6" fill="#ffd400" />
   </svg>
 );
 
@@ -107,10 +105,14 @@ export const RoundIcon = ({
   <svg
     width={size}
     height={size}
-    viewBox="0 0 24 24"
-    fill="currentColor"
+    viewBox="0 0 16 16"
     className={className}
+    aria-hidden="true"
   >
-    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+    <circle cx="8" cy="8" r="7" fill="#000" />
+    <circle cx="8" cy="8" r="6" fill="#c0c0c0" stroke="#fff" />
+    <path d="M4 4a6 6 0 0 1 8 0z" fill="#dfdfdf" />
+    <circle cx="8" cy="8" r="2" fill="#fff" stroke="#808080" />
+    <circle cx="8" cy="8" r="0.8" fill="#808080" />
   </svg>
 );

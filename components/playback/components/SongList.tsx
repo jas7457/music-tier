@@ -22,10 +22,10 @@ export function SongList({ songs, className }: SongListProps) {
       {songs.map((song, index) => (
         <div
           key={`${song.trackInfo.trackId}-${index}`}
-          className="flex items-center gap-3 bg-white/5 p-3 rounded-lg"
+          className="flex items-center gap-3 bg-w98-face p-3 rounded-lg"
         >
           {song.leftText && (
-            <div className="text-sm text-white/80 shrink-0 w-12 text-center">
+            <div className="text-sm text-white shrink-0 w-12 text-center">
               {song.leftText}
             </div>
           )}
@@ -36,13 +36,13 @@ export function SongList({ songs, className }: SongListProps) {
             <div className="font-semibold text-white truncate">
               {song.trackInfo.title}
             </div>
-            <div className="text-xs text-white/60 truncate">
+            <div className="text-xs text-white truncate">
               {song.trackInfo.artists.join(', ')}
             </div>
           </div>
 
           {song.rightText && (
-            <div className="text-sm text-white/80 shrink-0">
+            <div className="text-sm text-white shrink-0">
               {song.rightText}
             </div>
           )}

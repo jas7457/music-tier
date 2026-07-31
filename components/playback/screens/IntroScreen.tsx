@@ -57,7 +57,7 @@ export function IntroScreen({ isActive, league }: PlaybackScreenProps) {
                 : 'none',
             }}
           >
-            <div className="absolute inset-0 bg-white/20 rounded-full blur-xl animate-pulse" />
+            <div className="absolute inset-0 bg-w98-face rounded-full blur-xl animate-pulse" />
             <svg
               className="w-16 h-16 relative z-10"
               viewBox="0 0 24 24"
@@ -72,7 +72,7 @@ export function IntroScreen({ isActive, league }: PlaybackScreenProps) {
               />
             </svg>
           </div>
-          <p className="text-xl text-white/90 font-medium">
+          <p className="text-xl text-white font-medium">
             Scroll or swipe to begin
           </p>
         </div>

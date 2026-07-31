@@ -241,7 +241,7 @@ export function LeagueChampionScreen({
               {winner.submissions.map((submission, index) => (
                 <div
                   key={index}
-                  className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20"
+                  className="bg-w98-face backdrop-blur-sm rounded-lg p-3 border border-w98-shadow"
                   style={{
                     animation: isFlipped
                       ? `slide-in-submission 0.4s ease-out ${index * 80}ms both`
@@ -258,11 +258,11 @@ export function LeagueChampionScreen({
                       <p className="font-medium truncate text-sm">
                         {submission.trackInfo.title}
                       </p>
-                      <p className="text-xs text-white/70 truncate">
+                      <p className="text-xs text-white truncate">
                         {submission.trackInfo.artists.join(', ')}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-white/50">
+                        <span className="text-xs text-white">
                           {getRoundTitle(submission.round)}
                         </span>
                       </div>
@@ -274,11 +274,11 @@ export function LeagueChampionScreen({
                   </div>
 
                   {submission.votes.length > 0 && (
-                    <div className="mt-2 space-y-1 pt-2 border-t border-white/10">
+                    <div className="mt-2 space-y-1 pt-2 border-t border-w98-shadow">
                       {submission.votes.map((vote, voteIndex) => (
                         <div
                           key={voteIndex}
-                          className="text-xs bg-white/5 rounded-md p-2 grid gap-1"
+                          className="text-xs bg-w98-face rounded-md p-2 grid gap-1"
                         >
                           <div className="flex gap-2 items-center">
                             <Avatar
@@ -286,7 +286,7 @@ export function LeagueChampionScreen({
                               size={8}
                               includeLink={false}
                             />
-                            <p className="font-semibold text-white/80">
+                            <p className="font-semibold text-white">
                               {vote.user.userName}
                             </p>
                             <span className="text-yellow-300 font-bold ml-auto">
@@ -295,7 +295,7 @@ export function LeagueChampionScreen({
                           </div>
 
                           {vote.note && (
-                            <p className="text-white/70">
+                            <p className="text-white">
                               <MultiLine>{vote.note}</MultiLine>
                             </p>
                           )}

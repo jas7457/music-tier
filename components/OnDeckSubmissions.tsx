@@ -149,7 +149,7 @@ export function OnDeckSubmissionsList({
           <div
             key={index}
             className={twMerge(
-              'grid grid-cols-[1fr_auto] items-center gap-3 p-3 bg-white/45 ring-1 ring-white/60 rounded-control',
+              'grid grid-cols-[1fr_auto] items-center gap-3 p-2 w98-raised-thin',
               className,
             )}
           >
@@ -194,7 +194,7 @@ export function OnDeckSubmissionsList({
                   !isYourSubmission && (
                     <div className="flex">
                       <HapticButton
-                        className="duration-150 ease-out active:scale-95 p-1 text-white bg-primary hover:bg-primary-dark rounded-control shadow-soft hover:shadow-float disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed transition-all"
+                        className="w98-btn w98-btn-sm !min-w-0"
                         disabled={isSaving}
                         onClick={async () => {
                           setIsSaving(true);
@@ -320,7 +320,7 @@ export function OnDeckSubmissionsList({
 
       {onDeckSubmissions.length > 0 && onDeckInfo.canSubmit && (
         <HapticButton
-          className="duration-150 ease-out active:scale-95 w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-control shadow-soft hover:shadow-float disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed transition-all"
+          className="w98-btn w98-btn-default w-full"
           disabled={allSaved || isSaving}
           onClick={async () => {
             setIsSaving(true);

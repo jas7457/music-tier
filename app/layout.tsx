@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/lib/AuthContext';
 import { SpotifyPlayerProvider } from '@/lib/SpotifyPlayerContext';
@@ -13,12 +12,6 @@ import { DataProvider } from '@/lib/DataContext';
 import { ToastProvider } from '@/lib/ToastContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import { APP_NAME } from '@/lib/utils/constants';
-
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-});
 
 export const metadata: Metadata = {
   title: APP_NAME,
@@ -35,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#000000',
+  themeColor: '#008080',
   maximumScale: 1,
   userScalable: false,
 };
@@ -47,7 +40,8 @@ export default async function RootLayout({
 }) {
   let initialUser: PopulatedUser | null = null;
   const cookieStore = await cookies();
-  const primaryColor = cookieStore.get('primaryColor')?.value || 'purple';
+  // The colour scheme now drives the title bars, the way Appearance did in 98.
+  const primaryColor = cookieStore.get('primaryColor')?.value || 'blue';
 
   try {
     const sessionToken = cookieStore.get('session_token')?.value;
@@ -60,7 +54,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en">
       <head>
         <script src="https://sdk.scdn.co/spotify-player.js" async></script>
         <link rel="icon" href="/icon-192.png" />
@@ -68,13 +62,13 @@ export default async function RootLayout({
         <style
           dangerouslySetInnerHTML={{
             __html: `:root {
-            --color-primary-lightest: var(--color-${primaryColor}-50);
+            --color-primary-lightest: var(--color-${primaryColor}-100);
             --color-primary-lighter: var(--color-${primaryColor}-200);
-            --color-primary-light: var(--color-${primaryColor}-300);
-            --color-primary: var(--color-${primaryColor}-500);
-            --color-primary-dark: var(--color-${primaryColor}-600);
-            --color-primary-darker: var(--color-${primaryColor}-700);
-            --color-primary-darkest: var(--color-${primaryColor}-800);
+            --color-primary-light: var(--color-${primaryColor}-500);
+            --color-primary: var(--color-${primaryColor}-900);
+            --color-primary-dark: var(--color-${primaryColor}-900);
+            --color-primary-darker: var(--color-${primaryColor}-950);
+            --color-primary-darkest: var(--color-${primaryColor}-950);
           }`,
           }}
         />

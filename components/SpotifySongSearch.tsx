@@ -202,25 +202,25 @@ export function SpotifySongSearch({
           }
         }}
         placeholder={placeholder}
-        className="w-full px-3 py-2 text-sm field rounded-control disabled:cursor-not-allowed"
+        className="w98-field"
       />
 
       {/* Search Results Dropdown */}
       {showSearchResults && searchResults.length > 0 && !loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 glass-strong rounded-card max-h-80 overflow-y-auto">
+        <div className="absolute z-10 w-full mt-0.5 w98-raised p-0.5 max-h-80 overflow-y-auto">
           {searchResults.map((result) => (
             <button
               key={result.trackId}
               type="button"
               onClick={() => handleSongSelect(result)}
-              className="w-full p-3 hover:bg-primary-lightest transition-colors text-left border-b border-gray-100 last:border-b-0"
+              className="w98-row w-full text-left"
             >
               <div className="flex items-center gap-3">
                 {result.albumImageUrl && (
                   <img
                     src={result.albumImageUrl}
                     alt={result.albumName}
-                    className="w-12 h-12 rounded object-cover"
+                    className="w-10 h-10 object-cover shadow-w98-out-thin"
                   />
                 )}
                 <div className="flex-1 min-w-0">
@@ -242,14 +242,14 @@ export function SpotifySongSearch({
 
       {/* Track Loading */}
       {loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 glass-strong rounded-card p-3">
+        <div className="absolute z-10 w-full mt-1 w98-raised p-3">
           <p className="text-xs text-ink-subtle">Loading track preview...</p>
         </div>
       )}
 
       {/* Search Loading */}
       {isSearching && !loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 glass-strong rounded-card p-3">
+        <div className="absolute z-10 w-full mt-1 w98-raised p-3">
           <p className="text-xs text-ink-subtle">Searching...</p>
         </div>
       )}

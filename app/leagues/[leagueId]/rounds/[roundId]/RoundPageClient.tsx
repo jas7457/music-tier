@@ -1,7 +1,6 @@
 'use client';
 
 import { Round } from '@/components/Round';
-import Card from '@/components/Card';
 import { PopulatedRound, PopulatedUser, PopulatedLeague } from '@/lib/types';
 import { useRealTimeUpdates } from '@/lib/PusherContext';
 import {
@@ -26,31 +25,29 @@ export function RoundPageClient({
   useRealTimeUpdates();
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto">
-        <Breadcrumb
-          items={[
-            { label: '', icon: <HomeIcon />, href: '/' },
-            {
-              label: league.title,
-              icon: <LeagueIcon />,
-              href: `/leagues/${league._id}`,
-            },
-            {
-              label: getRoundTitle(round),
-              icon: <RoundIcon />,
-            },
-          ]}
+    <div className="max-w-4xl mx-auto">
+      <Breadcrumb
+        items={[
+          { label: '', icon: <HomeIcon />, href: '/' },
+          {
+            label: league.title,
+            icon: <LeagueIcon />,
+            href: `/leagues/${league._id}`,
+          },
+          {
+            label: getRoundTitle(round),
+            icon: <RoundIcon />,
+          },
+        ]}
+      />
+      <div className="w98-sunken p-2 md:p-3">
+        <Round
+          key={round.stage}
+          currentUser={currentUser}
+          round={round}
+          league={league}
+          isRoundPage={true}
         />
-        <Card className="p-4 md:p-6">
-          <Round
-            key={round.stage}
-            currentUser={currentUser}
-            round={round}
-            league={league}
-            isRoundPage={true}
-          />
-        </Card>
       </div>
     </div>
   );

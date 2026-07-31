@@ -60,10 +60,12 @@ export function ThemeProvider({
   const setStyles = useCallback((color: ColorName) => {
     const root = document.documentElement;
 
-    // Reference Tailwind's built-in CSS variables
+    // Reference Tailwind's built-in CSS variables. The shades are weighted
+    // dark so `--color-primary` → `--color-primary-light` reads as a Windows
+    // title-bar gradient rather than a pastel wash.
     root.style.setProperty(
       '--color-primary-lightest',
-      `var(--color-${color}-50)`,
+      `var(--color-${color}-100)`,
     );
     root.style.setProperty(
       '--color-primary-lighter',
@@ -71,17 +73,17 @@ export function ThemeProvider({
     );
     root.style.setProperty(
       '--color-primary-light',
-      `var(--color-${color}-300)`,
+      `var(--color-${color}-500)`,
     );
-    root.style.setProperty('--color-primary', `var(--color-${color}-500)`);
-    root.style.setProperty('--color-primary-dark', `var(--color-${color}-600)`);
+    root.style.setProperty('--color-primary', `var(--color-${color}-900)`);
+    root.style.setProperty('--color-primary-dark', `var(--color-${color}-900)`);
     root.style.setProperty(
       '--color-primary-darker',
-      `var(--color-${color}-700)`,
+      `var(--color-${color}-950)`,
     );
     root.style.setProperty(
       '--color-primary-darkest',
-      `var(--color-${color}-800)`,
+      `var(--color-${color}-950)`,
     );
   }, []);
 

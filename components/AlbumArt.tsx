@@ -70,18 +70,18 @@ export default function AlbumArt({
 
   const playButtonExtraClasses = (() => {
     if (isDisabled) {
-      return 'bg-gray-500/80 cursor-not-allowed opacity-60';
+      return 'opacity-60';
     }
     if (isCurrentlyPlaying) {
-      return 'bg-[#1DB954]/90 opacity-0 pointer-fine:opacity-100 scale-110';
+      return 'opacity-100';
     }
-    return 'bg-[#1DB954]/90 opacity-0 group-hover:opacity-100 hover:bg-[#1ed760] hover:scale-110';
+    return 'opacity-0 group-hover:opacity-100';
   })();
 
   return (
     <div
       className={twMerge(
-        'relative shrink-0 overflow-hidden rounded-media group',
+        'relative shrink-0 overflow-hidden shadow-w98-out-thin group',
         className,
       )}
       style={{ width: `${size}px`, height: `${size}px` }}
@@ -90,7 +90,7 @@ export default function AlbumArt({
         <img
           src={trackInfo.albumImageUrl}
           alt={trackInfo.title}
-          className="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
+          className="w-full h-full object-cover"
         />
       </div>
 
@@ -118,7 +118,7 @@ export default function AlbumArt({
         }}
         disabled={isDisabled}
         className={twMerge(
-          'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-sm pointer-events-auto z-10',
+          'w98-btn !min-w-0 !p-0 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-auto z-10',
           playButtonExtraClasses,
         )}
         title={
@@ -130,9 +130,9 @@ export default function AlbumArt({
         }
       >
         {isCurrentlyPlaying ? (
-          <PauseIcon size="50%" className="text-white" />
+          <PauseIcon size="50%" className="text-black" />
         ) : (
-          <PlayIcon size="50%" className="text-white" />
+          <PlayIcon size="50%" className="text-black" />
         )}
       </HapticButton>
     </div>

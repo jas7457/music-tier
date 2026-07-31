@@ -40,7 +40,7 @@ export function Songs({ songs, isActive, onPlaySong, className }: SongsProps) {
           <div
             key={index}
             className={twMerge(
-              'bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 transition-all duration-700 transform hover:bg-white/20 hover:border-white/40 relative overflow-hidden',
+              'bg-w98-face backdrop-blur-sm rounded-lg p-3 border border-w98-shadow transition-all duration-700 transform hover:bg-w98-face hover:border-w98-shadow relative overflow-hidden',
               isActive
                 ? 'opacity-100 translate-x-0'
                 : 'opacity-0 -translate-x-10',

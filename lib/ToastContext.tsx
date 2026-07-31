@@ -44,7 +44,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="fixed bottom-4 pl-2 right-2 md:pl-4 md:right-4 z-50 flex flex-col gap-2 pointer-events-none">
+      {/* Stacked just above the taskbar, like tray notifications. */}
+      <div className="fixed bottom-[34px] pl-2 right-2 md:pl-4 md:right-4 z-101 flex flex-col gap-1.5 pointer-events-none">
         {toasts.map((toast) => (
           <Toast key={toast.id} {...toast} onDismiss={value.hide} />
         ))}

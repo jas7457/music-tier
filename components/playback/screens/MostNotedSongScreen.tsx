@@ -86,7 +86,7 @@ export function MostNotedSongScreen({
                       {song.notes.map((note, noteIndex) => (
                         <div
                           key={noteIndex}
-                          className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20"
+                          className="bg-w98-face backdrop-blur-sm rounded-lg p-4 border border-w98-shadow"
                         >
                           <div className="grid gap-3 grid-cols-[auto_1fr]">
                             <Avatar

@@ -383,7 +383,7 @@ export function RacingScreen({
                         'border-2 shadow-lg transition-all w-full! h-full!',
                         showWinner && winner?.user._id === user._id
                           ? 'border-yellow-400 shadow-yellow-400/50 scale-125'
-                          : 'border-white/50',
+                          : 'border-w98-shadow',
                       )}
                     />
                     <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-linear-to-r from-purple-600 to-pink-600 text-white text-[1.2rem] font-bold px-2.5 py-1 rounded-full shadow-lg whitespace-nowrap">

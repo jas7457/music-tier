@@ -43,38 +43,60 @@ export default async function DataPage() {
 
   rows.sort((a, b) => a.submissionDate - b.submissionDate);
 
+  const columns = [
+    'League',
+    'Round',
+    'Submitted By',
+    'Artist',
+    'Song Title',
+    'Submission Date',
+  ];
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">All Submissions</h1>
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="text-left border-b">
-            <th className="pb-2 pr-4">League</th>
-            <th className="pb-2 pr-4">Round</th>
-            <th className="pb-2 pr-4">Submitted By</th>
-            <th className="pb-2 pr-4">Artist</th>
-            <th className="pb-2 pr-4">Song Title</th>
-            <th className="pb-2">Submission Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={i} className="border-b last:border-0">
-              <td className="py-2 pr-4">{row.leagueName}</td>
-              <td className="py-2 pr-4">{row.roundName}</td>
-              <td className="py-2 pr-4">{row.submittedBy}</td>
-              <td className="py-2 pr-4">{row.artists}</td>
-              <td className="py-2 pr-4">{row.title}</td>
-              <td className="py-2">
-                {new Date(row.submissionDate).toLocaleDateString()}
-              </td>
+    <div className="flex flex-col gap-2">
+      <h1 className="text-lg">All Submissions</h1>
+
+      {/* A Details-view list: bevelled column headers over a white well. */}
+      <div className="w98-paper overflow-x-auto">
+        <table className="w-full text-sm border-collapse whitespace-nowrap">
+          <thead>
+            <tr>
+              {columns.map((column) => (
+                <th
+                  key={column}
+                  className="text-left font-normal px-2 py-0.5 bg-w98-face shadow-w98-out-thin sticky top-0"
+                >
+                  {column}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-      {rows.length === 0 && (
-        <p className="text-ink-subtle mt-4">No completed rounds found.</p>
-      )}
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i} className={i % 2 === 1 ? 'bg-[#eceef2]' : undefined}>
+                <td className="px-2 py-0.5">{row.leagueName}</td>
+                <td className="px-2 py-0.5">{row.roundName}</td>
+                <td className="px-2 py-0.5">{row.submittedBy}</td>
+                <td className="px-2 py-0.5">{row.artists}</td>
+                <td className="px-2 py-0.5">{row.title}</td>
+                <td className="px-2 py-0.5 tabular-nums">
+                  {new Date(row.submissionDate).toLocaleDateString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {rows.length === 0 && (
+          <p className="p-4 text-center">No completed rounds found.</p>
+        )}
+      </div>
+
+      <div className="w98-statusbar">
+        <div className="w98-statusbar-cell grow">
+          {rows.length} object(s) found
+        </div>
+        <div className="w98-statusbar-cell">{leagues.length} league(s)</div>
+      </div>
     </div>
   );
 }

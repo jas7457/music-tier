@@ -8,6 +8,31 @@ interface PullToRefreshIndicatorProps {
 
 const MAX_PULL_DISTANCE = 80;
 
+/** The 16-colour hourglass. It flips rather than spins while busy. */
+function HourglassIcon({ spinning }: { spinning: boolean }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+      className={spinning ? 'animate-spin' : ''}
+      style={{ animationDuration: '1.2s' }}
+    >
+      <rect x="3" y="1" width="10" height="1" fill="#000" />
+      <rect x="3" y="14" width="10" height="1" fill="#000" />
+      <path
+        d="M4 2h8v2l-3 3v2l3 3v2H4v-2l3-3V7L4 4z"
+        fill="#fff"
+        stroke="#000"
+      />
+      <path d="M5 3h6v1L8 7 5 4z" fill="#0000c0" />
+      <path d="M6.5 11h3l1.5 2H5z" fill="#ffd400" />
+    </svg>
+  );
+}
+
 export function PullToRefreshIndicator({
   pullDistance,
   isRefreshing,
@@ -22,32 +47,20 @@ export function PullToRefreshIndicator({
         transform: `translateY(${Math.min(pullDistance, MAX_PULL_DISTANCE)}px)`,
       }}
     >
+      {/* The wait cursor, as a status panel. */}
       <div
-        className="glass-strong rounded-full p-3 mt-4 text-primary"
+        className="w98-raised px-3 py-1.5 mt-2 flex items-center gap-2 text-sm"
         style={{
           opacity: opacity,
           transition: 'opacity 0.2s ease-out',
         }}
       >
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={isRefreshing ? 'animate-spin' : ''}
-          style={{
-            transition: isRefreshing ? 'none' : 'transform 0.1s linear',
-            color: shouldTriggerRefresh ? 'currentColor' : '#6b7280',
-          }}
-        >
-          <polyline points="23 4 23 10 17 10" />
-          <polyline points="1 20 1 14 7 14" />
-          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-        </svg>
+        <HourglassIcon spinning={isRefreshing} />
+        {isRefreshing
+          ? 'Refreshing…'
+          : shouldTriggerRefresh
+            ? 'Release to refresh'
+            : 'Pull down to refresh'}
       </div>
     </div>
   );

@@ -200,13 +200,7 @@ export function SongSubmission({
 
   if (submission && isRealSubmission && !isEditing) {
     return (
-      <Card
-        variant="outlined"
-        className={twMerge(
-          fullClassName,
-          'bg-primary-lightest border-primary-light grid gap-3',
-        )}
-      >
+      <Card variant="outlined" className={twMerge(fullClassName, 'grid gap-3')}>
         {/* One media row: art, track, then the action pinned right and centred,
             so the content spans the full width instead of bunching left. */}
         <div className="flex items-center gap-3 md:gap-4">
@@ -218,9 +212,7 @@ export function SongSubmission({
             />
           )}
           <div className="flex-1 min-w-0">
-            <h5 className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle">
-              Your Submission
-            </h5>
+            <h5 className="text-sm font-bold">Your Submission</h5>
             <p className="font-semibold text-sm truncate">
               {submission.trackInfo.title}
             </p>
@@ -236,7 +228,7 @@ export function SongSubmission({
           {!isRoundEnded && (
             <HapticButton
               onClick={() => setIsEditing(true)}
-              className="shrink-0 self-center px-3 py-1.5 rounded-control text-xs font-semibold text-primary-darker bg-white/70 ring-1 ring-ink/15 hover:bg-white hover:ring-ink/25 transition-colors"
+              className="w98-btn w98-btn-sm shrink-0 self-center"
             >
               Change
             </HapticButton>
@@ -373,9 +365,7 @@ export function SongSubmission({
 
       {error && (
         <Card
-          className={
-            'bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm mb-3'
-          }
+          className={'w98-sunken-thin bg-w98-face px-2 py-1.5 text-sm mb-3'}
         >
           <span ref={errorRef}>{error}</span>
         </Card>
@@ -386,7 +376,7 @@ export function SongSubmission({
       <form onSubmit={handleSubmit} className="grid gap-3">
         <div className="relative">
           <label>
-            <div className="block text-xs font-medium text-ink-muted mb-1">
+            <div className="block text-sm mb-1">
               Search for a song or paste Spotify URL *
             </div>
 
@@ -412,7 +402,7 @@ export function SongSubmission({
 
         {/* Track Preview */}
         {submission?.trackInfo?.trackId && (
-          <div className="p-3 bg-primary-lightest ring-1 ring-primary/25 rounded-control overflow-hidden">
+          <div className="p-2 w98-sunken bg-w98-face overflow-hidden">
             <div className="flex items-center gap-3">
               {submission.trackInfo.albumImageUrl && (
                 <AlbumArt
@@ -437,10 +427,7 @@ export function SongSubmission({
         )}
 
         <div>
-          <label
-            htmlFor="note"
-            className="block text-xs font-medium text-ink-muted mb-1"
-          >
+          <label htmlFor="note" className="block text-sm mb-1">
             Note (optional)
           </label>
           <textarea
@@ -449,15 +436,13 @@ export function SongSubmission({
             onChange={(e) => setSubmission({ note: e.target.value })}
             placeholder="Why did you choose this song?"
             rows={2}
-            className="block w-full px-3 py-2 text-sm field rounded-control"
+            className="block w98-field"
           />
         </div>
 
         <div className="relative">
           <label>
-            <div className="block text-xs font-medium text-ink-muted mb-1">
-              YouTube URL (optional)
-            </div>
+            <div className="block text-sm mb-1">YouTube URL (optional)</div>
 
             <input
               type="text"
@@ -467,7 +452,7 @@ export function SongSubmission({
                 setSubmission({ youtubeURL: e.target.value });
               }}
               placeholder="Paste YouTube video URL here"
-              className="w-full px-3 py-2 text-sm field rounded-control disabled:cursor-not-allowed"
+              className="w98-field"
             />
 
             {youtubeIdError && (
@@ -495,7 +480,7 @@ export function SongSubmission({
             disabled={
               isSubmitting || !submission || !submission.trackInfo.trackId
             }
-            className="flex-1 bg-primary text-white px-4 py-2.5 rounded-control shadow-soft hover:bg-primary-dark hover:shadow-float transition-all text-sm font-semibold disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
+            className="w98-btn w98-btn-default grow"
           >
             {isSubmitting
               ? isRealSubmission
@@ -509,7 +494,7 @@ export function SongSubmission({
             <HapticButton
               type="button"
               onClick={() => setIsEditing(false)}
-              className="px-4 py-2 text-sm text-ink-muted hover:text-ink font-medium"
+              className="w98-btn"
             >
               Cancel
             </HapticButton>

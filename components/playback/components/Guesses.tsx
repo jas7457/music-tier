@@ -39,7 +39,7 @@ export function Guesses({
           <div
             key={index}
             className={twMerge(
-              'bg-white/10 backdrop-blur-sm rounded-lg p-3 border',
+              'bg-w98-face backdrop-blur-sm rounded-lg p-3 border',
               guess.isCorrect
                 ? 'border-green-400/50 bg-green-500/10'
                 : 'border-red-400/50 bg-red-500/10',

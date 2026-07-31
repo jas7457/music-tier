@@ -357,7 +357,7 @@ export default function VotingRound({
                         <HapticButton
                           onClick={() => handleVoteChange(submission._id, 1)}
                           disabled={!canVoteUp || saving}
-                          className="w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center transition-colors disabled:bg-line-strong disabled:cursor-not-allowed"
+                          className="w98-btn !min-w-0 w-7 h-7 !p-0"
                           title={canVoteUp ? 'Vote up' : 'No votes remaining'}
                         >
                           <svg
@@ -381,7 +381,7 @@ export default function VotingRound({
                         <HapticButton
                           onClick={() => handleVoteChange(submission._id, -1)}
                           disabled={savedSubmission?.points === 0 || saving}
-                          className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors disabled:bg-line-strong disabled:cursor-not-allowed"
+                          className="w98-btn !min-w-0 w-7 h-7 !p-0"
                           title="Vote down"
                         >
                           <svg
@@ -435,7 +435,7 @@ export default function VotingRound({
               <div>
                 {round.stage === 'voting' ? (
                   <textarea
-                    className="w-full px-3 py-2 text-xs field rounded-control resize-none"
+                    className="w98-field"
                     value={votes[submission._id]?.note || ''}
                     onChange={(e) =>
                       handleNoteChange(submission._id, e.target.value)
@@ -467,7 +467,7 @@ export default function VotingRound({
             <HapticButton
               onClick={() => setStage('guessing')}
               disabled={remainingVotes !== 0}
-              className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-control shadow-soft hover:shadow-float transition-colors disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
+              className="w98-btn w98-btn-default w-full"
             >
               Continue to Guesses
             </HapticButton>
@@ -479,7 +479,7 @@ export default function VotingRound({
             <HapticButton
               onClick={handleSave}
               disabled={saving || remainingVotes !== 0}
-              className="w-full px-2 md:px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-control shadow-soft hover:shadow-float transition-colors disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
+              className="w98-btn w98-btn-default w-full"
             >
               {saving ? 'Submitting...' : 'Submit Votes'}
             </HapticButton>

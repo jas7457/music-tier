@@ -990,15 +990,15 @@ export function SummaryScreen({
 
         {/* Scrollable List */}
         <div className="flex-1 overflow-y-auto px-4 pb-4 z-10">
-          <div className="bg-white/10 rounded-xl border border-white/20 p-4 max-w-2xl mx-auto">
+          <div className="bg-w98-face rounded-xl border border-w98-shadow p-4 max-w-2xl mx-auto">
             {summaryCards.map((card, index) => (
               <div key={card.id}>
                 <div
-                  className={`flex items-center gap-3 py-3 cursor-pointer hover:bg-white/5 transition-colors rounded-lg px-2 -mx-2 ${
+                  className={`flex items-center gap-3 py-3 cursor-pointer hover:bg-w98-face transition-colors rounded-lg px-2 -mx-2 ${
                     index < summaryCards.length - 1 &&
                     expandedCard !== card.id &&
                     expandedCard !== summaryCards[index + 1]?.id
-                      ? 'border-b border-white/10'
+                      ? 'border-b border-w98-shadow'
                       : ''
                   }`}
                   onClick={() =>
@@ -1025,7 +1025,7 @@ export function SummaryScreen({
                       {card.title}
                     </div>
                     {card.subtitle && (
-                      <div className="text-xs text-white/70">
+                      <div className="text-xs text-white">
                         {card.subtitle}
                       </div>
                     )}
@@ -1047,7 +1047,7 @@ export function SummaryScreen({
                 {expandedCard === card.id && (
                   <div className="px-2 pb-3 pt-2">
                     <div
-                      className="text-xs text-white/70 bg-white/5 rounded-lg p-3 border-l-2 border-r-2 grid grid-cols-[1fr_auto] gap-2"
+                      className="text-xs text-white bg-w98-face rounded-lg p-3 border-l-2 border-r-2 grid grid-cols-[1fr_auto] gap-2"
                       style={{
                         borderLeftColor: card.color,
                         borderRightColor: card.color,
@@ -1084,7 +1084,7 @@ export function SummaryScreen({
                 {/* Border after expanded content */}
                 {expandedCard === card.id &&
                   index < summaryCards.length - 1 && (
-                    <div className="border-b border-white/10 mx-2 mb-2" />
+                    <div className="border-b border-w98-shadow mx-2 mb-2" />
                   )}
               </div>
             ))}
@@ -1154,19 +1154,19 @@ function TrackInfoDisplay({
   rightText?: string;
 }) {
   return (
-    <div className="flex items-center gap-3 bg-white/5 p-3 rounded-lg overflow-hidden max-w-full">
+    <div className="flex items-center gap-3 bg-w98-face p-3 rounded-lg overflow-hidden max-w-full">
       <AlbumArt trackInfo={trackInfo} round={round} size={48} />
       <div className="flex-1 min-w-0">
         <div className="font-semibold text-white truncate">
           {trackInfo.title}
         </div>
-        <div className="text-xs text-white/60 truncate">
+        <div className="text-xs text-white truncate">
           {trackInfo.artists.join(', ')}
         </div>
       </div>
 
       {rightText && (
-        <div className="text-sm text-white/80 shrink-0">{rightText}</div>
+        <div className="text-sm text-white shrink-0">{rightText}</div>
       )}
     </div>
   );

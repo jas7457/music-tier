@@ -39,7 +39,7 @@ export function UserList({
           )}
 
           <div className="flex-1 overflow-y-auto px-4 pb-4">
-            <div className="bg-white/10 rounded-xl border border-white/20 max-w-2xl mx-auto divide-y divide-white/20">
+            <div className="bg-w98-face rounded-xl border border-w98-shadow max-w-2xl mx-auto divide-y divide-w98-shadow">
               {users.map((item, index) => (
                 <div key={item.user._id} className="py-3 px-3">
                   <div
@@ -65,7 +65,7 @@ export function UserList({
                       <div className="text-lg font-semibold text-white drop-shadow-md text-shadow-md">
                         {item.user.firstName} {item.user.lastName}
                       </div>
-                      <div className="text-md text-white/70">
+                      <div className="text-md text-white">
                         {item.user.userName}
                       </div>
                     </div>

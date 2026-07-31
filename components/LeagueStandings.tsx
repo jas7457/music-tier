@@ -13,6 +13,7 @@ import { getPlaces } from '@/lib/utils/getPlaces';
 import AlbumArt from './AlbumArt';
 import { useAuth } from '@/lib/AuthContext';
 import { getRoundTitle } from '@/lib/utils/getRoundTitle';
+import { TrophyIcon, StarIcon } from './win98/Icons';
 import { Expandable } from './Expandable';
 
 export function LeagueStandings({ league }: { league: PopulatedLeague }) {
@@ -249,9 +250,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
     return (
       <div className="space-y-6">
         <div className="text-center space-y-3">
-          <h3 className="text-3xl font-bold text-ink">
-            That&apos;s a wrap!
-          </h3>
+          <h3 className="text-3xl font-bold text-ink">That&apos;s a wrap!</h3>
           <p className="text-ink-muted">The competition was fierce!</p>
           <p className="text-base text-ink">
             You finished the{' '}
@@ -374,44 +373,40 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
         <div
           key={standing.user._id}
           className={twMerge(
-            'p-3 md:p-4 flex items-center gap-2 md:gap-4 border-b border-white/40 last:border-b-0 transition-colors',
-            isFirst && 'bg-linear-to-r from-amber-200/50 to-transparent',
-            isSecond && 'bg-linear-to-r from-slate-300/40 to-transparent',
-            isThird && 'bg-linear-to-r from-[#cd7f32]/25 to-transparent',
-            isOther && 'hover:bg-white/40',
+            'px-2 py-1.5 flex items-center gap-2 md:gap-3',
+            index % 2 === 1 && 'bg-[#eceef2]',
+            (isFirst || isSecond || isThird) && 'font-bold',
           )}
         >
           {/* Rank */}
-          <div className="flex items-center justify-center min-w-10">
-            {isFirst && <span className="text-4xl">🥇</span>}
-            {isSecond && <span className="text-4xl">🥈</span>}
-            {isThird && <span className="text-4xl">🥉</span>}
+          <div className="flex items-center justify-center min-w-8">
+            {isFirst && <TrophyIcon size={24} />}
+            {isSecond && <StarIcon size={20} />}
+            {isThird && <StarIcon size={16} />}
             {isOther && (
-              <span className="text-xl font-bold text-ink-subtle">
+              <span className="text-lg font-bold tabular-nums">
                 {currentPlace}
               </span>
             )}
           </div>
 
           {/* User Avatar */}
-          <Avatar user={standing.user} size={12} />
+          <Avatar user={standing.user} size={10} />
 
           {/* User Info */}
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-lg text-ink">
-              {standing.user.userName}
-            </div>
-            <div className="text-sm text-ink-muted">
+            <div className="font-bold text-lg">{standing.user.userName}</div>
+            <div className="text-sm">
               {standing.wins} {standing.wins === 1 ? 'win' : 'wins'}
             </div>
           </div>
 
           {/* Points */}
           <div className="text-right">
-            <div className="text-3xl font-bold tabular-nums text-ink">
+            <div className="text-2xl font-bold tabular-nums">
               {standing.points}
             </div>
-            <div className="text-sm text-ink-muted">points</div>
+            <div className="text-sm">points</div>
           </div>
         </div>
       );
@@ -425,24 +420,30 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
       {completedMarkup}
 
       <div>
-        <h3 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
+        <h3 className="w98-accent text-sm mb-1.5">
           League Standings
         </h3>
 
-        <Card variant="outlined" className="overflow-clip">
+        {/* A ListView in Details view: column headings then rows. */}
+        <div className="w98-paper overflow-clip">
+          <div className="flex items-center gap-2 md:gap-3 px-2 py-0.5 text-sm bg-w98-face">
+            <span className="min-w-8 shadow-w98-out-thin px-1">#</span>
+            <span className="grow shadow-w98-out-thin px-1">Member</span>
+            <span className="shadow-w98-out-thin px-1">Points</span>
+          </div>
           {standingsMarkup}
-        </Card>
+        </div>
       </div>
 
       {/* Guess Accuracy Section */}
       {filteredGuesses.length > 0 && (
         <div>
-          <h3 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
+          <h3 className="w98-accent text-sm mb-1.5">
             Guess Accuracy
           </h3>
 
           <Card variant="outlined">
-            <div className="divide-y divide-white/40">
+            <div className="divide-y divide-w98-shadow">
               {filteredGuesses.map((stat, index) => {
                 const isExpanded = expandedUsers.has(stat.user._id);
 
@@ -483,7 +484,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                           return next;
                         })
                       }
-                      className="w-full flex items-center gap-2 md:gap-4 hover:bg-white/40 p-3 md:p-4 rounded-card transition-colors"
+                      className="w-full flex items-center gap-2 md:gap-3 hover:bg-w98-face px-2 py-1.5"
                     >
                       {/* Rank */}
                       <div className="flex items-center justify-center min-w-10">
@@ -561,10 +562,10 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
                                     <div
                                       key={guessIdx}
                                       className={twMerge(
-                                        'p-2 md:p-3 rounded-control ring-1 flex flex-col gap-1',
+                                        'p-2 shadow-w98-out-thin flex flex-col gap-1',
                                         guess.isCorrect
-                                          ? 'bg-emerald-50 ring-emerald-600/20'
-                                          : 'bg-red-50 ring-red-600/20',
+                                          ? 'bg-[#d7ecd7]'
+                                          : 'bg-[#f2d7d7]',
                                       )}
                                     >
                                       <div className="flex items-center justify-between">

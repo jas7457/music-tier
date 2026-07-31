@@ -10,7 +10,7 @@ import { HapticButton } from './HapticButton';
 import { useToast } from '@/lib/ToastContext';
 import { getOnDeckInfo, OnDeckSubmissionsList } from './OnDeckSubmissions';
 import { TrackInfo } from '@/databaseTypes';
-import Link from 'next/link';
+import { W98LinkButton } from './win98/Controls';
 
 export function Round({
   currentUser,
@@ -132,28 +132,27 @@ export function Round({
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-1">
+        {/* Back / Forward, as the browser toolbar had them */}
         {isRoundPage && (round.previousRound || round.nextRound) && (
-          <div className="grid grid-cols-[1fr_1fr] gap-1 text-sm">
-            <div className="truncate">
-              {round.previousRound && (
-                <Link
-                  href={`/leagues/${league._id}/rounds/${round.previousRound._id}`}
-                  className="inline-flex items-center gap-1 font-medium text-primary-dark hover:text-primary-darkest hover:underline"
-                >
-                  ← Round {round.previousRound.roundIndex + 1}
-                </Link>
-              )}
-            </div>
-            <div className="truncate text-right">
-              {round.nextRound && (
-                <Link
-                  href={`/leagues/${league._id}/rounds/${round.nextRound._id}`}
-                  className="inline-flex items-center gap-1 font-medium text-primary-dark hover:text-primary-darkest hover:underline"
-                >
-                  Round {round.nextRound.roundIndex + 1} →
-                </Link>
-              )}
-            </div>
+          <div className="flex items-center justify-between gap-1 mb-1">
+            {round.previousRound ? (
+              <W98LinkButton
+                size="sm"
+                href={`/leagues/${league._id}/rounds/${round.previousRound._id}`}
+              >
+                ← Round {round.previousRound.roundIndex + 1}
+              </W98LinkButton>
+            ) : (
+              <span />
+            )}
+            {round.nextRound && (
+              <W98LinkButton
+                size="sm"
+                href={`/leagues/${league._id}/rounds/${round.nextRound._id}`}
+              >
+                Round {round.nextRound.roundIndex + 1} →
+              </W98LinkButton>
+            )}
           </div>
         )}
         <RoundInfo
@@ -200,7 +199,7 @@ export function Round({
         <div>
           <HapticButton
             disabled={isUpdating}
-            className="w-full bg-primary text-white px-4 py-2.5 rounded-control shadow-soft hover:bg-primary-dark hover:shadow-float transition-all text-sm font-semibold disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
+            className="w98-btn w98-btn-default"
             onClick={async () => {
               try {
                 setIsUpdating(true);

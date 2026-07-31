@@ -37,7 +37,7 @@ export function RoundList({
           )}
 
           <div className="flex-1 overflow-y-auto px-4 pb-4">
-            <div className="bg-white/10 rounded-xl border border-white/20 max-w-2xl mx-auto space-y-2">
+            <div className="bg-w98-face rounded-xl border border-w98-shadow max-w-2xl mx-auto space-y-2">
               {rounds.map((item, index) => (
                 <div
                   key={item.round._id}
@@ -53,7 +53,7 @@ export function RoundList({
                       {item.round.title}
                     </div>
                     {item.subtitle && (
-                      <div className="text-xs text-white/70">
+                      <div className="text-xs text-white">
                         {item.subtitle}
                       </div>
                     )}

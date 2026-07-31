@@ -11,6 +11,10 @@ export interface CardProps {
   title?: string;
 }
 
+/**
+ * A panel. In 98 terms every card is either a raised control surface or a
+ * recessed well — `outlined` gets the well, everything else gets the bevel.
+ */
 export default function Card({
   children,
   className = '',
@@ -19,18 +23,15 @@ export default function Card({
   onClick,
   title,
 }: CardProps) {
-  const baseStyles =
-    'rounded-card transition-[box-shadow,transform] duration-300 ease-out';
+  const baseStyles = 'text-black';
 
-  // Glass by default — the aurora canvas behind supplies the colour these refract.
   const variantStyles = {
-    default: 'glass',
-    outlined: 'glass',
-    elevated: 'glass-strong hover:shadow-glass-pop',
-    solid: 'bg-surface ring-1 ring-line shadow-float',
-    // No background of its own — for callers supplying their own bg utility,
-    // which would otherwise race .glass in the same cascade layer.
-    plain: 'ring-1 shadow-soft',
+    default: 'w98-raised',
+    outlined: 'w98-sunken',
+    elevated: 'w98-raised',
+    solid: 'w98-raised',
+    // Caller supplies its own background; it still gets the chiselled edge.
+    plain: 'w98-raised-thin',
   };
 
   return (

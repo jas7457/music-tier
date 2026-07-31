@@ -17,6 +17,9 @@ import { useToast } from '@/lib/ToastContext';
 import { HapticButton } from './HapticButton';
 import { PlaylistPartyPlayback } from './playback/PlaylistPartyPlayback';
 import { useSpotifyPlayer } from '@/lib/SpotifyPlayerContext';
+import { GroupBox } from './win98/Controls';
+import { CdIcon } from './win98/Icons';
+import { CloseGlyph, TitleBarButton } from './win98/Window';
 
 export function League({
   league,
@@ -256,17 +259,14 @@ export function League({
     setSavingFocal(true);
 
     try {
-      const response = await fetch(
-        `/api/leagues/${league._id}/hero-image`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            heroImageFocalX: newFocalX,
-            heroImageFocalY: newFocalY,
-          }),
-        },
-      );
+      const response = await fetch(`/api/leagues/${league._id}/hero-image`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          heroImageFocalX: newFocalX,
+          heroImageFocalY: newFocalY,
+        }),
+      });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to update focal point');
@@ -360,12 +360,12 @@ export function League({
           <div className="absolute top-4 right-4 flex gap-2">
             {leagueImageUrl && (
               <HapticButton
-                className="p-2 rounded-full bg-black/25 ring-1 ring-white/25 backdrop-blur-md text-white hover:bg-black/40 transition-colors"
+                className="w98-btn w98-btn-sm !min-w-0"
                 onClick={() => setHeroState('focal')}
                 aria-label="Set focal point"
               >
                 <svg
-                  className="w-5 h-5 text-white"
+                  className="w-4 h-4 text-black"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -373,17 +373,20 @@ export function League({
                 >
                   <circle cx="12" cy="12" r="9" />
                   <circle cx="12" cy="12" r="2" fill="currentColor" />
-                  <path strokeLinecap="round" d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+                  <path
+                    strokeLinecap="round"
+                    d="M12 3v3M12 18v3M3 12h3M18 12h3"
+                  />
                 </svg>
               </HapticButton>
             )}
             <HapticButton
-              className="p-2 rounded-full bg-black/25 ring-1 ring-white/25 backdrop-blur-md text-white hover:bg-black/40 transition-colors"
+              className="w98-btn w98-btn-sm !min-w-0"
               onClick={() => setHeroState('add')}
               aria-label="Change image"
             >
               <svg
-                className="w-5 h-5 text-white"
+                className="w-4 h-4 text-black"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -402,7 +405,7 @@ export function League({
       case 'focal': {
         return (
           <HapticButton
-            className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-black/40 ring-1 ring-white/25 backdrop-blur-md hover:bg-black/60 transition-colors text-white text-sm font-medium disabled:opacity-50"
+            className="absolute top-2 right-2 w98-btn w98-btn-sm"
             onClick={() => setHeroState('edit')}
             disabled={savingFocal}
             aria-label="Cancel focal point"
@@ -415,51 +418,48 @@ export function League({
   })();
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Full-Screen Image Viewer */}
+    <div className="flex flex-col gap-3">
+      {/* Full-Screen Image Viewer — an Imaging window over the desktop */}
       {isImageFullScreen && leagueImageUrl && (
         <div
-          className="fixed inset-0 z-200 bg-black/95 flex items-center justify-center p-4"
+          className="fixed inset-0 z-200 bg-w98-desktop flex flex-col p-2 pb-9"
           onClick={() => setIsImageFullScreen(false)}
         >
-          <button
-            onClick={() => setIsImageFullScreen(false)}
-            className="absolute top-4 right-4 p-2 rounded-full bg-black/40 ring-1 ring-white/25 backdrop-blur-md hover:bg-black/60 transition-colors text-white"
-            aria-label="Close"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-          <img
-            src={leagueImageUrl}
-            alt={league.title}
-            className="max-w-full max-h-full object-contain"
+          <div
+            className="w98-titlebar flex-none"
             onClick={(e) => e.stopPropagation()}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            style={{
-              transform: `scale(${imageScale}) translate(${imageTranslate.x}px, ${imageTranslate.y}px)`,
-              transition: imageScale === 1 ? 'transform 0.3s ease-out' : 'none',
-              touchAction: 'none',
-            }}
-          />
+          >
+            <CdIcon />
+            <span className="grow truncate">{league.title} - Imaging</span>
+            <TitleBarButton
+              label="Close"
+              onClick={() => setIsImageFullScreen(false)}
+            >
+              <CloseGlyph />
+            </TitleBarButton>
+          </div>
+          <div className="grow w98-paper flex items-center justify-center overflow-hidden">
+            <img
+              src={leagueImageUrl}
+              alt={league.title}
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={{
+                transform: `scale(${imageScale}) translate(${imageTranslate.x}px, ${imageTranslate.y}px)`,
+                transition:
+                  imageScale === 1 ? 'transform 0.3s ease-out' : 'none',
+                touchAction: 'none',
+              }}
+            />
+          </div>
         </div>
       )}
 
-      {/* Hero Banner with Cover Photo */}
-      <div className="relative h-64 md:h-80 overflow-hidden rounded-card bg-surface-sunken ring-1 ring-line shadow-soft">
+      {/* Hero Banner with Cover Photo — hung in a sunken picture frame */}
+      <div className="relative h-56 md:h-72 overflow-hidden w98-sunken bg-black">
         {/* Background Image - cover normally, contained + centered in focal-pick mode */}
         {leagueImageUrl &&
           (heroStage === 'focal' ? (
@@ -499,7 +499,7 @@ export function League({
 
         {/* Playlist Party Playback Overlay */}
         {heroStage !== 'focal' && league.playback && (
-          <div className="absolute inset-0 bg-linear-to-br from-primary/50 to-black/40 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="absolute inset-0 bg-black/60 flex justify-center items-center z-50">
             <HapticButton
               onClick={() => {
                 if (league.playback?.topSong) {
@@ -510,16 +510,17 @@ export function League({
                 }
                 setPlaybackOpen(true);
               }}
-              className="px-6 py-3.5 rounded-full bg-white/10 ring-1 ring-white/40 backdrop-blur-md text-white font-semibold text-lg tracking-tight shadow-pop transition-all hover:scale-105 hover:bg-white/20 flex items-center gap-2"
+              className="w98-btn px-4 py-2 text-lg font-bold gap-2"
             >
-              🎵 Playlist Party Playback 🎵
+              <CdIcon size={20} />
+              Playlist Party Playback
             </HapticButton>
           </div>
         )}
 
         {/* Gradient Overlay for readability */}
         {heroStage !== 'focal' && (
-          <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-black/10 pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
         )}
 
         {/* Hero buttons (upload / pencil / focal / cancel) */}
@@ -527,14 +528,14 @@ export function League({
 
         {/* Zoom Button - Top Left */}
         {heroStage !== 'focal' && leagueImageUrl && (
-          <div className="absolute top-4 left-4">
+          <div className="absolute top-2 left-2">
             <HapticButton
               onClick={() => setIsImageFullScreen(true)}
-              className="p-2 rounded-full bg-black/25 ring-1 ring-white/25 backdrop-blur-md text-white hover:bg-black/40 transition-colors"
+              className="w98-btn w98-btn-sm !min-w-0"
               aria-label="View full size"
             >
               <svg
-                className="w-5 h-5 text-white"
+                className="w-4 h-4 text-black"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -552,18 +553,18 @@ export function League({
 
         {/* Focal-pick instruction */}
         {heroStage === 'focal' && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/60 ring-1 ring-white/20 text-white text-xs font-medium rounded-full backdrop-blur-md pointer-events-none">
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 w98-tooltip pointer-events-none">
             {savingFocal ? 'Saving…' : 'Tap the image to set the focal point'}
           </div>
         )}
 
         {/* Title and Status overlaid on cover */}
         {heroStage !== 'focal' && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10">
-            <div className="flex flex-wrap items-center gap-3">
+          <div className="absolute bottom-0 left-0 right-0 p-2 md:p-3 z-10">
+            <div className="flex flex-wrap items-center gap-2">
               <MaybeLink
                 href={`/leagues/${league._id}`}
-                className="text-3xl md:text-4xl font-bold tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]"
+                className="text-2xl md:text-3xl font-bold text-white w98-title-shadow no-underline"
               >
                 {league.title}
               </MaybeLink>
@@ -587,58 +588,32 @@ export function League({
           ))}
         </div>
 
-        <p className="text-ink-muted leading-relaxed">
+        <div className="w98-paper p-2 leading-relaxed">
           <MultiLine>{league.description}</MultiLine>
-        </p>
-
-        {/* League stats — bento tiles */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
-          <div className="bento-tile glass p-3 md:p-4">
-            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
-              {league.numberOfRounds}
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
-              Rounds
-            </div>
-          </div>
-
-          <div className="bento-tile glass p-3 md:p-4">
-            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
-              {league.users.length}
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
-              Members
-            </div>
-          </div>
-
-          <div className="bento-tile glass p-3 md:p-4">
-            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
-              {league.daysForSubmission}
-              <span className="text-base font-semibold text-ink-subtle ml-1">
-                d
-              </span>
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
-              To submit
-            </div>
-          </div>
-
-          <div className="bento-tile glass p-3 md:p-4">
-            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
-              {league.daysForVoting}
-              <span className="text-base font-semibold text-ink-subtle ml-1">
-                d
-              </span>
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
-              To vote
-            </div>
-          </div>
         </div>
 
+        {/* League properties — read like a Properties dialog */}
+        <GroupBox label="League Properties">
+          <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-1.5">
+            {[
+              { label: 'Rounds', value: league.numberOfRounds },
+              { label: 'Members', value: league.users.length },
+              { label: 'Days to submit', value: league.daysForSubmission },
+              { label: 'Days to vote', value: league.daysForVoting },
+            ].map((stat) => (
+              <div key={stat.label} className="min-w-0">
+                <dt className="text-sm truncate">{stat.label}:</dt>
+                <dd className="w98-field tabular-nums font-bold">
+                  {stat.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </GroupBox>
+
         {/* Timeline note and Rounds/Standings toggle */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm text-ink-subtle">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="text-sm">
             {league.status === 'completed' && finalVoteTimestamp > 0 && (
               <DateTime prefix="League ended:">{finalVoteTimestamp}</DateTime>
             )}
@@ -650,7 +625,7 @@ export function League({
           </div>
 
           {/* Toggle between Rounds and Standings */}
-          <div className="inline-flex gap-1 p-1 rounded-control glass">
+          <div className="inline-flex gap-0.5">
             <ToggleButton
               onClick={() => setShowStandings(false)}
               selected={!showStandings}

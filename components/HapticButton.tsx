@@ -8,6 +8,11 @@ interface HapticButtonProps extends Pick<
   'className' | 'children' | 'onClick' | 'disabled' | 'title' | 'type' | 'style'
 > {}
 
+/**
+ * The feedback is the bevel flip, not a scale — 98 controls never moved, they
+ * inverted. `data-pressed` lets CSS drive the pressed look for anything
+ * wearing `.w98-btn`.
+ */
 export function HapticButton({
   children,
   className,
@@ -19,12 +24,8 @@ export function HapticButton({
   return (
     <button
       {...rest}
-      className={twMerge(
-        'duration-150 ease-out active:scale-[0.97] disabled:cursor-not-allowed',
-        isPressed && 'scale-[0.97] opacity-90',
-        className,
-        'transition-all',
-      )}
+      data-pressed={isPressed ? 'true' : undefined}
+      className={twMerge('disabled:cursor-default', className)}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
       onMouseLeave={() => setIsPressed(false)}
