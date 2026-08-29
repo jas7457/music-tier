@@ -86,6 +86,20 @@ All submissions are in. Users distribute points across songs and guess who submi
 - `ROUND.LAST_TO_VOTE` — Sent to the last remaining non-voter
 - `VOTING.REMINDER` — Scheduled 12 hours before the voting deadline for non-voters
 
+### Grace Period
+
+If a deadline passes while somebody still owes a submission or a vote, the round doesn't move on without them — it stays open for an extra **12 hours**.
+
+| Rule                     | Behavior                                                                                              |
+| ------------------------ | ----------------------------------------------------------------------------------------------------- |
+| **When it triggers**     | Only when a submission or a full set of votes is actually missing at the deadline                     |
+| **How long**             | 12 hours, granted once per deadline. It is never granted a second time                                |
+| **Early exit**           | The moment the stragglers catch up, the extension collapses and the round moves on immediately        |
+| **After it expires**     | The phase locks for good — both the UI and the API reject late submissions and votes                  |
+| **Effect on this round** | A submission grace delays the start of voting; a voting grace keeps the round open                    |
+| **Effect on the league** | A voting grace holds the next round shut until it ends, but **no later round's deadline ever moves**  |
+| **UI**                   | A `+12h Grace Period` pill, an amber notice naming who the round is waiting on and when time runs out |
+
 ### 4. Completed
 
 Voting is done. Results are revealed.

@@ -16,6 +16,7 @@ import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
 import { assertNever } from '@/lib/utils/never';
 import { InlineGap } from './InlineGap';
 import { MAX_DESCRIPTION_LENGTH } from '@/lib/utils/constants';
+import { GracePeriodNotice } from './GracePeriodNotice';
 
 export function RoundInfo({
   round,
@@ -173,6 +174,13 @@ export function RoundInfo({
       ),
     });
 
+    if (round.gracePeriod) {
+      pills.push({
+        key: 'grace',
+        pill: <Pill status="warning">+12h Grace Period</Pill>,
+      });
+    }
+
     const usersThatVoted = new Set(round.votes.map((vote) => vote.userId));
     const usersThatSubmitted = new Set(
       round.submissions.map((submission) => submission.userId),
@@ -286,6 +294,8 @@ export function RoundInfo({
 
       {descriptionMarkup}
 
+      <GracePeriodNotice round={round} />
+
       <div
         className={twMerge(
           'flex flex-wrap gap-x-2 text-xs text-ink-subtle',
@@ -315,12 +325,18 @@ export function RoundInfo({
         >
           {round.submissionEndDate}
         </DateTime>
+        {round.gracePeriod?.type === 'submission' && (
+          <span className="text-amber-700 font-semibold">(extended)</span>
+        )}
         <span>•</span>
         <DateTime
           prefix={`Round ${now > round.votingEndDate ? 'ended' : 'ends'}:`}
         >
           {round.votingEndDate}
         </DateTime>
+        {round.gracePeriod?.type === 'voting' && (
+          <span className="text-amber-700 font-semibold">(extended)</span>
+        )}
       </div>
     </div>
   );

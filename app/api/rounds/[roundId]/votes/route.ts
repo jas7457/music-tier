@@ -51,6 +51,18 @@ export async function POST(
       return NextResponse.json({ error: 'Round not found' }, { status: 404 });
     }
 
+    if (
+      round.stage !== 'voting' &&
+      round.stage !== 'currentUserVotingCompleted'
+    ) {
+      return NextResponse.json(
+        {
+          error: `Voting is not open for this round. The round is currently in the "${round.stage}" stage.`,
+        },
+        { status: 403 },
+      );
+    }
+
     // Get the round and league to validate
     const votesCollection = await getCollection<Vote>('votes');
     await votesCollection.deleteMany({ userId: payload.userId, roundId });

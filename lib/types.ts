@@ -37,6 +37,17 @@ export type PopulatedRoundStage =
   | 'submission'
   | 'unknown';
 
+export type PopulatedGracePeriod = {
+  // which deadline was missed
+  type: 'submission' | 'voting';
+  // the deadline the round would have had if everyone was on time
+  scheduledEndDate: number;
+  // when the extension runs out
+  endDate: number;
+  // the people the round is waiting on
+  missingUsers: PopulatedUser[];
+};
+
 export type PopulatedRound = Omit<
   WithStringId<Round>,
   | 'submissionStartDate'
@@ -50,6 +61,9 @@ export type PopulatedRound = Omit<
   votingStartDate: number;
   votingEndDate: number;
   stage: PopulatedRoundStage;
+  // Set only while the round is actively running on borrowed time because
+  // someone missed the submission or voting deadline. Null otherwise.
+  gracePeriod: PopulatedGracePeriod | null;
 
   votes: PopulatedVote[];
   submissions: PopulatedSubmission[];

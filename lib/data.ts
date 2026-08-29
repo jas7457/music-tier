@@ -10,6 +10,7 @@ import {
 import { ObjectId } from 'mongodb';
 import { ONE_DAY_MS } from './utils/time';
 import {
+  PopulatedGracePeriod,
   PopulatedLeague,
   PopulatedOnDeckSubmission,
   PopulatedRound,
@@ -23,6 +24,7 @@ import { seededShuffle } from './utils/seededShuffle';
 import { UPCOMING_ROUNDS_TO_SHOW } from './utils/constants';
 import { assertNever } from './utils/never';
 import { calculatePlaybackStats } from './playbackCalculations';
+import { getRoundSchedule, getStartOfDay } from './utils/roundSchedule';
 
 const dbPromise = (async () => {
   const [
@@ -103,7 +105,14 @@ export async function getUserLeagues(
 
       league.leagueStartDate = reformattedDate;
 
+      // Rounds run back to back: each round's voting end feeds the next
+      // round's submission start. This cascade always follows the *scheduled*
+      // timeline so that one round's grace period never pushes out any later
+      // round's deadlines.
       let currentStartDate = league.leagueStartDate;
+      // A round that is still finishing up on grace time blocks the next round
+      // from opening, without moving that round's own deadlines.
+      let blockedUntil = 0;
 
       const [_rounds, _users] = await Promise.all([
         roundsCollection.find({ leagueId: league._id.toString() }).toArray(),
@@ -213,6 +222,7 @@ export async function getUserLeagues(
       }): Omit<
         PopulatedRound,
         | 'isHidden'
+        | 'gracePeriod'
         | 'submissionStartDate'
         | 'submissionEndDate'
         | 'votingStartDate'
@@ -321,95 +331,34 @@ export async function getUserLeagues(
             (submission) => submission.userId === userId,
           );
 
-          const sortedSubmissions = [...round.submissions].sort(
-            (a, b) => a.submissionDate - b.submissionDate,
-          );
-          const firstSubmission = sortedSubmissions[0];
-          const lastSubmission =
-            sortedSubmissions[sortedSubmissions.length - 1];
+          const {
+            submissionStartDate,
+            submissionEndDate,
+            votingStartDate,
+            votingEndDate,
+            gracePeriod: roundGracePeriod,
+            nextScheduledStartDate,
+            nextBlockedUntil,
+          } = getRoundSchedule({
+            round,
+            league,
+            scheduledStartDate: currentStartDate,
+            blockedUntil,
+            now,
+          });
+          currentStartDate = nextScheduledStartDate;
+          blockedUntil = nextBlockedUntil;
 
-          const sortedVotes = [...round.votes].sort(
-            (a, b) => a.voteDate - b.voteDate,
-          );
-          const firstVote = sortedVotes[0];
-          const lastVote = sortedVotes[sortedVotes.length - 1];
-
-          const submissionStartDate = (() => {
-            if (round.submissionStartDate) {
-              return round.submissionStartDate;
-            }
-
-            if (firstSubmission) {
-              return Math.min(currentStartDate, firstSubmission.submissionDate);
-            }
-            return currentStartDate;
-          })();
-          const submissionEndDate = (() => {
-            if (round.submissionEndDate) {
-              return round.submissionEndDate;
-            }
-
-            const normalEnd = getEndOfDay(
-              submissionStartDate +
-                league.daysForSubmission * ONE_DAY_MS -
-                60_000,
-            );
-
-            const allSubmitted =
-              round.submissions.length >= league.users.length;
-            if (allSubmitted && lastSubmission) {
-              return Math.min(normalEnd, lastSubmission.submissionDate);
-            }
-            return normalEnd;
-          })();
-
-          const hadNoSubmissions =
-            round.submissions.length === 0 && now > submissionEndDate;
-
-          const votingStartDate = (() => {
-            if (round.votingStartDate) {
-              return round.votingStartDate;
-            }
-
-            if (hadNoSubmissions) {
-              return submissionEndDate;
-            }
-            if (firstVote) {
-              return Math.min(submissionEndDate, firstVote.voteDate);
-            }
-            return submissionEndDate;
-          })();
-          const votingEndDate = (() => {
-            if (round.votingEndDate) {
-              return round.votingEndDate;
-            }
-
-            if (hadNoSubmissions) {
-              return submissionEndDate;
-            }
-            const normalEnd = getEndOfDay(
-              votingStartDate + league.daysForVoting * ONE_DAY_MS - 60_000,
-            );
-            const roundPoints = round.votes.reduce(
-              (acc, vote) => acc + vote.points,
-              0,
-            );
-            if (
-              roundPoints >= league.users.length * league.votesPerRound &&
-              lastVote
-            ) {
-              return Math.min(normalEnd, lastVote.voteDate);
-            }
-            return normalEnd;
-          })();
-          currentStartDate = votingEndDate;
-
-          const maybeTomorrow = getStartOfDay(currentStartDate + 3_000);
-          const isPracticallyTomorrow =
-            getStartOfDay(currentStartDate) !== maybeTomorrow;
-          if (isPracticallyTomorrow) {
-            currentStartDate = maybeTomorrow;
-          }
+          const gracePeriod: PopulatedGracePeriod | null = roundGracePeriod
+            ? {
+                type: roundGracePeriod.type,
+                scheduledEndDate: roundGracePeriod.scheduledEndDate,
+                endDate: roundGracePeriod.endDate,
+                missingUsers: roundGracePeriod.missingUserIds
+                  .map((missingUserId) => usersById[missingUserId]?.user)
+                  .filter((user) => user !== undefined),
+              }
+            : null;
 
           const populatedRound: Omit<
             PopulatedRound,
@@ -422,6 +371,7 @@ export async function getUserLeagues(
             submissionEndDate,
             votingStartDate,
             votingEndDate,
+            gracePeriod,
             creatorObject: usersById[round.creatorId]?.user,
             roundIndex,
           };
@@ -752,45 +702,4 @@ export async function getUserByCookies(leagueId: string) {
     console.error('Error fetching session:', error);
     return null;
   }
-}
-
-function getStartOfDay(date: number): number {
-  const d = new Date(date);
-
-  // Get the year, month, day in Eastern time for this timestamp
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-
-  const parts = formatter.formatToParts(d);
-  const year = parts.find((p) => p.type === 'year')!.value;
-  const month = parts.find((p) => p.type === 'month')!.value;
-  const day = parts.find((p) => p.type === 'day')!.value;
-
-  // America/New_York uses either EDT (UTC-4) or EST (UTC-5).
-  // Determine the correct offset by checking which one actually produces
-  // midnight (hour 0) in Eastern time for this date.
-  const edtMidnight = new Date(
-    `${year}-${month}-${day}T00:00:00-04:00`,
-  ).getTime();
-
-  const hourFormatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York',
-    hourCycle: 'h23',
-    hour: '2-digit',
-  });
-
-  if (Number(hourFormatter.format(new Date(edtMidnight))) === 0) {
-    return edtMidnight;
-  }
-
-  return new Date(`${year}-${month}-${day}T00:00:00-05:00`).getTime();
-}
-
-function getEndOfDay(date: number): number {
-  // Get start of day, then add 23 hours 59 minutes in milliseconds
-  return getStartOfDay(date) + ONE_DAY_MS - 1000;
 }

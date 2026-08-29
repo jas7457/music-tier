@@ -5,6 +5,7 @@ export type StatusColor =
   | PopulatedLeague['status']
   | PopulatedRound['stage']
   | 'error'
+  | 'warning'
   | 'info';
 
 export function getStatusColor(status: StatusColor): string {
@@ -31,6 +32,9 @@ export function getStatusColor(status: StatusColor): string {
     }
     case 'error': {
       return 'bg-red-50/80 text-red-800 ring-red-600/25';
+    }
+    case 'warning': {
+      return 'bg-amber-100/90 text-amber-900 ring-amber-600/40';
     }
     case 'info': {
       return 'bg-sky-50/80 text-sky-800 ring-sky-600/25';
