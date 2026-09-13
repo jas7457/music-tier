@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { Expandable } from './Expandable';
 import { SearchBar } from './SearchBar';
+import { getLeaguesRefreshBoundaries } from '@/lib/utils/getRefreshBoundaries';
 
 export default function Home({
   leagues,
@@ -22,7 +23,7 @@ export default function Home({
 
   // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
-  useRealTimeUpdates();
+  useRealTimeUpdates(getLeaguesRefreshBoundaries(leagues));
 
   useEffect(() => {
     if (!('Notification' in window)) {

@@ -26,6 +26,12 @@ export type RoundScheduleInput = {
     daysForSubmission: number;
     daysForVoting: number;
     votesPerRound: number;
+    // When false, phases run their full scheduled window instead of ending
+    // early once everyone has finished. Defaults to true when omitted.
+    autoStartRounds?: boolean;
+    // Hour of day (0-23, America/New_York) that day-boundaries fall on.
+    // Defaults to 0 (midnight) when omitted.
+    transitionHour?: number;
   };
   // where this round sits on the league's un-graced timeline
   scheduledStartDate: number;
@@ -61,6 +67,10 @@ export function getRoundSchedule({
   blockedUntil,
   now,
 }: RoundScheduleInput): RoundSchedule {
+  // Auto-start defaults to on, so only an explicit `false` turns it off.
+  const autoStart = league.autoStartRounds !== false;
+  const hour = league.transitionHour ?? 0;
+
   const sortedSubmissions = [...round.submissions].sort(
     (a, b) => a.submissionDate - b.submissionDate,
   );
@@ -111,9 +121,12 @@ export function getRoundSchedule({
       scheduledSubmissionStartDate +
         league.daysForSubmission * ONE_DAY_MS -
         60_000,
+      hour,
     );
 
-    if (missingSubmissionUserIds.length === 0 && lastSubmission) {
+    // With auto-start on, submissions close the instant everyone is in so
+    // voting can open early. With it off, the window runs to its scheduled end.
+    if (autoStart && missingSubmissionUserIds.length === 0 && lastSubmission) {
       return Math.min(normalEnd, lastSubmission.submissionDate);
     }
     return normalEnd;
@@ -155,8 +168,11 @@ export function getRoundSchedule({
 
     const normalEnd = getEndOfDay(
       scheduledVotingStartDate + league.daysForVoting * ONE_DAY_MS - 60_000,
+      hour,
     );
-    if (missingVoteUserIds.length === 0 && lastVote) {
+    // With auto-start on, the round completes the instant the last vote lands so
+    // the next round can open early. With it off, voting runs to its full end.
+    if (autoStart && missingVoteUserIds.length === 0 && lastVote) {
       return Math.min(normalEnd, lastVote.voteDate);
     }
     return normalEnd;
@@ -180,8 +196,8 @@ export function getRoundSchedule({
   // Round the next round's start up to the following midnight when this one
   // finishes at the tail end of a day.
   const nextScheduledStartDate = (() => {
-    const maybeTomorrow = getStartOfDay(scheduledVotingEndDate + 3_000);
-    if (getStartOfDay(scheduledVotingEndDate) !== maybeTomorrow) {
+    const maybeTomorrow = getStartOfDay(scheduledVotingEndDate + 3_000, hour);
+    if (getStartOfDay(scheduledVotingEndDate, hour) !== maybeTomorrow) {
       return maybeTomorrow;
     }
     return scheduledVotingEndDate;
@@ -246,7 +262,12 @@ function getGracePeriod({
   return { endDate, isActive: now < endDate };
 }
 
-export function getStartOfDay(date: number): number {
+/**
+ * The instant of `hour`:00 America/New_York on the Eastern calendar day that
+ * contains `date`. Handles the EDT/EST offset by checking which one actually
+ * lands on the requested hour.
+ */
+function easternHourOnDayOf(date: number, hour: number): number {
   const d = new Date(date);
 
   // Get the year, month, day in Eastern time for this timestamp
@@ -261,13 +282,12 @@ export function getStartOfDay(date: number): number {
   const year = parts.find((p) => p.type === 'year')!.value;
   const month = parts.find((p) => p.type === 'month')!.value;
   const day = parts.find((p) => p.type === 'day')!.value;
+  const hh = String(hour).padStart(2, '0');
 
   // America/New_York uses either EDT (UTC-4) or EST (UTC-5).
-  // Determine the correct offset by checking which one actually produces
-  // midnight (hour 0) in Eastern time for this date.
-  const edtMidnight = new Date(
-    `${year}-${month}-${day}T00:00:00-04:00`,
-  ).getTime();
+  // Determine the correct offset by checking which one actually produces the
+  // requested hour in Eastern time for this date.
+  const edt = new Date(`${year}-${month}-${day}T${hh}:00:00-04:00`).getTime();
 
   const hourFormatter = new Intl.DateTimeFormat('en-US', {
     timeZone: 'America/New_York',
@@ -275,14 +295,40 @@ export function getStartOfDay(date: number): number {
     hour: '2-digit',
   });
 
-  if (Number(hourFormatter.format(new Date(edtMidnight))) === 0) {
-    return edtMidnight;
+  if (Number(hourFormatter.format(new Date(edt))) === hour) {
+    return edt;
   }
 
-  return new Date(`${year}-${month}-${day}T00:00:00-05:00`).getTime();
+  return new Date(`${year}-${month}-${day}T${hh}:00:00-05:00`).getTime();
 }
 
-export function getEndOfDay(date: number): number {
-  // Get start of day, then add 23 hours 59 minutes in milliseconds
-  return getStartOfDay(date) + ONE_DAY_MS - 1000;
+/**
+ * Floors `date` to the most recent day-boundary at or before it, where the
+ * boundary falls at `hour`:00 Eastern (default midnight). This is the whole
+ * day-grid shifted by `hour`, so all schedule arithmetic that assumed midnight
+ * boundaries keeps working unchanged — it just lands on `hour` instead. With
+ * `hour === 0` this is identical to the original midnight implementation.
+ */
+export function getStartOfDay(date: number, hour = 0): number {
+  const candidate = easternHourOnDayOf(date, hour);
+  if (candidate <= date) {
+    return candidate;
+  }
+  // `date` sits before today's boundary, so the boundary it belongs to is the
+  // one on the previous Eastern day.
+  return easternHourOnDayOf(candidate - ONE_DAY_MS, hour);
+}
+
+export function getEndOfDay(date: number, hour = 0): number {
+  // The last instant before the next day-boundary.
+  return getStartOfDay(date, hour) + ONE_DAY_MS - 1000;
+}
+
+/**
+ * `hour`:00 Eastern on the same Eastern calendar day as `date` (never the day
+ * before). Used to anchor a league's start to its chosen day at the configured
+ * hour. With `hour === 0` this equals getStartOfDay (midnight of that day).
+ */
+export function getStartOfDayAtHour(date: number, hour = 0): number {
+  return easternHourOnDayOf(date, hour);
 }

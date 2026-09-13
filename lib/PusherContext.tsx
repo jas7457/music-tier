@@ -67,8 +67,22 @@ export function usePusher() {
   return pusherContext;
 }
 
-// Hook for subscribing to updates
-export function useRealTimeUpdates() {
+// The largest delay setTimeout can hold without overflowing its 32-bit signed
+// timer (~24.8 days). Boundaries further out than this are left to the
+// refresh-on-focus path instead of a single long timer.
+const MAX_TIMEOUT_MS = 2 ** 31 - 1;
+
+/**
+ * Hook for subscribing to real-time updates.
+ *
+ * Phase transitions are derived from dates, so when a round advances purely on
+ * the clock (no submit/vote to broadcast) nothing tells an open page to move on.
+ * `refreshAt` is a list of upcoming boundary timestamps (submission/voting
+ * open/close). We refetch at the soonest future one — a single precise timer,
+ * not a poll — and also refetch whenever the tab regains focus, so a page left
+ * open advances on its own.
+ */
+export function useRealTimeUpdates(refreshAt: number[] = []) {
   const { refreshData } = useData();
   const { subscribe, unsubscribe } = usePusher();
   const { user } = useAuth();
@@ -96,6 +110,43 @@ export function useRealTimeUpdates() {
       unsubscribe(PUSHER_REAL_TIME_UPDATES);
     };
   }, [refreshData, subscribe, unsubscribe, user?._id]);
+
+  // Refetch when the tab is shown again or regains focus.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        refreshData('scheduled');
+      }
+    };
+    const onFocus = () => refreshData('scheduled');
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [refreshData]);
+
+  // Refetch exactly when the next phase boundary passes.
+  const nextBoundary = useMemo(() => {
+    const now = Date.now();
+    const future = refreshAt.filter((ts) => ts > now);
+    return future.length > 0 ? Math.min(...future) : null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshAt.join(',')]);
+
+  useEffect(() => {
+    if (nextBoundary === null) {
+      return;
+    }
+    const delay = nextBoundary - Date.now();
+    if (delay <= 0 || delay > MAX_TIMEOUT_MS) {
+      return;
+    }
+    // Fire a moment after the boundary so the server-side clock has crossed it.
+    const timeout = setTimeout(() => refreshData('scheduled'), delay + 1000);
+    return () => clearTimeout(timeout);
+  }, [nextBoundary, refreshData]);
 }
 
 function useNotifications() {

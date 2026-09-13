@@ -24,7 +24,10 @@ import { seededShuffle } from './utils/seededShuffle';
 import { UPCOMING_ROUNDS_TO_SHOW } from './utils/constants';
 import { assertNever } from './utils/never';
 import { calculatePlaybackStats } from './playbackCalculations';
-import { getRoundSchedule, getStartOfDay } from './utils/roundSchedule';
+import {
+  getRoundSchedule,
+  getStartOfDayAtHour,
+} from './utils/roundSchedule';
 
 const dbPromise = (async () => {
   const [
@@ -100,8 +103,13 @@ export async function getUserLeagues(
 
   const leagueWithData = await Promise.all(
     leagues.map(async (league) => {
-      // Normalize league start date to midnight in America/New_York timezone
-      const reformattedDate = getStartOfDay(league.leagueStartDate);
+      // Normalize league start date to the configured day-boundary hour
+      // (midnight by default) in America/New_York timezone.
+      const transitionHour = league.transitionHour ?? 0;
+      const reformattedDate = getStartOfDayAtHour(
+        league.leagueStartDate,
+        transitionHour,
+      );
 
       league.leagueStartDate = reformattedDate;
 

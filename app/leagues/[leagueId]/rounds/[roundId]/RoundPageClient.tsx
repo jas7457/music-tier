@@ -23,7 +23,12 @@ export function RoundPageClient({
   league,
   currentUser,
 }: RoundPageClientProps) {
-  useRealTimeUpdates();
+  useRealTimeUpdates([
+    round.submissionStartDate,
+    round.submissionEndDate,
+    round.votingStartDate,
+    round.votingEndDate,
+  ]);
 
   return (
     <div className="min-h-screen">

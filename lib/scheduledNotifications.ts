@@ -159,6 +159,82 @@ export async function setScheduledNotifications(
       }
     })();
 
+    // Phase-transition notifications for leagues with auto-start disabled.
+    // When auto-start is on these fire in real time from the submit/vote API
+    // handlers. When it's off nothing advances early, so we schedule the
+    // "voting started" / "round completed" / "league completed" pings to go out
+    // at the scheduled deadline instead. Each is sent once per round.
+    (() => {
+      if (league.autoStartRounds !== false) {
+        return;
+      }
+      const currentRound = league.rounds.current;
+      if (!currentRound || currentRound.isPending || !currentRound._id) {
+        return;
+      }
+      const roundId = currentRound._id;
+      const allUserIds = league.users.map((user) => user._id);
+
+      const pushOncePerRound = (
+        type: 'VOTING.STARTED' | 'ROUND.COMPLETED' | 'LEAGUE.COMPLETED',
+        executeAt: number,
+        notification: { title: string; message: string },
+      ) => {
+        const alreadyNotified = getUsersAlreadyNotified(roundId, type);
+        const userIds = allUserIds.filter((id) => !alreadyNotified.has(id));
+        if (userIds.length === 0) {
+          return;
+        }
+        scheduledNotifications.push({
+          _id: new ObjectId(),
+          type,
+          status: 'pending',
+          leagueId: league._id,
+          userIds,
+          executeAt,
+          data: {
+            roundId,
+            notification: { code: type, ...notification },
+          },
+        } as ScheduledNotification);
+      };
+
+      switch (currentRound.stage) {
+        case 'submission': {
+          pushOncePerRound('VOTING.STARTED', currentRound.submissionEndDate, {
+            title: 'Voting has started',
+            message: `Submissions for ${currentRound.title} are closed. It's time to vote!`,
+          });
+          return;
+        }
+        case 'voting':
+        case 'currentUserVotingCompleted': {
+          // This round is the last one still running when nothing else is
+          // upcoming, bonus, or kickoff-pending — so its completion completes
+          // the league.
+          const isLastRound =
+            league.rounds.upcoming.length === 0 &&
+            league.rounds.bonus.length === 0 &&
+            league.rounds.kickoff.length === 0;
+          if (isLastRound) {
+            pushOncePerRound('LEAGUE.COMPLETED', currentRound.votingEndDate, {
+              title: 'League completed',
+              message: `The league "${league.title}" has been completed. Check out the final results!`,
+            });
+          } else {
+            pushOncePerRound('ROUND.COMPLETED', currentRound.votingEndDate, {
+              title: 'Round completed',
+              message: `Voting for ${currentRound.title} is closed. Check out the results!`,
+            });
+          }
+          return;
+        }
+        default: {
+          return;
+        }
+      }
+    })();
+
     // Only delete pending notifications - keep completed/failed as historical record
     await scheduledNotificationsCollection.deleteMany({
       leagueId: league._id,

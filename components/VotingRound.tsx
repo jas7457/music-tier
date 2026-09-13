@@ -248,6 +248,17 @@ export default function VotingRound({
           ),
         };
       case 'currentUserVotingCompleted':
+        // With auto-start off, everyone can be done voting while the round
+        // stays open until its scheduled end. Don't claim we're waiting on
+        // people when there's no one left.
+        if (usersThatHaveNotVoted.length === 0) {
+          return {
+            title: 'All votes are in',
+            subtitle: `Results will be revealed when the round ends on ${formatDateWithTime(
+              round.votingEndDate,
+            )}.`,
+          };
+        }
         return {
           title: 'Waiting on others to vote',
           subtitle: 'You have already submitted your votes.',

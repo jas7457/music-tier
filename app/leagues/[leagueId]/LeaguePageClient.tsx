@@ -5,6 +5,7 @@ import Card from '@/components/Card';
 import { PopulatedLeague, PopulatedUser } from '@/lib/types';
 import { useRealTimeUpdates } from '@/lib/PusherContext';
 import { Breadcrumb, HomeIcon, LeagueIcon } from '@/components/Breadcrumb';
+import { getLeagueRefreshBoundaries } from '@/lib/utils/getRefreshBoundaries';
 
 type LeaguePageClientProps = {
   league: PopulatedLeague;
@@ -12,7 +13,7 @@ type LeaguePageClientProps = {
 };
 
 export function LeaguePageClient({ league, user }: LeaguePageClientProps) {
-  useRealTimeUpdates();
+  useRealTimeUpdates(getLeagueRefreshBoundaries(league));
 
   return (
     <div className="min-h-screen">

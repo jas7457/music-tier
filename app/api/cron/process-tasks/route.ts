@@ -9,6 +9,7 @@ import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
 import { getLeagueById } from '@/lib/data';
 import { assertNever } from '@/lib/utils/never';
 import { PopulatedLeague } from '@/lib/types';
+import { triggerRealTimeUpdate } from '@/lib/pusher-server';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Allow up to 60 seconds for processing
@@ -38,6 +39,10 @@ export async function GET() {
       string,
       Promise<PopulatedLeague | undefined>
     > = {};
+    // Whether any phase-transition notification was processed. These fire when
+    // a round actually advances (for auto-start-off leagues), so we nudge open
+    // clients to refetch afterwards and pick up the new stage without a reload.
+    let didAdvancePhase = false;
 
     for (const task of tasks) {
       results.processed++;
@@ -62,6 +67,22 @@ export async function GET() {
 
       try {
         switch (task.type) {
+          case 'VOTING.STARTED':
+          case 'ROUND.COMPLETED':
+          case 'LEAGUE.COMPLETED': {
+            didAdvancePhase = true;
+            const notification = task.data.notification;
+            await sendNotifications(
+              [
+                {
+                  ...notification,
+                  userIds: task.userIds,
+                },
+              ],
+              league,
+            );
+            break;
+          }
           case 'SUBMISSION.REMINDER':
           case 'VOTING.REMINDER': {
             const notification = task.data.notification;
@@ -90,6 +111,12 @@ export async function GET() {
         results.failed++;
         results.errors.push(`Task ${task._id} failed: ${errorMessage}`);
       }
+    }
+
+    // A phase advanced purely on the clock, so no user action pushed an update.
+    // Nudge open clients to refetch and reflect the new stage.
+    if (didAdvancePhase) {
+      await triggerRealTimeUpdate();
     }
 
     return NextResponse.json({

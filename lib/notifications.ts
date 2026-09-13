@@ -202,11 +202,18 @@ export async function submissionNotifications({
   );
 
   const halfOfUsers = league.users.length / 2;
+  // When auto-start is off, voting does not open the moment everyone submits —
+  // it opens at the scheduled deadline. That "voting started" ping is sent then
+  // by a scheduled transition notification instead of here.
+  const autoStart = league.autoStartRounds !== false;
 
   (() => {
     const leagueLink = `${PRODUCTION_URL}/leagues/${league._id}`;
     const roundLink = `${leagueLink}/rounds/${before.round._id}`;
     if (unsubmittedUsers.length === 0) {
+      if (!autoStart) {
+        return;
+      }
       notifications.push({
         code: 'VOTING.STARTED',
         userIds: league.users.map((user) => user._id),
@@ -284,12 +291,20 @@ export async function voteNotifications({
   );
 
   const halfOfUsers = afterLeague.users.length / 2;
+  // When auto-start is off, the round does not complete the moment the last
+  // vote lands — it completes at the scheduled deadline. The "round completed"
+  // / "league completed" / next-round pings are sent then by scheduled
+  // transition notifications instead of here.
+  const autoStart = afterLeague.autoStartRounds !== false;
 
   (() => {
     const leagueLink = `${PRODUCTION_URL}/leagues/${afterLeague._id}`;
     const roundLink = `${leagueLink}/rounds/${afterRound._id}`;
 
     if (unvotedUsers.length === 0) {
+      if (!autoStart) {
+        return;
+      }
       if (
         afterLeague.status === 'completed' &&
         before.league.status !== 'completed'

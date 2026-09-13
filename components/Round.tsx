@@ -10,6 +10,7 @@ import { HapticButton } from './HapticButton';
 import { useToast } from '@/lib/ToastContext';
 import { getOnDeckInfo, OnDeckSubmissionsList } from './OnDeckSubmissions';
 import { TrackInfo } from '@/databaseTypes';
+import { formatDateWithTime } from '@/lib/utils/formatDate';
 import Link from 'next/link';
 
 export function Round({
@@ -93,6 +94,17 @@ export function Round({
             key={round.userSubmission?.trackInfo.trackId ?? 'no-submission'}
           >
             <SongSubmission round={round} isRoundPage={isRoundPage} />
+            {league.autoStartRounds === false &&
+              league.users.every((leagueUser) =>
+                round.submissions.some(
+                  (submission) => submission.userId === leagueUser._id,
+                ),
+              ) && (
+                <p className="text-sm text-ink-muted">
+                  Everyone&apos;s submitted! Voting opens{' '}
+                  {formatDateWithTime(round.submissionEndDate)}.
+                </p>
+              )}
             <SubmittedUsers
               submissions={round.submissions}
               users={league.users}

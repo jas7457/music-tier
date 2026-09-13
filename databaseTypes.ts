@@ -65,6 +65,16 @@ export type League = {
   // array of user IDs who are allowed to create a bonus round
   bonusRoundUserIds: string[];
 
+  // Whether phases auto-advance the moment everyone finishes early. When true
+  // (the default when this field is absent), voting opens as soon as everyone
+  // submits and the next round opens as soon as everyone votes. When false,
+  // every phase runs its full scheduled window regardless of early finishers.
+  autoStartRounds?: boolean;
+  // Hour of day (0-23, America/New_York) that round day-boundaries fall on.
+  // Defaults to 0 (midnight) when absent, which preserves the original
+  // behavior. Set to e.g. 9 to have submissions/voting flip over at 9am ET.
+  transitionHour?: number;
+
   heroImageUserId?: string;
   heroImageUrl?: string;
   // Focal point as percentages (0-100) used for background-position when
@@ -169,6 +179,42 @@ export type ScheduledNotification = {
         roundId: string;
         notification: {
           code: 'SUBMISSION.REMINDER';
+          title: string;
+          message: string;
+        };
+      };
+    }
+  // Phase-transition notifications. Only scheduled for leagues with
+  // autoStartRounds === false, where the early-finish path that would
+  // otherwise send these in real time is suppressed.
+  | {
+      type: 'VOTING.STARTED';
+      data: {
+        roundId: string;
+        notification: {
+          code: 'VOTING.STARTED';
+          title: string;
+          message: string;
+        };
+      };
+    }
+  | {
+      type: 'ROUND.COMPLETED';
+      data: {
+        roundId: string;
+        notification: {
+          code: 'ROUND.COMPLETED';
+          title: string;
+          message: string;
+        };
+      };
+    }
+  | {
+      type: 'LEAGUE.COMPLETED';
+      data: {
+        roundId: string;
+        notification: {
+          code: 'LEAGUE.COMPLETED';
           title: string;
           message: string;
         };

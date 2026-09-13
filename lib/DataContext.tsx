@@ -5,7 +5,9 @@ import { createContext, useContext, useMemo, useRef } from 'react';
 import { assertNever } from './utils/never';
 
 type DataContextType = {
-  refreshData: (refreshReason: 'manual' | 'pusherUpdate') => void;
+  refreshData: (
+    refreshReason: 'manual' | 'pusherUpdate' | 'scheduled',
+  ) => void;
 };
 
 const DataContext = createContext<DataContextType>({
@@ -28,6 +30,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             case 'manual':
               return true;
             case 'pusherUpdate':
+            case 'scheduled':
               return false;
             default: {
               assertNever(reason);
