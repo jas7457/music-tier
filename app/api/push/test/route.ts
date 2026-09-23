@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { verifySessionToken } from '@/lib/auth';
 import { getCollection } from '@/lib/mongodb';
 import type { User } from '@/databaseTypes';
-import { sendPushNotification } from '@/lib/webPush';
+import { sendPushToSubscriptions } from '@/lib/webPush';
 import { ObjectId } from 'mongodb';
 import { APP_NAME, logo } from '@/lib/utils/constants';
 
@@ -36,27 +36,22 @@ export async function POST(request: Request) {
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
 
-    // Send test notification to all user's subscriptions
-    const results = await Promise.allSettled(
-      user.pushSubscriptions.map((subscription) =>
-        sendPushNotification(subscription, {
-          title: `${APP_NAME} Test Notification`,
-          body: 'Push notifications are working!',
-          icon: logo.src,
-          data: {
-            link: '/settings',
-          },
-        }),
-      ),
-    );
-
-    const successCount = results.filter((r) => r.status === 'fulfilled').length;
-    const failCount = results.filter((r) => r.status === 'rejected').length;
+    // Send test notification to all user's subscriptions (deduped by
+    // endpoint; expired ones are pruned)
+    const counts = await sendPushToSubscriptions(user.pushSubscriptions, {
+      title: `${APP_NAME} Test Notification`,
+      body: 'Push notifications are working!',
+      icon: logo.src,
+      data: {
+        link: '/settings',
+      },
+    });
 
     return NextResponse.json({
       success: true,
-      sent: successCount,
-      failed: failCount,
+      sent: counts.sent,
+      failed: counts.failed,
+      expired: counts.expired,
       total: user.pushSubscriptions.length,
     });
   } catch (error) {

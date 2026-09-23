@@ -3,9 +3,9 @@ import { triggerNotifications } from './pusher-server';
 import { PopulatedLeague, PopulatedRound, PopulatedUser } from './types';
 import { APP_NAME, PRODUCTION_URL, logo } from './utils/constants';
 import { getAllRounds } from './utils/getAllRounds';
-import { sendPushNotification } from './webPush';
+import { sendPushToSubscriptions } from './webPush';
 import { getCollection } from './mongodb';
-import type { User } from '@/databaseTypes';
+import type { PushSubscription, User } from '@/databaseTypes';
 import { ObjectId } from 'mongodb';
 
 export type Notification =
@@ -433,9 +433,15 @@ export async function sendNotifications(
     );
 
     // Send all notifications
-    const notificationPromises: Promise<void>[] = [];
+    const notificationPromises: Promise<unknown>[] = [];
 
     notifications.forEach((notification) => {
+      // Push subscriptions for every recipient of this notification. Collected
+      // across users and deduped by endpoint before sending, so a device that
+      // has been logged into several accounts (or saved the same subscription
+      // twice) still only gets one copy.
+      const pushSubscriptions: PushSubscription[] = [];
+
       notification.userIds.forEach((userId) => {
         const user = usersById[userId];
         const userWithPush = usersWithPushById[userId];
@@ -454,28 +460,9 @@ export async function sendNotifications(
           return;
         }
 
-        // Send push notifications via VAPID
-        if (
-          userWithPush?.pushSubscriptions &&
-          userWithPush.pushSubscriptions.length > 0
-        ) {
-          userWithPush.pushSubscriptions.forEach((subscription) => {
-            const pushPromise = sendPushNotification(subscription, {
-              title: notification.title,
-              body: notification.message,
-              icon: logo.src,
-              data: {
-                link: notification.link,
-                code: notification.code,
-              },
-            }).catch((error) => {
-              console.error(
-                '[Notifications] Error sending push notification:',
-                error,
-              );
-            });
-            notificationPromises.push(pushPromise as Promise<void>);
-          });
+        // Queue push subscriptions; sent (deduped) after the user loop
+        if (userWithPush?.pushSubscriptions) {
+          pushSubscriptions.push(...userWithPush.pushSubscriptions);
         }
 
         if (user.emailAddress && preferences.emailNotificationsEnabled) {
@@ -504,6 +491,26 @@ export async function sendNotifications(
           });
         }
       });
+
+      // Send push notifications via VAPID, once per unique endpoint
+      if (pushSubscriptions.length > 0) {
+        notificationPromises.push(
+          sendPushToSubscriptions(pushSubscriptions, {
+            title: notification.title,
+            body: notification.message,
+            icon: logo.src,
+            data: {
+              link: notification.link,
+              code: notification.code,
+            },
+          }).catch((error) => {
+            console.error(
+              '[Notifications] Error sending push notification:',
+              error,
+            );
+          }),
+        );
+      }
     });
 
     // Wait for all push notifications to be sent
