@@ -21,7 +21,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
 
   // Settings form state
   const toast = useToast();
-  const { primaryColor, setPrimaryColor, availableColors } = useTheme();
+  const { palette, setPalette, palettes } = useTheme();
   const {
     isSupported,
     isEnabled,
@@ -517,7 +517,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   })();
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl mx-auto p-6">
+    <div className="flex flex-col gap-5">
       <div>
         <h1 className="text-3xl font-bold mb-2">Settings</h1>
         <p className="text-ink-muted">
@@ -723,47 +723,36 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
           </div>
         </div>
 
-        {/* Theme Color */}
+        {/* Screen Palette */}
         <div>
-          <h3 className="font-semibold mb-3 text-lg">Theme Color</h3>
+          <h3 className="font-semibold mb-3 text-lg">Screen Palette</h3>
           <p className="text-sm text-ink-muted mb-4">
-            Choose your preferred accent color for the app
+            Which Game Boy screen do you want to play on?
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {availableColors.map((color) => (
+          <div className="grid grid-cols-2 gap-3">
+            {palettes.map((option) => (
               <HapticButton
-                key={color}
-                onClick={() => setPrimaryColor(color)}
+                key={option.id}
+                onClick={() => setPalette(option.id)}
                 className={twMerge(
-                  'relative px-4 py-3 rounded-lg border-2 transition-all capitalize font-medium',
-                  primaryColor === color
-                    ? 'border-ink shadow-float scale-105'
-                    : 'border-line hover:border-line-strong',
+                  'relative px-3 py-3 border-2 text-left',
+                  palette === option.id
+                    ? 'border-ink bg-ink text-white'
+                    : 'border-ink',
                 )}
               >
                 <div className="flex items-center gap-2">
-                  <div
-                    className="w-6 h-6 rounded-full ring-1 ring-line shrink-0"
-                    style={{
-                      backgroundColor: `var(--color-${color}-500)`,
-                    }}
-                  />
-                  <span className="text-sm">{color}</span>
+                  <span className="text-sm font-bold">{option.name}</span>
+                  {palette === option.id && (
+                    <span className="ml-auto text-xs">ON</span>
+                  )}
                 </div>
-                {primaryColor === color && (
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="white"
-                      strokeWidth="3"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                )}
+                <div className="mt-2 flex h-3 ring-1 ring-current">
+                  <span className="flex-1 bg-white ring-1 ring-inset ring-black" />
+                  <span className="flex-1 bg-gray-400" />
+                  <span className="flex-1 bg-gray-600" />
+                  <span className="flex-1 bg-black" />
+                </div>
               </HapticButton>
             ))}
           </div>

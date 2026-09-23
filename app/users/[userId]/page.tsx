@@ -34,7 +34,7 @@ export default async function UserProfilePage(props: PageProps) {
 
   if (!user) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="min-h-[60cqh] flex items-center justify-center">
         <Card className="p-8 text-center">
           <h2 className="text-xl font-semibold mb-2">User not found</h2>
           <p className="text-ink-muted">
@@ -96,7 +96,7 @@ export default async function UserProfilePage(props: PageProps) {
   };
 
   return (
-    <div className="min-h-screen">
+    <div>
       <div className="max-w-4xl mx-auto">
         <Breadcrumb
           items={[

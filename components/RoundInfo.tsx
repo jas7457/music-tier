@@ -224,7 +224,7 @@ export function RoundInfo({
     }
 
     return (
-      <div className="inline-flex gap-1">
+      <div className="inline-flex flex-wrap gap-1">
         {pills.map(({ key, pill }) => (
           <Fragment key={key}>{pill}</Fragment>
         ))}
@@ -258,7 +258,7 @@ export function RoundInfo({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex gap-1">
-        <div className="grow shrink">
+        <div className="grow shrink min-w-0">
           <InlineGap>
             {onTitleUpdate ? (
               <input

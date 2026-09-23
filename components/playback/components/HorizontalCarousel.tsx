@@ -61,7 +61,7 @@ export function HorizontalCarousel<T>({
           e.preventDefault();
           if (currentIndex > 0 && containerRef.current) {
             containerRef.current.scrollTo({
-              left: (currentIndex - 1) * window.innerWidth,
+              left: (currentIndex - 1) * containerRef.current.clientWidth,
               behavior: 'smooth',
             });
           }
@@ -70,7 +70,7 @@ export function HorizontalCarousel<T>({
           e.preventDefault();
           if (currentIndex < items.length - 1 && containerRef.current) {
             containerRef.current.scrollTo({
-              left: (currentIndex + 1) * window.innerWidth,
+              left: (currentIndex + 1) * containerRef.current.clientWidth,
               behavior: 'smooth',
             });
           }
@@ -128,7 +128,7 @@ export function HorizontalCarousel<T>({
     }
     if (!isAtStart && containerRef.current) {
       containerRef.current.scrollTo({
-        left: (currentIndex - 1) * window.innerWidth,
+        left: (currentIndex - 1) * containerRef.current.clientWidth,
         behavior: 'smooth',
       });
     }
@@ -140,7 +140,7 @@ export function HorizontalCarousel<T>({
     }
     if (!isAtEnd && containerRef.current) {
       containerRef.current.scrollTo({
-        left: (currentIndex + 1) * window.innerWidth,
+        left: (currentIndex + 1) * containerRef.current.clientWidth,
         behavior: 'smooth',
       });
     }
@@ -220,10 +220,10 @@ export function HorizontalCarousel<T>({
                     itemRefs.current[index] = el;
                   }}
                   data-index={index}
-                  className="w-screen h-full shrink-0 snap-center snap-always"
+                  className="w-full h-full shrink-0 snap-center snap-always"
                   style={{
                     contentVisibility: 'auto',
-                    containIntrinsicSize: '100vw 100vh',
+                    containIntrinsicSize: '100cqw 100cqh',
                   }}
                 >
                   <Activity mode={shouldRender ? 'visible' : 'hidden'}>

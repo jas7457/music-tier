@@ -13,7 +13,7 @@ export function Pill({
   return (
     <span
       className={twMerge(
-        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-tight whitespace-nowrap ring-1 ring-inset',
+        'inline-flex items-center px-1.5 py-0.5 text-xs font-bold uppercase leading-none whitespace-nowrap ring-2 ring-inset',
         getStatusColor(status),
         className,
       )}

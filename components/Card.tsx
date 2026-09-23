@@ -22,7 +22,7 @@ export default function Card({
   const baseStyles =
     'rounded-card transition-[box-shadow,transform] duration-300 ease-out';
 
-  // Glass by default — the aurora canvas behind supplies the colour these refract.
+  // "glass" is re-skinned in globals.css as a 1-bit LCD box.
   const variantStyles = {
     default: 'glass',
     outlined: 'glass',

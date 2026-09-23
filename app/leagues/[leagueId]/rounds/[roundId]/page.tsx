@@ -63,7 +63,7 @@ export default async function RoundPage(props: PageProps) {
 
   if (!league || !round || !user) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="min-h-[60cqh] flex items-center justify-center">
         <Card className="p-8 text-center">
           <h2 className="text-xl font-semibold mb-2">Round not found</h2>
           <p className="text-ink-muted">

@@ -16,7 +16,7 @@ export function LeaguePageClient({ league, user }: LeaguePageClientProps) {
   useRealTimeUpdates(getLeagueRefreshBoundaries(league));
 
   return (
-    <div className="min-h-screen">
+    <div>
       <div className="max-w-4xl mx-auto">
         <Breadcrumb
           items={[

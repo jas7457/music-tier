@@ -30,12 +30,13 @@ export function Toast({
     }
   }, [id, timeout, onDismiss]);
 
+  // One LCD, four shades: variants differ by fill + icon, not hue.
   const variantStyles = {
-    default: 'bg-gray-900/80 text-white ring-white/15',
-    error: 'bg-red-600/80 text-white ring-white/20',
-    warning: 'bg-amber-500/80 text-amber-950 ring-white/25',
-    info: 'bg-sky-600/80 text-white ring-white/20',
-    success: 'bg-emerald-600/80 text-white ring-white/20',
+    default: '',
+    error: 'bg-black text-white',
+    warning: '',
+    info: '',
+    success: '',
   };
 
   const iconStyles = {
@@ -81,7 +82,7 @@ export function Toast({
   return (
     <div
       className={twMerge(
-        'pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-card shadow-pop ring-1 backdrop-blur-xl saturate-150 min-w-[300px] max-w-full animate-toast-in',
+        'gb-window pointer-events-auto flex items-center gap-3 px-3 py-2.5 w-full animate-toast-in',
         variantStyles[variant],
       )}
     >
@@ -90,13 +91,13 @@ export function Toast({
       )}
 
       <div className="flex-1">
-        {title && <div className="font-semibold text-base">{title}</div>}
-        <div className="text-sm font-medium opacity-90">{message}</div>
+        {title && <div className="font-bold text-base">{title}</div>}
+        <div className="text-sm leading-snug">{message}</div>
       </div>
 
       <button
         onClick={() => onDismiss(id)}
-        className="shrink-0 -mr-1 p-1 rounded-md opacity-70 hover:opacity-100 hover:bg-white/10 transition"
+        className="shrink-0 -mr-1 p-1"
         aria-label="Dismiss"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

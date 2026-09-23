@@ -143,7 +143,7 @@ export function Round({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-1">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-1">
         {isRoundPage && (round.previousRound || round.nextRound) && (
           <div className="grid grid-cols-[1fr_1fr] gap-1 text-sm">
             <div className="truncate">

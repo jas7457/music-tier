@@ -13,6 +13,7 @@ interface ToastContextValue {
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
+const ToastListContext = createContext<ToastItem[]>([]);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -43,12 +44,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   return (
     <ToastContext.Provider value={value}>
-      {children}
-      <div className="fixed bottom-4 pl-2 right-2 md:pl-4 md:right-4 z-50 flex flex-col gap-2 pointer-events-none">
-        {toasts.map((toast) => (
-          <Toast key={toast.id} {...toast} onDismiss={value.hide} />
-        ))}
-      </div>
+      <ToastListContext.Provider value={toasts}>
+        {children}
+      </ToastListContext.Provider>
     </ToastContext.Provider>
   );
 }
@@ -60,4 +58,20 @@ export function useToast() {
     throw new Error('useToast must be used within a ToastProvider');
   }
   return contextValue;
+}
+
+/** Renders the toasts. Lives inside the Game Boy screen (see Layout). */
+export function ToastViewport() {
+  const toasts = useContext(ToastListContext);
+  const { hide } = useToast();
+  if (toasts.length === 0) {
+    return null;
+  }
+  return (
+    <div className="absolute top-2 left-2 right-2 z-8000 flex flex-col gap-2 pointer-events-none">
+      {toasts.map((toast) => (
+        <Toast key={toast.id} {...toast} onDismiss={hide} />
+      ))}
+    </div>
+  );
 }

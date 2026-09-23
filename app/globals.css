@@ -3,66 +3,443 @@
 @source "../node_modules/@uploadthing/react/dist";
 @source inline("w-{{1..50}}");
 @source inline("h-{{1..50}}");
-@source inline("{{text,bg,border,ring}}-{{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}}-{{50,200,300,500,600,700,800,900}}");
+
+/*
+ * ─── GAME BOY THEME ───────────────────────────────────────────────────────────
+ *
+ * Everything on the screen is authored in four greys (--gb-0 … --gb-3). The
+ * LCD then tints the whole screen in the compositor (see .gb-tint), which is
+ * what turns those greys — plus any photo, emoji or stray inline colour — into
+ * the four-ish shades of a DMG panel. Swap palettes by changing --lcd-light /
+ * --lcd-dark; nothing inside the screen needs to know.
+ */
 
 @theme {
-  --color-primary-lightest: theme(--color-purple-50);
-  --color-primary-lighter: theme(--color-purple-200);
-  --color-primary-light: theme(--color-purple-300);
-  --color-primary: theme(--color-purple-500);
-  --color-primary-dark: theme(--color-purple-600);
-  --color-primary-darker: theme(--color-purple-700);
-  --color-primary-darkest: theme(--color-purple-800);
+  /* Screens are always phone-sized, so viewport breakpoints must never fire. */
+  --breakpoint-sm: 9999rem;
+  --breakpoint-md: 9999rem;
+  --breakpoint-lg: 9999rem;
+  --breakpoint-xl: 9999rem;
+  --breakpoint-2xl: 9999rem;
 
-  /* Neutral scale — very slightly cool so the primary hue reads as intentional */
-  --color-canvas: oklch(0.972 0.004 285);
-  --color-surface: #fff;
-  --color-surface-muted: oklch(0.984 0.003 285);
-  --color-surface-sunken: oklch(0.965 0.005 285);
-  --color-line: oklch(0.922 0.005 285);
-  --color-line-strong: oklch(0.865 0.008 285);
-  --color-ink: oklch(0.255 0.017 285);
-  --color-ink-muted: oklch(0.51 0.015 285);
-  --color-ink-subtle: oklch(0.645 0.013 285);
+  /* Slightly tighter spacing scale: more fits on a ~330px screen. */
+  --spacing: 0.22rem;
 
-  --font-sans:
-    var(--font-inter), ui-sans-serif, system-ui, -apple-system,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: var(--font-pixel), ui-monospace, monospace;
+  --font-mono: var(--font-pixel), ui-monospace, monospace;
+  --font-press: var(--font-press-start), var(--font-pixel), monospace;
 
-  /* Bento corners are large — the radius is what reads as "tile" rather than "box" */
-  --radius-card: 1.25rem;
-  --radius-tile: 1rem;
-  --radius-media: 0.75rem;
-  --radius-control: 0.75rem;
+  --color-white: var(--gb-0);
+  --color-black: var(--gb-3);
 
-  /* Layered, low-alpha shadows read as depth rather than as a grey haze */
-  --shadow-soft:
-    0 1px 2px oklch(0.255 0.017 285 / 0.05),
-    0 6px 16px -8px oklch(0.255 0.017 285 / 0.12);
-  --shadow-float:
-    0 1px 2px oklch(0.255 0.017 285 / 0.05),
-    0 12px 28px -10px oklch(0.255 0.017 285 / 0.16);
-  --shadow-pop:
-    0 2px 4px oklch(0.255 0.017 285 / 0.05),
-    0 24px 48px -16px oklch(0.255 0.017 285 / 0.22);
+  --color-primary-lightest: var(--gb-0);
+  --color-primary-lighter: var(--gb-1);
+  --color-primary-light: var(--gb-1);
+  --color-primary: var(--gb-2);
+  --color-primary-dark: var(--gb-3);
+  --color-primary-darker: var(--gb-3);
+  --color-primary-darkest: var(--gb-3);
 
-  /* Glass: the inset top highlight is what actually sells it as a lit surface */
-  --shadow-glass:
-    inset 0 1px 0 oklch(1 0 0 / 0.7),
-    inset 0 0 0 1px oklch(1 0 0 / 0.28),
-    0 8px 32px -12px oklch(0.255 0.017 285 / 0.25);
-  --shadow-glass-pop:
-    inset 0 1px 0 oklch(1 0 0 / 0.75),
-    inset 0 0 0 1px oklch(1 0 0 / 0.35),
-    0 24px 56px -20px oklch(0.255 0.017 285 / 0.35);
-  --blur-glass: 20px;
+  --color-canvas: var(--gb-0);
+  --color-surface: var(--gb-0);
+  --color-surface-muted: var(--gb-0);
+  --color-surface-sunken: var(--gb-1);
+  --color-line: var(--gb-1);
+  --color-line-strong: var(--gb-2);
+  --color-ink: var(--gb-3);
+  --color-ink-muted: var(--gb-2);
+  --color-ink-subtle: var(--gb-2);
 
-  --animate-spin-slow: spin 8s linear infinite;
-  --animate-slide-up-fade-in: slide-up-fade-in 0.4s ease-out both;
-  --animate-scale-in: scale-in 0.18s ease-out both;
-  --animate-float: float 3s ease-in-out infinite;
-  --animate-toast-in: toast-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-menu-in: menu-in 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* Every Tailwind hue collapses onto the four LCD shades by lightness. */
+  --color-red-50: var(--gb-0);
+  --color-red-100: var(--gb-0);
+  --color-red-200: var(--gb-1);
+  --color-red-300: var(--gb-1);
+  --color-red-400: var(--gb-1);
+  --color-red-500: var(--gb-2);
+  --color-red-600: var(--gb-2);
+  --color-red-700: var(--gb-3);
+  --color-red-800: var(--gb-3);
+  --color-red-900: var(--gb-3);
+  --color-red-950: var(--gb-3);
+  --color-orange-50: var(--gb-0);
+  --color-orange-100: var(--gb-0);
+  --color-orange-200: var(--gb-1);
+  --color-orange-300: var(--gb-1);
+  --color-orange-400: var(--gb-1);
+  --color-orange-500: var(--gb-2);
+  --color-orange-600: var(--gb-2);
+  --color-orange-700: var(--gb-3);
+  --color-orange-800: var(--gb-3);
+  --color-orange-900: var(--gb-3);
+  --color-orange-950: var(--gb-3);
+  --color-amber-50: var(--gb-0);
+  --color-amber-100: var(--gb-0);
+  --color-amber-200: var(--gb-1);
+  --color-amber-300: var(--gb-1);
+  --color-amber-400: var(--gb-1);
+  --color-amber-500: var(--gb-2);
+  --color-amber-600: var(--gb-2);
+  --color-amber-700: var(--gb-3);
+  --color-amber-800: var(--gb-3);
+  --color-amber-900: var(--gb-3);
+  --color-amber-950: var(--gb-3);
+  --color-yellow-50: var(--gb-0);
+  --color-yellow-100: var(--gb-0);
+  --color-yellow-200: var(--gb-1);
+  --color-yellow-300: var(--gb-1);
+  --color-yellow-400: var(--gb-1);
+  --color-yellow-500: var(--gb-2);
+  --color-yellow-600: var(--gb-2);
+  --color-yellow-700: var(--gb-3);
+  --color-yellow-800: var(--gb-3);
+  --color-yellow-900: var(--gb-3);
+  --color-yellow-950: var(--gb-3);
+  --color-lime-50: var(--gb-0);
+  --color-lime-100: var(--gb-0);
+  --color-lime-200: var(--gb-1);
+  --color-lime-300: var(--gb-1);
+  --color-lime-400: var(--gb-1);
+  --color-lime-500: var(--gb-2);
+  --color-lime-600: var(--gb-2);
+  --color-lime-700: var(--gb-3);
+  --color-lime-800: var(--gb-3);
+  --color-lime-900: var(--gb-3);
+  --color-lime-950: var(--gb-3);
+  --color-green-50: var(--gb-0);
+  --color-green-100: var(--gb-0);
+  --color-green-200: var(--gb-1);
+  --color-green-300: var(--gb-1);
+  --color-green-400: var(--gb-1);
+  --color-green-500: var(--gb-2);
+  --color-green-600: var(--gb-2);
+  --color-green-700: var(--gb-3);
+  --color-green-800: var(--gb-3);
+  --color-green-900: var(--gb-3);
+  --color-green-950: var(--gb-3);
+  --color-emerald-50: var(--gb-0);
+  --color-emerald-100: var(--gb-0);
+  --color-emerald-200: var(--gb-1);
+  --color-emerald-300: var(--gb-1);
+  --color-emerald-400: var(--gb-1);
+  --color-emerald-500: var(--gb-2);
+  --color-emerald-600: var(--gb-2);
+  --color-emerald-700: var(--gb-3);
+  --color-emerald-800: var(--gb-3);
+  --color-emerald-900: var(--gb-3);
+  --color-emerald-950: var(--gb-3);
+  --color-teal-50: var(--gb-0);
+  --color-teal-100: var(--gb-0);
+  --color-teal-200: var(--gb-1);
+  --color-teal-300: var(--gb-1);
+  --color-teal-400: var(--gb-1);
+  --color-teal-500: var(--gb-2);
+  --color-teal-600: var(--gb-2);
+  --color-teal-700: var(--gb-3);
+  --color-teal-800: var(--gb-3);
+  --color-teal-900: var(--gb-3);
+  --color-teal-950: var(--gb-3);
+  --color-cyan-50: var(--gb-0);
+  --color-cyan-100: var(--gb-0);
+  --color-cyan-200: var(--gb-1);
+  --color-cyan-300: var(--gb-1);
+  --color-cyan-400: var(--gb-1);
+  --color-cyan-500: var(--gb-2);
+  --color-cyan-600: var(--gb-2);
+  --color-cyan-700: var(--gb-3);
+  --color-cyan-800: var(--gb-3);
+  --color-cyan-900: var(--gb-3);
+  --color-cyan-950: var(--gb-3);
+  --color-sky-50: var(--gb-0);
+  --color-sky-100: var(--gb-0);
+  --color-sky-200: var(--gb-1);
+  --color-sky-300: var(--gb-1);
+  --color-sky-400: var(--gb-1);
+  --color-sky-500: var(--gb-2);
+  --color-sky-600: var(--gb-2);
+  --color-sky-700: var(--gb-3);
+  --color-sky-800: var(--gb-3);
+  --color-sky-900: var(--gb-3);
+  --color-sky-950: var(--gb-3);
+  --color-blue-50: var(--gb-0);
+  --color-blue-100: var(--gb-0);
+  --color-blue-200: var(--gb-1);
+  --color-blue-300: var(--gb-1);
+  --color-blue-400: var(--gb-1);
+  --color-blue-500: var(--gb-2);
+  --color-blue-600: var(--gb-2);
+  --color-blue-700: var(--gb-3);
+  --color-blue-800: var(--gb-3);
+  --color-blue-900: var(--gb-3);
+  --color-blue-950: var(--gb-3);
+  --color-indigo-50: var(--gb-0);
+  --color-indigo-100: var(--gb-0);
+  --color-indigo-200: var(--gb-1);
+  --color-indigo-300: var(--gb-1);
+  --color-indigo-400: var(--gb-1);
+  --color-indigo-500: var(--gb-2);
+  --color-indigo-600: var(--gb-2);
+  --color-indigo-700: var(--gb-3);
+  --color-indigo-800: var(--gb-3);
+  --color-indigo-900: var(--gb-3);
+  --color-indigo-950: var(--gb-3);
+  --color-violet-50: var(--gb-0);
+  --color-violet-100: var(--gb-0);
+  --color-violet-200: var(--gb-1);
+  --color-violet-300: var(--gb-1);
+  --color-violet-400: var(--gb-1);
+  --color-violet-500: var(--gb-2);
+  --color-violet-600: var(--gb-2);
+  --color-violet-700: var(--gb-3);
+  --color-violet-800: var(--gb-3);
+  --color-violet-900: var(--gb-3);
+  --color-violet-950: var(--gb-3);
+  --color-purple-50: var(--gb-0);
+  --color-purple-100: var(--gb-0);
+  --color-purple-200: var(--gb-1);
+  --color-purple-300: var(--gb-1);
+  --color-purple-400: var(--gb-1);
+  --color-purple-500: var(--gb-2);
+  --color-purple-600: var(--gb-2);
+  --color-purple-700: var(--gb-3);
+  --color-purple-800: var(--gb-3);
+  --color-purple-900: var(--gb-3);
+  --color-purple-950: var(--gb-3);
+  --color-fuchsia-50: var(--gb-0);
+  --color-fuchsia-100: var(--gb-0);
+  --color-fuchsia-200: var(--gb-1);
+  --color-fuchsia-300: var(--gb-1);
+  --color-fuchsia-400: var(--gb-1);
+  --color-fuchsia-500: var(--gb-2);
+  --color-fuchsia-600: var(--gb-2);
+  --color-fuchsia-700: var(--gb-3);
+  --color-fuchsia-800: var(--gb-3);
+  --color-fuchsia-900: var(--gb-3);
+  --color-fuchsia-950: var(--gb-3);
+  --color-pink-50: var(--gb-0);
+  --color-pink-100: var(--gb-0);
+  --color-pink-200: var(--gb-1);
+  --color-pink-300: var(--gb-1);
+  --color-pink-400: var(--gb-1);
+  --color-pink-500: var(--gb-2);
+  --color-pink-600: var(--gb-2);
+  --color-pink-700: var(--gb-3);
+  --color-pink-800: var(--gb-3);
+  --color-pink-900: var(--gb-3);
+  --color-pink-950: var(--gb-3);
+  --color-rose-50: var(--gb-0);
+  --color-rose-100: var(--gb-0);
+  --color-rose-200: var(--gb-1);
+  --color-rose-300: var(--gb-1);
+  --color-rose-400: var(--gb-1);
+  --color-rose-500: var(--gb-2);
+  --color-rose-600: var(--gb-2);
+  --color-rose-700: var(--gb-3);
+  --color-rose-800: var(--gb-3);
+  --color-rose-900: var(--gb-3);
+  --color-rose-950: var(--gb-3);
+  --color-slate-50: var(--gb-0);
+  --color-slate-100: var(--gb-0);
+  --color-slate-200: var(--gb-1);
+  --color-slate-300: var(--gb-1);
+  --color-slate-400: var(--gb-1);
+  --color-slate-500: var(--gb-2);
+  --color-slate-600: var(--gb-2);
+  --color-slate-700: var(--gb-3);
+  --color-slate-800: var(--gb-3);
+  --color-slate-900: var(--gb-3);
+  --color-slate-950: var(--gb-3);
+  --color-gray-50: var(--gb-0);
+  --color-gray-100: var(--gb-0);
+  --color-gray-200: var(--gb-1);
+  --color-gray-300: var(--gb-1);
+  --color-gray-400: var(--gb-1);
+  --color-gray-500: var(--gb-2);
+  --color-gray-600: var(--gb-2);
+  --color-gray-700: var(--gb-3);
+  --color-gray-800: var(--gb-3);
+  --color-gray-900: var(--gb-3);
+  --color-gray-950: var(--gb-3);
+  --color-zinc-50: var(--gb-0);
+  --color-zinc-100: var(--gb-0);
+  --color-zinc-200: var(--gb-1);
+  --color-zinc-300: var(--gb-1);
+  --color-zinc-400: var(--gb-1);
+  --color-zinc-500: var(--gb-2);
+  --color-zinc-600: var(--gb-2);
+  --color-zinc-700: var(--gb-3);
+  --color-zinc-800: var(--gb-3);
+  --color-zinc-900: var(--gb-3);
+  --color-zinc-950: var(--gb-3);
+  --color-neutral-50: var(--gb-0);
+  --color-neutral-100: var(--gb-0);
+  --color-neutral-200: var(--gb-1);
+  --color-neutral-300: var(--gb-1);
+  --color-neutral-400: var(--gb-1);
+  --color-neutral-500: var(--gb-2);
+  --color-neutral-600: var(--gb-2);
+  --color-neutral-700: var(--gb-3);
+  --color-neutral-800: var(--gb-3);
+  --color-neutral-900: var(--gb-3);
+  --color-neutral-950: var(--gb-3);
+  --color-stone-50: var(--gb-0);
+  --color-stone-100: var(--gb-0);
+  --color-stone-200: var(--gb-1);
+  --color-stone-300: var(--gb-1);
+  --color-stone-400: var(--gb-1);
+  --color-stone-500: var(--gb-2);
+  --color-stone-600: var(--gb-2);
+  --color-stone-700: var(--gb-3);
+  --color-stone-800: var(--gb-3);
+  --color-stone-900: var(--gb-3);
+  --color-stone-950: var(--gb-3);
+  --color-taupe-50: var(--gb-0);
+  --color-taupe-100: var(--gb-0);
+  --color-taupe-200: var(--gb-1);
+  --color-taupe-300: var(--gb-1);
+  --color-taupe-400: var(--gb-1);
+  --color-taupe-500: var(--gb-2);
+  --color-taupe-600: var(--gb-2);
+  --color-taupe-700: var(--gb-3);
+  --color-taupe-800: var(--gb-3);
+  --color-taupe-900: var(--gb-3);
+  --color-taupe-950: var(--gb-3);
+  --color-mauve-50: var(--gb-0);
+  --color-mauve-100: var(--gb-0);
+  --color-mauve-200: var(--gb-1);
+  --color-mauve-300: var(--gb-1);
+  --color-mauve-400: var(--gb-1);
+  --color-mauve-500: var(--gb-2);
+  --color-mauve-600: var(--gb-2);
+  --color-mauve-700: var(--gb-3);
+  --color-mauve-800: var(--gb-3);
+  --color-mauve-900: var(--gb-3);
+  --color-mauve-950: var(--gb-3);
+  --color-mist-50: var(--gb-0);
+  --color-mist-100: var(--gb-0);
+  --color-mist-200: var(--gb-1);
+  --color-mist-300: var(--gb-1);
+  --color-mist-400: var(--gb-1);
+  --color-mist-500: var(--gb-2);
+  --color-mist-600: var(--gb-2);
+  --color-mist-700: var(--gb-3);
+  --color-mist-800: var(--gb-3);
+  --color-mist-900: var(--gb-3);
+  --color-mist-950: var(--gb-3);
+  --color-olive-50: var(--gb-0);
+  --color-olive-100: var(--gb-0);
+  --color-olive-200: var(--gb-1);
+  --color-olive-300: var(--gb-1);
+  --color-olive-400: var(--gb-1);
+  --color-olive-500: var(--gb-2);
+  --color-olive-600: var(--gb-2);
+  --color-olive-700: var(--gb-3);
+  --color-olive-800: var(--gb-3);
+  --color-olive-900: var(--gb-3);
+  --color-olive-950: var(--gb-3);
+
+  /* Pixels don't have rounded corners (rounded-full survives for avatars). */
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+  --radius-4xl: 0;
+  --radius-card: 0;
+  --radius-tile: 0;
+  --radius-media: 0;
+  --radius-control: 0;
+
+  /* No soft shadows or blur on an LCD — depth comes from hard 1-bit edges. */
+  --shadow-2xs: none;
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  --shadow-soft: none;
+  --shadow-float: none;
+  --shadow-pop: 3px 3px 0 var(--gb-3);
+  --shadow-glass: none;
+  --shadow-glass-pop: none;
+  --inset-shadow-2xs: none;
+  --inset-shadow-xs: none;
+  --inset-shadow-sm: none;
+  --drop-shadow-xs: 0 0 0 transparent;
+  --drop-shadow-sm: 0 0 0 transparent;
+  --drop-shadow-md: 0 0 0 transparent;
+  --drop-shadow-lg: 0 0 0 transparent;
+  --drop-shadow-xl: 0 0 0 transparent;
+  --drop-shadow-2xl: 0 0 0 transparent;
+  --blur-xs: 0;
+  --blur-sm: 0;
+  --blur-md: 0;
+  --blur-lg: 0;
+  --blur-xl: 0;
+  --blur-2xl: 0;
+  --blur-3xl: 0;
+  --blur-glass: 0;
+
+  --animate-spin-slow: spin 8s steps(8) infinite;
+  --animate-slide-up-fade-in: slide-up-fade-in 0.4s steps(4) both;
+  --animate-scale-in: scale-in 0.18s steps(3) both;
+  --animate-float: float 3s steps(6) infinite;
+  --animate-toast-in: toast-in 0.24s steps(4) both;
+  --animate-menu-in: menu-in 0.12s steps(3) both;
+  --animate-blink: blink 1s steps(1) infinite;
+}
+
+:root {
+  /* The four shades, as greys. The LCD tint maps grey → palette colour. */
+  --gb-0: #ffffff;
+  --gb-1: #a9a9a9;
+  --gb-2: #555555;
+  --gb-3: #000000;
+
+  /* DMG-01 "pea soup" (default) */
+  --lcd-light: #cadc9f;
+  --lcd-dark: #0f380f;
+
+  /* The plastic */
+  --case: #cfcbc6;
+  --case-shade: #b3aea8;
+  --case-light: #e4e1dc;
+  --bezel: #5f5e70;
+  --bezel-dark: #4a4957;
+  --ink-navy: #26257a;
+  --ab-red: #9b1f52;
+  --ab-red-dark: #6e1239;
+  --dpad: #232326;
+  --pill: #8a8792;
+}
+
+:root[data-gb-palette='pocket'] {
+  --lcd-light: #c5c7b3;
+  --lcd-dark: #1c1c1a;
+  --case: #c9c9c9;
+  --case-shade: #a9a9a9;
+  --case-light: #e2e2e2;
+  --bezel: #3c3c40;
+  --bezel-dark: #2c2c30;
+}
+
+:root[data-gb-palette='light'] {
+  --lcd-light: #7df2cf;
+  --lcd-dark: #00352a;
+  --case: #d4c89c;
+  --case-shade: #b6aa7e;
+  --case-light: #e8dfbd;
+}
+
+:root[data-gb-palette='sgb'] {
+  --lcd-light: #f8e8c8;
+  --lcd-dark: #301850;
+  --case: #b9b2c4;
+  --case-shade: #9a92a8;
+  --case-light: #d6d0de;
 }
 
 @layer base {
@@ -72,25 +449,41 @@
     box-sizing: border-box;
   }
 
-  html {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
+    background: var(--case);
   }
 
   body {
     font-family: var(--font-sans);
-    color: var(--color-ink);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-feature-settings: 'cv11', 'ss01';
+    /* Pixel fonts have tiny x-heights; normalise so Tailwind's sizes read right. */
+    font-size-adjust: ex-height 0.49;
+    color: var(--gb-3);
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    font-synthesis: none;
+    -webkit-text-size-adjust: 100%;
   }
 
-  /* Tighter tracking on large text is the single biggest "modern" typography cue */
   h1,
   h2,
   h3 {
-    letter-spacing: -0.02em;
     text-wrap: balance;
+    letter-spacing: 0;
+  }
+
+  /* Pixel headings. Press Start is ~2x wider than other type; the ex-height
+     adjust shrinks it to fit the narrow screen. */
+  .gb-lcd h1,
+  .gb-lcd h2 {
+    font-family: var(--font-press);
+    font-size-adjust: ex-height 0.42;
+    line-height: 1.35;
+    font-weight: 400;
   }
 
   button:not([disabled]),
@@ -99,38 +492,88 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px dashed var(--gb-3);
     outline-offset: 2px;
   }
 
   ::selection {
-    background: var(--color-primary-lighter);
-    color: var(--color-primary-darkest);
+    background: var(--gb-3);
+    color: var(--gb-0);
+  }
+
+  img,
+  video {
+    image-rendering: pixelated;
+  }
+
+  /* 1-bit checkboxes and radios */
+  input[type='checkbox'],
+  input[type='radio'] {
+    appearance: none;
+    -webkit-appearance: none;
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    background: var(--gb-0);
+    border: 2px solid var(--gb-3);
+    cursor: pointer;
+  }
+
+  input[type='radio'] {
+    border-radius: 9999px;
+  }
+
+  input[type='checkbox']:checked,
+  input[type='radio']:checked {
+    background: var(--gb-3);
+    box-shadow: inset 0 0 0 2px var(--gb-0);
+  }
+
+  input[type='checkbox']:disabled,
+  input[type='radio']:disabled {
+    border-color: var(--gb-2);
+    cursor: not-allowed;
+  }
+
+  input[type='range'] {
+    accent-color: var(--gb-3);
+  }
+
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+    /* iOS zooms into inputs under 16px; the screen can't be zoomed. */
+    font-size: max(16px, 1em);
   }
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-line-strong) transparent;
+    scrollbar-color: var(--gb-3) transparent;
   }
 
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: var(--color-line-strong);
-    border: 3px solid transparent;
-    background-clip: content-box;
-    border-radius: 9999px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--color-ink-subtle);
+    background-color: var(--gb-3);
   }
 
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background: var(--gb-1);
+  }
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
   }
 
   @keyframes subtle-zoom {
@@ -151,7 +594,7 @@
   @keyframes slide-up-fade-in {
     0% {
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(16px);
     }
     100% {
       opacity: 1;
@@ -176,246 +619,829 @@
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-6px);
     }
   }
 
   @keyframes pulse-glow {
     0%,
     100% {
-      box-shadow: 0 0 20px var(--glow-color, rgba(168, 85, 247, 0.4));
       opacity: 1;
     }
     50% {
-      box-shadow: 0 0 40px var(--glow-color, rgba(168, 85, 247, 0.8));
-      opacity: 0.8;
-    }
-  }
-
-  @keyframes gradient-swirl-1 {
-    0%,
-    100% {
-      transform: translate(0%, 0%) rotate(0deg);
-    }
-    33% {
-      transform: translate(30%, 20%) rotate(120deg);
-    }
-    66% {
-      transform: translate(-20%, 30%) rotate(240deg);
-    }
-  }
-
-  @keyframes gradient-swirl-2 {
-    0%,
-    100% {
-      transform: translate(0%, 0%) rotate(0deg) scale(1);
-    }
-    50% {
-      transform: translate(-30%, -20%) rotate(-180deg) scale(1.2);
-    }
-  }
-
-  @keyframes gradient-swirl-3 {
-    0%,
-    100% {
-      transform: translate(0%, 0%) scale(1);
-    }
-    33% {
-      transform: translate(-25%, 15%) scale(1.3);
-    }
-    66% {
-      transform: translate(25%, -15%) scale(0.9);
+      opacity: 0.7;
     }
   }
 
   @keyframes toast-in {
     0% {
       opacity: 0;
-      transform: translateX(16px) scale(0.97);
+      transform: translateY(8px);
     }
     100% {
       opacity: 1;
-      transform: translateX(0) scale(1);
+      transform: translateY(0);
     }
   }
 
   @keyframes menu-in {
     0% {
       opacity: 0;
-      transform: translateY(-4px) scale(0.98);
+      transform: translateY(-4px);
     }
     100% {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translateY(0);
     }
   }
 }
 
-@layer utilities {
-  /* The app canvas. Glass has nothing to refract without colour behind it, so the
-     backdrop carries the hue and every surface above it stays translucent. */
-  .app-canvas {
-    background-color: var(--color-canvas);
-    isolation: isolate;
-  }
+@layer components {
+  /* ── The device ─────────────────────────────────────────────────────────── */
 
-  .aurora {
+  .gb-stage {
     position: fixed;
     inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-    contain: strict;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--case);
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
 
-  .aurora-blob {
-    position: absolute;
-    border-radius: 9999px;
-    /* Just enough colour for glass to have something to refract. Raise
-       --aurora-strength if you ever want the backdrop more present. */
-    opacity: var(--aurora-strength, 0.16);
-    will-change: transform;
+  .gb-case {
+    /* Every device measurement is a multiple of --u, so the whole handheld
+       scales as one. It's capped by height too, so on short phones the
+       controls shrink and the screen keeps its room. */
+    container-type: size;
+    --u: min(1cqw, 0.47cqh);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    background:
+      linear-gradient(
+        90deg,
+        rgb(0 0 0 / 0.05),
+        transparent 3%,
+        transparent 97%,
+        rgb(0 0 0 / 0.07)
+      ),
+      var(--case);
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Helvetica Neue',
+      Arial,
+      sans-serif;
+    font-size-adjust: none;
+    -webkit-font-smoothing: antialiased;
   }
 
-  .aurora-blob-1 {
-    top: -18%;
-    left: -12%;
-    width: 60vw;
-    height: 60vw;
-    background: radial-gradient(
-      circle at 30% 30%,
-      var(--color-primary),
-      transparent 68%
-    );
-    filter: blur(100px) saturate(115%);
-    animation: gradient-swirl-1 34s ease-in-out infinite;
-  }
+  /* Desktop / tablet: a real handheld sitting on a desk. */
+  @media (min-width: 640px) and (min-height: 560px) {
+    .gb-stage {
+      background: radial-gradient(ellipse at 50% 35%, #3a3a44 0%, #16161b 70%);
+      gap: 14px;
+    }
 
-  .aurora-blob-2 {
-    top: 6%;
-    right: -18%;
-    width: 55vw;
-    height: 55vw;
-    background: radial-gradient(
-      circle at 60% 40%,
-      var(--color-primary),
-      transparent 68%
-    );
-    filter: blur(100px) saturate(110%) hue-rotate(16deg);
-    animation: gradient-swirl-2 44s ease-in-out infinite;
-  }
-
-  .aurora-blob-3 {
-    bottom: -22%;
-    left: 18%;
-    width: 65vw;
-    height: 65vw;
-    background: radial-gradient(
-      circle at 40% 60%,
-      var(--color-primary-light),
-      transparent 70%
-    );
-    filter: blur(100px) saturate(110%) hue-rotate(-18deg);
-    animation: gradient-swirl-3 38s ease-in-out infinite;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .aurora-blob {
-      animation: none !important;
+    .gb-case {
+      width: min(440px, calc((100dvh - 64px) * 0.6));
+      height: min(calc(100dvh - 64px), 733px);
+      border-radius: 12px 12px 72px 12px;
+      box-shadow:
+        inset -6px -8px 0 var(--case-shade),
+        inset 4px 4px 0 var(--case-light),
+        0 30px 60px -20px rgb(0 0 0 / 0.7),
+        0 12px 24px -12px rgb(0 0 0 / 0.5);
+      padding-top: 0;
+      padding-bottom: 0;
     }
   }
 
-  /* Frosted surface. Falls back to a near-opaque tint where backdrop-filter is absent. */
-  .glass {
-    background-color: oklch(1 0 0 / 0.55);
-    box-shadow: var(--shadow-glass);
+  .gb-topline {
+    flex: none;
+    height: calc(var(--u) * 5);
+    margin: 0 calc(var(--u) * 3);
+    display: flex;
+    align-items: center;
+    padding-left: calc(var(--u) * 7);
+    border-bottom: calc(var(--u) * 0.4) solid var(--case-shade);
+    box-shadow: 0 calc(var(--u) * 0.4) 0 var(--case-light);
+    font-size: calc(var(--u) * 2.4);
+    letter-spacing: 0.1em;
+    color: var(--case-shade);
+    font-weight: 700;
+    text-shadow: 0 1px 0 var(--case-light);
+  }
+
+  .gb-bezel {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin: calc(var(--u) * 3) calc(var(--u) * 4) 0;
+    padding: calc(var(--u) * 6.5) calc(var(--u) * 5) calc(var(--u) * 4);
+    background: var(--bezel);
+    border-radius: calc(var(--u) * 2) calc(var(--u) * 2) calc(var(--u) * 11)
+      calc(var(--u) * 2);
+    box-shadow:
+      inset 0 calc(var(--u) * 0.6) 0 rgb(255 255 255 / 0.08),
+      inset 0 calc(var(--u) * -0.6) 0 var(--bezel-dark);
+  }
+
+  .gb-bezel-label {
+    position: absolute;
+    top: calc(var(--u) * 2);
+    left: calc(var(--u) * 4);
+    right: calc(var(--u) * 4);
+    display: flex;
+    align-items: center;
+    gap: calc(var(--u) * 1.5);
+  }
+
+  .gb-bezel-line {
+    flex: 1;
+    height: calc(var(--u) * 1.4);
+    background: linear-gradient(
+      var(--ab-red) 0 35%,
+      transparent 35% 65%,
+      var(--ink-navy) 65% 100%
+    );
+  }
+
+  .gb-bezel-text {
+    font-size: calc(var(--u) * 2.1);
+    letter-spacing: 0.04em;
+    color: #e8e6ee;
+    white-space: nowrap;
+    font-style: italic;
+  }
+
+  .gb-battery {
+    position: absolute;
+    left: 0;
+    width: calc(var(--u) * 5);
+    top: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--u) * 1);
+    font-size: calc(var(--u) * 1.5);
+    letter-spacing: 0.05em;
+    color: #c9c7d3;
+  }
+
+  .gb-battery span:last-child {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  .gb-led {
+    width: calc(var(--u) * 2.2);
+    height: calc(var(--u) * 2.2);
+    border-radius: 9999px;
+    background: radial-gradient(
+      circle at 35% 35%,
+      #ff6b6b,
+      #c40c0c 60%,
+      #5a0000
+    );
+    box-shadow: 0 0 calc(var(--u) * 2.4) #ff2a2a;
+  }
+
+  .gb-screen {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--lcd-light);
+    box-shadow: 0 0 0 calc(var(--u) * 0.6) rgb(0 0 0 / 0.35);
+  }
+
+  /*
+   * The LCD. `contain: paint` makes this the containing block for
+   * position:fixed descendants, so every existing "fixed inset-0" modal,
+   * player and toast stays inside the screen instead of covering the device.
+   */
+  .gb-lcd {
+    position: absolute;
+    inset: 0;
+    /* Size container: inside the screen, 100cqh / calc(var(--u) * 100) are the screen. */
+    container-type: size;
+    contain: size layout paint;
+    background: var(--gb-0);
+    color: var(--gb-3);
+    font-family: var(--font-sans);
+    font-size-adjust: ex-height 0.49;
+    -webkit-font-smoothing: none;
+  }
+
+  /* LCD dot-matrix grid, drawn under the tint so it picks up the palette. */
+  .gb-lcd::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 9000;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        rgb(0 0 0 / 0.045) 0 1px,
+        transparent 1px 3px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgb(0 0 0 / 0.045) 0 1px,
+        transparent 1px 3px
+      );
+  }
+
+  .gb-scroll {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  .gb-page {
+    padding: 10px 10px 24px;
+    min-height: 100%;
+  }
+
+  .gb-page-with-player {
+    padding-bottom: 96px;
+  }
+
+  /*
+   * Duotone LCD tint, done with blend modes so it runs in the compositor:
+   *  1. saturation(grey)  → strip all colour, keep luminosity
+   *  2. multiply(light)   → white becomes the lit-pixel colour
+   *  3. screen(dark)      → black becomes the dark-pixel colour
+   */
+  .gb-tint {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: #808080;
+    mix-blend-mode: saturation;
+  }
+
+  /* Pseudo-elements of a blended element would only blend within it, so the
+     other two passes live on the screen itself. */
+  .gb-screen::before,
+  .gb-screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .gb-screen::before {
+    background: var(--lcd-light);
+    mix-blend-mode: multiply;
+  }
+
+  .gb-screen::after {
+    background: var(--lcd-dark);
+    mix-blend-mode: screen;
+    /* Faint inner vignette like the real panel's recessed glass. */
+    box-shadow: inset 0 0 18px rgb(0 0 0 / 0.5);
+  }
+
+  /* ── Brand ──────────────────────────────────────────────────────────────── */
+
+  .gb-brand {
+    flex: none;
+    display: flex;
+    align-items: baseline;
+    gap: calc(var(--u) * 1.6);
+    padding: calc(var(--u) * 2.4) 0 0 calc(var(--u) * 8);
+    color: var(--ink-navy);
+    line-height: 1;
+  }
+
+  .gb-brand-small {
+    font-size: calc(var(--u) * 3.6);
+    font-weight: 800;
+    font-style: italic;
+    padding: calc(var(--u) * 0.3) calc(var(--u) * 1.8) calc(var(--u) * 0.6);
+    border: calc(var(--u) * 0.55) solid currentColor;
+    border-radius: 9999px;
+  }
+
+  .gb-brand-big {
+    font-size: calc(var(--u) * 7);
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    transform: skewX(-6deg);
+  }
+
+  .gb-brand-tm {
+    font-size: calc(var(--u) * 2.2);
+    font-weight: 700;
+    align-self: flex-start;
+  }
+
+  /* ── Controls ───────────────────────────────────────────────────────────── */
+
+  .gb-controls {
+    position: relative;
+    flex: none;
+    height: calc(var(--u) * 60);
+    touch-action: none;
+  }
+
+  .gb-controls button {
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .gb-dpad {
+    position: absolute;
+    left: calc(var(--u) * 7);
+    top: calc(var(--u) * 5);
+    width: calc(var(--u) * 31);
+    height: calc(var(--u) * 31);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    /* The cross shadow is the "well" the pad sits in. */
+    filter: drop-shadow(0 calc(var(--u) * 0.8) 0 rgb(0 0 0 / 0.18));
+  }
+
+  .gb-dpad::before {
+    /* Circular recess in the case behind the cross */
+    content: '';
+    position: absolute;
+    inset: calc(var(--u) * -3.5);
+    border-radius: 9999px;
+    background: radial-gradient(circle, var(--case-shade) 0%, transparent 70%);
+    opacity: 0.55;
+    z-index: -1;
+  }
+
+  .gb-dpad-arm,
+  .gb-dpad-center {
+    background: var(--dpad);
+    border: 0;
+    padding: 0;
+    position: relative;
+  }
+
+  .gb-dpad-up {
+    grid-area: 1 / 2;
+    border-radius: calc(var(--u) * 1.2) calc(var(--u) * 1.2) 0 0;
+  }
+  .gb-dpad-left {
+    grid-area: 2 / 1;
+    border-radius: calc(var(--u) * 1.2) 0 0 calc(var(--u) * 1.2);
+  }
+  .gb-dpad-center {
+    grid-area: 2 / 2;
+  }
+  .gb-dpad-right {
+    grid-area: 2 / 3;
+    border-radius: 0 calc(var(--u) * 1.2) calc(var(--u) * 1.2) 0;
+  }
+  .gb-dpad-down {
+    grid-area: 3 / 2;
+    border-radius: 0 0 calc(var(--u) * 1.2) calc(var(--u) * 1.2);
+  }
+
+  /* Ridges and arrow nubs */
+  .gb-dpad-arm::after {
+    content: '';
+    position: absolute;
+    inset: 28%;
+    background: repeating-linear-gradient(
+      var(--ridge, 0deg),
+      rgb(255 255 255 / 0.1) 0 calc(var(--u) * 0.5),
+      transparent calc(var(--u) * 0.5) calc(var(--u) * 1.3)
+    );
+  }
+  .gb-dpad-up::after,
+  .gb-dpad-down::after {
+    --ridge: 0deg;
+  }
+  .gb-dpad-left::after,
+  .gb-dpad-right::after {
+    --ridge: 90deg;
+  }
+
+  .gb-dpad-center::after {
+    content: '';
+    position: absolute;
+    inset: 22%;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 40% 35%, #3a3a3f, #18181a);
+  }
+
+  .gb-dpad[data-dir='up'] .gb-dpad-up,
+  .gb-dpad[data-dir='down'] .gb-dpad-down,
+  .gb-dpad[data-dir='left'] .gb-dpad-left,
+  .gb-dpad[data-dir='right'] .gb-dpad-right {
+    background: #0e0e10;
+  }
+  .gb-dpad[data-dir='up'] {
+    transform: perspective(200px) rotateX(6deg);
+  }
+  .gb-dpad[data-dir='down'] {
+    transform: perspective(200px) rotateX(-6deg);
+  }
+  .gb-dpad[data-dir='left'] {
+    transform: perspective(200px) rotateY(-6deg);
+  }
+  .gb-dpad[data-dir='right'] {
+    transform: perspective(200px) rotateY(6deg);
+  }
+
+  .gb-ab {
+    position: absolute;
+    right: calc(var(--u) * 5);
+    top: calc(var(--u) * 6);
+    width: calc(var(--u) * 40);
+    height: calc(var(--u) * 26);
+    transform: rotate(-25deg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 calc(var(--u) * 2);
+    border-radius: 9999px;
+    background: rgb(0 0 0 / 0.06);
+    box-shadow: inset 0 calc(var(--u) * 0.5) 0 rgb(0 0 0 / 0.05);
+  }
+
+  .gb-ab-slot {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .gb-round-btn {
+    width: calc(var(--u) * 15.5);
+    height: calc(var(--u) * 15.5);
+    border-radius: 9999px;
+    border: 0;
+    background: radial-gradient(
+      circle at 35% 30%,
+      #c43a73,
+      var(--ab-red) 55%,
+      var(--ab-red-dark)
+    );
+    box-shadow:
+      0 calc(var(--u) * 1.1) 0 var(--ab-red-dark),
+      0 calc(var(--u) * 1.6) calc(var(--u) * 1.2) rgb(0 0 0 / 0.25);
+    transition:
+      transform 60ms,
+      box-shadow 60ms;
+  }
+
+  .gb-round-btn:active,
+  .gb-round-btn[data-pressed] {
+    transform: translateY(calc(var(--u) * 0.9));
+    box-shadow:
+      0 calc(var(--u) * 0.2) 0 var(--ab-red-dark),
+      0 calc(var(--u) * 0.4) calc(var(--u) * 0.6) rgb(0 0 0 / 0.25);
+  }
+
+  .gb-btn-label {
+    position: absolute;
+    top: 100%;
+    margin-top: calc(var(--u) * 2.8);
+    font-size: calc(var(--u) * 3.2);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--ink-navy);
+    pointer-events: none;
+  }
+
+  .gb-ab-slot .gb-btn-label {
+    transform: rotate(25deg);
+    font-size: calc(var(--u) * 4.2);
+  }
+
+  .gb-pills {
+    position: absolute;
+    left: 50%;
+    top: calc(var(--u) * 42);
+    transform: translateX(-54%);
+    display: flex;
+    gap: calc(var(--u) * 5);
+  }
+
+  .gb-pill-slot {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: rotate(-25deg);
+  }
+
+  .gb-pill-btn {
+    width: calc(var(--u) * 13);
+    height: calc(var(--u) * 3.6);
+    border-radius: 9999px;
+    border: 0;
+    background: var(--pill);
+    box-shadow:
+      0 0 0 calc(var(--u) * 1.2) rgb(0 0 0 / 0.07),
+      0 calc(var(--u) * 0.6) 0 #6a6772;
+    transition:
+      transform 60ms,
+      box-shadow 60ms;
+  }
+
+  /* Bigger invisible hit area — the pills are tiny on a phone. */
+  .gb-pill-btn::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--u) * -3) calc(var(--u) * -2);
+  }
+
+  .gb-pill-btn:active {
+    transform: translateY(calc(var(--u) * 0.5));
+    box-shadow:
+      0 0 0 calc(var(--u) * 1.2) rgb(0 0 0 / 0.07),
+      0 calc(var(--u) * 0.1) 0 #6a6772;
+  }
+
+  .gb-pill-slot .gb-btn-label {
+    margin-top: calc(var(--u) * 2.2);
+    font-size: calc(var(--u) * 2.6);
+  }
+
+  .gb-speaker {
+    position: absolute;
+    right: calc(var(--u) * 5);
+    bottom: calc(var(--u) * 5);
+    display: flex;
+    gap: calc(var(--u) * 2.3);
+    transform: rotate(-30deg);
+  }
+
+  .gb-speaker span {
+    width: calc(var(--u) * 1.5);
+    height: calc(var(--u) * 13);
+    border-radius: 9999px;
+    background: var(--case-shade);
+    box-shadow: inset calc(var(--u) * 0.3) calc(var(--u) * 0.4) 0
+      rgb(0 0 0 / 0.2);
+  }
+
+  .gb-legend {
+    display: none;
+    font:
+      500 12px/1 ui-monospace,
+      monospace;
+    color: #8d8d99;
+    letter-spacing: 0.04em;
+  }
+
+  @media (min-width: 640px) and (min-height: 560px) {
+    .gb-legend {
+      display: block;
+    }
+  }
+
+  /* ── Cursor ─────────────────────────────────────────────────────────────── */
+
+  .gb-cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 8500;
+    pointer-events: none;
+    display: none;
+  }
+
+  .gb-cursor-corner {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border: 0 solid var(--gb-3);
+    /* A light halo so the bracket reads on dark backgrounds too. */
+    filter: drop-shadow(1px 0 0 var(--gb-0)) drop-shadow(-1px 0 0 var(--gb-0))
+      drop-shadow(0 1px 0 var(--gb-0)) drop-shadow(0 -1px 0 var(--gb-0));
+  }
+  .gb-cursor-tl {
+    top: 0;
+    left: 0;
+    border-top-width: 2px;
+    border-left-width: 2px;
+  }
+  .gb-cursor-tr {
+    top: 0;
+    right: 0;
+    border-top-width: 2px;
+    border-right-width: 2px;
+  }
+  .gb-cursor-bl {
+    bottom: 0;
+    left: 0;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+  }
+  .gb-cursor-br {
+    bottom: 0;
+    right: 0;
+    border-bottom-width: 2px;
+    border-right-width: 2px;
+  }
+
+  .gb-cursor-arrow {
+    position: absolute;
+    top: 50%;
+    left: -9px;
+    width: 0;
+    height: 0;
+    margin-top: -5px;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 6px solid var(--gb-3);
+    filter: drop-shadow(1px 0 0 var(--gb-0)) drop-shadow(-1px 0 0 var(--gb-0))
+      drop-shadow(0 1px 0 var(--gb-0)) drop-shadow(0 -1px 0 var(--gb-0));
+    animation: blink 1s steps(1) infinite;
+  }
+
+  .gb-cursor[data-edge='inside'] .gb-cursor-arrow {
+    left: 4px;
+  }
+
+  /* Menus invert the selected row, so they only need the arrow. */
+  .gb-cursor[data-style='arrow'] .gb-cursor-corner {
+    display: none;
+  }
+
+  .gb-cursor[data-style='arrow'] .gb-cursor-arrow {
+    border-left-color: var(--gb-0);
+    filter: none;
+  }
+
+  /* ── Windows & menus (the classic RPG text box) ─────────────────────────── */
+
+  .gb-window {
+    background: var(--gb-0);
+    color: var(--gb-3);
+    border: 3px solid var(--gb-3);
+    box-shadow:
+      inset 0 0 0 2px var(--gb-0),
+      inset 0 0 0 3px var(--gb-3);
+  }
+
+  .gb-menu-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 7000;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 8px;
+    background: color-mix(in srgb, var(--gb-3) 25%, transparent);
+    animation: var(--animate-menu-in);
+  }
+
+  .gb-menu {
+    position: relative;
+    min-width: 58%;
+    padding: 8px 6px 8px 8px;
+    font-family: var(--font-press);
+    font-size-adjust: none;
+    font-size: 11px;
+    line-height: 1;
+  }
+
+  .gb-menu-title {
+    padding: 2px 8px 8px;
+    font-size: 9px;
+    color: var(--gb-2);
+  }
+
+  .gb-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 8px 8px 16px;
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+  }
+
+  .gb-menu-item[data-gb-cursor],
+  .gb-option[data-gb-cursor] {
+    background: var(--gb-3);
+    color: var(--gb-0);
+  }
+
+  /* "CURRENT LEAGUE"-style labels: a pixel caption with a dotted rule. */
+  .gb-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-family: var(--font-press);
+    font-size-adjust: none;
+    font-size: 9px;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--gb-3);
+  }
+
+  .gb-section-title::after {
+    content: '';
+    flex: 1;
+    border-top: 2px dotted var(--gb-2);
+  }
+
+  .gb-menu-footer {
+    margin-top: 6px;
+    padding: 8px 8px 2px;
+    border-top: 2px dotted var(--gb-2);
+    font-size: 8px;
+    color: var(--gb-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@layer utilities {
+  /* Legacy surface utilities, re-skinned as 1-bit LCD boxes. */
+  .app-canvas {
+    background-color: var(--gb-0);
+  }
+
+  .glass,
+  .glass-strong {
+    background-color: var(--gb-0);
+    box-shadow: 0 0 0 2px var(--gb-3);
   }
 
   .glass-strong {
-    background-color: oklch(1 0 0 / 0.75);
-    box-shadow: var(--shadow-glass-pop);
-  }
-
-  /* Dark glass, for overlays sitting on imagery */
-  .glass-dark {
-    background-color: oklch(0.2 0.02 285 / 0.45);
     box-shadow:
-      inset 0 1px 0 oklch(1 0 0 / 0.18),
-      inset 0 0 0 1px oklch(1 0 0 / 0.14),
-      0 8px 32px -12px oklch(0 0 0 / 0.5);
+      0 0 0 2px var(--gb-3),
+      3px 3px 0 2px var(--gb-3);
   }
 
-  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .glass,
-    .glass-strong,
-    .glass-dark {
-      -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(180%);
-      backdrop-filter: blur(var(--blur-glass)) saturate(180%);
-    }
-
-    .glass {
-      background-color: oklch(1 0 0 / 0.42);
-    }
-
-    .glass-strong {
-      background-color: oklch(1 0 0 / 0.62);
-    }
-  }
-
-  /* Inputs must read as *recessed* against a frosted card. A white hairline on
-     near-white glass is invisible, so the edge is a dark inset hairline plus a
-     slight inner shadow — the affordance comes from the recess, not a border. */
   .field {
-    background-color: oklch(1 0 0 / 0.72);
-    box-shadow:
-      inset 0 0 0 1px oklch(0.255 0.017 285 / 0.16),
-      inset 0 1px 2px oklch(0.255 0.017 285 / 0.07);
-    transition:
-      background-color 0.15s ease,
-      box-shadow 0.15s ease;
+    background-color: var(--gb-0);
+    box-shadow: inset 0 0 0 2px var(--gb-3);
   }
 
   .field::placeholder {
-    color: var(--color-ink-subtle);
-  }
-
-  .field:hover:not(:disabled):not(:focus) {
-    background-color: oklch(1 0 0 / 0.85);
-    box-shadow:
-      inset 0 0 0 1px oklch(0.255 0.017 285 / 0.24),
-      inset 0 1px 2px oklch(0.255 0.017 285 / 0.07);
+    color: var(--gb-2);
   }
 
   .field:focus,
   .field:focus-visible {
     outline: none;
-    background-color: oklch(1 0 0 / 0.96);
     box-shadow:
-      inset 0 0 0 1px var(--color-primary),
-      0 0 0 3px color-mix(in oklab, var(--color-primary) 25%, transparent);
+      inset 0 0 0 2px var(--gb-3),
+      inset 0 0 0 4px var(--gb-1);
   }
 
   .field:disabled {
-    background-color: oklch(0.255 0.017 285 / 0.05);
-    box-shadow: inset 0 0 0 1px oklch(0.255 0.017 285 / 0.1);
+    background-color: var(--gb-1);
     cursor: not-allowed;
   }
 
-  /* Bento tile: a glass cell that lifts on hover */
   .bento-tile {
-    border-radius: var(--radius-tile);
-    transition:
-      transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.25s ease;
+    border-radius: 0;
   }
 
   .bento-tile-interactive:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-glass-pop);
+    transform: none;
   }
 
-  /* Hairline that survives on both white and tinted surfaces */
   .hairline {
-    box-shadow: inset 0 0 0 1px var(--color-line);
+    box-shadow: inset 0 0 0 1px var(--gb-3);
+  }
+
+  .font-press {
+    font-family: var(--font-press);
+    font-size-adjust: none;
+  }
+
+  .gb-heading {
+    font-family: var(--font-press);
+    font-size-adjust: none;
+    text-transform: uppercase;
+    line-height: 1.4;
   }
 }

@@ -278,10 +278,10 @@ export function UserProfileClient({ profileData }: UserProfileClientProps) {
 
       {/* Stats Overview */}
       <div>
-        <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">Stats</h2>
+        <h2 className="gb-section-title">Stats</h2>
 
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-2">
             {(
               [
                 {

@@ -1,41 +1,23 @@
 'use client';
 
 import Cookies from 'js-cookie';
-import {
-  createContext,
-  useContext,
-  useLayoutEffect,
-  useState,
-  useCallback,
-} from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 
-// Map color names to their Tailwind CSS variable shades
-const TAILWIND_COLOR_SHADES = [
-  'red',
-  'orange',
-  'amber',
-  'yellow',
-  'lime',
-  'green',
-  'emerald',
-  'teal',
-  'cyan',
-  'sky',
-  'blue',
-  'indigo',
-  'violet',
-  'purple',
-  'fuchsia',
-  'pink',
-  'rose',
+// Screen palettes, named after the hardware they imitate. The colours live in
+// globals.css under :root[data-gb-palette=…].
+export const GAME_BOY_PALETTES = [
+  { id: 'dmg', name: 'Classic', light: '#cadc9f', dark: '#0f380f' },
+  { id: 'pocket', name: 'Pocket', light: '#c5c7b3', dark: '#1c1c1a' },
+  { id: 'light', name: 'Light', light: '#7df2cf', dark: '#00352a' },
+  { id: 'sgb', name: 'Super', light: '#f8e8c8', dark: '#301850' },
 ] as const;
 
-export type ColorName = (typeof TAILWIND_COLOR_SHADES)[number];
+export type GameBoyPalette = (typeof GAME_BOY_PALETTES)[number]['id'];
 
 type ThemeContextType = {
-  primaryColor: ColorName;
-  setPrimaryColor: (color: ColorName) => void;
-  availableColors: ColorName[];
+  palette: GameBoyPalette;
+  setPalette: (palette: GameBoyPalette) => void;
+  palettes: typeof GAME_BOY_PALETTES;
 };
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
@@ -50,62 +32,26 @@ export function useTheme() {
 
 export function ThemeProvider({
   children,
-  initialColor,
+  initialPalette,
 }: {
   children: React.ReactNode;
-  initialColor: ColorName;
+  initialPalette: GameBoyPalette;
 }) {
-  const [primaryColor, setPrimaryColorState] = useState(initialColor);
-
-  const setStyles = useCallback((color: ColorName) => {
-    const root = document.documentElement;
-
-    // Reference Tailwind's built-in CSS variables
-    root.style.setProperty(
-      '--color-primary-lightest',
-      `var(--color-${color}-50)`,
-    );
-    root.style.setProperty(
-      '--color-primary-lighter',
-      `var(--color-${color}-200)`,
-    );
-    root.style.setProperty(
-      '--color-primary-light',
-      `var(--color-${color}-300)`,
-    );
-    root.style.setProperty('--color-primary', `var(--color-${color}-500)`);
-    root.style.setProperty('--color-primary-dark', `var(--color-${color}-600)`);
-    root.style.setProperty(
-      '--color-primary-darker',
-      `var(--color-${color}-700)`,
-    );
-    root.style.setProperty(
-      '--color-primary-darkest',
-      `var(--color-${color}-800)`,
-    );
-  }, []);
-
-  // Apply CSS variables whenever color changes
-  useLayoutEffect(() => {
-    setStyles(primaryColor);
-  }, [primaryColor, setStyles]);
-
-  const setPrimaryColor = useCallback(
-    (color: ColorName) => {
-      Cookies.set('primaryColor', color, { path: '/', expires: 365 * 5 });
-      setStyles(color);
-      setPrimaryColorState(color);
-    },
-    [setStyles],
+  const [palette, setPaletteState] = useState<GameBoyPalette>(
+    GAME_BOY_PALETTES.some((p) => p.id === initialPalette)
+      ? initialPalette
+      : 'dmg',
   );
+
+  const setPalette = useCallback((next: GameBoyPalette) => {
+    Cookies.set('gbPalette', next, { path: '/', expires: 365 * 5 });
+    document.documentElement.dataset.gbPalette = next;
+    setPaletteState(next);
+  }, []);
 
   return (
     <ThemeContext.Provider
-      value={{
-        primaryColor,
-        setPrimaryColor,
-        availableColors: TAILWIND_COLOR_SHADES as unknown as ColorName[],
-      }}
+      value={{ palette, setPalette, palettes: GAME_BOY_PALETTES }}
     >
       {children}
     </ThemeContext.Provider>

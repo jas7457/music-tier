@@ -160,7 +160,21 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
   const showDropdown = isOpen && query.trim().length >= 2;
 
   return (
-    <div ref={containerRef} className="relative mb-6">
+    <div
+      ref={containerRef}
+      className="relative mb-5"
+      data-gb-layer={showDropdown ? '2' : undefined}
+    >
+      {showDropdown && (
+        <button
+          type="button"
+          className="sr-only"
+          data-gb-back
+          onClick={() => setIsOpen(false)}
+        >
+          Close search results
+        </button>
+      )}
       <div className="relative">
         <svg
           className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-subtle pointer-events-none"
@@ -185,7 +199,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
           }}
           onFocus={() => setIsOpen(true)}
           placeholder="Search artists, songs, or rounds…"
-          className="w-full px-4 py-3.5 pl-10 pr-9 rounded-card field text-ink"
+          className="w-full px-3 py-2.5 pl-10 pr-9 field text-ink"
         />
         {query && (
           <button
@@ -216,7 +230,10 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
       </div>
 
       {showDropdown && (
-        <div className="absolute top-full left-0 right-0 mt-2 glass-strong rounded-card z-50 max-h-[70vh] overflow-y-auto animate-menu-in">
+        <div
+          data-gb-scroll
+          className="absolute top-full left-0 right-0 mt-2 gb-window z-50 max-h-[70cqh] overflow-y-auto animate-menu-in"
+        >
           {!hasResults ? (
             <div className="p-5 text-ink-subtle text-center text-sm">
               No results for &ldquo;{query}&rdquo;

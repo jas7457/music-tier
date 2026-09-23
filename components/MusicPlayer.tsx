@@ -163,19 +163,29 @@ export default function MusicPlayer({
   return (
     <div ref={playlistRef}>
       {/* Mobile Collapsed Player */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 w-screen">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
         {/* Playlist Panel - Mobile */}
         {showPlaylist && playlist.length > 0 && (
-          <div className="absolute bottom-full left-0 right-0 mb-2 mx-2 max-h-96 overflow-y-auto rounded-2xl shadow-[0_-8px_32px_-4px_rgba(0,0,0,0.35)]">
-            <div className="relative backdrop-blur-3xl bg-linear-to-b from-primary/50 to-primary-dark/50 ring-1 ring-white/25 rounded-2xl overflow-hidden">
-              <div className="absolute inset-0 bg-black/40"></div>
-
+          <div
+            data-gb-layer="3"
+            data-gb-scroll
+            className="absolute bottom-full left-0 right-0 mb-2 mx-2 max-h-[60cqh] overflow-y-auto"
+          >
+            <button
+              type="button"
+              className="sr-only"
+              data-gb-back
+              onClick={() => setShowPlaylist(false)}
+            >
+              Close playlist
+            </button>
+            <div className="relative gb-window overflow-hidden">
               <div className="relative">
                 {playlistRound && (
-                  <div className="px-4 py-3 border-b border-white/10">
+                  <div className="px-4 py-3 border-b-2 border-dotted border-gray-600">
                     <Link
                       href={`/leagues/${playlistRound.leagueId}/rounds/${playlistRound._id}`}
-                      className="text-sm font-semibold text-white hover:text-white/80 transition-colors drop-shadow-lg flex items-center gap-2"
+                      className="text-sm font-semibold text-black flex items-center gap-2"
                       onClick={() => setShowPlaylist(false)}
                     >
                       <svg
@@ -196,7 +206,7 @@ export default function MusicPlayer({
                   </div>
                 )}
 
-                <div className="divide-y divide-white/10">
+                <div className="divide-y-2 divide-dotted divide-gray-600">
                   {playlist.map((trackInfo, index) => {
                     const isCurrentTrack = index === currentTrackIndex;
                     return (
@@ -205,23 +215,23 @@ export default function MusicPlayer({
                         onClick={() => playTrack({ trackInfo, round: 'same' })}
                         disabled={isDisabled}
                         className={twMerge(
-                          'w-full p-3 flex items-center gap-3 transition-all hover:bg-white/10 disabled:cursor-not-allowed',
-                          isCurrentTrack ? 'bg-white/20' : '',
+                          'w-full p-3 flex items-center gap-3 disabled:cursor-not-allowed',
+                          isCurrentTrack ? 'bg-black text-white' : 'text-black',
                         )}
                       >
                         <div className="relative shrink-0">
                           <img
                             src={trackInfo.albumImageUrl}
                             alt={trackInfo.title}
-                            className="w-12 h-12 rounded-lg object-cover shadow-lg ring-1 ring-white/25"
+                            className="w-12 h-12 object-cover border-2 border-black"
                           />
                         </div>
 
                         <div className="flex-1 min-w-0 text-left">
-                          <div className="font-semibold text-sm text-white truncate drop-shadow-lg">
+                          <div className="font-semibold text-sm truncate">
                             {trackInfo.title}
                           </div>
-                          <div className="text-xs text-white/80 truncate drop-shadow-md">
+                          <div className="text-xs opacity-80 truncate">
                             {trackInfo.artists.join(', ')}
                           </div>
                         </div>
@@ -239,33 +249,29 @@ export default function MusicPlayer({
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="relative backdrop-blur-md bg-linear-to-b from-primary/60 to-primary-dark/60 border-t border-white/25 shadow-[0_-8px_32px_-4px_rgba(0,0,0,0.35)] cursor-pointer active:opacity-90 touch-none"
+          className="relative bg-white border-t-[3px] border-black shadow-[inset_0_2px_0_var(--gb-0),inset_0_3px_0_var(--gb-3)] cursor-pointer touch-none"
         >
-          <div className="absolute inset-0 bg-black/30"></div>
-          <div className="relative p-4 flex items-center gap-3">
+          <div className="relative px-3 py-2.5 flex items-center gap-3">
             {/* Album Art */}
             <div className="relative">
               {isPlaying && (
-                <div className="absolute inset-0 rounded-lg animate-spin-slow">
-                  <div className="absolute inset-0 rounded-lg bg-linear-to-r from-primary/80 to-primary-dark/80 blur-sm"></div>
-                </div>
+                <div className="absolute -inset-1 border-2 border-dashed border-black animate-spin-slow" />
               )}
               <img
                 src={currentTrack.album.images[0]?.url}
                 alt="Current track"
                 className={twMerge(
-                  'relative w-12 h-12 rounded-lg object-cover shrink-0 shadow-xl border-2',
-                  isPlaying ? 'border-white/60' : 'border-white/30',
+                  'relative w-12 h-12 object-cover shrink-0 border-2 border-black',
                 )}
               />
             </div>
 
             {/* Track Info */}
             <div className="flex-1 min-w-0">
-              <div className="font-bold text-sm text-white truncate drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+              <div className="font-bold text-sm text-black truncate">
                 {currentTrack.name}
               </div>
-              <div className="text-xs text-white/90 truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
+              <div className="text-xs text-gray-600 truncate">
                 {currentTrack.artists.map((artist) => artist.name).join(', ')}
               </div>
             </div>
@@ -277,7 +283,7 @@ export default function MusicPlayer({
                 setShowPlaylist(!showPlaylist);
               }}
               disabled={playlist.length === 0}
-              className="flex items-center gap-1.5 p-3 rounded-full backdrop-blur-xl bg-white/20 ring-1 ring-white/30 text-white transition-all hover:bg-white/30 disabled:opacity-30 touch-auto"
+              className="flex items-center gap-1.5 p-3 border-2 border-black text-black disabled:opacity-30 touch-auto"
             >
               <svg
                 className="w-4 h-4"
@@ -305,7 +311,7 @@ export default function MusicPlayer({
                 }
               }}
               disabled={isDisabled}
-              className="w-12 h-12 rounded-full backdrop-blur-xl bg-linear-to-br from-emerald-400 to-emerald-500 ring-1 ring-white/50 text-white flex items-center justify-center transition-all hover:from-emerald-300 hover:to-emerald-400 disabled:opacity-30 shadow-lg touch-auto"
+              className="w-11 h-11 bg-black text-white flex items-center justify-center disabled:opacity-30 touch-auto"
             >
               {isPlaying ? (
                 <PauseIcon size={20} className="text-white" />
@@ -319,6 +325,7 @@ export default function MusicPlayer({
 
       {/* Mobile Expanded Player */}
       <div
+        data-gb-layer={isExpanded ? '4' : undefined}
         className={twMerge(
           'md:hidden fixed inset-0 z-100 touch-none overflow-hidden',
           !isDragging && 'transition-transform duration-300 ease-out',
@@ -344,6 +351,7 @@ export default function MusicPlayer({
           <div className="flex items-center justify-between mb-8">
             <HapticButton
               onClick={() => setIsExpanded(false)}
+              data-gb-back
               className="w-10 h-10 rounded-full backdrop-blur-xl bg-white/20 ring-1 ring-white/30 text-white flex items-center justify-center touch-auto"
             >
               <svg
@@ -447,7 +455,7 @@ export default function MusicPlayer({
       </div>
 
       {/* Desktop Player */}
-      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-50 w-screen">
+      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-50">
         <div className="relative backdrop-blur-md bg-linear-to-b from-primary/60 to-primary-dark/60 border-t border-white/25 shadow-[0_-8px_32px_-4px_rgba(0,0,0,0.35)]">
           <div className="absolute inset-0 bg-black/30"></div>
 
@@ -474,10 +482,10 @@ export default function MusicPlayer({
                 </div>
                 <div className="min-w-0 flex-1 flex items-center gap-2">
                   <div className="min-w-0 flex-1">
-                    <div className="font-bold text-sm text-white truncate drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                    <div className="font-bold text-sm text-black truncate">
                       {currentTrack.name}
                     </div>
-                    <div className="text-xs text-white/90 truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">
+                    <div className="text-xs text-gray-600 truncate">
                       {currentTrack.artists
                         .map((artist) => artist.name)
                         .join(', ')}
@@ -595,10 +603,10 @@ export default function MusicPlayer({
 
                       <div className="relative">
                         {playlistRound && (
-                          <div className="px-4 py-3 border-b border-white/10">
+                          <div className="px-4 py-3 border-b-2 border-dotted border-gray-600">
                             <Link
                               href={`/leagues/${playlistRound.leagueId}/rounds/${playlistRound._id}`}
-                              className="text-sm font-semibold text-white hover:text-white/80 transition-colors drop-shadow-lg flex items-center gap-2"
+                              className="text-sm font-semibold text-black flex items-center gap-2"
                               onClick={() => setShowPlaylist(false)}
                             >
                               <svg
@@ -619,7 +627,7 @@ export default function MusicPlayer({
                           </div>
                         )}
 
-                        <div className="divide-y divide-white/10">
+                        <div className="divide-y-2 divide-dotted divide-gray-600">
                           {playlist.map((trackInfo, index) => {
                             const isCurrentTrack = index === currentTrackIndex;
                             return (
@@ -638,7 +646,7 @@ export default function MusicPlayer({
                                   <img
                                     src={trackInfo.albumImageUrl}
                                     alt={trackInfo.title}
-                                    className="w-12 h-12 rounded-lg object-cover shadow-lg ring-1 ring-white/25"
+                                    className="w-12 h-12 object-cover border-2 border-black"
                                   />
                                 </div>
 

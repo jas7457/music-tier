@@ -38,7 +38,10 @@ export function Screen({
   return (
     <div
       className={twMerge('relative h-full w-full overflow-hidden', className)}
-      style={{ contentVisibility: 'auto', containIntrinsicSize: '100vw 100vh' }}
+      style={{
+        contentVisibility: 'auto',
+        containIntrinsicSize: '100cqw 100cqh',
+      }}
     >
       {background && (
         <>

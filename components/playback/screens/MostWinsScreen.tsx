@@ -134,7 +134,7 @@ export function MostWinsScreen({ playback, isActive }: PlaybackScreenProps) {
             opacity: 1;
           }
           100% {
-            transform: translateY(110vh) translateX(var(--sway, 0))
+            transform: translateY(110cqh) translateX(var(--sway, 0))
               rotate(720deg);
             opacity: 0;
           }

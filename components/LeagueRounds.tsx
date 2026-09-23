@@ -21,9 +21,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
 
     return (
       <div>
-        <h3 className="text-xs font-semibold mb-3 text-primary-dark uppercase tracking-widest">
-          Current Round
-        </h3>
+        <h3 className="gb-section-title">Current Round</h3>
         <Round
           key={league.rounds.current.stage}
           currentUser={user}
@@ -92,7 +90,7 @@ export function LeagueRounds({ league }: { league: PopulatedLeague }) {
 
       return (
         <div key={title}>
-          <h3 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">{title}</h3>
+          <h3 className="gb-section-title">{title}</h3>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {rounds.map((round, index) => {
               const hasAllSubmissions =

@@ -249,9 +249,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
     return (
       <div className="space-y-6">
         <div className="text-center space-y-3">
-          <h3 className="text-3xl font-bold text-ink">
-            That&apos;s a wrap!
-          </h3>
+          <h3 className="text-3xl font-bold text-ink">That&apos;s a wrap!</h3>
           <p className="text-ink-muted">The competition was fierce!</p>
           <p className="text-base text-ink">
             You finished the{' '}
@@ -425,9 +423,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
       {completedMarkup}
 
       <div>
-        <h3 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
-          League Standings
-        </h3>
+        <h3 className="gb-section-title">League Standings</h3>
 
         <Card variant="outlined" className="overflow-clip">
           {standingsMarkup}
@@ -437,9 +433,7 @@ export function LeagueStandings({ league }: { league: PopulatedLeague }) {
       {/* Guess Accuracy Section */}
       {filteredGuesses.length > 0 && (
         <div>
-          <h3 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
-            Guess Accuracy
-          </h3>
+          <h3 className="gb-section-title">Guess Accuracy</h3>
 
           <Card variant="outlined">
             <div className="divide-y divide-white/40">

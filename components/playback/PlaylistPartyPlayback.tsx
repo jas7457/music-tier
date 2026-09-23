@@ -56,7 +56,8 @@ export function PlaylistPartyPlayback({
   useEffect(() => {
     if (!isOpen || !containerRef.current) return;
 
-    const targetScrollTop = currentScreenIndex * window.innerHeight;
+    const targetScrollTop =
+      currentScreenIndex * containerRef.current.clientHeight;
     containerRef.current.scrollTo({
       top: targetScrollTop,
       behavior: 'smooth',
@@ -78,7 +79,7 @@ export function PlaylistPartyPlayback({
         if (!containerRef.current) return;
 
         const scrollTop = containerRef.current.scrollTop;
-        const screenHeight = window.innerHeight;
+        const screenHeight = containerRef.current.clientHeight;
         const newIndex = Math.round(scrollTop / screenHeight);
 
         if (newIndex !== currentScreenIndex) {
@@ -107,6 +108,7 @@ export function PlaylistPartyPlayback({
   return (
     <div
       ref={containerRef}
+      data-gb-layer="5"
       className="fixed inset-0 z-200 bg-black overflow-y-scroll snap-y snap-mandatory scroll-smooth"
       style={{
         scrollbarWidth: 'none',
@@ -123,6 +125,7 @@ export function PlaylistPartyPlayback({
       {/* Close button */}
       <HapticButton
         onClick={onClose}
+        data-gb-back
         className="fixed top-4 right-4 z-210 w-12 h-12 rounded-full backdrop-blur-xl bg-white/20 border-2 border-white/40 text-white flex items-center justify-center hover:bg-white/30 transition-all hover:scale-110"
         aria-label="Close Playlist Party Playback"
       >
@@ -168,7 +171,7 @@ export function PlaylistPartyPlayback({
         return (
           <div
             key={screen.key}
-            className="h-screen w-screen snap-start snap-always relative"
+            className="h-full w-full snap-start snap-always relative"
           >
             <div className="h-full w-full overflow-hidden">
               <Activity mode={isActiveActivity ? 'visible' : 'hidden'}>

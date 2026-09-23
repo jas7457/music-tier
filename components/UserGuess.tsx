@@ -122,14 +122,27 @@ export function UserGuess({
 
       {/* Dropdown */}
       {isOpen && !disabled && (
-        <div className="absolute right-0 mt-2 w-52 pt-2 glass-strong rounded-card z-10 max-h-64 overflow-y-auto">
+        <div
+          data-gb-layer="3"
+          data-gb-scroll
+          data-gb-cursor-style="arrow"
+          className="absolute right-0 mt-2 w-52 pt-2 gb-window z-10 max-h-64 overflow-y-auto"
+        >
+          <button
+            type="button"
+            className="sr-only"
+            data-gb-back
+            onClick={() => setIsOpen(false)}
+          >
+            Close
+          </button>
           <div className="text-xs italic px-4">Who submitted this song?</div>
           {/* Clear selection option */}
           {selectedUser && (
             <>
               <button
                 onClick={() => handleSelectUser(undefined)}
-                className="w-full px-4 py-2 text-left hover:bg-white/50 transition-colors text-sm text-ink-muted border-b border-white/50"
+                className="gb-option w-full px-4 py-2 text-left text-sm text-ink-muted border-b-2 border-dotted border-gray-600"
               >
                 Clear guess
               </button>
@@ -142,8 +155,7 @@ export function UserGuess({
               key={user._id}
               onClick={() => handleSelectUser(user)}
               className={twMerge(
-                'w-full px-4 py-2 text-left hover:bg-white/50 transition-colors flex items-center gap-2',
-                selectedUser?._id === user._id ? 'bg-blue-50' : '',
+                'gb-option w-full px-4 py-2 text-left flex items-center gap-2',
               )}
             >
               <Avatar user={user} size={6} includeLink={false} />

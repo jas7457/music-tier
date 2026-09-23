@@ -113,7 +113,7 @@ export default function Home({
 
       return (
         <div>
-          <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">{title}</h2>
+          <h2 className="gb-section-title">{title}</h2>
           <div className="grid grid-cols-1 gap-3 md:gap-4">
             {leagues.map((league) => {
               const isExpanded = expandedLeagues.has(league._id);
@@ -126,12 +126,10 @@ export default function Home({
                 >
                   <button
                     onClick={() => toggleLeague(league._id)}
-                    className="w-full p-4 md:p-5 flex items-center justify-between rounded-card hover:bg-white/40 transition-colors"
+                    className="w-full p-3 flex items-center justify-between gap-2"
                   >
                     <div className="text-left">
-                      <span className="sm:text-xl font-bold">
-                        {league.title}{' '}
-                      </span>
+                      <span className="font-bold">{league.title} </span>
                       <span className="text-sm text-ink-subtle">
                         ({league.users.length} members)
                       </span>
@@ -154,7 +152,7 @@ export default function Home({
                     </svg>
                   </button>
 
-                  <Expandable className="p-4" isExpanded={isExpanded}>
+                  <Expandable className="p-2" isExpanded={isExpanded}>
                     <League league={league} user={user} />
                   </Expandable>
                 </Card>
@@ -170,14 +168,8 @@ export default function Home({
         {/* Current League */}
         {leagues.length > 0 && (
           <div>
-            <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
-              Current League
-            </h2>
-            <Card variant="elevated">
-              <div className="p-3 md:p-6">
-                <League league={leagues[0]} user={user} />
-              </div>
-            </Card>
+            <h2 className="gb-section-title">Current League</h2>
+            <League league={leagues[0]} user={user} />
           </div>
         )}
 

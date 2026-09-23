@@ -352,14 +352,14 @@ export function LeagueChampionScreen({
                     // Calculate position in full circle (360 degrees)
                     const angle = ((2 * Math.PI) / totalUsers) * index;
 
-                    // The main avatar container is clamp(250px, 50vw, 400px)
+                    // The main avatar container is clamp(250px, 50cqw, 400px)
                     // To keep positioning consistent across screen sizes, we use the same scaling logic
-                    // Winner is 50vw (clamped 250-400px), so at different screens:
-                    // - Small (50vw=250px): 1vw = 5px, so 32vw = 160px
-                    // - Large (50vw=400px): 1vw = 8px, so 32vw = 256px
+                    // Winner is 50cqw (clamped 250-400px), so at different screens:
+                    // - Small (50cqw=250px): 1cqw = 5px, so 32cqw = 160px
+                    // - Large (50cqw=400px): 1cqw = 8px, so 32cqw = 256px
 
-                    // User radius: clamp(160px, 32vw, 256px) - outer circle
-                    // Trumpet radius: clamp(120px, 24vw, 192px) - 75% of user radius, between center and users
+                    // User radius: clamp(160px, 32cqw, 256px) - outer circle
+                    // Trumpet radius: clamp(120px, 24cqw, 192px) - 75% of user radius, between center and users
 
                     // Calculate positions using normalized cos/sin (range -1 to 1)
                     const cosAngle = Math.cos(angle - Math.PI / 2);
@@ -375,8 +375,8 @@ export function LeagueChampionScreen({
                           key={`${userData.user._id}-avatar`}
                           className="absolute"
                           style={{
-                            left: `calc(50% + clamp(160px, 32vw, 256px) * ${cosAngle})`,
-                            top: `calc(50% + clamp(160px, 32vw, 256px) * ${sinAngle})`,
+                            left: `calc(50% + clamp(160px, 32cqw, 256px) * ${cosAngle})`,
+                            top: `calc(50% + clamp(160px, 32cqw, 256px) * ${sinAngle})`,
                             transform: 'translate(-50%, -50%)',
                             animation: trumpetFadingOut
                               ? `user-fade-out 1s ease-out forwards`
@@ -397,8 +397,8 @@ export function LeagueChampionScreen({
                           key={`${userData.user._id}-trumpet`}
                           className="absolute"
                           style={{
-                            left: `calc(50% + clamp(120px, 24vw, 192px) * ${cosAngle})`,
-                            top: `calc(50% + clamp(120px, 24vw, 192px) * ${sinAngle})`,
+                            left: `calc(50% + clamp(120px, 24cqw, 192px) * ${cosAngle})`,
+                            top: `calc(50% + clamp(120px, 24cqw, 192px) * ${sinAngle})`,
                             transform: 'translate(-50%, -50%)',
                             animation: trumpetFadingOut
                               ? `user-fade-out 1s ease-out forwards`
@@ -441,7 +441,7 @@ export function LeagueChampionScreen({
                     : 'opacity-0 scale-50 blur-sm',
                 )}
                 style={{
-                  width: 'clamp(250px, 50vw, 400px)',
+                  width: 'clamp(250px, 50cqw, 400px)',
                   animation: winnerPulsing
                     ? 'winner-pulse 2s ease-in-out infinite'
                     : 'none',
@@ -566,7 +566,7 @@ export function LeagueChampionScreen({
             opacity: 1;
           }
           100% {
-            transform: translateY(100vh) rotate(360deg);
+            transform: translateY(100cqh) rotate(360deg);
             opacity: 0;
           }
         }

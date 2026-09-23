@@ -6,7 +6,8 @@ export function InlineGap({ children }: { children: Array<ReactNode> }) {
       {children.filter(Boolean).map((child, index) => {
         return (
           <Fragment key={index}>
-            {index > 0 && <>&nbsp;&nbsp;</>}
+            {/* nbsp + normal space: keeps the gap but lets the row wrap */}
+            {index > 0 && <>&nbsp; </>}
             {child}
           </Fragment>
         );

@@ -256,17 +256,14 @@ export function League({
     setSavingFocal(true);
 
     try {
-      const response = await fetch(
-        `/api/leagues/${league._id}/hero-image`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            heroImageFocalX: newFocalX,
-            heroImageFocalY: newFocalY,
-          }),
-        },
-      );
+      const response = await fetch(`/api/leagues/${league._id}/hero-image`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          heroImageFocalX: newFocalX,
+          heroImageFocalY: newFocalY,
+        }),
+      });
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to update focal point');
@@ -373,7 +370,10 @@ export function League({
                 >
                   <circle cx="12" cy="12" r="9" />
                   <circle cx="12" cy="12" r="2" fill="currentColor" />
-                  <path strokeLinecap="round" d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+                  <path
+                    strokeLinecap="round"
+                    d="M12 3v3M12 18v3M3 12h3M18 12h3"
+                  />
                 </svg>
               </HapticButton>
             )}
@@ -420,9 +420,11 @@ export function League({
       {isImageFullScreen && leagueImageUrl && (
         <div
           className="fixed inset-0 z-200 bg-black/95 flex items-center justify-center p-4"
+          data-gb-layer="5"
           onClick={() => setIsImageFullScreen(false)}
         >
           <button
+            data-gb-back
             onClick={() => setIsImageFullScreen(false)}
             className="absolute top-4 right-4 p-2 rounded-full bg-black/40 ring-1 ring-white/25 backdrop-blur-md hover:bg-black/60 transition-colors text-white"
             aria-label="Close"
@@ -459,7 +461,7 @@ export function League({
       )}
 
       {/* Hero Banner with Cover Photo */}
-      <div className="relative h-64 md:h-80 overflow-hidden rounded-card bg-surface-sunken ring-1 ring-line shadow-soft">
+      <div className="relative h-44 overflow-hidden bg-surface-sunken ring-2 ring-ink">
         {/* Background Image - cover normally, contained + centered in focal-pick mode */}
         {leagueImageUrl &&
           (heroStage === 'focal' ? (
@@ -497,9 +499,9 @@ export function League({
             />
           ))}
 
-        {/* Playlist Party Playback Overlay */}
+        {/* Playlist Party Playback */}
         {heroStage !== 'focal' && league.playback && (
-          <div className="absolute inset-0 bg-linear-to-br from-primary/50 to-black/40 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50">
             <HapticButton
               onClick={() => {
                 if (league.playback?.topSong) {
@@ -510,9 +512,9 @@ export function League({
                 }
                 setPlaybackOpen(true);
               }}
-              className="px-6 py-3.5 rounded-full bg-white/10 ring-1 ring-white/40 backdrop-blur-md text-white font-semibold text-lg tracking-tight shadow-pop transition-all hover:scale-105 hover:bg-white/20 flex items-center gap-2"
+              className="gb-window font-press text-[9px] leading-none px-2.5 py-2 uppercase"
             >
-              🎵 Playlist Party Playback 🎵
+              ▶ Playback
             </HapticButton>
           </div>
         )}
@@ -559,11 +561,11 @@ export function League({
 
         {/* Title and Status overlaid on cover */}
         {heroStage !== 'focal' && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10">
+          <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
             <div className="flex flex-wrap items-center gap-3">
               <MaybeLink
                 href={`/leagues/${league._id}`}
-                className="text-3xl md:text-4xl font-bold tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]"
+                className="text-2xl font-bold text-white"
               >
                 {league.title}
               </MaybeLink>

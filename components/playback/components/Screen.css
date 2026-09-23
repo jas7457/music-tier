@@ -17,7 +17,7 @@
 
 @keyframes float-note {
   0% {
-    transform: translateY(100vh) rotate(0deg);
+    transform: translateY(100cqh) rotate(0deg);
     opacity: 0;
   }
   10% {

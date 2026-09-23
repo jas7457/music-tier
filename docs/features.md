@@ -251,7 +251,7 @@ Submission and voting reminders are scheduled in MongoDB with a `pending` status
 | **Phone verification**       | 6-digit code sent via SMS, must be verified before SMS notifications work     |
 | **Email address**            | For email notifications; includes "Send Test Email" button                    |
 | **Push notifications**       | Enable browser push; includes test notification button with optional delay    |
-| **Theme color**              | Choose an accent color from available swatches                                |
+| **Screen palette**           | Choose the Game Boy screen: Classic (DMG green), Pocket, Light, or Super      |
 | **Notification preferences** | Per-type toggles for all 11 notification types, plus global email/SMS toggles |
 | **Developer tools**          | Conditionally shown; includes service worker unregister                       |
 
@@ -285,13 +285,41 @@ Submission and voting reminders are scheduled in MongoDB with a `pending` status
 
 ## Other Features
 
-| Feature                 | Description                                                                              |
-| ----------------------- | ---------------------------------------------------------------------------------------- |
-| **Pull-to-refresh**     | Custom pull-to-refresh with visual indicator                                             |
-| **Haptic feedback**     | All interactive buttons use haptic feedback on mobile                                    |
-| **Toast notifications** | Success/error toasts throughout the app                                                  |
-| **Real-time updates**   | Pusher WebSocket integration for live data sync                                          |
-| **Christmas mode**      | Overlays a holiday-themed background image during Christmas                              |
-| **Hero image upload**   | League cover photos uploaded via UploadThing                                             |
-| **Responsive layout**   | Header with logo, user avatar dropdown (profile, settings, current league/round, logout) |
-| **PWA support**         | Service worker, web manifest, and push subscription management                           |
+| Feature                 | Description                                                                 |
+| ----------------------- | --------------------------------------------------------------------------- |
+| **Haptic feedback**     | All interactive buttons use haptic feedback on mobile                       |
+| **Toast notifications** | Success/error toasts throughout the app                                     |
+| **Real-time updates**   | Pusher WebSocket integration for live data sync                             |
+| **Christmas mode**      | Overlays a holiday-themed background image during Christmas                 |
+| **Hero image upload**   | League cover photos uploaded via UploadThing                                |
+| **Game Boy shell**      | The whole app runs inside a Game Boy screen; see _Game Boy Interface_ below |
+| **PWA support**         | Service worker, web manifest, and push subscription management              |
+
+---
+
+## Game Boy Interface
+
+The app is presented as an original Game Boy (DMG-01). Every page renders inside the LCD, and the device's buttons drive it.
+
+| Control    | Keyboard            | Action                                                                                                       |
+| ---------- | ------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **D-pad**  | Arrow keys          | Move the cursor between controls. Up/down also page through long text before jumping past it. Hold to repeat |
+| **A**      | X / Enter           | Activate the selected control (opens the keyboard on text fields, the picker on dropdowns)                   |
+| **B**      | Z / Esc / Backspace | Close the topmost overlay, leave a text field, or go back (history, else up to the parent page)              |
+| **START**  | S                   | Open the menu: Home, League, Round, Profile, Options, Music, Refresh, Sound, Log out                         |
+| **SELECT** | Shift               | Open/close the Now Playing music player                                                                      |
+
+Touch still works inside the screen; tapping a control also moves the cursor to it.
+
+### How it works
+
+- **Look** — `app/globals.css`. Every Tailwind colour is remapped to four grey levels (`--gb-0`…`--gb-3`), then the LCD tints the whole screen with blend modes (grey → palette), so images, emoji and inline colours all come out in the palette too. Corners, soft shadows and blur are disabled; fonts are Pixelify Sans with Press Start 2P headings.
+- **Always phone-sized** — viewport breakpoints (`sm:`, `md:`…) are disabled, and the LCD is a size container, so inside the screen `100cqh`/`100cqw` mean the screen's height/width and `position: fixed` overlays stay inside it.
+- **Navigation** — `lib/gameboy/navigation.ts` (spatial cursor), `components/gameboy/GameBoy.tsx` (device, input, back behaviour). On-screen buttons dispatch real `keydown` events, so existing keyboard handlers (Playback, carousels) get them first; if a handler calls `preventDefault`, the cursor stands down.
+- **Hooks for components**
+  - `data-gb-layer="n"` — marks an open overlay; the cursor is confined to the highest layer.
+  - `data-gb-back` — B clicks this element when it's in the active layer (e.g. a close button).
+  - `data-gb-scroll` — the element a layer pages when the D-pad runs out of controls.
+  - `data-gb-cursor-style="arrow"` — menu-style highlight (inverted row + ▶) instead of corner brackets.
+  - `data-gb-skip` / `data-gb-focusable` — exclude / include an element as a cursor stop.
+- **Sound** — optional square-wave blips (`lib/gameboy/sound.ts`), toggled from the START menu.

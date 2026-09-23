@@ -371,7 +371,7 @@ export function RacingScreen({
                 <div className="flex flex-col items-center">
                   <div
                     className={twMerge(
-                      'relative w-[16vw] max-w-24 aspect-square',
+                      'relative w-[16cqw] max-w-24 aspect-square',
                       isPoweringUp && 'animate-power-up',
                     )}
                   >

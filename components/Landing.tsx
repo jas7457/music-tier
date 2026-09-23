@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { initiateSpotifyAuth } from '@/lib/spotify';
 import Cookies from 'js-cookie';
-import { APP_NAME } from '@/lib/utils/constants';
+import { APP_NAME, logo } from '@/lib/utils/constants';
 import { useToast } from '@/lib/ToastContext';
 import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
 
@@ -153,35 +153,43 @@ export default function Landing() {
 
   if (loading) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center">
+      <div className="min-h-[70cqh] flex items-center justify-center">
         <p className="text-ink-muted">Loading…</p>
       </div>
     );
   }
 
   if (!hasSpotifyToken) {
+    // Game Boy title screen.
     return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="glass-strong rounded-card p-8 max-w-md w-full animate-slide-up-fade-in">
-          <h1 className="text-3xl font-bold tracking-tight mb-3">Welcome to {APP_NAME}</h1>
-          <p className="text-ink-muted mb-6">
-            Connect your Spotify account to get started
-          </p>
-          <button
-            onClick={handleSpotifyLogin}
-            className="w-full bg-[#1db954] text-white px-6 py-3.5 rounded-control shadow-soft hover:bg-[#1ed760] hover:shadow-float active:scale-[0.99] transition-all font-semibold"
-          >
-            Connect to Spotify
-          </button>
-        </div>
+      <div className="min-h-[calc(100cqh-34px)] flex flex-col items-center justify-center gap-6 text-center animate-slide-up-fade-in">
+        <img src={logo.src} alt="" className="w-20 h-auto" />
+        <h1 className="font-press text-[22px] leading-[1.3] uppercase">
+          Playlist
+          <br />
+          Party
+        </h1>
+        <p className="text-ink-muted max-w-[16rem]">
+          Compete with friends in music discovery leagues
+        </p>
+        <button
+          onClick={handleSpotifyLogin}
+          className="gb-window font-press text-[10px] leading-none uppercase px-4 py-3.5"
+        >
+          Connect Spotify
+        </button>
+        <p className="font-press text-[9px] uppercase animate-blink">Press A</p>
+        <p className="font-press text-[8px] text-ink-muted uppercase">
+          © {APP_NAME}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center py-12 px-4">
-      <div className="glass-strong rounded-card p-8 max-w-md w-full animate-slide-up-fade-in">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Create Your Account</h1>
+    <div className="min-h-[70cqh] flex items-center justify-center py-4">
+      <div className="glass-strong p-5 w-full animate-slide-up-fade-in">
+        <h1 className="text-lg mb-2 uppercase">Create Your Account</h1>
         <p className="text-ink-muted mb-6">Complete your profile to continue</p>
 
         {error && (

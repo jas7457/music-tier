@@ -5,8 +5,18 @@ import { twMerge } from 'tailwind-merge';
 
 interface HapticButtonProps extends Pick<
   JSX.IntrinsicElements['button'],
-  'className' | 'children' | 'onClick' | 'disabled' | 'title' | 'type' | 'style'
-> {}
+  | 'className'
+  | 'children'
+  | 'onClick'
+  | 'disabled'
+  | 'title'
+  | 'type'
+  | 'style'
+  | 'aria-label'
+> {
+  /** B button clicks this when it's in the active layer. */
+  'data-gb-back'?: boolean;
+}
 
 export function HapticButton({
   children,
