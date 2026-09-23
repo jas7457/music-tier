@@ -75,8 +75,9 @@ export default async function RootLayout({
     >
       <head>
         <script src="https://sdk.scdn.co/spotify-player.js" async></script>
-        <link rel="icon" href="/icon-192.png" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" href="/favicon-32.png" sizes="32x32" />
+        <link rel="icon" href="/icon-192.png" sizes="192x192" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body>
         <AuthProvider initialUser={initialUser}>
