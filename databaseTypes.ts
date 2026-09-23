@@ -65,6 +65,11 @@ export type League = {
   // array of user IDs who are allowed to create a bonus round
   bonusRoundUserIds: string[];
 
+  // How many upcoming (not-yet-open) rounds are visible beyond the current
+  // round. Defaults to UPCOMING_ROUNDS_TO_SHOW when absent. Set to 0 to only
+  // reveal the current round (players can still always see their own round).
+  upcomingRoundsToShow?: number;
+
   // Whether phases auto-advance the moment everyone finishes early. When true
   // (the default when this field is absent), voting opens as soon as everyone
   // submits and the next round opens as soon as everyone votes. When false,

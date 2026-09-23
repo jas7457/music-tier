@@ -27,7 +27,7 @@ export const JASON_ID = USER_IDS.JASON;
 
 export const SIDE_PLAYLIST_ID = '4H61DjOnkWyw3b1jqcvoAP';
 
-export const UPCOMING_ROUNDS_TO_SHOW = 3;
+export const UPCOMING_ROUNDS_TO_SHOW = 0;
 
 export const MAX_DESCRIPTION_LENGTH = 1500;
 

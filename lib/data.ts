@@ -330,6 +330,9 @@ export async function getUserLeagues(
       );
       const bonusRounds = getAbnormalRounds(league.bonusRoundUserIds, 'bonus');
 
+      const upcomingRoundsToShow =
+        league.upcomingRoundsToShow ?? UPCOMING_ROUNDS_TO_SHOW;
+
       let currentOrUpcomingRoundsCount = 0;
       const roundsWithMostData: Array<
         Omit<PopulatedRound, 'previousRound' | 'nextRound'>
@@ -411,7 +414,7 @@ export async function getUserLeagues(
                 if (populatedRound.isPending) {
                   return false;
                 }
-                return currentOrUpcomingRoundsCount > UPCOMING_ROUNDS_TO_SHOW;
+                return currentOrUpcomingRoundsCount > upcomingRoundsToShow;
               }
               default: {
                 assertNever(roundStage);
