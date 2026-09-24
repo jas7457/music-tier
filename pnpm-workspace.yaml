@@ -1,0 +1,14 @@
+# pnpm settings. pnpm 10+ reads these from here; the "pnpm" field in
+# package.json is ignored by pnpm 12.
+
+# Dependencies allowed to run install scripts (pnpm blocks them by default).
+# These all set up native binaries for tools we use.
+allowBuilds:
+  esbuild: true # used by tsx
+  msgpackr-extract: true # optional native speedup for msgpackr
+  sharp: true # Next.js image optimization
+  unrs-resolver: true # eslint import resolver
+
+overrides:
+  '@types/react': 19.2.7
+  '@types/react-dom': 19.2.3

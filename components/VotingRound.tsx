@@ -8,7 +8,6 @@ import { PopulatedRound, PopulatedUser } from '@/lib/types';
 import { UserGuess } from './UserGuess';
 import { BlockQuote } from './BlockQuote';
 import { twMerge } from 'tailwind-merge';
-import { getStatusColor } from '@/lib/utils/colors';
 import { useData } from '@/lib/DataContext';
 import { useToast } from '@/lib/ToastContext';
 import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
@@ -283,7 +282,10 @@ export default function VotingRound({
       <Card
         className={twMerge(
           'py-2 md:py-4 flex flex-col gap-3',
-          getStatusColor(round.stage),
+          // Light surface, not getStatusColor(round.stage): on the Game Boy
+          // palette the voting status is a dark fill, which is the same shade
+          // as the muted text and vote buttons in this card and hides them.
+          'bg-surface',
           'text-ink',
         )}
         variant="plain"
