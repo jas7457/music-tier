@@ -138,6 +138,14 @@ function PollListItem({ poll, now }: { poll: PopulatedPoll; now: number }) {
           ·
         </span>
         <PollParticipation poll={poll} />
+        {poll.questions.length > 1 && (
+          <>
+            <span aria-hidden="true" className="text-ink-subtle">
+              ·
+            </span>
+            <span>{poll.questions.length} questions</span>
+          </>
+        )}
       </div>
     </Link>
   );

@@ -37,6 +37,8 @@ export const POLL_DURATION_OPTIONS = [
   { label: '3 days', hours: 72 },
 ] as const;
 
+// Effectively unlimited; just keeps a single poll document a sane size.
+export const MAX_POLL_QUESTIONS = 50;
 export const MAX_POLL_OPTIONS = 10;
 export const MAX_POLL_TITLE_LENGTH = 200;
 export const MAX_POLL_OPTION_LENGTH = 200;

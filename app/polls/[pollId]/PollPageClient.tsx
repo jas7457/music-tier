@@ -12,7 +12,8 @@ import {
   PollStatusPill,
   PollTiming,
 } from '@/components/polls/PollMeta';
-import type { PopulatedPoll } from '@/lib/types';
+import type { PollQuestion } from '@/databaseTypes';
+import type { PollQuestionResults, PopulatedPoll } from '@/lib/types';
 import { usePollClock, formatDuration } from '@/lib/hooks/usePollClock';
 import { useToast } from '@/lib/ToastContext';
 import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
@@ -129,28 +130,62 @@ function Notice({ children }: { children: React.ReactNode }) {
 
 const OTHER = '__other__';
 
+type QuestionDraft = { selected: string[]; otherText: string };
+const EMPTY_DRAFT: QuestionDraft = { selected: [], otherText: '' };
+
+function isAnswered(draft: QuestionDraft) {
+  const hasOther = draft.selected.includes(OTHER);
+  return (
+    draft.selected.length > 0 && (!hasOther || draft.otherText.trim() !== '')
+  );
+}
+
+/**
+ * Heading for one question. Single-question polls usually have no question
+ * text of their own (the poll title is the question), so nothing is shown.
+ */
+function QuestionHeading({
+  poll,
+  question,
+  index,
+}: {
+  poll: PopulatedPoll;
+  question: PollQuestion;
+  index: number;
+}) {
+  if (poll.questions.length === 1 && !question.text) {
+    return null;
+  }
+  return (
+    <h2 className="text-lg font-semibold text-ink leading-snug">
+      {poll.questions.length > 1 && (
+        <span className="text-ink-subtle font-medium mr-1.5">{index + 1}.</span>
+      )}
+      {question.text}
+    </h2>
+  );
+}
+
 function PollVoteForm({ poll }: { poll: PopulatedPoll }) {
   const router = useRouter();
   const toast = useToast();
-  const [selected, setSelected] = useState<string[]>([]);
-  const [otherText, setOtherText] = useState('');
+  const [drafts, setDrafts] = useState<Record<string, QuestionDraft>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isOtherSelected = selected.includes(OTHER);
-  const canSubmit =
-    selected.length > 0 &&
-    (!isOtherSelected || otherText.trim().length > 0) &&
-    !isSubmitting;
+  const getDraft = (questionId: string) => drafts[questionId] ?? EMPTY_DRAFT;
+  const unansweredCount = poll.questions.filter(
+    (question) => !isAnswered(getDraft(question.id)),
+  ).length;
+  const canSubmit = unansweredCount === 0 && !isSubmitting;
 
-  const toggle = (id: string) => {
-    setSelected((current) => {
-      if (!poll.allowMultiple) {
-        return [id];
-      }
-      return current.includes(id)
-        ? current.filter((existing) => existing !== id)
-        : [...current, id];
-    });
+  const updateDraft = (
+    questionId: string,
+    update: (draft: QuestionDraft) => QuestionDraft,
+  ) => {
+    setDrafts((current) => ({
+      ...current,
+      [questionId]: update(current[questionId] ?? EMPTY_DRAFT),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -164,8 +199,16 @@ function PollVoteForm({ poll }: { poll: PopulatedPoll }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          optionIds: selected.filter((id) => id !== OTHER),
-          otherText: isOtherSelected ? otherText : undefined,
+          answers: poll.questions.map((question) => {
+            const draft = getDraft(question.id);
+            return {
+              questionId: question.id,
+              optionIds: draft.selected.filter((id) => id !== OTHER),
+              otherText: draft.selected.includes(OTHER)
+                ? draft.otherText
+                : undefined,
+            };
+          }),
         }),
       });
       const data = await response.json();
@@ -183,19 +226,87 @@ function PollVoteForm({ poll }: { poll: PopulatedPoll }) {
     }
   };
 
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+      {poll.questions.map((question, index) => (
+        <QuestionVote
+          key={question.id}
+          poll={poll}
+          question={question}
+          index={index}
+          draft={getDraft(question.id)}
+          onChange={(update) => updateDraft(question.id, update)}
+        />
+      ))}
+
+      <div className="flex flex-col gap-2">
+        <HapticButton
+          type="submit"
+          disabled={!canSubmit}
+          className="w-full bg-primary-dark hover:bg-primary-darker text-white font-semibold py-3 px-4 rounded-control shadow-soft hover:shadow-float transition-all disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit Vote'}
+        </HapticButton>
+        {poll.questions.length > 1 && unansweredCount > 0 && (
+          <p className="text-sm text-ink-muted text-center">
+            Answer {unansweredCount} more{' '}
+            {unansweredCount === 1 ? 'question' : 'questions'} to submit.
+          </p>
+        )}
+        <p className="text-xs text-ink-subtle text-center">
+          Your vote is anonymous and can&apos;t be changed once submitted.
+          Results are revealed when the poll closes.
+        </p>
+      </div>
+    </form>
+  );
+}
+
+function QuestionVote({
+  poll,
+  question,
+  index,
+  draft,
+  onChange,
+}: {
+  poll: PopulatedPoll;
+  question: PollQuestion;
+  index: number;
+  draft: QuestionDraft;
+  onChange: (update: (draft: QuestionDraft) => QuestionDraft) => void;
+}) {
+  const isOtherSelected = draft.selected.includes(OTHER);
+
+  const toggle = (id: string) => {
+    onChange((current) => {
+      if (!question.allowMultiple) {
+        return { ...current, selected: [id] };
+      }
+      return {
+        ...current,
+        selected: current.selected.includes(id)
+          ? current.selected.filter((existing) => existing !== id)
+          : [...current.selected, id],
+      };
+    });
+  };
+
   const choices = [
-    ...poll.options.map((option) => ({ id: option.id, text: option.text })),
-    ...(poll.allowOther ? [{ id: OTHER, text: 'Other' }] : []),
+    ...question.options.map((option) => ({ id: option.id, text: option.text })),
+    ...(question.allowOther ? [{ id: OTHER, text: 'Other' }] : []),
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <p className="text-sm text-ink-subtle">
-        {poll.allowMultiple ? 'Pick all that apply.' : 'Pick one.'}
-      </p>
+    <section className="flex flex-col gap-3">
+      <div>
+        <QuestionHeading poll={poll} question={question} index={index} />
+        <p className="text-sm text-ink-subtle mt-0.5">
+          {question.allowMultiple ? 'Pick all that apply.' : 'Pick one.'}
+        </p>
+      </div>
       <div className="flex flex-col gap-2">
         {choices.map((choice) => {
-          const isSelected = selected.includes(choice.id);
+          const isSelected = draft.selected.includes(choice.id);
           return (
             <HapticButton
               key={choice.id}
@@ -212,7 +323,7 @@ function PollVoteForm({ poll }: { poll: PopulatedPoll }) {
                 aria-hidden="true"
                 className={twMerge(
                   'w-5 h-5 shrink-0 ring-2 flex items-center justify-center transition-colors',
-                  poll.allowMultiple ? 'rounded-md' : 'rounded-full',
+                  question.allowMultiple ? 'rounded-md' : 'rounded-full',
                   isSelected
                     ? 'bg-primary-dark ring-primary-dark text-white'
                     : 'ring-ink/25',
@@ -238,9 +349,12 @@ function PollVoteForm({ poll }: { poll: PopulatedPoll }) {
         {isOtherSelected && (
           <textarea
             aria-label="Your answer"
-            value={otherText}
+            value={draft.otherText}
             maxLength={MAX_POLL_OTHER_LENGTH}
-            onChange={(e) => setOtherText(e.target.value)}
+            onChange={(e) => {
+              const otherText = e.target.value;
+              onChange((current) => ({ ...current, otherText }));
+            }}
             placeholder="Your answer"
             rows={2}
             autoFocus
@@ -248,49 +362,62 @@ function PollVoteForm({ poll }: { poll: PopulatedPoll }) {
           />
         )}
       </div>
-
-      <HapticButton
-        type="submit"
-        disabled={!canSubmit}
-        className="w-full bg-primary-dark hover:bg-primary-darker text-white font-semibold py-3 px-4 rounded-control shadow-soft hover:shadow-float transition-all disabled:bg-ink-subtle disabled:shadow-none disabled:cursor-not-allowed"
-      >
-        {isSubmitting ? 'Submitting...' : 'Submit Vote'}
-      </HapticButton>
-      <p className="text-xs text-ink-subtle text-center">
-        Your vote is anonymous and can&apos;t be changed once submitted. Results
-        are revealed when the poll closes.
-      </p>
-    </form>
+    </section>
   );
 }
 
 function PollResults({ poll }: { poll: PopulatedPoll }) {
-  const results = poll.results;
-  if (!results) {
+  if (!poll.results) {
     return null;
   }
+  if (poll.voterCount === 0) {
+    return <Notice>Nobody voted in this poll.</Notice>;
+  }
+  const results = poll.results;
+  return (
+    <div className="flex flex-col gap-8">
+      {poll.questions.map((question, index) => (
+        <QuestionResults
+          key={question.id}
+          poll={poll}
+          question={question}
+          index={index}
+          results={results[question.id] ?? { tallies: {}, otherResponses: [] }}
+        />
+      ))}
+    </div>
+  );
+}
 
+function QuestionResults({
+  poll,
+  question,
+  index,
+  results,
+}: {
+  poll: PopulatedPoll;
+  question: PollQuestion;
+  index: number;
+  results: PollQuestionResults;
+}) {
   const rows = [
-    ...poll.options.map((option) => ({
+    ...question.options.map((option) => ({
       id: option.id,
       text: option.text,
       count: results.tallies[option.id] ?? 0,
     })),
-    ...(poll.allowOther
+    ...(question.allowOther
       ? [{ id: OTHER, text: 'Other', count: results.otherResponses.length }]
       : []),
   ];
   const topCount = Math.max(0, ...rows.map((row) => row.count));
 
-  if (poll.voterCount === 0) {
-    return <Notice>Nobody voted in this poll.</Notice>;
-  }
-
   return (
-    <div className="flex flex-col gap-5">
+    <section className="flex flex-col gap-4">
+      <QuestionHeading poll={poll} question={question} index={index} />
       <ul className="flex flex-col gap-3">
         {rows.map((row) => {
-          // Percent of voters, so multi-select polls can sum past 100%.
+          // Percent of voters, so multi-select questions can sum past 100%.
           const percent = Math.round((row.count / poll.voterCount) * 100);
           const isTop = row.count > 0 && row.count === topCount;
           return (
@@ -327,7 +454,7 @@ function PollResults({ poll }: { poll: PopulatedPoll }) {
         })}
       </ul>
 
-      {poll.allowMultiple && (
+      {question.allowMultiple && (
         <p className="text-xs text-ink-subtle">
           Voters could pick more than one choice, so percentages may add up to
           more than 100%.
@@ -336,13 +463,13 @@ function PollResults({ poll }: { poll: PopulatedPoll }) {
 
       {results.otherResponses.length > 0 && (
         <div>
-          <h2 className="text-xs font-semibold mb-2 text-ink-subtle uppercase tracking-widest">
+          <h3 className="text-xs font-semibold mb-2 text-ink-subtle uppercase tracking-widest">
             Other answers
-          </h2>
+          </h3>
           <ul className="flex flex-col gap-2">
-            {results.otherResponses.map((response, index) => (
+            {results.otherResponses.map((response, responseIndex) => (
               <li
-                key={index}
+                key={responseIndex}
                 className="px-4 py-3 rounded-control bg-white/60 ring-1 ring-white/80 text-ink"
               >
                 <MultiLine>{response}</MultiLine>
@@ -351,6 +478,6 @@ function PollResults({ poll }: { poll: PopulatedPoll }) {
           </ul>
         </div>
       )}
-    </div>
+    </section>
   );
 }

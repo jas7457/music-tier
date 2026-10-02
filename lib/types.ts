@@ -6,7 +6,7 @@ import type {
   User,
   Vote,
   TrackInfo,
-  PollOption,
+  PollQuestion,
 } from '../databaseTypes';
 import type { PollStatus } from './utils/pollStatus';
 
@@ -14,6 +14,13 @@ type WithStringId<T> = Omit<T, '_id'> & { _id: string };
 
 export type PopulatedUser = WithStringId<User> & {
   index: number;
+};
+
+export type PollQuestionResults = {
+  // option id -> number of votes
+  tallies: Record<string, number>;
+  // write-in answers, sorted so their order doesn't reveal who wrote them
+  otherResponses: string[];
 };
 
 /**
@@ -29,9 +36,7 @@ export type PopulatedPoll = {
   isCreatorAnonymous: boolean;
   // whether the viewer created this poll (lets them see their own anonymous polls)
   isYours: boolean;
-  options: PollOption[];
-  allowMultiple: boolean;
-  allowOther: boolean;
+  questions: PollQuestion[];
   createdDate: number;
   startDate: number;
   endDate: number;
@@ -43,12 +48,8 @@ export type PopulatedPoll = {
   // how many of the eligible users have voted / how many there are
   eligibleVoterCount: number;
   eligibleCount: number;
-  results: {
-    // option id -> number of votes
-    tallies: Record<string, number>;
-    // write-in answers, sorted so their order doesn't reveal who wrote them
-    otherResponses: string[];
-  } | null;
+  // question id -> aggregated results for that question
+  results: Record<string, PollQuestionResults> | null;
 };
 export type PopulatedSubmission = WithStringId<SongSubmission> & {
   userObject: PopulatedUser | undefined;

@@ -166,29 +166,45 @@ export type PollOption = {
   text: string;
 };
 
-export type PollVote = {
-  userId: string;
+export type PollQuestion = {
+  // short random id, unique within the poll
+  id: string;
+  // May be empty when the poll has a single question, in which case the
+  // poll's title is the question. Required when there are several questions.
+  text: string;
+  options: PollOption[];
+  // whether voters can pick more than one option
+  allowMultiple: boolean;
+  // whether voters can write in their own "Other" answer
+  allowOther: boolean;
+};
+
+export type PollAnswer = {
+  questionId: string;
   // ids of the chosen options (may be empty if only "Other" was chosen)
   optionIds: string[];
   // write-in "Other" answer, if chosen
   otherText?: string;
+};
+
+export type PollVote = {
+  userId: string;
+  // one answer per question; every question must be answered
+  answers: PollAnswer[];
   voteDate: number;
 };
 
 export type Poll = {
   // a mongo ObjectId
   _id: ObjectId;
-  // the question being asked
+  // what the poll is about (the question itself for single-question polls)
   title: string;
   description?: string;
   creatorId: string;
   // when true, the creator is never revealed to anyone else
   isCreatorAnonymous: boolean;
-  options: PollOption[];
-  // whether voters can pick more than one option
-  allowMultiple: boolean;
-  // whether voters can write in their own "Other" answer
-  allowOther: boolean;
+  // always at least one
+  questions: PollQuestion[];
 
   createdDate: number;
   // When voting opens / closes. Today startDate is always the creation time

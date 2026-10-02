@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { twMerge } from 'tailwind-merge';
 import Card from '@/components/Card';
 import { HapticButton } from '@/components/HapticButton';
 import { ToggleButton } from '@/components/ToggleButton';
@@ -12,14 +11,39 @@ import {
   MAX_DESCRIPTION_LENGTH,
   MAX_POLL_OPTION_LENGTH,
   MAX_POLL_OPTIONS,
+  MAX_POLL_QUESTIONS,
   MAX_POLL_TITLE_LENGTH,
   POLL_DURATION_OPTIONS,
 } from '@/lib/utils/constants';
 
 type DurationHours = (typeof POLL_DURATION_OPTIONS)[number]['hours'];
 
+type DraftChoice = { key: number; text: string };
+type DraftQuestion = {
+  key: number;
+  text: string;
+  choices: DraftChoice[];
+  allowMultiple: boolean;
+  allowOther: boolean;
+};
+
 let nextKey = 0;
-const newChoice = () => ({ key: nextKey++, text: '' });
+const newChoice = (): DraftChoice => ({ key: nextKey++, text: '' });
+const newQuestion = (): DraftQuestion => ({
+  key: nextKey++,
+  text: '',
+  choices: [newChoice(), newChoice()],
+  allowMultiple: false,
+  allowOther: false,
+});
+
+function isQuestionReady(question: DraftQuestion, needsText: boolean) {
+  const filled = question.choices.filter((choice) => choice.text.trim());
+  return (
+    (!needsText || question.text.trim().length > 0) &&
+    filled.length + (question.allowOther ? 1 : 0) >= 2
+  );
+}
 
 export function CreatePoll() {
   const router = useRouter();
@@ -27,27 +51,38 @@ export function CreatePoll() {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [choices, setChoices] = useState(() => [newChoice(), newChoice()]);
-  const [allowMultiple, setAllowMultiple] = useState(false);
-  const [allowOther, setAllowOther] = useState(false);
+  const [questions, setQuestions] = useState<DraftQuestion[]>(() => [
+    newQuestion(),
+  ]);
   const [isCreatorAnonymous, setIsCreatorAnonymous] = useState(false);
   const [durationHours, setDurationHours] = useState<DurationHours>(
     POLL_DURATION_OPTIONS[0].hours,
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const filledChoices = choices.filter((choice) => choice.text.trim());
+  // With one question the title is the question, so it needs no text of its
+  // own. Once there are several, each one needs its own text.
+  const isMultiQuestion = questions.length > 1;
   const canSubmit =
     title.trim().length > 0 &&
-    filledChoices.length + (allowOther ? 1 : 0) >= 2 &&
+    questions.every((question) => isQuestionReady(question, isMultiQuestion)) &&
     !isSubmitting;
+
+  const updateQuestion = (
+    key: number,
+    update: (question: DraftQuestion) => DraftQuestion,
+  ) => {
+    setQuestions((current) =>
+      current.map((question) =>
+        question.key === key ? update(question) : question,
+      ),
+    );
+  };
 
   const reset = () => {
     setTitle('');
     setDescription('');
-    setChoices([newChoice(), newChoice()]);
-    setAllowMultiple(false);
-    setAllowOther(false);
+    setQuestions([newQuestion()]);
     setIsCreatorAnonymous(false);
     setDurationHours(POLL_DURATION_OPTIONS[0].hours);
   };
@@ -65,9 +100,14 @@ export function CreatePoll() {
         body: JSON.stringify({
           title,
           description,
-          options: filledChoices.map((choice) => choice.text),
-          allowMultiple,
-          allowOther,
+          questions: questions.map((question) => ({
+            text: isMultiQuestion ? question.text : '',
+            options: question.choices
+              .map((choice) => choice.text)
+              .filter((text) => text.trim()),
+            allowMultiple: question.allowMultiple,
+            allowOther: question.allowOther,
+          })),
           isCreatorAnonymous,
           durationHours,
         }),
@@ -115,7 +155,7 @@ export function CreatePoll() {
             htmlFor="pollTitle"
             className="block text-sm font-medium text-ink-muted mb-1"
           >
-            Question
+            {isMultiQuestion ? 'Title' : 'Question'}
           </label>
           <input
             id="pollTitle"
@@ -123,7 +163,11 @@ export function CreatePoll() {
             value={title}
             maxLength={MAX_POLL_TITLE_LENGTH}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Should we add dark mode?"
+            placeholder={
+              isMultiQuestion
+                ? 'Ideas for next season'
+                : 'Should we add dark mode?'
+            }
             className="w-full px-3 py-2 field rounded-control"
             autoFocus
           />
@@ -147,95 +191,40 @@ export function CreatePoll() {
           />
         </div>
 
-        <fieldset>
-          <legend className="block text-sm font-medium text-ink-muted mb-1">
-            Choices
-          </legend>
-          <div className="flex flex-col gap-2">
-            {choices.map((choice, index) => (
-              <div key={choice.key} className="flex gap-2">
-                <input
-                  type="text"
-                  value={choice.text}
-                  maxLength={MAX_POLL_OPTION_LENGTH}
-                  aria-label={`Choice ${index + 1}`}
-                  placeholder={`Choice ${index + 1}`}
-                  onChange={(e) =>
-                    setChoices((current) =>
-                      current.map((c) =>
-                        c.key === choice.key
-                          ? { ...c, text: e.target.value }
-                          : c,
-                      ),
-                    )
-                  }
-                  className="flex-1 min-w-0 px-3 py-2 field rounded-control"
-                />
-                {choices.length > 2 && (
-                  <HapticButton
-                    type="button"
-                    title="Remove choice"
-                    onClick={() =>
-                      setChoices((current) =>
-                        current.filter((c) => c.key !== choice.key),
-                      )
-                    }
-                    className="shrink-0 w-10 rounded-control text-ink-subtle hover:text-red-600 hover:bg-white/60 flex items-center justify-center"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      aria-hidden="true"
-                    >
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </HapticButton>
-                )}
-              </div>
-            ))}
-            {allowOther && (
-              <div className="px-3 py-2 rounded-control border border-dashed border-line-strong text-ink-subtle text-sm italic">
-                Other (voters write their own answer)
-              </div>
-            )}
-          </div>
-          {choices.length < MAX_POLL_OPTIONS && (
+        <div className="flex flex-col gap-4">
+          {questions.map((question, index) => (
+            <QuestionEditor
+              key={question.key}
+              question={question}
+              index={index}
+              isMultiQuestion={isMultiQuestion}
+              onChange={(update) => updateQuestion(question.key, update)}
+              onRemove={() =>
+                setQuestions((current) =>
+                  current.filter((q) => q.key !== question.key),
+                )
+              }
+            />
+          ))}
+          {questions.length < MAX_POLL_QUESTIONS && (
             <HapticButton
               type="button"
-              onClick={() => setChoices((current) => [...current, newChoice()])}
-              className="mt-2 text-sm font-semibold text-primary-dark hover:text-primary-darker"
+              onClick={() =>
+                setQuestions((current) => [...current, newQuestion()])
+              }
+              className="w-full py-2.5 rounded-control border-2 border-dashed border-primary-light text-sm font-semibold text-primary-dark hover:text-primary-darker hover:bg-white/50"
             >
-              + Add choice
+              + Add another question
             </HapticButton>
           )}
-        </fieldset>
-
-        <div className="flex flex-col gap-3">
-          <Checkbox
-            checked={allowMultiple}
-            onChange={setAllowMultiple}
-            label="Allow multiple choices"
-            description="Voters can pick more than one answer"
-          />
-          <Checkbox
-            checked={allowOther}
-            onChange={setAllowOther}
-            label='Add an "Other" choice'
-            description="Voters can write in their own answer"
-          />
-          <Checkbox
-            checked={isCreatorAnonymous}
-            onChange={setIsCreatorAnonymous}
-            label="Post anonymously"
-            description="Hide your name from this poll. Votes are always anonymous."
-          />
         </div>
+
+        <Checkbox
+          checked={isCreatorAnonymous}
+          onChange={setIsCreatorAnonymous}
+          label="Post anonymously"
+          description="Hide your name from this poll. Votes are always anonymous."
+        />
 
         <div>
           <div className="block text-sm font-medium text-ink-muted mb-1">
@@ -283,6 +272,164 @@ export function CreatePoll() {
   );
 }
 
+function QuestionEditor({
+  question,
+  index,
+  isMultiQuestion,
+  onChange,
+  onRemove,
+}: {
+  question: DraftQuestion;
+  index: number;
+  isMultiQuestion: boolean;
+  onChange: (update: (question: DraftQuestion) => DraftQuestion) => void;
+  onRemove: () => void;
+}) {
+  const textId = `pollQuestion-${question.key}`;
+
+  const body = (
+    <div className="flex flex-col gap-4">
+      <fieldset>
+        <legend className="block text-sm font-medium text-ink-muted mb-1">
+          Choices
+        </legend>
+        <div className="flex flex-col gap-2">
+          {question.choices.map((choice, choiceIndex) => (
+            <div key={choice.key} className="flex gap-2">
+              <input
+                type="text"
+                value={choice.text}
+                maxLength={MAX_POLL_OPTION_LENGTH}
+                aria-label={`Choice ${choiceIndex + 1}`}
+                placeholder={`Choice ${choiceIndex + 1}`}
+                onChange={(e) => {
+                  const text = e.target.value;
+                  onChange((q) => ({
+                    ...q,
+                    choices: q.choices.map((c) =>
+                      c.key === choice.key ? { ...c, text } : c,
+                    ),
+                  }));
+                }}
+                className="flex-1 min-w-0 px-3 py-2 field rounded-control"
+              />
+              {question.choices.length > 2 && (
+                <RemoveButton
+                  title="Remove choice"
+                  onClick={() =>
+                    onChange((q) => ({
+                      ...q,
+                      choices: q.choices.filter((c) => c.key !== choice.key),
+                    }))
+                  }
+                />
+              )}
+            </div>
+          ))}
+          {question.allowOther && (
+            <div className="px-3 py-2 rounded-control border border-dashed border-line-strong text-ink-subtle text-sm italic">
+              Other (voters write their own answer)
+            </div>
+          )}
+        </div>
+        {question.choices.length < MAX_POLL_OPTIONS && (
+          <HapticButton
+            type="button"
+            onClick={() =>
+              onChange((q) => ({ ...q, choices: [...q.choices, newChoice()] }))
+            }
+            className="mt-2 text-sm font-semibold text-primary-dark hover:text-primary-darker"
+          >
+            + Add choice
+          </HapticButton>
+        )}
+      </fieldset>
+
+      <div className="flex flex-col gap-3">
+        <Checkbox
+          checked={question.allowMultiple}
+          onChange={(allowMultiple) =>
+            onChange((q) => ({ ...q, allowMultiple }))
+          }
+          label="Allow multiple choices"
+          description="Voters can pick more than one answer"
+        />
+        <Checkbox
+          checked={question.allowOther}
+          onChange={(allowOther) => onChange((q) => ({ ...q, allowOther }))}
+          label='Add an "Other" choice'
+          description="Voters can write in their own answer"
+        />
+      </div>
+    </div>
+  );
+
+  // A lone question is just part of the form; the title above is its text.
+  if (!isMultiQuestion) {
+    return body;
+  }
+
+  return (
+    <div className="p-4 rounded-tile bg-white/60 ring-1 ring-white/80 flex flex-col gap-4">
+      <div>
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <label
+            htmlFor={textId}
+            className="block text-sm font-semibold text-ink"
+          >
+            Question {index + 1}
+          </label>
+          <RemoveButton title="Remove question" onClick={onRemove} />
+        </div>
+        <input
+          id={textId}
+          type="text"
+          value={question.text}
+          maxLength={MAX_POLL_TITLE_LENGTH}
+          onChange={(e) => {
+            const text = e.target.value;
+            onChange((q) => ({ ...q, text }));
+          }}
+          placeholder="What do you want to ask?"
+          className="w-full px-3 py-2 field rounded-control"
+        />
+      </div>
+      {body}
+    </div>
+  );
+}
+
+function RemoveButton({
+  title,
+  onClick,
+}: {
+  title: string;
+  onClick: () => void;
+}) {
+  return (
+    <HapticButton
+      type="button"
+      title={title}
+      onClick={onClick}
+      className="shrink-0 w-10 h-10 rounded-control text-ink-subtle hover:text-red-600 hover:bg-white/60 flex items-center justify-center"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        aria-hidden="true"
+      >
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    </HapticButton>
+  );
+}
+
 function Checkbox({
   checked,
   onChange,
@@ -295,7 +442,7 @@ function Checkbox({
   description: string;
 }) {
   return (
-    <label className={twMerge('flex items-start gap-3 cursor-pointer')}>
+    <label className="flex items-start gap-3 cursor-pointer">
       <input
         type="checkbox"
         checked={checked}
