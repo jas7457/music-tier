@@ -10,6 +10,7 @@ import { getLeagueById } from '@/lib/data';
 import { assertNever } from '@/lib/utils/never';
 import { PopulatedLeague } from '@/lib/types';
 import { triggerRealTimeUpdate } from '@/lib/pusher-server';
+import { processPollNotifications } from '@/lib/polls';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Allow up to 60 seconds for processing
@@ -72,29 +73,23 @@ export async function GET() {
           case 'LEAGUE.COMPLETED': {
             didAdvancePhase = true;
             const notification = task.data.notification;
-            await sendNotifications(
-              [
-                {
-                  ...notification,
-                  userIds: task.userIds,
-                },
-              ],
-              league,
-            );
+            await sendNotifications([
+              {
+                ...notification,
+                userIds: task.userIds,
+              },
+            ]);
             break;
           }
           case 'SUBMISSION.REMINDER':
           case 'VOTING.REMINDER': {
             const notification = task.data.notification;
-            await sendNotifications(
-              [
-                {
-                  ...notification,
-                  userIds: task.userIds,
-                },
-              ],
-              league,
-            );
+            await sendNotifications([
+              {
+                ...notification,
+                userIds: task.userIds,
+              },
+            ]);
             break;
           }
 
@@ -111,6 +106,16 @@ export async function GET() {
         results.failed++;
         results.errors.push(`Task ${task._id} failed: ${errorMessage}`);
       }
+    }
+
+    // Polls close on their own clock. Pages also send these lazily on view, so
+    // this is the safety net for polls nobody has looked at since closing.
+    try {
+      await processPollNotifications();
+    } catch (error) {
+      results.errors.push(
+        `Poll notifications failed: ${unknownToErrorString(error, 'Unknown error')}`,
+      );
     }
 
     // A phase advanced purely on the clock, so no user action pushed an update.

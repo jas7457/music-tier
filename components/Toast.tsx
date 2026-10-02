@@ -31,11 +31,11 @@ export function Toast({
   }, [id, timeout, onDismiss]);
 
   const variantStyles = {
-    default: 'bg-gray-900/80 text-white ring-white/15',
-    error: 'bg-red-600/80 text-white ring-white/20',
-    warning: 'bg-amber-500/80 text-amber-950 ring-white/25',
-    info: 'bg-sky-600/80 text-white ring-white/20',
-    success: 'bg-emerald-600/80 text-white ring-white/20',
+    default: 'bg-gray-900/95 text-white ring-white/15',
+    error: 'bg-red-600/95 text-white ring-white/20',
+    warning: 'bg-amber-500/95 text-amber-950 ring-white/25',
+    info: 'bg-sky-600/95 text-white ring-white/20',
+    success: 'bg-emerald-600/95 text-white ring-white/20',
   };
 
   const iconStyles = {

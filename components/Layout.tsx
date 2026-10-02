@@ -98,9 +98,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </HapticButton>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-64 origin-top-right glass-strong rounded-card z-50 overflow-hidden animate-menu-in">
+            <div className="absolute right-0 mt-2 w-64 origin-top-right glass-popover rounded-card z-50 overflow-hidden animate-menu-in">
               {/* User Info Section */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-white/40">
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-ink/8">
                 <Avatar user={user} size={10} includeLink={false} />
                 <div className="min-w-0">
                   <h2 className="text-ink font-semibold text-sm truncate">
@@ -117,7 +117,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Link
                   href={`/users/${user._id}`}
                   onClick={() => setIsDropdownOpen(false)}
-                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-white/60 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
+                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-ink/5 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
                 >
                   <svg
                     width="16"
@@ -136,7 +136,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Link
                   href="/settings"
                   onClick={() => setIsDropdownOpen(false)}
-                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-white/60 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
+                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-ink/5 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
                 >
                   <svg
                     width="16"
@@ -157,7 +157,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Link
                   href="/leagues/current"
                   onClick={() => setIsDropdownOpen(false)}
-                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-white/60 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
+                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-ink/5 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
                 >
                   <svg
                     width="16"
@@ -177,7 +177,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Link
                   href="/leagues/current/rounds/current"
                   onClick={() => setIsDropdownOpen(false)}
-                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-white/60 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
+                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-ink/5 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
                 >
                   <svg
                     width="16"
@@ -193,12 +193,33 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   Current Round
                 </Link>
 
+                <Link
+                  href="/polls"
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-ink/5 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  >
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                  </svg>
+                  Polls
+                </Link>
+
                 <button
                   onClick={() => {
                     logout();
                     setIsDropdownOpen(false);
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-white/60 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
+                  className="w-full text-left px-2.5 py-2 rounded-control text-sm font-medium text-ink-muted hover:bg-ink/5 hover:text-ink transition-colors flex items-center gap-2.5 [&>svg]:text-ink-subtle"
                 >
                   <svg
                     width="16"

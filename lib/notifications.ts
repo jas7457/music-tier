@@ -1,6 +1,7 @@
 import { sendEmail, sendTextEmail } from './emailService';
 import { triggerNotifications } from './pusher-server';
 import { PopulatedLeague, PopulatedRound, PopulatedUser } from './types';
+import { getNotificationSettings } from './utils/notificationSettings';
 import { APP_NAME, PRODUCTION_URL, logo } from './utils/constants';
 import { getAllRounds } from './utils/getAllRounds';
 import { sendPushToSubscriptions } from './webPush';
@@ -104,6 +105,22 @@ export type Notification =
       message: string;
       additionalHTML?: string;
       link?: string;
+    }
+  | {
+      code: 'POLL.STARTED';
+      userIds: string[];
+      title: string;
+      message: string;
+      additionalHTML?: string;
+      link?: string;
+    }
+  | {
+      code: 'POLL.COMPLETED';
+      userIds: string[];
+      title: string;
+      message: string;
+      additionalHTML?: string;
+      link?: string;
     };
 
 export async function roundNotifications({
@@ -165,7 +182,7 @@ export async function roundNotifications({
     });
   }
 
-  await sendNotifications(notifications, league);
+  await sendNotifications(notifications);
 }
 
 export async function submissionNotifications({
@@ -253,7 +270,7 @@ export async function submissionNotifications({
     }
   })();
 
-  await sendNotifications(notifications, league);
+  await sendNotifications(notifications);
 }
 
 export async function voteNotifications({
@@ -383,26 +400,15 @@ export async function voteNotifications({
     }
   })();
 
-  await sendNotifications(notifications, afterLeague);
+  await sendNotifications(notifications);
 }
 
-export async function sendNotifications(
-  notifications: Notification[],
-  league: PopulatedLeague,
-) {
+export async function sendNotifications(notifications: Notification[]) {
   if (notifications.length === 0) {
     return;
   }
   try {
     triggerNotifications(notifications);
-
-    const usersById = league.users.reduce(
-      (acc, user) => {
-        acc[user._id] = user;
-        return acc;
-      },
-      {} as Record<string, PopulatedUser>,
-    );
 
     // Collect all user IDs that need notifications
     const userIdsNeedingNotifications = new Set<string>();
@@ -412,9 +418,9 @@ export async function sendNotifications(
       });
     });
 
-    // Fetch full user data with push subscriptions from database
+    // Fetch full user data (preferences, contact info, push subscriptions)
     const usersCollection = await getCollection<User>('users');
-    const usersWithPushData = await usersCollection
+    const users = await usersCollection
       .find({
         _id: {
           $in: Array.from(userIdsNeedingNotifications).map(
@@ -424,7 +430,7 @@ export async function sendNotifications(
       })
       .toArray();
 
-    const usersWithPushById = usersWithPushData.reduce(
+    const usersById = users.reduce(
       (acc, user) => {
         acc[user._id.toString()] = user;
         return acc;
@@ -444,15 +450,14 @@ export async function sendNotifications(
 
       notification.userIds.forEach((userId) => {
         const user = usersById[userId];
-        const userWithPush = usersWithPushById[userId];
         if (!user) {
           return;
         }
 
-        const preferences = user.notificationSettings;
-        if (!preferences) {
-          return;
-        }
+        // Stored settings layered over the defaults, so notification types
+        // added after a user last saved their settings (e.g. polls, which
+        // default to on) still get their default value.
+        const preferences = getNotificationSettings(user);
         if (
           notification.code !== 'NOTIFICATION.FORCE' &&
           !preferences[notification.code]
@@ -461,8 +466,8 @@ export async function sendNotifications(
         }
 
         // Queue push subscriptions; sent (deduped) after the user loop
-        if (userWithPush?.pushSubscriptions) {
-          pushSubscriptions.push(...userWithPush.pushSubscriptions);
+        if (user.pushSubscriptions) {
+          pushSubscriptions.push(...user.pushSubscriptions);
         }
 
         if (user.emailAddress && preferences.emailNotificationsEnabled) {

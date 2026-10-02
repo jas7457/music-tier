@@ -11,6 +11,7 @@ import { useServiceWorker } from '@/lib/ServiceWorkerContext';
 import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
 import { JASON_ID } from '@/lib/utils/constants';
 import { useTheme } from '@/lib/ThemeContext';
+import { DEFAULT_NOTIFICATION_SETTINGS } from '@/lib/utils/notificationSettings';
 
 type UserSettingsClientProps = {
   user: PopulatedUser;
@@ -48,20 +49,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   const [notificationSettings, setNotificationSettings] = useState<
     NonNullable<User['notificationSettings']>
   >({
-    'NOTIFICATION.FORCE': true,
-    'VOTING.STARTED': false,
-    'VOTING.REMINDER': false,
-    'SUBMISSION.REMINDER': false,
-    'SUBMISSIONS.HALF_SUBMITTED': false,
-    'SUBMISSIONS.LAST_TO_SUBMIT': false,
-    'ROUND.REMINDER': false,
-    'ROUND.STARTED': false,
-    'ROUND.COMPLETED': false,
-    'ROUND.HALF_VOTED': false,
-    'ROUND.LAST_TO_VOTE': false,
-    'LEAGUE.COMPLETED': false,
-    textNotificationsEnabled: false,
-    emailNotificationsEnabled: false,
+    ...DEFAULT_NOTIFICATION_SETTINGS,
     ...user.notificationSettings,
   });
   const [isSaving, setIsSaving] = useState(false);
@@ -312,6 +300,16 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
       key: 'LEAGUE.COMPLETED',
       label: 'League Completed',
       description: 'When a league is completed',
+    },
+    {
+      key: 'POLL.STARTED',
+      label: 'New Poll',
+      description: 'When someone creates a new poll',
+    },
+    {
+      key: 'POLL.COMPLETED',
+      label: 'Poll Results',
+      description: 'When a poll closes and its results are available',
     },
   ] as const;
 

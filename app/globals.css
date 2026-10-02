@@ -26,8 +26,8 @@
   --color-ink-subtle: oklch(0.645 0.013 285);
 
   --font-sans:
-    var(--font-inter), ui-sans-serif, system-ui, -apple-system,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   /* Bento corners are large — the radius is what reads as "tile" rather than "box" */
   --radius-card: 1.25rem;
@@ -48,12 +48,10 @@
 
   /* Glass: the inset top highlight is what actually sells it as a lit surface */
   --shadow-glass:
-    inset 0 1px 0 oklch(1 0 0 / 0.7),
-    inset 0 0 0 1px oklch(1 0 0 / 0.28),
+    inset 0 1px 0 oklch(1 0 0 / 0.7), inset 0 0 0 1px oklch(1 0 0 / 0.28),
     0 8px 32px -12px oklch(0.255 0.017 285 / 0.25);
   --shadow-glass-pop:
-    inset 0 1px 0 oklch(1 0 0 / 0.75),
-    inset 0 0 0 1px oklch(1 0 0 / 0.35),
+    inset 0 1px 0 oklch(1 0 0 / 0.75), inset 0 0 0 1px oklch(1 0 0 / 0.35),
     0 24px 56px -20px oklch(0.255 0.017 285 / 0.35);
   --blur-glass: 20px;
 
@@ -333,6 +331,15 @@
 
   .glass-strong {
     background-color: oklch(1 0 0 / 0.75);
+    box-shadow: var(--shadow-glass-pop);
+  }
+
+  /* Popovers (menus, dropdowns, search results) float over busy content, so
+     they're solid rather than glass. Any translucency here reads badly: a
+     popover nested in another backdrop-filtered surface (e.g. the header menu)
+     can't blur the page beneath it, so the content just shows straight through. */
+  .glass-popover {
+    background-color: oklch(0.993 0.003 285);
     box-shadow: var(--shadow-glass-pop);
   }
 

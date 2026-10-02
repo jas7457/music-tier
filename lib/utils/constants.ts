@@ -25,6 +25,23 @@ export const USER_IDS = {
 
 export const JASON_ID = USER_IDS.JASON;
 
+// Users notified about polls and waited on before a poll closes early.
+// Snapshotted onto each poll at creation. These are the members of the latest
+// league (CASHS 4ever S9) with no test accounts. Polls are global, so this is
+// intentionally a static list rather than derived from a league.
+export const POLL_USER_IDS: string[] = Object.values(USER_IDS);
+
+// Preset poll lengths offered when creating a poll.
+export const POLL_DURATION_OPTIONS = [
+  { label: '24 hours', hours: 24 },
+  { label: '3 days', hours: 72 },
+] as const;
+
+export const MAX_POLL_OPTIONS = 10;
+export const MAX_POLL_TITLE_LENGTH = 200;
+export const MAX_POLL_OPTION_LENGTH = 200;
+export const MAX_POLL_OTHER_LENGTH = 500;
+
 export const SIDE_PLAYLIST_ID = '4H61DjOnkWyw3b1jqcvoAP';
 
 export const UPCOMING_ROUNDS_TO_SHOW = 0;

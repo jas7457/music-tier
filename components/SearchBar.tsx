@@ -216,7 +216,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
       </div>
 
       {showDropdown && (
-        <div className="absolute top-full left-0 right-0 mt-2 glass-strong rounded-card z-50 max-h-[70vh] overflow-y-auto animate-menu-in">
+        <div className="absolute top-full left-0 right-0 mt-2 glass-popover rounded-card z-50 max-h-[70vh] overflow-y-auto animate-menu-in">
           {!hasResults ? (
             <div className="p-5 text-ink-subtle text-center text-sm">
               No results for &ldquo;{query}&rdquo;
@@ -236,7 +236,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                           key={`artist-${matchedArtist}-${round._id}`}
                           href={`/leagues/${league._id}/rounds/${round._id}`}
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-3 p-2 rounded-control hover:bg-white/50 transition-colors"
+                          className="flex items-center gap-3 p-2 rounded-control hover:bg-ink/5 transition-colors"
                         >
                           <AlbumArt
                             trackInfo={trackInfo}
@@ -271,7 +271,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                           key={`song-${trackInfo.trackId}-${round._id}`}
                           href={`/leagues/${league._id}/rounds/${round._id}`}
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center gap-3 p-2 rounded-control hover:bg-white/50 transition-colors"
+                          className="flex items-center gap-3 p-2 rounded-control hover:bg-ink/5 transition-colors"
                         >
                           <AlbumArt
                             trackInfo={trackInfo}
@@ -306,7 +306,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                           key={`round-${round._id}`}
                           href={`/leagues/${league._id}/rounds/${round._id}`}
                           onClick={() => setIsOpen(false)}
-                          className="block p-2 rounded-control hover:bg-white/50 transition-colors"
+                          className="block p-2 rounded-control hover:bg-ink/5 transition-colors"
                         >
                           <div className="font-medium text-ink">
                             {highlight(round.title, query)}

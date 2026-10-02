@@ -207,7 +207,7 @@ export function SpotifySongSearch({
 
       {/* Search Results Dropdown */}
       {showSearchResults && searchResults.length > 0 && !loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 glass-strong rounded-card max-h-80 overflow-y-auto">
+        <div className="absolute z-10 w-full mt-1 glass-popover rounded-card max-h-80 overflow-y-auto">
           {searchResults.map((result) => (
             <button
               key={result.trackId}
@@ -242,14 +242,14 @@ export function SpotifySongSearch({
 
       {/* Track Loading */}
       {loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 glass-strong rounded-card p-3">
+        <div className="absolute z-10 w-full mt-1 glass-popover rounded-card p-3">
           <p className="text-xs text-ink-subtle">Loading track preview...</p>
         </div>
       )}
 
       {/* Search Loading */}
       {isSearching && !loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 glass-strong rounded-card p-3">
+        <div className="absolute z-10 w-full mt-1 glass-popover rounded-card p-3">
           <p className="text-xs text-ink-subtle">Searching...</p>
         </div>
       )}

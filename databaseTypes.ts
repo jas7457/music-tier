@@ -156,6 +156,61 @@ export type Vote = {
   userGuessId?: string;
 };
 
+/* "polls" collection */
+// Polls are global (not tied to a league). Votes are anonymous in the UI
+// only: each vote is stored with its userId (useful for debugging), but the
+// server never sends who voted for what to the client. Votes are final.
+export type PollOption = {
+  // short random id, unique within the poll
+  id: string;
+  text: string;
+};
+
+export type PollVote = {
+  userId: string;
+  // ids of the chosen options (may be empty if only "Other" was chosen)
+  optionIds: string[];
+  // write-in "Other" answer, if chosen
+  otherText?: string;
+  voteDate: number;
+};
+
+export type Poll = {
+  // a mongo ObjectId
+  _id: ObjectId;
+  // the question being asked
+  title: string;
+  description?: string;
+  creatorId: string;
+  // when true, the creator is never revealed to anyone else
+  isCreatorAnonymous: boolean;
+  options: PollOption[];
+  // whether voters can pick more than one option
+  allowMultiple: boolean;
+  // whether voters can write in their own "Other" answer
+  allowOther: boolean;
+
+  createdDate: number;
+  // When voting opens / closes. Today startDate is always the creation time
+  // and endDate is startDate + a preset duration, but both are stored as
+  // absolute timestamps so custom start/end times can be supported later.
+  startDate: number;
+  endDate: number;
+  // Set when the poll closes early because every eligible voter has voted.
+  closedDate?: number;
+
+  // Static snapshot of who is notified and who counts toward "everyone has
+  // voted". Any logged-in user may vote; only these users are waited on.
+  eligibleUserIds: string[];
+
+  // One entry per voter. Never sent to the client as-is.
+  votes: PollVote[];
+
+  // Bookkeeping so each lifecycle notification is only ever sent once
+  startNotificationSentDate?: number;
+  resultsNotificationSentDate?: number;
+};
+
 /* "scheduledNotifications" collection */
 export type ScheduledNotification = {
   _id: ObjectId;
