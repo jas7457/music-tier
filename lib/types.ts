@@ -6,12 +6,49 @@ import type {
   User,
   Vote,
   TrackInfo,
+  PollOption,
 } from '../databaseTypes';
+import type { PollStatus } from './utils/pollStatus';
 
 type WithStringId<T> = Omit<T, '_id'> & { _id: string };
 
 export type PopulatedUser = WithStringId<User> & {
   index: number;
+};
+
+/**
+ * Client-safe view of a poll. Never says who voted for what, and only
+ * includes results once the poll has closed. The creator is null when
+ * anonymous.
+ */
+export type PopulatedPoll = {
+  _id: string;
+  title: string;
+  description?: string;
+  creator: PopulatedUser | null;
+  isCreatorAnonymous: boolean;
+  // whether the viewer created this poll (lets them see their own anonymous polls)
+  isYours: boolean;
+  options: PollOption[];
+  allowMultiple: boolean;
+  allowOther: boolean;
+  createdDate: number;
+  startDate: number;
+  endDate: number;
+  closedDate?: number;
+  status: PollStatus;
+  hasVoted: boolean;
+  // total votes cast (including any voters outside the eligible list)
+  voterCount: number;
+  // how many of the eligible users have voted / how many there are
+  eligibleVoterCount: number;
+  eligibleCount: number;
+  results: {
+    // option id -> number of votes
+    tallies: Record<string, number>;
+    // write-in answers, sorted so their order doesn't reveal who wrote them
+    otherResponses: string[];
+  } | null;
 };
 export type PopulatedSubmission = WithStringId<SongSubmission> & {
   userObject: PopulatedUser | undefined;

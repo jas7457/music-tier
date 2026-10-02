@@ -12,17 +12,14 @@ export async function POST() {
     return NextResponse.json({ error: 'League not found' }, { status: 404 });
   }
 
-  await sendNotifications(
-    [
-      {
-        code: 'NOTIFICATION.FORCE',
-        title: 'Merry Christmas! 🎄',
-        message:
-          "It's me, Mariah Carey! I've taken over PP for the next 32 hours. Enjoy some festive tunes and happy holidays!",
-        userIds: league.users.map((user) => user._id),
-      },
-    ],
-    league,
-  );
+  await sendNotifications([
+    {
+      code: 'NOTIFICATION.FORCE',
+      title: 'Merry Christmas! 🎄',
+      message:
+        "It's me, Mariah Carey! I've taken over PP for the next 32 hours. Enjoy some festive tunes and happy holidays!",
+      userIds: league.users.map((user) => user._id),
+    },
+  ]);
   return NextResponse.json({ success: true });
 }

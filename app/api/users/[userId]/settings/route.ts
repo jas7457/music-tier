@@ -4,6 +4,7 @@ import { getCollection } from '@/lib/mongodb';
 import { User } from '@/databaseTypes';
 import { ObjectId } from 'mongodb';
 import { getFormattedPhoneNumber } from '@/lib/utils/phone';
+import { DEFAULT_NOTIFICATION_SETTINGS } from '@/lib/utils/notificationSettings';
 
 export async function PUT(request: NextRequest) {
   try {
@@ -54,24 +55,6 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    const defaultNotificationSettings: Required<User['notificationSettings']> =
-      {
-        'NOTIFICATION.FORCE': true,
-        'VOTING.STARTED': false,
-        'VOTING.REMINDER': false,
-        'SUBMISSIONS.HALF_SUBMITTED': false,
-        'SUBMISSIONS.LAST_TO_SUBMIT': false,
-        'SUBMISSION.REMINDER': false,
-        'ROUND.REMINDER': false,
-        'ROUND.STARTED': false,
-        'ROUND.COMPLETED': false,
-        'ROUND.HALF_VOTED': false,
-        'ROUND.LAST_TO_VOTE': false,
-        'LEAGUE.COMPLETED': false,
-        textNotificationsEnabled: false,
-        emailNotificationsEnabled: false,
-      };
-
     const usersCollection = await getCollection<User>('users');
 
     // Check if we need to get the current user to compare phone details
@@ -94,7 +77,7 @@ export async function PUT(request: NextRequest) {
       phoneCarrier: phoneCarrier || undefined,
       emailAddress: emailAddress || undefined,
       notificationSettings: {
-        ...defaultNotificationSettings,
+        ...DEFAULT_NOTIFICATION_SETTINGS,
         ...(notificationSettings || {}),
       },
     };

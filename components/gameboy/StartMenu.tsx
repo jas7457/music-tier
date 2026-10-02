@@ -77,6 +77,11 @@ export function StartMenu({
                   OPTIONS
                 </Link>
               </li>
+              <li>
+                <Link href="/polls" className={itemClass} onClick={onClose}>
+                  POLLS
+                </Link>
+              </li>
             </>
           )}
           {hasPlayer && (
