@@ -1,12 +1,24 @@
 import { randomUUID } from 'crypto';
 import { ObjectId } from 'mongodb';
-import type { Poll, PollOption, PollVote, User } from '@/databaseTypes';
+import type {
+  Poll,
+  PollAnswer,
+  PollOption,
+  PollQuestion,
+  PollVote,
+  User,
+} from '@/databaseTypes';
 import { getCollection } from './mongodb';
 import { sendNotifications } from './notifications';
-import type { PopulatedPoll, PopulatedUser } from './types';
+import type {
+  PollQuestionResults,
+  PopulatedPoll,
+  PopulatedUser,
+} from './types';
 import {
   MAX_POLL_OPTION_LENGTH,
   MAX_POLL_OPTIONS,
+  MAX_POLL_QUESTIONS,
   MAX_POLL_OTHER_LENGTH,
   MAX_POLL_TITLE_LENGTH,
   MAX_DESCRIPTION_LENGTH,
@@ -53,22 +65,35 @@ function toPublicUser(user: User): PopulatedUser {
 }
 
 /** Aggregates votes into anonymous counts. Only called once a poll closes. */
-function getPollResults(poll: Poll): NonNullable<PopulatedPoll['results']> {
-  const tallies: Record<string, number> = Object.fromEntries(
-    poll.options.map((option) => [option.id, 0]),
-  );
-  const otherResponses: string[] = [];
+function getPollResults(poll: Poll): Record<string, PollQuestionResults> {
+  const results: Record<string, PollQuestionResults> = {};
+  for (const question of poll.questions) {
+    results[question.id] = {
+      tallies: Object.fromEntries(
+        question.options.map((option) => [option.id, 0]),
+      ),
+      otherResponses: [],
+    };
+  }
   for (const vote of poll.votes) {
-    for (const optionId of vote.optionIds) {
-      tallies[optionId] = (tallies[optionId] ?? 0) + 1;
-    }
-    if (vote.otherText) {
-      otherResponses.push(vote.otherText);
+    for (const answer of vote.answers) {
+      const result = results[answer.questionId];
+      if (!result) {
+        continue;
+      }
+      for (const optionId of answer.optionIds) {
+        result.tallies[optionId] = (result.tallies[optionId] ?? 0) + 1;
+      }
+      if (answer.otherText) {
+        result.otherResponses.push(answer.otherText);
+      }
     }
   }
   // Sorted, not in vote order, so they can't be matched up with who voted when.
-  otherResponses.sort((a, b) => a.localeCompare(b));
-  return { tallies, otherResponses };
+  for (const result of Object.values(results)) {
+    result.otherResponses.sort((a, b) => a.localeCompare(b));
+  }
+  return results;
 }
 
 function toPopulatedPoll(
@@ -85,9 +110,7 @@ function toPopulatedPoll(
     creator: !poll.isCreatorAnonymous && creator ? toPublicUser(creator) : null,
     isCreatorAnonymous: poll.isCreatorAnonymous,
     isYours: poll.creatorId === viewerId,
-    options: poll.options,
-    allowMultiple: poll.allowMultiple,
-    allowOther: poll.allowOther,
+    questions: poll.questions,
     createdDate: poll.createdDate,
     startDate: poll.startDate,
     endDate: poll.endDate,
@@ -172,14 +195,12 @@ export async function getPoll(
 export type CreatePollInput = {
   title: unknown;
   description?: unknown;
-  options: unknown;
-  allowMultiple?: unknown;
-  allowOther?: unknown;
+  questions: unknown;
   isCreatorAnonymous?: unknown;
   durationHours: unknown;
 };
 
-function createOptionId(existing: Set<string>) {
+function createId(existing: Set<string>) {
   let id = randomUUID().slice(0, 8);
   while (existing.has(id)) {
     id = randomUUID().slice(0, 8);
@@ -188,17 +209,89 @@ function createOptionId(existing: Set<string>) {
   return id;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function parseQuestion(
+  input: unknown,
+  index: number,
+  questionCount: number,
+  ids: Set<string>,
+): PollQuestion {
+  // Only prefix errors with the question number when there's more than one.
+  const label = questionCount > 1 ? `Question ${index + 1}: ` : '';
+  if (!isRecord(input)) {
+    throw new PollError(`${label}Invalid question`, 400);
+  }
+
+  const text = typeof input.text === 'string' ? input.text.trim() : '';
+  // A lone question can lean on the poll title; with several, each needs text.
+  if (!text && questionCount > 1) {
+    throw new PollError(`${label}Every question needs text`, 400);
+  }
+  if (text.length > MAX_POLL_TITLE_LENGTH) {
+    throw new PollError(
+      `${label}Questions must be ${MAX_POLL_TITLE_LENGTH} characters or less`,
+      400,
+    );
+  }
+
+  const allowOther = input.allowOther === true;
+  const allowMultiple = input.allowMultiple === true;
+
+  const optionTexts = Array.isArray(input.options)
+    ? input.options
+        .filter((option): option is string => typeof option === 'string')
+        .map((option) => option.trim())
+        .filter(Boolean)
+    : [];
+  const lowerCased = optionTexts.map((option) => option.toLowerCase());
+  if (new Set(lowerCased).size !== lowerCased.length) {
+    throw new PollError(`${label}Each choice must be different`, 400);
+  }
+  if (optionTexts.length > MAX_POLL_OPTIONS) {
+    throw new PollError(
+      `${label}A question can have at most ${MAX_POLL_OPTIONS} choices`,
+      400,
+    );
+  }
+  if (optionTexts.some((option) => option.length > MAX_POLL_OPTION_LENGTH)) {
+    throw new PollError(
+      `${label}Choices must be ${MAX_POLL_OPTION_LENGTH} characters or less`,
+      400,
+    );
+  }
+  // "Other" counts as a choice, so a single option plus Other is allowed.
+  if (optionTexts.length + (allowOther ? 1 : 0) < 2) {
+    throw new PollError(`${label}Add at least two choices`, 400);
+  }
+
+  const options: PollOption[] = optionTexts.map((option) => ({
+    id: createId(ids),
+    text: option,
+  }));
+
+  return {
+    id: createId(ids),
+    text,
+    options,
+    allowMultiple,
+    allowOther,
+  };
+}
+
 export async function createPoll(
   input: CreatePollInput,
   creatorId: string,
 ): Promise<string> {
   const title = typeof input.title === 'string' ? input.title.trim() : '';
   if (!title) {
-    throw new PollError('A poll needs a question', 400);
+    throw new PollError('A poll needs a title', 400);
   }
   if (title.length > MAX_POLL_TITLE_LENGTH) {
     throw new PollError(
-      `The question must be ${MAX_POLL_TITLE_LENGTH} characters or less`,
+      `The title must be ${MAX_POLL_TITLE_LENGTH} characters or less`,
       400,
     );
   }
@@ -212,36 +305,23 @@ export async function createPoll(
     );
   }
 
-  const allowOther = input.allowOther === true;
-  const allowMultiple = input.allowMultiple === true;
   const isCreatorAnonymous = input.isCreatorAnonymous === true;
 
-  const optionTexts = Array.isArray(input.options)
-    ? input.options
-        .filter((option): option is string => typeof option === 'string')
-        .map((option) => option.trim())
-        .filter(Boolean)
-    : [];
-  const lowerCased = optionTexts.map((text) => text.toLowerCase());
-  if (new Set(lowerCased).size !== lowerCased.length) {
-    throw new PollError('Each choice must be different', 400);
+  const questionInputs = Array.isArray(input.questions) ? input.questions : [];
+  if (questionInputs.length === 0) {
+    throw new PollError('A poll needs at least one question', 400);
   }
-  if (optionTexts.length > MAX_POLL_OPTIONS) {
+  if (questionInputs.length > MAX_POLL_QUESTIONS) {
     throw new PollError(
-      `A poll can have at most ${MAX_POLL_OPTIONS} choices`,
+      `A poll can have at most ${MAX_POLL_QUESTIONS} questions`,
       400,
     );
   }
-  if (optionTexts.some((text) => text.length > MAX_POLL_OPTION_LENGTH)) {
-    throw new PollError(
-      `Choices must be ${MAX_POLL_OPTION_LENGTH} characters or less`,
-      400,
-    );
-  }
-  // "Other" counts as a choice, so a single option plus Other is allowed.
-  if (optionTexts.length + (allowOther ? 1 : 0) < 2) {
-    throw new PollError('A poll needs at least two choices', 400);
-  }
+  // Option and question ids share one namespace so they're unique poll-wide.
+  const ids = new Set<string>();
+  const questions = questionInputs.map((question, index) =>
+    parseQuestion(question, index, questionInputs.length, ids),
+  );
 
   const duration = POLL_DURATION_OPTIONS.find(
     (option) => option.hours === input.durationHours,
@@ -250,12 +330,6 @@ export async function createPoll(
     throw new PollError('Invalid poll length', 400);
   }
 
-  const optionIds = new Set<string>();
-  const options: PollOption[] = optionTexts.map((text) => ({
-    id: createOptionId(optionIds),
-    text,
-  }));
-
   const now = Date.now();
   const poll: Poll = {
     _id: new ObjectId(),
@@ -263,9 +337,7 @@ export async function createPoll(
     ...(description ? { description } : {}),
     creatorId,
     isCreatorAnonymous,
-    options,
-    allowMultiple,
-    allowOther,
+    questions,
     createdDate: now,
     startDate: now,
     endDate: now + duration.hours * HOUR_MS,
@@ -285,9 +357,53 @@ export async function createPoll(
 /* ------------------------------------------------------------------------ */
 
 export type CastVoteInput = {
-  optionIds?: unknown;
-  otherText?: unknown;
+  // one entry per question: { questionId, optionIds, otherText? }
+  answers?: unknown;
 };
+
+function parseAnswer(
+  question: PollQuestion,
+  input: Record<string, unknown> | undefined,
+  label: string,
+): PollAnswer {
+  const validOptionIds = new Set(question.options.map((option) => option.id));
+  const optionIds = Array.from(
+    new Set(
+      Array.isArray(input?.optionIds)
+        ? input.optionIds.filter((id): id is string => typeof id === 'string')
+        : [],
+    ),
+  );
+  if (optionIds.some((id) => !validOptionIds.has(id))) {
+    throw new PollError(`${label}Invalid choice`, 400);
+  }
+
+  const otherText =
+    typeof input?.otherText === 'string' ? input.otherText.trim() : '';
+  if (otherText && !question.allowOther) {
+    throw new PollError(`${label}Write-in answers aren't allowed`, 400);
+  }
+  if (otherText.length > MAX_POLL_OTHER_LENGTH) {
+    throw new PollError(
+      `${label}Your answer must be ${MAX_POLL_OTHER_LENGTH} characters or less`,
+      400,
+    );
+  }
+
+  const selectionCount = optionIds.length + (otherText ? 1 : 0);
+  if (selectionCount === 0) {
+    throw new PollError(`${label}Pick at least one choice`, 400);
+  }
+  if (!question.allowMultiple && selectionCount > 1) {
+    throw new PollError(`${label}Only one choice is allowed`, 400);
+  }
+
+  return {
+    questionId: question.id,
+    optionIds,
+    ...(otherText ? { otherText } : {}),
+  };
+}
 
 export async function castVote(
   pollId: string,
@@ -315,44 +431,24 @@ export async function castVote(
     throw new PollError('You have already voted in this poll', 409);
   }
 
-  const validOptionIds = new Set(poll.options.map((option) => option.id));
-  const optionIds = Array.from(
-    new Set(
-      Array.isArray(input.optionIds)
-        ? input.optionIds.filter((id): id is string => typeof id === 'string')
-        : [],
+  const answerInputs = new Map<string, Record<string, unknown>>();
+  if (Array.isArray(input.answers)) {
+    for (const answer of input.answers) {
+      if (isRecord(answer) && typeof answer.questionId === 'string') {
+        answerInputs.set(answer.questionId, answer);
+      }
+    }
+  }
+  // Every question must be answered.
+  const answers = poll.questions.map((question, index) =>
+    parseAnswer(
+      question,
+      answerInputs.get(question.id),
+      poll.questions.length > 1 ? `Question ${index + 1}: ` : '',
     ),
   );
-  if (optionIds.some((id) => !validOptionIds.has(id))) {
-    throw new PollError('Invalid choice', 400);
-  }
 
-  const otherText =
-    typeof input.otherText === 'string' ? input.otherText.trim() : '';
-  if (otherText && !poll.allowOther) {
-    throw new PollError('This poll does not allow write-in answers', 400);
-  }
-  if (otherText.length > MAX_POLL_OTHER_LENGTH) {
-    throw new PollError(
-      `Your answer must be ${MAX_POLL_OTHER_LENGTH} characters or less`,
-      400,
-    );
-  }
-
-  const selectionCount = optionIds.length + (otherText ? 1 : 0);
-  if (selectionCount === 0) {
-    throw new PollError('Pick at least one choice', 400);
-  }
-  if (!poll.allowMultiple && selectionCount > 1) {
-    throw new PollError('This poll only allows one choice', 400);
-  }
-
-  const vote: PollVote = {
-    userId,
-    optionIds,
-    ...(otherText ? { otherText } : {}),
-    voteDate: now,
-  };
+  const vote: PollVote = { userId, answers, voteDate: now };
 
   // One atomic write. The filter guards against double votes and late votes,
   // even under concurrent requests.
