@@ -16,6 +16,7 @@ import { ConfirmUploadButton } from './UploadThing';
 import { useToast } from '@/lib/ToastContext';
 import { HapticButton } from './HapticButton';
 import { PlaylistPartyPlayback } from './playback/PlaylistPartyPlayback';
+import { Portal } from './Portal';
 import { useSpotifyPlayer } from '@/lib/SpotifyPlayerContext';
 
 export function League({
@@ -418,44 +419,46 @@ export function League({
     <div className="flex flex-col gap-6">
       {/* Full-Screen Image Viewer */}
       {isImageFullScreen && leagueImageUrl && (
-        <div
-          className="fixed inset-0 z-200 bg-black/95 flex items-center justify-center p-4"
-          onClick={() => setIsImageFullScreen(false)}
-        >
-          <button
+        <Portal>
+          <div
+            className="fixed inset-0 z-200 bg-black/95 flex items-center justify-center p-4"
             onClick={() => setIsImageFullScreen(false)}
-            className="absolute top-4 right-4 p-2 rounded-full bg-black/40 ring-1 ring-white/25 backdrop-blur-md hover:bg-black/60 transition-colors text-white"
-            aria-label="Close"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
+            <button
+              onClick={() => setIsImageFullScreen(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-black/40 ring-1 ring-white/25 backdrop-blur-md hover:bg-black/60 transition-colors text-white"
+              aria-label="Close"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-          <img
-            src={leagueImageUrl}
-            alt={league.title}
-            className="max-w-full max-h-full object-contain"
-            onClick={(e) => e.stopPropagation()}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            style={{
-              transform: `scale(${imageScale}) translate(${imageTranslate.x}px, ${imageTranslate.y}px)`,
-              transition: imageScale === 1 ? 'transform 0.3s ease-out' : 'none',
-              touchAction: 'none',
-            }}
-          />
-        </div>
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <img
+              src={leagueImageUrl}
+              alt={league.title}
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={{
+                transform: `scale(${imageScale}) translate(${imageTranslate.x}px, ${imageTranslate.y}px)`,
+                transition: imageScale === 1 ? 'transform 0.3s ease-out' : 'none',
+                touchAction: 'none',
+              }}
+            />
+          </div>
+        </Portal>
       )}
 
       {/* Hero Banner with Cover Photo */}
