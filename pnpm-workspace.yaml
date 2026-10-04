@@ -1,5 +1,14 @@
+# pnpm settings. pnpm 10+ reads these from here, and pnpm 12 ignores the
+# "pnpm" field in package.json, so overrides must live here for the lockfile
+# to match on both (Vercel currently installs with pnpm 10).
+
+# Dependencies allowed to run install scripts (pnpm blocks them by default).
 allowBuilds:
   esbuild: true
   msgpackr-extract: false
   sharp: false
   unrs-resolver: false
+
+overrides:
+  '@types/react': 19.2.7
+  '@types/react-dom': 19.2.3
