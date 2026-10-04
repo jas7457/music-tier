@@ -9,8 +9,11 @@ import { isChristmas } from '@/lib/utils/isChristmas';
 import { useSpotifyPlayer } from '@/lib/SpotifyPlayerContext';
 import { ToastViewport } from '@/lib/ToastContext';
 import { NavigationProgressBar } from './NavigationProgressBar';
+import { SearchBar } from './SearchBar';
+import { useAuth } from '@/lib/AuthContext';
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const [hasSpotifyAccess, setHasSpotifyAccess] = useState(false);
   const [isMusicPlayerExpanded, setIsMusicPlayerExpanded] = useState(false);
   const { currentTrack } = useSpotifyPlayer();
@@ -58,6 +61,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       }
     >
       <div className={hasPlayer ? 'gb-page gb-page-with-player' : 'gb-page'}>
+        {/* Search is available on every page once signed in. */}
+        {user && <SearchBar />}
         {children}
       </div>
     </GameBoy>

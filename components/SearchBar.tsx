@@ -108,6 +108,13 @@ export function SearchBar() {
 
   const showDropdown = isOpen && trimmedQuery.length >= 2;
 
+  // The bar stays mounted across pages (it lives in the layout), so clear it
+  // after picking a result rather than leaving the old query behind.
+  const closeAndClear = () => {
+    setIsOpen(false);
+    setQuery('');
+  };
+
   return (
     <div
       ref={containerRef}
@@ -127,6 +134,8 @@ export function SearchBar() {
       <div className="relative">
         <svg
           className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-subtle pointer-events-none"
+          width={16}
+          height={16}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -163,6 +172,8 @@ export function SearchBar() {
           >
             <svg
               className="w-4 h-4"
+              width={16}
+              height={16}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -205,7 +216,7 @@ export function SearchBar() {
                         <Link
                           key={`artist-${matchedArtist}-${roundId}`}
                           href={`/leagues/${leagueId}/rounds/${roundId}`}
-                          onClick={() => setIsOpen(false)}
+                          onClick={closeAndClear}
                           className="flex items-center gap-3 p-2 rounded-control hover:bg-white/50 transition-colors"
                         >
                           <Thumbnail trackInfo={trackInfo} />
@@ -236,7 +247,7 @@ export function SearchBar() {
                         <Link
                           key={`song-${trackInfo.trackId}-${roundId}`}
                           href={`/leagues/${leagueId}/rounds/${roundId}`}
-                          onClick={() => setIsOpen(false)}
+                          onClick={closeAndClear}
                           className="flex items-center gap-3 p-2 rounded-control hover:bg-white/50 transition-colors"
                         >
                           <Thumbnail trackInfo={trackInfo} />
@@ -273,7 +284,7 @@ export function SearchBar() {
                         <Link
                           key={`round-${roundId}`}
                           href={`/leagues/${leagueId}/rounds/${roundId}`}
-                          onClick={() => setIsOpen(false)}
+                          onClick={closeAndClear}
                           className="block p-2 rounded-control hover:bg-white/50 transition-colors"
                         >
                           <div className="font-medium text-ink">
