@@ -515,7 +515,7 @@ export function UserSettingsClient({ user }: UserSettingsClientProps) {
   })();
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl mx-auto p-6">
+    <div className="flex flex-col gap-6 max-w-4xl mx-auto">
       <div>
         <h1 className="text-3xl font-bold mb-2">Settings</h1>
         <p className="text-ink-muted">

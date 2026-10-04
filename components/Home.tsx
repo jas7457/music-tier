@@ -7,7 +7,6 @@ import type { LeagueSummary } from '@/lib/data';
 import { League } from './League';
 import { useRealTimeUpdates } from '@/lib/PusherContext';
 import { useEffect } from 'react';
-import { SearchBar } from './SearchBar';
 import { getLeaguesRefreshBoundaries } from '@/lib/utils/getRefreshBoundaries';
 import { formatDate } from '@/lib/utils/formatDate';
 
@@ -163,8 +162,7 @@ export default function Home({
   })();
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <SearchBar />
+    <div className="max-w-4xl mx-auto">
       {leagueMarkup}
     </div>
   );

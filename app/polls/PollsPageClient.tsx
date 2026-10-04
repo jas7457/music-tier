@@ -40,7 +40,7 @@ export function PollsPageClient({
     .sort((a, b) => getPollEndDate(b) - getPollEndDate(a));
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <Breadcrumb
         items={[
           { label: '', icon: <HomeIcon />, href: '/' },

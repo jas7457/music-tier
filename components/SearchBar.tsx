@@ -108,11 +108,20 @@ export function SearchBar() {
 
   const showDropdown = isOpen && trimmedQuery.length >= 2;
 
+  // The bar stays mounted across pages (it lives in the layout), so clear it
+  // after picking a result rather than leaving the old query behind.
+  const closeAndClear = () => {
+    setIsOpen(false);
+    setQuery('');
+  };
+
   return (
-    <div ref={containerRef} className="relative mb-6">
+    <div ref={containerRef} className="relative mb-4">
       <div className="relative">
         <svg
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-subtle pointer-events-none"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-subtle pointer-events-none"
+          width={14}
+          height={14}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -134,7 +143,7 @@ export function SearchBar() {
           }}
           onFocus={() => setIsOpen(true)}
           placeholder="Search artists, songs, or rounds…"
-          className="w-full px-4 py-3.5 pl-10 pr-9 rounded-card field text-ink"
+          className="w-full px-3 py-2 pl-8 pr-8 text-sm rounded-control field text-ink"
         />
         {query && (
           <button
@@ -144,11 +153,13 @@ export function SearchBar() {
               setIsOpen(false);
               inputRef.current?.focus();
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-subtle hover:bg-white/50 hover:text-ink transition-colors"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-subtle hover:bg-white/50 hover:text-ink transition-colors"
             aria-label="Clear search"
           >
             <svg
               className="w-4 h-4"
+              width={16}
+              height={16}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -188,7 +199,7 @@ export function SearchBar() {
                         <Link
                           key={`artist-${matchedArtist}-${roundId}`}
                           href={`/leagues/${leagueId}/rounds/${roundId}`}
-                          onClick={() => setIsOpen(false)}
+                          onClick={closeAndClear}
                           className="flex items-center gap-3 p-2 rounded-control hover:bg-ink/5 transition-colors"
                         >
                           <Thumbnail trackInfo={trackInfo} />
@@ -219,7 +230,7 @@ export function SearchBar() {
                         <Link
                           key={`song-${trackInfo.trackId}-${roundId}`}
                           href={`/leagues/${leagueId}/rounds/${roundId}`}
-                          onClick={() => setIsOpen(false)}
+                          onClick={closeAndClear}
                           className="flex items-center gap-3 p-2 rounded-control hover:bg-ink/5 transition-colors"
                         >
                           <Thumbnail trackInfo={trackInfo} />
@@ -256,7 +267,7 @@ export function SearchBar() {
                         <Link
                           key={`round-${roundId}`}
                           href={`/leagues/${leagueId}/rounds/${roundId}`}
-                          onClick={() => setIsOpen(false)}
+                          onClick={closeAndClear}
                           className="block p-2 rounded-control hover:bg-ink/5 transition-colors"
                         >
                           <div className="font-medium text-ink">

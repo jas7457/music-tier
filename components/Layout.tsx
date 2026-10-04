@@ -15,6 +15,7 @@ import { PullToRefreshIndicator } from './PullToRefreshIndicator';
 import { useRouter } from 'next/navigation';
 import { isChristmas } from '@/lib/utils/isChristmas';
 import { NavigationProgressBar } from './NavigationProgressBar';
+import { SearchBar } from './SearchBar';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -273,7 +274,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         ></div>
       )}
-      <div className="relative z-1 p-3 md:p-6">{children}</div>
+      <div className="relative z-1 p-3 md:p-6">
+        {/* Search is available on every page once signed in. */}
+        {user && (
+          <div className="max-w-4xl mx-auto">
+            <SearchBar />
+          </div>
+        )}
+        {children}
+      </div>
       {hasSpotifyAccess && (
         <MusicPlayer
           isExpanded={isMusicPlayerExpanded}
