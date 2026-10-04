@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useTrackedRouter } from '@/lib/NavigationProgressContext';
 import { twMerge } from 'tailwind-merge';
 import Card from '@/components/Card';
 import { Breadcrumb, HomeIcon } from '@/components/Breadcrumb';
@@ -167,7 +167,7 @@ function QuestionHeading({
 }
 
 function PollVoteForm({ poll }: { poll: PopulatedPoll }) {
-  const router = useRouter();
+  const router = useTrackedRouter();
   const toast = useToast();
   const [drafts, setDrafts] = useState<Record<string, QuestionDraft>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);

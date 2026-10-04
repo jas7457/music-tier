@@ -11,7 +11,7 @@ import { useToast } from '@/lib/ToastContext';
 import { getOnDeckInfo, OnDeckSubmissionsList } from './OnDeckSubmissions';
 import { TrackInfo } from '@/databaseTypes';
 import { formatDateWithTime } from '@/lib/utils/formatDate';
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 
 export function Round({
   currentUser,

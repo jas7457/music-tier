@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { usePathname } from 'next/navigation';
 import { ComponentProps } from 'react';
 import { twMerge } from 'tailwind-merge';

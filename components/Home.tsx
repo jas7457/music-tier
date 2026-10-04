@@ -1,29 +1,30 @@
 'use client';
 
+import Link from '@/components/AppLink';
 import Card from './Card';
 import { PopulatedLeague, PopulatedUser } from '@/lib/types';
+import type { LeagueSummary } from '@/lib/data';
 import { League } from './League';
 import { useRealTimeUpdates } from '@/lib/PusherContext';
-import { useEffect, useState } from 'react';
-import { twMerge } from 'tailwind-merge';
-import { Expandable } from './Expandable';
+import { useEffect } from 'react';
 import { SearchBar } from './SearchBar';
 import { getLeaguesRefreshBoundaries } from '@/lib/utils/getRefreshBoundaries';
+import { formatDate } from '@/lib/utils/formatDate';
 
 export default function Home({
-  leagues,
+  currentLeague,
+  otherLeagues,
   user,
 }: {
-  leagues: PopulatedLeague[];
+  currentLeague: PopulatedLeague | undefined;
+  otherLeagues: LeagueSummary[];
   user: PopulatedUser;
 }) {
-  const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(
-    new Set(leagues.length > 0 ? [leagues[0]._id] : []),
-  );
-
   // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
-  useRealTimeUpdates(getLeaguesRefreshBoundaries(leagues));
+  useRealTimeUpdates(
+    getLeaguesRefreshBoundaries(currentLeague ? [currentLeague] : []),
+  );
 
   useEffect(() => {
     if (!('Notification' in window)) {
@@ -51,20 +52,8 @@ export default function Home({
     return <div>No user data...</div>;
   }
 
-  const toggleLeague = (leagueId: string) => {
-    setExpandedLeagues((prev) => {
-      const next = new Set(prev);
-      if (next.has(leagueId)) {
-        next.delete(leagueId);
-      } else {
-        next.add(leagueId);
-      }
-      return next;
-    });
-  };
-
   const leagueMarkup = (() => {
-    if (leagues.length === 0) {
+    if (!currentLeague) {
       return (
         <Card className="p-10 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary-lightest text-2xl">
@@ -79,32 +68,18 @@ export default function Home({
       );
     }
 
-    const nonFirstLeagues = leagues.slice(1);
-
-    const { upcomingLeagues, completedLeagues, otherLeagues } =
-      nonFirstLeagues.reduce(
-        (acc, league) => {
-          if (league.leagueStartDate > now) {
-            acc.upcomingLeagues.push(league);
-          } else if (league.status === 'completed') {
-            acc.completedLeagues.push(league);
-          } else {
-            acc.otherLeagues.push(league);
-          }
-          return acc;
-        },
-        {
-          upcomingLeagues: [] as PopulatedLeague[],
-          completedLeagues: [] as PopulatedLeague[],
-          otherLeagues: [] as PopulatedLeague[],
-        },
-      );
+    const upcomingLeagues = otherLeagues.filter(
+      (league) => league.leagueStartDate > now,
+    );
+    const pastLeagues = otherLeagues.filter(
+      (league) => league.leagueStartDate <= now,
+    );
 
     const getOtherLeaguesMarkup = ({
       leagues,
       title,
     }: {
-      leagues: PopulatedLeague[];
+      leagues: LeagueSummary[];
       title: string;
     }) => {
       if (leagues.length === 0) {
@@ -113,54 +88,49 @@ export default function Home({
 
       return (
         <div>
-          <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">{title}</h2>
-          <div className="grid grid-cols-1 gap-3 md:gap-4">
-            {leagues.map((league) => {
-              const isExpanded = expandedLeagues.has(league._id);
-
-              return (
-                <Card
-                  key={league._id.toString()}
-                  variant="elevated"
-                  className="overflow-hidden"
-                >
-                  <button
-                    onClick={() => toggleLeague(league._id)}
-                    className="w-full p-4 md:p-5 flex items-center justify-between rounded-card hover:bg-white/40 transition-colors"
+          <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
+            {title}
+          </h2>
+          <Card variant="elevated" className="overflow-hidden">
+            <ul className="divide-y divide-ink/8">
+              {leagues.map((league) => (
+                <li key={league._id}>
+                  <Link
+                    href={`/leagues/${league._id}`}
+                    className="flex items-center justify-between gap-3 px-4 py-3.5 md:px-5 hover:bg-white/40 transition-colors"
                   >
-                    <div className="text-left">
-                      <span className="sm:text-xl font-bold">
-                        {league.title}{' '}
-                      </span>
-                      <span className="text-sm text-ink-subtle">
-                        ({league.users.length} members)
-                      </span>
+                    <div className="min-w-0">
+                      <div className="font-semibold text-ink truncate">
+                        {league.title}
+                      </div>
+                      <div className="text-sm text-ink-subtle">
+                        {league.leagueStartDate > now ? 'Starts' : 'Started'}{' '}
+                        {formatDate(league.leagueStartDate, {
+                          year: 'numeric',
+                        })}{' '}
+                        · {league.memberCount}{' '}
+                        {league.memberCount === 1 ? 'member' : 'members'}
+                      </div>
                     </div>
                     <svg
-                      className={twMerge(
-                        'w-5 h-5 text-ink-subtle transition-transform duration-200',
-                        isExpanded ? 'rotate-180' : '',
-                      )}
+                      className="w-5 h-5 shrink-0 text-ink-subtle"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
+                      aria-hidden="true"
                     >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
+                        d="M9 5l7 7-7 7"
                       />
                     </svg>
-                  </button>
-
-                  <Expandable className="p-4" isExpanded={isExpanded}>
-                    <League league={league} user={user} />
-                  </Expandable>
-                </Card>
-              );
-            })}
-          </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Card>
         </div>
       );
     };
@@ -168,35 +138,25 @@ export default function Home({
     return (
       <div className="space-y-8">
         {/* Current League */}
-        {leagues.length > 0 && (
-          <div>
-            <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
-              Current League
-            </h2>
-            <Card variant="elevated">
-              <div className="p-3 md:p-6">
-                <League league={leagues[0]} user={user} />
-              </div>
-            </Card>
-          </div>
-        )}
+        <div>
+          <h2 className="text-xs font-semibold mb-3 text-ink-subtle uppercase tracking-widest">
+            Current League
+          </h2>
+          <Card variant="elevated">
+            <div className="p-3 md:p-6">
+              <League league={currentLeague} user={user} />
+            </div>
+          </Card>
+        </div>
 
-        {/* Upcoming Leagues */}
         {getOtherLeaguesMarkup({
           leagues: upcomingLeagues,
           title: 'Upcoming Leagues',
         })}
 
-        {/* Completed Leagues */}
         {getOtherLeaguesMarkup({
-          leagues: completedLeagues,
-          title: 'Completed Leagues',
-        })}
-
-        {/* Other Leagues */}
-        {getOtherLeaguesMarkup({
-          leagues: otherLeagues,
-          title: 'Other Leagues',
+          leagues: pastLeagues,
+          title: 'Past Leagues',
         })}
       </div>
     );
@@ -204,7 +164,7 @@ export default function Home({
 
   return (
     <div className="max-w-5xl mx-auto">
-      <SearchBar leagues={leagues} />
+      <SearchBar />
       {leagueMarkup}
     </div>
   );

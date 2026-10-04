@@ -14,7 +14,7 @@ import AlbumArt from '@/components/AlbumArt';
 import { formatTime } from './utils';
 import { getPlaceString } from '@/lib/utils/getPlaces';
 import { TrackInfo } from '@/databaseTypes';
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useAuth } from '@/lib/AuthContext';
 import { BlockQuote } from '@/components/BlockQuote';
 

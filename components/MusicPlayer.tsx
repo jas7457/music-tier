@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSpotifyPlayer } from '@/lib/SpotifyPlayerContext';
 import { PlayIcon, PauseIcon, NextIcon, PreviousIcon } from './PlayerIcons';
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { twMerge } from 'tailwind-merge';
 import { HapticButton } from './HapticButton';
 import { AnimatedImageBackdrop } from './AnimatedImageBackdrop';

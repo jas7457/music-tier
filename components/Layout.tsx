@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/lib/AuthContext';
 import { Avatar } from './Avatar';
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
 
@@ -14,6 +14,7 @@ import { usePullToRefresh } from '@/lib/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from './PullToRefreshIndicator';
 import { useRouter } from 'next/navigation';
 import { isChristmas } from '@/lib/utils/isChristmas';
+import { NavigationProgressBar } from './NavigationProgressBar';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
@@ -252,6 +253,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="aurora-blob aurora-blob-3" />
       </div>
 
+      <NavigationProgressBar />
       <PullToRefreshIndicator
         pullDistance={pullDistance}
         isRefreshing={isRefreshing}

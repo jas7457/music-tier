@@ -4,8 +4,7 @@ import { getCollection } from '@/lib/mongodb';
 import { Vote } from '@/databaseTypes';
 import { ObjectId } from 'mongodb';
 import { triggerRealTimeUpdate } from '@/lib/pusher-server';
-import { getUserLeagues } from '@/lib/data';
-import { getAllRounds } from '@/lib/utils/getAllRounds';
+import { getLeagueByRoundId } from '@/lib/data';
 import { voteNotifications } from '@/lib/notifications';
 import { setScheduledNotifications } from '@/lib/scheduledNotifications';
 
@@ -31,18 +30,12 @@ export async function POST(
     const body = await request.json();
 
     const getData = async () => {
-      const userLeagues = await getUserLeagues(payload.userId);
-      for (const league of userLeagues) {
-        const leagueRounds = getAllRounds(league, {
-          includeFake: false,
-        });
-        for (const round of leagueRounds) {
-          if (round._id === roundId) {
-            return { round, league };
-          }
+      return (
+        (await getLeagueByRoundId(roundId, payload.userId)) ?? {
+          round: null,
+          league: null,
         }
-      }
-      return { round: null, league: null };
+      );
     };
 
     const { round, league } = await getData();

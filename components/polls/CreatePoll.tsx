@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useTrackedRouter } from '@/lib/NavigationProgressContext';
 import Card from '@/components/Card';
 import { HapticButton } from '@/components/HapticButton';
 import { ToggleButton } from '@/components/ToggleButton';
@@ -46,7 +46,7 @@ function isQuestionReady(question: DraftQuestion, needsText: boolean) {
 }
 
 export function CreatePoll() {
-  const router = useRouter();
+  const router = useTrackedRouter();
   const toast = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');

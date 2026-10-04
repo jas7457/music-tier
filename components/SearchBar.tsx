@@ -1,23 +1,12 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import Link from 'next/link';
-import { PopulatedLeague } from '@/lib/types';
-import AlbumArt from './AlbumArt';
-import type { PopulatedRound } from '@/lib/types';
+import Link from '@/components/AppLink';
 import type { TrackInfo } from '@/databaseTypes';
+import type { SearchResults } from '@/lib/search';
 
-type SearchEntry = {
-  trackInfo: TrackInfo;
-  round: PopulatedRound;
-  league: PopulatedLeague;
-};
-
-type RoundEntry = {
-  round: PopulatedRound;
-  league: PopulatedLeague;
-};
+const SEARCH_DEBOUNCE_MS = 200;
 
 function highlight(text: string, query: string): ReactNode {
   if (!query) return text;
@@ -40,19 +29,7 @@ function highlight(text: string, query: string): ReactNode {
   return <>{parts}</>;
 }
 
-function getDescriptionExcerpt(text: string, query: string): string {
-  const idx = text.toLowerCase().indexOf(query.toLowerCase());
-  if (idx === -1) return text.slice(0, 100) + (text.length > 100 ? '…' : '');
-  const start = Math.max(0, idx - 40);
-  const end = Math.min(text.length, idx + query.length + 60);
-  return (
-    (start > 0 ? '…' : '') +
-    text.slice(start, end) +
-    (end < text.length ? '…' : '')
-  );
-}
-
-export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
+export function SearchBar() {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -84,72 +61,44 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
     };
   }, [isOpen]);
 
-  const { allEntries, allRoundEntries } = useMemo(() => {
-    const allEntries: SearchEntry[] = [];
-    const allRoundEntries: RoundEntry[] = [];
+  // Search runs on the server; results are fetched as you type (debounced).
+  const [response, setResponse] = useState<{
+    query: string;
+    results: SearchResults | null;
+  }>({ query: '', results: null });
+  const trimmedQuery = query.trim();
 
-    for (const league of leagues) {
-      for (const round of league.rounds.completed) {
-        allRoundEntries.push({ round, league });
-        for (const submission of round.submissions) {
-          allEntries.push({ trackInfo: submission.trackInfo, round, league });
+  useEffect(() => {
+    if (trimmedQuery.length < 2) {
+      return;
+    }
+    const controller = new AbortController();
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/search?q=${encodeURIComponent(trimmedQuery)}`,
+          { signal: controller.signal },
+        );
+        if (!res.ok) {
+          throw new Error('Search failed');
+        }
+        const results: SearchResults = await res.json();
+        setResponse({ query: trimmedQuery, results });
+      } catch {
+        if (!controller.signal.aborted) {
+          setResponse({ query: trimmedQuery, results: null });
         }
       }
-    }
+    }, SEARCH_DEBOUNCE_MS);
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [trimmedQuery]);
 
-    return { allEntries, allRoundEntries };
-  }, [leagues]);
-
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (q.length < 2) return null;
-
-    // Artist results — one entry per song where any artist matches, dedup by trackId
-    const seenArtistTracks = new Set<string>();
-    const artistResults: (SearchEntry & { matchedArtist: string })[] = [];
-    for (const entry of allEntries) {
-      const matchedArtist = entry.trackInfo.artists.find((a) =>
-        a.toLowerCase().includes(q),
-      );
-      if (matchedArtist && !seenArtistTracks.has(entry.trackInfo.trackId)) {
-        seenArtistTracks.add(entry.trackInfo.trackId);
-        artistResults.push({ ...entry, matchedArtist });
-      }
-    }
-    artistResults.sort((a, b) => {
-      const artistCmp = a.matchedArtist.localeCompare(b.matchedArtist);
-      if (artistCmp !== 0) return artistCmp;
-      return a.trackInfo.title.localeCompare(b.trackInfo.title);
-    });
-
-    // Song results — deduplicate by trackId
-    const seenTracks = new Set<string>();
-    const songResults: SearchEntry[] = [];
-    for (const entry of allEntries) {
-      if (
-        entry.trackInfo.title.toLowerCase().includes(q) &&
-        !seenTracks.has(entry.trackInfo.trackId)
-      ) {
-        seenTracks.add(entry.trackInfo.trackId);
-        songResults.push(entry);
-      }
-    }
-
-    // Round results
-    const roundResults: (RoundEntry & { matchInDescription: boolean })[] = [];
-    for (const entry of allRoundEntries) {
-      const inTitle = entry.round.title.toLowerCase().includes(q);
-      const inDescription = entry.round.description.toLowerCase().includes(q);
-      if (inTitle || inDescription) {
-        roundResults.push({
-          ...entry,
-          matchInDescription: !inTitle && inDescription,
-        });
-      }
-    }
-
-    return { artistResults, songResults, roundResults };
-  }, [query, allEntries, allRoundEntries]);
+  // Results are only shown for the query they were fetched for.
+  const isSearching = response.query !== trimmedQuery;
+  const results = isSearching ? null : response.results;
 
   const hasResults =
     results &&
@@ -157,7 +106,7 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
       results.songResults.length > 0 ||
       results.roundResults.length > 0);
 
-  const showDropdown = isOpen && query.trim().length >= 2;
+  const showDropdown = isOpen && trimmedQuery.length >= 2;
 
   return (
     <div ref={containerRef} className="relative mb-6">
@@ -217,7 +166,11 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
 
       {showDropdown && (
         <div className="absolute top-full left-0 right-0 mt-2 glass-popover rounded-card z-50 max-h-[70vh] overflow-y-auto animate-menu-in">
-          {!hasResults ? (
+          {isSearching ? (
+            <div className="p-5 text-ink-subtle text-center text-sm">
+              Searching…
+            </div>
+          ) : !hasResults ? (
             <div className="p-5 text-ink-subtle text-center text-sm">
               No results for &ldquo;{query}&rdquo;
             </div>
@@ -231,18 +184,14 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                   </h3>
                   <div className="space-y-1">
                     {results!.artistResults.map(
-                      ({ trackInfo, round, league, matchedArtist }) => (
+                      ({ trackInfo, roundId, leagueId, matchedArtist }) => (
                         <Link
-                          key={`artist-${matchedArtist}-${round._id}`}
-                          href={`/leagues/${league._id}/rounds/${round._id}`}
+                          key={`artist-${matchedArtist}-${roundId}`}
+                          href={`/leagues/${leagueId}/rounds/${roundId}`}
                           onClick={() => setIsOpen(false)}
                           className="flex items-center gap-3 p-2 rounded-control hover:bg-ink/5 transition-colors"
                         >
-                          <AlbumArt
-                            trackInfo={trackInfo}
-                            round={round}
-                            size={40}
-                          />
+                          <Thumbnail trackInfo={trackInfo} />
                           <div className="min-w-0">
                             <div className="font-medium text-ink truncate">
                               {highlight(matchedArtist, query)}
@@ -266,18 +215,14 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                   </h3>
                   <div className="space-y-1">
                     {results!.songResults.map(
-                      ({ trackInfo, round, league }) => (
+                      ({ trackInfo, roundId, leagueId }) => (
                         <Link
-                          key={`song-${trackInfo.trackId}-${round._id}`}
-                          href={`/leagues/${league._id}/rounds/${round._id}`}
+                          key={`song-${trackInfo.trackId}-${roundId}`}
+                          href={`/leagues/${leagueId}/rounds/${roundId}`}
                           onClick={() => setIsOpen(false)}
                           className="flex items-center gap-3 p-2 rounded-control hover:bg-ink/5 transition-colors"
                         >
-                          <AlbumArt
-                            trackInfo={trackInfo}
-                            round={round}
-                            size={40}
-                          />
+                          <Thumbnail trackInfo={trackInfo} />
                           <div className="min-w-0">
                             <div className="font-medium text-ink truncate">
                               {highlight(trackInfo.title, query)}
@@ -301,26 +246,29 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
                   </h3>
                   <div className="space-y-1">
                     {results!.roundResults.map(
-                      ({ round, league, matchInDescription }) => (
+                      ({
+                        roundId,
+                        leagueId,
+                        roundTitle,
+                        leagueTitle,
+                        descriptionMatch,
+                      }) => (
                         <Link
-                          key={`round-${round._id}`}
-                          href={`/leagues/${league._id}/rounds/${round._id}`}
+                          key={`round-${roundId}`}
+                          href={`/leagues/${leagueId}/rounds/${roundId}`}
                           onClick={() => setIsOpen(false)}
                           className="block p-2 rounded-control hover:bg-ink/5 transition-colors"
                         >
                           <div className="font-medium text-ink">
-                            {highlight(round.title, query)}
+                            {highlight(roundTitle, query)}
                           </div>
-                          {matchInDescription && (
+                          {descriptionMatch && (
                             <div className="text-sm text-ink-muted mt-0.5">
-                              {highlight(
-                                getDescriptionExcerpt(round.description, query),
-                                query,
-                              )}
+                              {highlight(descriptionMatch, query)}
                             </div>
                           )}
                           <div className="text-xs text-ink-subtle mt-0.5">
-                            {league.title}
+                            {leagueTitle}
                           </div>
                         </Link>
                       ),
@@ -333,5 +281,17 @@ export function SearchBar({ leagues }: { leagues: PopulatedLeague[] }) {
         </div>
       )}
     </div>
+  );
+}
+
+function Thumbnail({ trackInfo }: { trackInfo: TrackInfo }) {
+  return (
+    <img
+      src={trackInfo.albumImageUrl}
+      alt=""
+      width={40}
+      height={40}
+      className="w-10 h-10 shrink-0 rounded-media object-cover"
+    />
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { ReactNode } from 'react';
 
 type BreadcrumbItem = {

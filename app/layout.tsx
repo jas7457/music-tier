@@ -10,6 +10,7 @@ import { PopulatedUser } from '@/lib/types';
 import { getUserByCookies } from '@/lib/data';
 import { cookies } from 'next/headers';
 import { DataProvider } from '@/lib/DataContext';
+import { NavigationProgressProvider } from '@/lib/NavigationProgressContext';
 import { ToastProvider } from '@/lib/ToastContext';
 import { ThemeProvider } from '@/lib/ThemeContext';
 import { APP_NAME } from '@/lib/utils/constants';
@@ -86,9 +87,11 @@ export default async function RootLayout({
               <ServiceWorkerProvider>
                 <PusherProvider>
                   <SpotifyPlayerProvider>
-                    <DataProvider>
-                      <Layout>{children}</Layout>
-                    </DataProvider>
+                    <NavigationProgressProvider>
+                      <DataProvider>
+                        <Layout>{children}</Layout>
+                      </DataProvider>
+                    </NavigationProgressProvider>
                   </SpotifyPlayerProvider>
                 </PusherProvider>
               </ServiceWorkerProvider>

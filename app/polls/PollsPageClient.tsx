@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { twMerge } from 'tailwind-merge';
 import { Breadcrumb, HomeIcon } from '@/components/Breadcrumb';
 import { CreatePoll } from '@/components/polls/CreatePoll';
