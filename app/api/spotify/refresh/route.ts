@@ -3,6 +3,10 @@ import {
   refreshAccessToken,
   SpotifyRefreshTokenExpiredError,
 } from '@/lib/spotify';
+import {
+  deleteSpotifyTokenCookies,
+  setSpotifyTokenCookies,
+} from '@/lib/spotifyCookies';
 
 export async function POST(request: NextRequest) {
   const refreshToken = request.cookies.get('spotify_refresh_token')?.value;
@@ -17,31 +21,7 @@ export async function POST(request: NextRequest) {
   try {
     const tokenData = await refreshAccessToken(refreshToken);
     const response = NextResponse.json({ success: true });
-
-    // Update access token
-    response.cookies.set('spotify_access_token', tokenData.access_token, {
-      maxAge: tokenData.expires_in,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    });
-
-    const ONE_YEAR = 60 * 60 * 24 * 365;
-
-    // Update refresh token if a new one was provided
-    response.cookies.set('spotify_refresh_token', tokenData.refresh_token, {
-      maxAge: ONE_YEAR, // 1 year
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    });
-
-    // Update expiration timestamp
-    const expiresAt = Date.now() + tokenData.expires_in * 1000;
-    response.cookies.set('spotify_token_expires_at', expiresAt.toString(), {
-      maxAge: ONE_YEAR,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    });
-
+    setSpotifyTokenCookies(response, tokenData);
     return response;
   } catch (error) {
     if (error instanceof SpotifyRefreshTokenExpiredError) {
@@ -51,9 +31,7 @@ export async function POST(request: NextRequest) {
         { error: 'invalid_grant' },
         { status: 401 },
       );
-      response.cookies.delete('spotify_access_token');
-      response.cookies.delete('spotify_refresh_token');
-      response.cookies.delete('spotify_token_expires_at');
+      deleteSpotifyTokenCookies(response);
       return response;
     }
     console.error('Error refreshing Spotify token:', error);
