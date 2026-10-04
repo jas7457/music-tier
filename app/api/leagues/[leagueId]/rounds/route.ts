@@ -5,7 +5,7 @@ import { Round } from '@/databaseTypes';
 import { ObjectId } from 'mongodb';
 import { triggerRealTimeUpdate } from '@/lib/pusher-server';
 import { roundNotifications } from '@/lib/notifications';
-import { getUserLeagues } from '@/lib/data';
+import { getLeagueById } from '@/lib/data';
 import { getAllRounds } from '@/lib/utils/getAllRounds';
 import { setScheduledNotifications } from '@/lib/scheduledNotifications';
 
@@ -64,34 +64,31 @@ async function handleRequest(
     }
 
     const getLeagueData = async () => {
-      const userLeagues = await getUserLeagues(payload.userId);
-      for (const league of userLeagues) {
-        if (league._id === leagueId) {
-          const allRounds = getAllRounds(league, {
-            includeFake: false,
-          });
+      const league = await getLeagueById(leagueId, payload.userId);
+      if (league) {
+        const allRounds = getAllRounds(league, {
+          includeFake: false,
+        });
 
-          const existingRound = allRounds.find(
-            (round) =>
-              round.creatorId === payload.userId &&
-              !round.isBonusRound &&
-              !round.isKickoffRound,
-          );
-          const existingBonusRound = allRounds.find(
-            (round) => round.creatorId === payload.userId && round.isBonusRound,
-          );
-          const existingKickoffRound = allRounds.find(
-            (round) =>
-              round.creatorId === payload.userId && round.isKickoffRound,
-          );
+        const existingRound = allRounds.find(
+          (round) =>
+            round.creatorId === payload.userId &&
+            !round.isBonusRound &&
+            !round.isKickoffRound,
+        );
+        const existingBonusRound = allRounds.find(
+          (round) => round.creatorId === payload.userId && round.isBonusRound,
+        );
+        const existingKickoffRound = allRounds.find(
+          (round) => round.creatorId === payload.userId && round.isKickoffRound,
+        );
 
-          return {
-            league,
-            existingRound,
-            existingBonusRound,
-            existingKickoffRound,
-          };
-        }
+        return {
+          league,
+          existingRound,
+          existingBonusRound,
+          existingKickoffRound,
+        };
       }
 
       return {

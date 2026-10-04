@@ -1,6 +1,6 @@
 import Landing from '@/components/Landing';
 import Home from '@/components/Home';
-import { getUserByCookies, getUserLeagues } from '@/lib/data';
+import { getHomeLeagues, getUserByCookies } from '@/lib/data';
 import { verifySessionToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 
@@ -24,8 +24,14 @@ export default async function Page() {
     return <Landing />;
   }
 
-  // Fetch the user's leagues directly from the database
-  const leagues = await getUserLeagues(payload.userId);
+  // Only the current league is populated; the rest are just summaries.
+  const { currentLeague, otherLeagues } = await getHomeLeagues(payload.userId);
 
-  return <Home leagues={leagues} user={user} />;
+  return (
+    <Home
+      currentLeague={currentLeague}
+      otherLeagues={otherLeagues}
+      user={user}
+    />
+  );
 }

@@ -8,6 +8,7 @@ import { GameBoy } from './gameboy/GameBoy';
 import { isChristmas } from '@/lib/utils/isChristmas';
 import { useSpotifyPlayer } from '@/lib/SpotifyPlayerContext';
 import { ToastViewport } from '@/lib/ToastContext';
+import { NavigationProgressBar } from './NavigationProgressBar';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [hasSpotifyAccess, setHasSpotifyAccess] = useState(false);
@@ -50,6 +51,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             />
           )}
           <ToastViewport />
+          {/* The LCD is the containing block for fixed elements, so this
+              sits across the top of the screen. */}
+          <NavigationProgressBar />
         </>
       }
     >

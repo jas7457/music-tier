@@ -1,13 +1,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { createContext, useContext, useMemo, useRef } from 'react';
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useRef,
+  useTransition,
+} from 'react';
+import { useReportPending } from './NavigationProgressContext';
 import { assertNever } from './utils/never';
 
 type DataContextType = {
-  refreshData: (
-    refreshReason: 'manual' | 'pusherUpdate' | 'scheduled',
-  ) => void;
+  refreshData: (refreshReason: 'manual' | 'pusherUpdate' | 'scheduled') => void;
 };
 
 const DataContext = createContext<DataContextType>({
@@ -22,6 +27,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   // eslint-disable-next-line react-hooks/refs
   routerRef.current = router;
   const lastUpdateTimeRef = useRef(0);
+  // Only user-initiated ('manual') refreshes drive the progress bar;
+  // background real-time/scheduled refreshes stay silent.
+  const [isManualRefreshPending, startManualRefresh] = useTransition();
+  useReportPending(isManualRefreshPending);
   const contextValue: DataContextType = useMemo(() => {
     return {
       refreshData: (reason) => {
@@ -47,7 +56,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         }
 
         lastUpdateTimeRef.current = now;
-        routerRef.current.refresh();
+        if (reason === 'manual') {
+          startManualRefresh(() => routerRef.current.refresh());
+        } else {
+          routerRef.current.refresh();
+        }
       },
     };
   }, []);

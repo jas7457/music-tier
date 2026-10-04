@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useTrackedRouter } from '@/lib/NavigationProgressContext';
 import { Avatar } from '@/components/Avatar';
 import { MaybeLink } from '@/components/MaybeLink';
 import {
@@ -57,7 +57,7 @@ type UserProfileClientProps = {
 };
 
 export function UserProfileClient({ profileData }: UserProfileClientProps) {
-  const router = useRouter();
+  const router = useTrackedRouter();
   const { user: youUser } = useAuth();
   const { user, currentLeagues, pastLeagues, stats } = profileData;
   const fullName = `${user.firstName} ${user.lastName}`;

@@ -4,7 +4,7 @@ import { getCollection } from '@/lib/mongodb';
 import { SongSubmission, TrackInfo } from '@/databaseTypes';
 import { ObjectId } from 'mongodb';
 import { triggerRealTimeUpdate } from '@/lib/pusher-server';
-import { getUserLeagues } from '@/lib/data';
+import { getLeagueByRoundId, getUserLeagues } from '@/lib/data';
 import { getAllRounds } from '@/lib/utils/getAllRounds';
 import { submissionNotifications } from '@/lib/notifications';
 import { setScheduledNotifications } from '@/lib/scheduledNotifications';
@@ -56,8 +56,9 @@ async function handleRequest(
 
     const userLeagues = await getUserLeagues(payload.userId);
 
-    const getData = async () => {
-      const leagues = await getUserLeagues(payload.userId);
+    // The duplicate check below needs every league, so the initial lookup
+    // reuses those; the post-write refetch only needs this round's league.
+    const findRound = (leagues: typeof userLeagues) => {
       for (const league of leagues) {
         const rounds = getAllRounds(league, {
           includeFake: false,
@@ -71,8 +72,16 @@ async function handleRequest(
       }
       return { round: null, league: null };
     };
+    const getData = async () => {
+      return (
+        (await getLeagueByRoundId(roundId, payload.userId)) ?? {
+          round: null,
+          league: null,
+        }
+      );
+    };
 
-    const { round: foundRound, league: foundLeague } = await getData();
+    const { round: foundRound, league: foundLeague } = findRound(userLeagues);
 
     if (!foundRound) {
       return NextResponse.json(

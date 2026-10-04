@@ -1,6 +1,6 @@
 import { after } from 'next/server';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import Card from '@/components/Card';
 import { verifySessionToken } from '@/lib/auth';
 import { getPoll, processPollNotifications } from '@/lib/polls';
