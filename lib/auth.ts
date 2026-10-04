@@ -1,24 +1,20 @@
-import jwt from 'jsonwebtoken';
 import { User } from '@/databaseTypes';
 import { cookies } from 'next/headers';
+import {
+  decodeSessionToken,
+  SESSION_COOKIE,
+  signSessionToken,
+  type SessionPayload,
+} from './sessionCookie';
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
-
-export interface SessionPayload {
-  userId: string;
-  spotifyId?: string;
-  userName: string;
-}
+export type { SessionPayload };
 
 export function createSessionToken(user: User): string {
-  const payload: SessionPayload = {
+  return signSessionToken({
     userId: user._id.toString(),
     spotifyId: user.spotifyId,
     userName: user.userName,
-  };
-
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  });
 }
 
 const userDharam = {
@@ -55,24 +51,17 @@ const users = [userDharam, userKelsey, userJen, userTest, userTJ, userCody];
 
 export async function verifySessionToken(): Promise<SessionPayload | null> {
   const cookieStore = await cookies();
-  const sessionToken = cookieStore.get('session_token')?.value;
+  const decoded = decodeSessionToken(cookieStore.get(SESSION_COOKIE)?.value);
   const sessionOverride = cookieStore.get('session_override')?.value;
 
-  if (!sessionToken) {
+  if (!decoded) {
     return null;
   }
-  try {
-    const decoded = jwt.verify(sessionToken, JWT_SECRET) as SessionPayload;
 
-    const overrideUser = users.find(
-      (user) => user.userName === sessionOverride,
-    );
-    if (overrideUser) {
-      return { ...decoded, ...overrideUser };
-    }
-
-    return decoded;
-  } catch {
-    return null;
+  const overrideUser = users.find((user) => user.userName === sessionOverride);
+  if (overrideUser) {
+    return { ...decoded, ...overrideUser };
   }
+
+  return decoded;
 }

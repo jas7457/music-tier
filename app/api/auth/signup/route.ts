@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSessionToken } from '@/lib/auth';
+import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/sessionCookie';
 import { getCollection } from '@/lib/mongodb';
 import { League, User } from '@/databaseTypes';
 import { ObjectId } from 'mongodb';
@@ -89,11 +90,7 @@ export async function POST(request: NextRequest) {
 
     // Set cookie
     const response = NextResponse.json({ user: newUser });
-    response.cookies.set('session_token', sessionToken, {
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
+    response.cookies.set(SESSION_COOKIE, sessionToken, sessionCookieOptions);
 
     return response;
   } catch (error) {

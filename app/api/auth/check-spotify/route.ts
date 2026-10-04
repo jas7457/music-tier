@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
 import { User } from '@/databaseTypes';
 import { createSessionToken } from '@/lib/auth';
+import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/sessionCookie';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,11 +27,7 @@ export async function POST(request: NextRequest) {
     const sessionToken = createSessionToken(user);
 
     const response = NextResponse.json({ exists: true, user });
-    response.cookies.set('session_token', sessionToken, {
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
+    response.cookies.set(SESSION_COOKIE, sessionToken, sessionCookieOptions);
 
     return response;
   } catch (error) {
