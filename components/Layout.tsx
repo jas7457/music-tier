@@ -246,7 +246,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   })();
 
   return (
-    <div className="min-h-screen app-canvas pb-28">
+    <div className="min-h-screen app-canvas pb-28" data-portal-root>
       {/* Colour field the frosted surfaces above refract */}
       <div className="aurora" aria-hidden="true">
         <div className="aurora-blob aurora-blob-1" />

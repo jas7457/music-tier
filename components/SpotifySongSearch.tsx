@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { extractTrackIdFromUrl } from '@/lib/spotify';
 import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
 import { useToast } from '@/lib/ToastContext';
 import { getTrackDetails } from '@/lib/api';
 import { TrackInfo } from '@/databaseTypes';
+import { Portal } from './Portal';
 
 interface SpotifySongSearchProps {
   value: string;
@@ -34,6 +35,41 @@ export function SpotifySongSearch({
   const searchDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const trackIdDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastFetchedTrackIdRef = useRef<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [popoverPosition, setPopoverPosition] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+
+  const showResults =
+    showSearchResults && searchResults.length > 0 && !loadingPreview;
+  const isPopoverOpen = showResults || loadingPreview || isSearching;
+
+  // The popover is portaled out of the page (see below), so it follows the input
+  // by hand while the page scrolls or resizes.
+  useLayoutEffect(() => {
+    if (!isPopoverOpen) {
+      return;
+    }
+    const updatePosition = () => {
+      const rect = inputRef.current?.getBoundingClientRect();
+      if (rect) {
+        setPopoverPosition({
+          top: rect.bottom + 4,
+          left: rect.left,
+          width: rect.width,
+        });
+      }
+    };
+    updatePosition();
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [isPopoverOpen]);
 
   const searchTracks = async (query: string) => {
     if (!query || query.trim().length === 0) {
@@ -184,6 +220,7 @@ export function SpotifySongSearch({
   return (
     <>
       <input
+        ref={inputRef}
         type="text"
         autoComplete="off"
         disabled={disabled || loadingPreview}
@@ -205,53 +242,71 @@ export function SpotifySongSearch({
         className="w-full px-3 py-2 text-sm field rounded-control disabled:cursor-not-allowed"
       />
 
-      {/* Search Results Dropdown */}
-      {showSearchResults && searchResults.length > 0 && !loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 glass-popover rounded-card max-h-80 overflow-y-auto">
-          {searchResults.map((result) => (
-            <button
-              key={result.trackId}
-              type="button"
-              onClick={() => handleSongSelect(result)}
-              className="w-full p-3 hover:bg-primary-lightest transition-colors text-left border-b border-gray-100 last:border-b-0"
-            >
-              <div className="flex items-center gap-3">
-                {result.albumImageUrl && (
-                  <img
-                    src={result.albumImageUrl}
-                    alt={result.albumName}
-                    className="w-12 h-12 rounded object-cover"
-                  />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">
-                    {result.title}
-                  </p>
-                  <p className="text-xs text-ink-muted truncate">
-                    {result.artists.join(', ')}
-                  </p>
-                  <p className="text-xs text-ink-subtle truncate">
-                    {result.albumName}
-                  </p>
-                </div>
+      {/* Portaled out of the page content: inside a glass card (its own
+          stacking context) no z-index can lift it over later cards and
+          avatars. In the app canvas it floats over the content but stays
+          under the header and player (z-50). */}
+      {isPopoverOpen && popoverPosition && (
+        <Portal container="canvas">
+          <div
+            className="fixed z-40"
+            style={{
+              top: popoverPosition.top,
+              left: popoverPosition.left,
+              width: popoverPosition.width,
+            }}
+          >
+            {/* Track Loading */}
+            {loadingPreview && (
+              <div className="glass-popover rounded-card p-3 mb-1">
+                <p className="text-xs text-ink-subtle">
+                  Loading track preview...
+                </p>
               </div>
-            </button>
-          ))}
-        </div>
-      )}
+            )}
 
-      {/* Track Loading */}
-      {loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 glass-popover rounded-card p-3">
-          <p className="text-xs text-ink-subtle">Loading track preview...</p>
-        </div>
-      )}
-
-      {/* Search Loading */}
-      {isSearching && !loadingPreview && (
-        <div className="absolute z-10 w-full mt-1 glass-popover rounded-card p-3">
-          <p className="text-xs text-ink-subtle">Searching...</p>
-        </div>
+            {/* Search Loading */}
+            {isSearching && !loadingPreview && (
+              <div className="glass-popover rounded-card p-3 mb-1">
+                <p className="text-xs text-ink-subtle">Searching...</p>
+              </div>
+            )}
+            {/* Search Results Dropdown */}
+            {showResults && (
+              <div className="glass-popover rounded-card max-h-80 overflow-y-auto">
+                {searchResults.map((result) => (
+                  <button
+                    key={result.trackId}
+                    type="button"
+                    onClick={() => handleSongSelect(result)}
+                    className="w-full p-3 hover:bg-primary-lightest transition-colors text-left border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      {result.albumImageUrl && (
+                        <img
+                          src={result.albumImageUrl}
+                          alt={result.albumName}
+                          className="w-12 h-12 rounded object-cover"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm truncate">
+                          {result.title}
+                        </p>
+                        <p className="text-xs text-ink-muted truncate">
+                          {result.artists.join(', ')}
+                        </p>
+                        <p className="text-xs text-ink-subtle truncate">
+                          {result.albumName}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </Portal>
       )}
     </>
   );

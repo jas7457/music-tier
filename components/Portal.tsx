@@ -11,9 +11,23 @@ import { createPortal } from 'react-dom';
  * Only render this in response to user interaction (e.g. an open modal), since
  * there is no document during server rendering.
  */
-export function Portal({ children }: { children: React.ReactNode }) {
+export function Portal({
+  children,
+  container = 'body',
+}: {
+  children: React.ReactNode;
+  // 'canvas' renders into the app canvas (Layout.tsx) instead, for popovers
+  // that should float over page content but stay under the header (z-50):
+  // the canvas isolates its own stacking, so z-indexes inside it can't be
+  // compared with anything placed directly in <body>.
+  container?: 'body' | 'canvas';
+}) {
   if (typeof document === 'undefined') {
     return null;
   }
-  return createPortal(children, document.body);
+  const target =
+    container === 'canvas'
+      ? (document.querySelector('[data-portal-root]') ?? document.body)
+      : document.body;
+  return createPortal(children, target);
 }
