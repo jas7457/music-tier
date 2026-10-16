@@ -201,8 +201,6 @@ async function populateLeagues(
         ...user,
         _id: user._id.toString(),
         index,
-        canCreateBonusRound: league.bonusRoundUserIds.includes(userId),
-        canCreateKickoffRound: league.kickoffRoundUserIds.includes(userId),
       }));
 
     const usersById = users.reduce(
@@ -384,7 +382,7 @@ async function populateLeagues(
     const upcomingRoundsToShow =
       league.upcomingRoundsToShow ?? UPCOMING_ROUNDS_TO_SHOW;
 
-    let currentOrUpcomingRoundsCount = 0;
+    let upcomingRoundsCount = 0;
     const roundsWithMostData: Array<
       Omit<PopulatedRound, 'previousRound' | 'nextRound'>
     > = [...kickoffRounds, ...normalUserRounds, ...bonusRounds].map(
@@ -445,8 +443,10 @@ async function populateLeagues(
           now,
         });
 
-        if (roundStage !== 'completed') {
-          currentOrUpcomingRoundsCount += 1;
+        // Only rounds that haven't opened yet count toward
+        // upcomingRoundsToShow; the current round is always visible.
+        if (roundStage === 'upcoming') {
+          upcomingRoundsCount += 1;
         }
 
         const isHidden = (() => {
@@ -465,7 +465,7 @@ async function populateLeagues(
               if (populatedRound.isPending) {
                 return false;
               }
-              return currentOrUpcomingRoundsCount > upcomingRoundsToShow;
+              return upcomingRoundsCount > upcomingRoundsToShow;
             }
             default: {
               assertNever(roundStage);
@@ -552,7 +552,10 @@ async function populateLeagues(
           acc.bonus.push(round);
         } else if (round.isKickoffRound && !isCurrentRound) {
           acc.kickoff.push(round);
-        } else if (now < round.submissionStartDate) {
+        } else if (!isCurrentRound) {
+          // Rounds that haven't opened yet, plus a pending placeholder whose
+          // window has started before its creator made the round (it can't
+          // be current without an _id), so no round drops out of the list.
           acc.upcoming.push(round);
         }
 
@@ -591,11 +594,7 @@ async function populateLeagues(
         return 'upcoming' as const;
       }
 
-      if (roundsObject.current) {
-        return 'active' as const;
-      }
-
-      return 'unknown' as const;
+      return 'active' as const;
     })();
 
     const populatedLeague = {

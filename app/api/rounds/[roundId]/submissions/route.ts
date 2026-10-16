@@ -10,6 +10,7 @@ import { submissionNotifications } from '@/lib/notifications';
 import { setScheduledNotifications } from '@/lib/scheduledNotifications';
 import { PopulatedRound, PopulatedUser } from '@/lib/types';
 import { assertNever } from '@/lib/utils/never';
+import { getTrackMatchReason } from '@/lib/utils/trackMatch';
 
 export async function POST(
   request: NextRequest,
@@ -161,55 +162,67 @@ async function handleRequest(
       return duplicateResponse;
     }
 
-    if (!force) {
-      for (const league of userLeagues) {
-        for (const round of getAllRounds(league, { includeFake: false })) {
-          if (round._id.toString() === roundId) continue;
-          const previousSub = round.submissions.find((sub) => {
-            const matchReason = getTrackMatchReason(trackInfo, sub.trackInfo);
-            switch (matchReason) {
-              case 'EXACT_MATCH':
-              case 'TITLE_AND_ARTIST_MATCH':
-                return true;
-              case 'ARTIST_MATCH':
-                return false;
-              default:
-                return false;
-            }
-          });
-          if (previousSub) {
-            return NextResponse.json(
-              {
-                success: false,
-                code: 'PREVIOUSLY_SUBMITTED',
-                trackInfo: previousSub.trackInfo,
-                variant: 'SONG',
-              },
-              { status: 200 },
-            );
-          }
+    const submissionsCollection =
+      await getCollection<SongSubmission>('songSubmissions');
 
-          const previousArtistSub = round.submissions.find(
-            (sub) =>
-              getTrackMatchReason(trackInfo, sub.trackInfo) === 'ARTIST_MATCH',
+    if (!force) {
+      // Check every submission in the user's other rounds, read straight
+      // from the database: populated rounds leave out songs from people who
+      // didn't vote once a round is finished.
+      const otherRoundIds = userLeagues
+        .flatMap((league) => getAllRounds(league, { includeFake: false }))
+        .map((round) => round._id.toString())
+        .filter((id) => id !== roundId);
+      const otherSubmissions = await submissionsCollection
+        .find({ roundId: { $in: otherRoundIds } })
+        .toArray();
+      const submissionsByRound = new Map<string, SongSubmission[]>();
+      for (const submission of otherSubmissions) {
+        const group = submissionsByRound.get(submission.roundId) ?? [];
+        group.push(submission);
+        submissionsByRound.set(submission.roundId, group);
+      }
+
+      // Rounds are checked in order; within a round, a matching song is
+      // reported before a matching artist.
+      for (const otherRoundId of otherRoundIds) {
+        const submissions = submissionsByRound.get(otherRoundId) ?? [];
+        const previousSub = submissions.find((sub) => {
+          const matchReason = getTrackMatchReason(trackInfo, sub.trackInfo);
+          return (
+            matchReason === 'EXACT_MATCH' ||
+            matchReason === 'TITLE_AND_ARTIST_MATCH'
           );
-          if (previousArtistSub) {
-            return NextResponse.json(
-              {
-                success: false,
-                code: 'PREVIOUSLY_SUBMITTED',
-                trackInfo: previousArtistSub.trackInfo,
-                variant: 'ARTIST',
-              },
-              { status: 200 },
-            );
-          }
+        });
+        if (previousSub) {
+          return NextResponse.json(
+            {
+              success: false,
+              code: 'PREVIOUSLY_SUBMITTED',
+              trackInfo: previousSub.trackInfo,
+              variant: 'SONG',
+            },
+            { status: 200 },
+          );
+        }
+
+        const previousArtistSub = submissions.find(
+          (sub) =>
+            getTrackMatchReason(trackInfo, sub.trackInfo) === 'ARTIST_MATCH',
+        );
+        if (previousArtistSub) {
+          return NextResponse.json(
+            {
+              success: false,
+              code: 'PREVIOUSLY_SUBMITTED',
+              trackInfo: previousArtistSub.trackInfo,
+              variant: 'ARTIST',
+            },
+            { status: 200 },
+          );
         }
       }
     }
-
-    const submissionsCollection =
-      await getCollection<SongSubmission>('songSubmissions');
 
     const now = Date.now();
 
@@ -303,63 +316,6 @@ async function handleRequest(
       { status: 500 },
     );
   }
-}
-
-function getSimplifiedTitle(trackInfo: TrackInfo) {
-  let title = trackInfo.title.toLowerCase();
-
-  // Remove content in parentheses and brackets that contains common suffixes
-  title = title.replace(
-    /\s*[\(\[].*?(remaster|remix|mix|version|edition|live|acoustic|clean|explicit|original).*?[\)\]]\s*/gi,
-    ' ',
-  );
-
-  // Remove common suffixes with optional whitespace
-  const suffixPatterns = [
-    /\s*-.*(remaster|remastered|remaster edition)(\s|$)/gi,
-    /\s*-\s*(remix|remixed)(\s|$)/gi,
-    /\s+(feat|feat\.|featuring|ft|ft\.)\s+.+$/gi, // Remove "feat Artist" and everything after
-    /\s+(live|acoustic|clean|explicit|radio edit|album version|original mix)(\s|$)/gi,
-    /\s+\(.*?\)\s*/g, // Generic parentheses removal
-    /\s+\[.*?\]\s*/g, // Generic brackets removal
-  ];
-
-  suffixPatterns.forEach((pattern) => {
-    title = title.replace(pattern, '');
-  });
-
-  // Clean up extra whitespace
-  return title.trim().replace(/\s+/g, ' ');
-}
-
-function getTrackMatchReason(
-  a: TrackInfo,
-  b: TrackInfo,
-): 'EXACT_MATCH' | 'TITLE_AND_ARTIST_MATCH' | 'ARTIST_MATCH' | null {
-  if (a.trackId === b.trackId) {
-    return 'EXACT_MATCH';
-  }
-
-  const atLeastOneArtistMatches = a.artists.some((artist) =>
-    b.artists.includes(artist),
-  );
-
-  if (a.title === b.title && atLeastOneArtistMatches) {
-    return 'EXACT_MATCH';
-  }
-
-  if (
-    getSimplifiedTitle(a) === getSimplifiedTitle(b) &&
-    atLeastOneArtistMatches
-  ) {
-    return 'TITLE_AND_ARTIST_MATCH';
-  }
-
-  if (atLeastOneArtistMatches) {
-    return 'ARTIST_MATCH';
-  }
-
-  return null;
 }
 
 function getExistingSongsInfo(
