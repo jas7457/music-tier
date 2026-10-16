@@ -11,7 +11,9 @@
     "lint": "eslint . && pnpm type-check",
     "format": "prettier --write .",
     "emptyLeague": "tsx scripts/emptyLeague.ts",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@types/js-cookie": "^3.0.6",
@@ -49,6 +51,7 @@
     "tailwindcss": "^4.1.17",
     "tsx": "^4.20.6",
     "typescript": "^5",
-    "typescript-eslint": "^8.48.1"
+    "typescript-eslint": "^8.48.1",
+    "vitest": "^5.0.4"
   }
 }
