@@ -13,6 +13,10 @@ export function getPlaces<
     return a.user.index - b.user.index;
   });
 
+  if (sortedEntries.length === 0) {
+    return [];
+  }
+
   let currentHighScore = sortedEntries[0].points;
   let currentPlace = 1;
 
