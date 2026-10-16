@@ -63,6 +63,10 @@ export function Round({
     isGeneralRoundSlot: true,
   }).isVisible;
 
+  // Placeholder rounds (not created yet) have no page to go to.
+  const previousRoundId = round.previousRound?._id;
+  const nextRoundId = round.nextRound?._id;
+
   const bodyMarkup = useMemo(() => {
     switch (round.stage) {
       case 'completed': {
@@ -144,10 +148,10 @@ export function Round({
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-1">
-        {isRoundPage && (round.previousRound || round.nextRound) && (
+        {isRoundPage && (previousRoundId || nextRoundId) && (
           <div className="grid grid-cols-[1fr_1fr] gap-1 text-sm">
             <div className="truncate">
-              {round.previousRound && (
+              {round.previousRound && previousRoundId && (
                 <Link
                   href={`/leagues/${league._id}/rounds/${round.previousRound._id}`}
                   className="inline-flex items-center gap-1 font-medium text-primary-dark hover:text-primary-darkest hover:underline"
@@ -157,7 +161,7 @@ export function Round({
               )}
             </div>
             <div className="truncate text-right">
-              {round.nextRound && (
+              {round.nextRound && nextRoundId && (
                 <Link
                   href={`/leagues/${league._id}/rounds/${round.nextRound._id}`}
                   className="inline-flex items-center gap-1 font-medium text-primary-dark hover:text-primary-darkest hover:underline"
