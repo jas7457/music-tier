@@ -109,12 +109,12 @@ export function OnDeckSubmissionsList({
     <div className="grid gap-2">
       <div>
         <div className="block text-xs font-medium text-ink-muted">
-          On deck songs
+          {onDeckInfo.canSubmit ? 'Your runners-up' : 'On deck songs'}
         </div>
         <div className="text-xs text-ink-subtle">
-          Add songs you may want to submit later, but aren&apos;t totally sold
-          yet. You can then add these to the Side Playlist when the submissions
-          end.
+          {onDeckInfo.canSubmit
+            ? 'Songs you considered for this round but didn’t submit. Add the ones worth hearing to the Side Playlist, the league’s shared playlist of near-misses.'
+            : 'Add songs you may want to submit later, but aren’t totally sold yet. You can then add these to the Side Playlist when the submissions end.'}
         </div>
       </div>
 
@@ -250,7 +250,9 @@ export function OnDeckSubmissionsList({
                           }
                         }}
                       >
-                        <div style={{ fontSize: '8px' }}>Add to SP</div>
+                        <div className="text-[11px] font-semibold whitespace-nowrap">
+                          + Side playlist
+                        </div>
                       </HapticButton>
                     </div>
                   )}

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import CompletedRound from '@/components/CompletedRound';
-import VotingRound from '@/components/VotingRound';
+import { BallotBox } from '../ballot/BallotBox';
 import { RoundInfo } from '@/components/RoundInfo';
 import { ToggleButton } from '@/components/ToggleButton';
 import type {
@@ -156,8 +156,8 @@ export function RoundResults({
             )}
           </div>
           {showVotes ? (
-            <VotingRound
-              key={round.stage}
+            <BallotBox
+              key={round._id}
               round={round}
               league={league}
               currentUser={user}

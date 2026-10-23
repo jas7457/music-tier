@@ -24,7 +24,23 @@ export function ReadOnlyView({
   justSubmitted: boolean;
 }) {
   const { votes, usersThatHaveNotVoted } = ballot;
+  const isCompleted = round.stage === 'completed';
+  const guesses = round.submissions.filter(
+    (submission) => votes[submission._id]?.userGuessId,
+  );
+  const correctGuesses = guesses.filter(
+    (submission) => votes[submission._id]?.userGuessId === submission.userId,
+  );
   const { title, subtitle } = (() => {
+    if (isCompleted) {
+      return {
+        title: 'Your ballot',
+        subtitle:
+          guesses.length > 0
+            ? `You guessed ${correctGuesses.length} of ${guesses.length} right.`
+            : 'You didn’t make any guesses this round.',
+      };
+    }
     if (justSubmitted) {
       return {
         title: 'Ballot dropped in the box!',
@@ -52,7 +68,8 @@ export function ReadOnlyView({
         <h3 className="font-bold">{title}</h3>
         <p className="text-ink-muted text-sm">{subtitle}</p>
         <p className="text-ink-subtle text-xs mt-1">
-          Voting ends {formatDateWithTime(round.votingEndDate)}
+          Voting {isCompleted ? 'ended' : 'ends'}{' '}
+          {formatDateWithTime(round.votingEndDate)}
         </p>
       </section>
 
@@ -73,6 +90,11 @@ export function ReadOnlyView({
                   <div className="ballot-hit">
                     <TrackInfo submission={submission} />
                     {mine && <span className="ballot-mine-tag">Your track</span>}
+                    {isCompleted && !mine && submission.userObject && (
+                      <span className="ballot-by">
+                        by {submission.userObject.userName}
+                      </span>
+                    )}
                   </div>
                   <div className="ballot-pile-zone">
                     {guessUser && (
@@ -83,6 +105,21 @@ export function ReadOnlyView({
                         <div>
                           <Face user={guessUser} />
                         </div>
+                        {isCompleted && (
+                          <span
+                            className="ballot-verdict"
+                            data-correct={
+                              vote?.userGuessId === submission.userId || undefined
+                            }
+                            aria-label={
+                              vote?.userGuessId === submission.userId
+                                ? 'Correct guess'
+                                : 'Wrong guess'
+                            }
+                          >
+                            {vote?.userGuessId === submission.userId ? '✓' : '✗'}
+                          </span>
+                        )}
                       </span>
                     )}
                     {(!mine || round.stage === 'currentUserVotingCompleted') && (

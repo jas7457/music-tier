@@ -2,6 +2,9 @@
 
 import { Round } from '@/components/Round';
 import { RoundResults } from './results/RoundResults';
+import { RoundInfo } from '@/components/RoundInfo';
+import { BallotBox } from './ballot/BallotBox';
+import { BoothSubmission } from './BoothPanel';
 import { getRoundTitle } from '@/lib/utils/getRoundTitle';
 import type { PopulatedRound } from '@/lib/types';
 import { getRoundResults } from '../venueModel';
@@ -37,6 +40,33 @@ export function CratesPanel({
     );
   }
 
+  // A round that's open for voting or submissions uses the same ballot box /
+  // DJ booth as those stations, so there's only one way to do each.
+  const isVoting =
+    selected?.stage === 'voting' ||
+    selected?.stage === 'currentUserVotingCompleted';
+  const isSubmitting = selected?.stage === 'submission' && Boolean(selected._id);
+  if (selected && (isVoting || isSubmitting)) {
+    return (
+      <div className="venue-panel">
+        <div className="grid gap-1">
+          <RoundNav round={selected} openRound={openRound} />
+          <RoundInfo league={league} round={selected} />
+        </div>
+        {isVoting ? (
+          <BallotBox
+            key={`${selected._id}-${selected.stage}`}
+            round={selected}
+            league={league}
+            currentUser={user}
+          />
+        ) : (
+          <BoothSubmission round={selected} league={league} />
+        )}
+      </div>
+    );
+  }
+
   if (selected) {
     return (
       <div className="venue-panel">
@@ -52,8 +82,8 @@ export function CratesPanel({
     );
   }
 
-  // Kickoff/bonus rounds can sit in any of the league's round lists, so group
-  // from all of them.
+  // One list of every round in play order (kickoff and bonus rounds included,
+  // tagged on their sleeve). They can sit in any of the league's round lists.
   const seen = new Set<string>();
   const everyRound = sortRounds(model.allRounds).filter((round) => {
     const key = round._id || `pending-${round.roundIndex}`;
@@ -63,31 +93,17 @@ export function CratesPanel({
     seen.add(key);
     return true;
   });
-  const groups: Array<{ title: string; rounds: PopulatedRound[] }> = [
-    { title: 'Kickoff', rounds: everyRound.filter((r) => r.isKickoffRound) },
-    {
-      title: 'This season',
-      rounds: everyRound.filter((r) => !r.isKickoffRound && !r.isBonusRound),
-    },
-    { title: 'Bonus', rounds: everyRound.filter((r) => r.isBonusRound) },
-  ].filter((group) => group.rounds.length > 0);
-
   return (
     <div className="venue-panel">
-      {groups.map((group) => (
-        <section key={group.title}>
-          <h3 className="venue-section-title">{group.title}</h3>
-          <div className="venue-sleeves">
-            {group.rounds.map((round) => (
-              <Sleeve
-                key={round._id || `pending-${round.roundIndex}`}
-                round={round}
-                onOpen={() => round._id && openRound(round._id)}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
+      <div className="venue-sleeves">
+        {everyRound.map((round) => (
+          <Sleeve
+            key={round._id || `pending-${round.roundIndex}`}
+            round={round}
+            onOpen={() => round._id && openRound(round._id)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -134,8 +150,51 @@ function Sleeve({
       </div>
       <div className="venue-sleeve-title">{getRoundTitle(round, false)}</div>
       <div className="venue-sleeve-meta">
-        R{round.roundIndex + 1} · {status}
+        R{round.roundIndex + 1}
+        {round.isKickoffRound ? ' · Kickoff' : round.isBonusRound ? ' · Bonus' : ''} ·{' '}
+        {status}
       </div>
     </button>
+  );
+}
+
+/** Previous / next round, staying inside the crates. */
+function RoundNav({
+  round,
+  openRound,
+}: {
+  round: PopulatedRound;
+  openRound: (roundId: string) => void;
+}) {
+  const previousId = round.previousRound?._id;
+  const nextId = round.nextRound?._id;
+  if (!previousId && !nextId) {
+    return null;
+  }
+  return (
+    <div className="grid grid-cols-2 gap-1 text-sm">
+      <div className="truncate">
+        {round.previousRound && previousId && (
+          <button
+            type="button"
+            className="font-medium text-primary-dark hover:underline"
+            onClick={() => openRound(previousId)}
+          >
+            ← Round {round.previousRound.roundIndex + 1}
+          </button>
+        )}
+      </div>
+      <div className="truncate text-right">
+        {round.nextRound && nextId && (
+          <button
+            type="button"
+            className="font-medium text-primary-dark hover:underline"
+            onClick={() => openRound(nextId)}
+          >
+            Round {round.nextRound.roundIndex + 1} →
+          </button>
+        )}
+      </div>
+    </div>
   );
 }

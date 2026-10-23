@@ -12,7 +12,7 @@ import type { PopulatedRound, PopulatedUser } from '@/lib/types';
 import type { PanelProps } from './types';
 
 /** The DJ booth: drop your song for the current round, stash on-deck picks. */
-export function BoothPanel({ league, model, openRound }: PanelProps) {
+export function BoothPanel({ league, model, goTo, openRound }: PanelProps) {
   const round = model.currentRound;
   const onDeckRounds = league.rounds.upcoming.filter(
     (r) => getOnDeckInfo({ round: r, isRoundPage: true, isGeneralRoundSlot: false }).isVisible,
@@ -21,31 +21,7 @@ export function BoothPanel({ league, model, openRound }: PanelProps) {
   return (
     <div className="venue-panel">
       {round?.stage === 'submission' && round._id ? (
-        <section className="venue-card">
-          <div className="venue-eyebrow" style={{ color: '#0ea5c6' }}>
-            Round {round.roundIndex + 1} · {round.title}
-          </div>
-          <Deck round={round} />
-          <RecordCrate round={round} users={league.users} />
-          <Fragment key={round.userSubmission?.trackInfo.trackId ?? 'none'}>
-            <SongSubmission round={round} isRoundPage />
-          </Fragment>
-          {league.autoStartRounds === false &&
-            league.users.every((u) => round.submissions.some((s) => s.userId === u._id)) && (
-              <p className="text-sm text-ink-muted mt-2">
-                Everyone&apos;s submitted! Voting opens {formatDateWithTime(round.submissionEndDate)}.
-              </p>
-            )}
-          <details className="mt-3">
-            <summary className="text-xs font-semibold text-ink-subtle cursor-pointer">
-              Who&apos;s in, who&apos;s not
-            </summary>
-            <div className="mt-2 grid gap-2">
-              <SubmittedUsers submissions={round.submissions} users={league.users} />
-              <UnsubmittedUsers submissions={round.submissions} users={league.users} />
-            </div>
-          </details>
-        </section>
+        <BoothSubmission round={round} league={league} />
       ) : round?.stage === 'submission' ? (
         <section className="venue-card text-center">
           <div className="text-4xl">✍️</div>
@@ -54,28 +30,50 @@ export function BoothPanel({ league, model, openRound }: PanelProps) {
             the decks open.
           </p>
         </section>
+      ) : round?.userSubmission ? (
+        <section className="venue-card">
+          <div className="venue-eyebrow" style={{ color: '#0ea5c6' }}>
+            Round {round.roundIndex + 1} · {round.title}
+          </div>
+          <Deck round={round} locked />
+          {(round.stage === 'voting' ||
+            round.stage === 'currentUserVotingCompleted') && (
+            <button
+              type="button"
+              className="venue-cta"
+              style={{ '--cta': '#f59e0b' } as React.CSSProperties}
+              onClick={() => goTo('ballot')}
+            >
+              🗳️{' '}
+              {round.stage === 'voting'
+                ? 'Submissions are closed. Go vote!'
+                : 'See how the voting is going'}
+            </button>
+          )}
+        </section>
       ) : (
         <section className="venue-card text-center">
           <div className="text-4xl">🎧</div>
           <h3 className="font-bold">The decks are closed</h3>
           <p className="text-ink-muted text-sm">
-            {round?.userSubmission
-              ? `You played “${round.userSubmission.trackInfo.title}” this round.`
-              : 'Submissions open when the next round starts.'}
+            Submissions open when the next round starts.
           </p>
         </section>
       )}
 
       {/* during submissions SongSubmission shows the on-deck list itself */}
       {round && getOnDeckInfo({ round, isRoundPage: true, isGeneralRoundSlot: true }).isVisible && (
-        <OnDeckFor round={round} />
+        <section className="venue-card">
+          <OnDeckFor round={round} />
+        </section>
       )}
 
       {onDeckRounds.length > 0 && (
         <section>
           <h3 className="venue-section-title">Dig ahead: upcoming rounds</h3>
           <p className="text-xs text-ink-subtle mb-2">
-            Stash songs on deck for rounds that haven&apos;t opened yet.
+            Stash maybe-picks for rounds that haven&apos;t opened yet. They&apos;ll
+            be waiting here when submissions open.
           </p>
           <div className="grid gap-2">
             {onDeckRounds.map((r) => (
@@ -88,10 +86,13 @@ export function BoothPanel({ league, model, openRound }: PanelProps) {
                 <span className="text-2xl" aria-hidden>📀</span>
                 <div className="min-w-0 text-left">
                   <div className="font-semibold truncate">
-                    Round {r.roundIndex + 1}: {r.title}
+                    Round {r.roundIndex + 1}: {r.title || 'Theme under wraps'}
                   </div>
                   <div className="text-xs text-ink-subtle">
-                    {r.onDeckSubmissions.length} on deck
+                    by {r.creatorObject.userName} ·{' '}
+                    {r.onDeckSubmissions.length === 0
+                      ? 'nothing stashed yet'
+                      : `${r.onDeckSubmissions.length} stashed`}
                   </div>
                 </div>
               </button>
@@ -123,8 +124,55 @@ function OnDeckFor({ round }: { round: PopulatedRound }) {
   );
 }
 
+/**
+ * Submitting your song for a round that's open: the deck, the crate of who's
+ * in, and the submission form. Used by the DJ booth and the record crates.
+ */
+export function BoothSubmission({
+  round,
+  league,
+}: {
+  round: PopulatedRound;
+  league: PanelProps['league'];
+}) {
+  return (
+    <section className="venue-card">
+      <div className="venue-eyebrow" style={{ color: '#0ea5c6' }}>
+        Round {round.roundIndex + 1} · {round.title}
+      </div>
+      <Deck round={round} />
+      <RecordCrate round={round} users={league.users} />
+      <Fragment key={round.userSubmission?.trackInfo.trackId ?? 'none'}>
+        <SongSubmission round={round} isRoundPage />
+      </Fragment>
+      {league.autoStartRounds === false &&
+        league.users.every((u) => round.submissions.some((s) => s.userId === u._id)) && (
+          <p className="text-sm text-ink-muted mt-2">
+            Everyone&apos;s submitted! Voting opens {formatDateWithTime(round.submissionEndDate)}.
+          </p>
+        )}
+      <details className="mt-3">
+        <summary className="text-xs font-semibold text-ink-subtle cursor-pointer">
+          Who&apos;s in, who&apos;s not
+        </summary>
+        <div className="mt-2 grid gap-2">
+          <SubmittedUsers submissions={round.submissions} users={league.users} />
+          <UnsubmittedUsers submissions={round.submissions} users={league.users} />
+        </div>
+      </details>
+    </section>
+  );
+}
+
 /** Your record on the turntable: spins once you've dropped a track. */
-function Deck({ round }: { round: PopulatedRound }) {
+function Deck({
+  round,
+  locked = false,
+}: {
+  round: PopulatedRound;
+  // submissions are over: it's your pick for the round, no swapping
+  locked?: boolean;
+}) {
   const track = round.userSubmission?.trackInfo;
   // a new or changed submission gets a confetti burst over the booth
   const lastTrack = useRef(track?.trackId);
@@ -151,10 +199,16 @@ function Deck({ round }: { round: PopulatedRound }) {
       <div className="min-w-0">
         {track ? (
           <>
-            <div className="booth-kicker">Now spinning</div>
+            <div className="booth-kicker">
+              {locked ? 'Your pick this round' : 'Now spinning'}
+            </div>
             <div className="font-black text-lg leading-tight truncate">{track.title}</div>
             <div className="text-sm text-ink-muted truncate">{track.artists.join(', ')}</div>
-            <div className="text-xs text-ink-subtle mt-1">You can swap it until the deadline.</div>
+            <div className="text-xs text-ink-subtle mt-1">
+              {locked
+                ? 'Locked in. Everyone’s voting on it now.'
+                : 'You can swap it until the deadline.'}
+            </div>
           </>
         ) : (
           <>

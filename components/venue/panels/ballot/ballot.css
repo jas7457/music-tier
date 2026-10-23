@@ -512,3 +512,30 @@
     opacity: 0;
   }
 }
+
+/* Finished rounds: who brought it, and whether your guess was right */
+.ballot-by {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-ink-subtle);
+}
+.ballot-verdict {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  color: #fff;
+  background: #ef4444;
+  box-shadow: 0 0 0 2px #fff;
+}
+.ballot-verdict[data-correct] {
+  background: #10b981;
+}
