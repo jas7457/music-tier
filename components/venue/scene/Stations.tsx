@@ -14,6 +14,7 @@ import {
   useImageTexture,
 } from './textures';
 import { NeonTube } from './Room';
+import { Block, ToonMaterial } from './toon';
 import { StaticAnchor } from './anchors';
 
 export type StationSceneData = {
@@ -234,23 +235,17 @@ function Stage({ data }: StationProps) {
   return (
     <group>
       {/* platform */}
-      <mesh position={[0.5, 0.25, -5.6]}>
-        <boxGeometry args={[5.4, 0.5, 2.6]} />
-        <meshStandardMaterial color="#3a2a5c" roughness={0.6} />
-      </mesh>
+      <Block size={[5.4, 0.5, 2.6]} position={[0.5, 0.25, -5.6]} color="#3a2a5c" />
       <NeonTube from={[-2.2, 0.51, -4.3]} to={[3.2, 0.51, -4.3]} color="#ff4fd8" radius={0.035} />
       {/* curtain */}
       {Array.from({ length: 9 }).map((_, i) => (
         <mesh key={i} position={[-1.9 + i * 0.6, 1.8, -6.85]}>
           <cylinderGeometry args={[0.32, 0.32, 2.6, 8, 1, false, 0, Math.PI]} />
-          <meshStandardMaterial color="#8b1e3f" roughness={0.8} side={THREE.DoubleSide} />
+          <ToonMaterial color="#8b1e3f" side={THREE.DoubleSide} />
         </mesh>
       ))}
       {/* marquee board */}
-      <mesh position={[0.5, 3.6, -6.45]}>
-        <boxGeometry args={[4.8, 1.2, 0.12]} />
-        <meshStandardMaterial color="#0d0a18" />
-      </mesh>
+      <Block size={[4.8, 1.2, 0.12]} position={[0.5, 3.6, -6.45]} color="#0d0a18" />
       <mesh position={[0.5, 3.75, -6.38]}>
         <planeGeometry args={[4.5, 0.8]} />
         <meshBasicMaterial map={title} transparent toneMapped={false} />
@@ -278,23 +273,20 @@ function Stage({ data }: StationProps) {
         </mesh>
         <mesh position={[0, 0.02, 0]}>
           <cylinderGeometry args={[0.25, 0.25, 0.04, 16]} />
-          <meshStandardMaterial color="#222" />
+          <ToonMaterial color="#222" />
         </mesh>
       </group>
       {/* speakers */}
       {[-1.65, 3.6].map((x) => (
         <group key={x} position={[x, x < 0 ? 0.5 : 0, -5.8]}>
-          <mesh position={[0, 0.9, 0]}>
-            <boxGeometry args={[0.9, 1.8, 0.8]} />
-            <meshStandardMaterial color="#141020" roughness={0.7} />
-          </mesh>
+          <Block size={[0.9, 1.8, 0.8]} position={[0, 0.9, 0]} color="#141020" />
           <mesh position={[0, 1.25, 0.41]}>
             <circleGeometry args={[0.28, 24]} />
-            <meshStandardMaterial color="#2b2540" />
+            <ToonMaterial color="#2b2540" />
           </mesh>
           <mesh position={[0, 0.55, 0.41]}>
             <circleGeometry args={[0.36, 24]} />
-            <meshStandardMaterial color="#2b2540" />
+            <ToonMaterial color="#2b2540" />
           </mesh>
         </group>
       ))}
@@ -316,10 +308,7 @@ function DjBooth({ data, reducedMotion }: StationProps) {
   return (
     <group position={[-5.6, 0, -0.8]}>
       {/* desk */}
-      <mesh position={[0, 0.55, 0]}>
-        <boxGeometry args={[1.2, 1.1, 2.6]} />
-        <meshStandardMaterial color="#17122a" roughness={0.6} />
-      </mesh>
+      <Block size={[1.2, 1.1, 2.6]} position={[0, 0.55, 0]} color="#17122a" />
       <mesh position={[0.61, 0.55, 0]}>
         <planeGeometry args={[2.4, 0.9]} />
         <meshBasicMaterial color={color} transparent opacity={0.18} toneMapped={false} />
@@ -335,7 +324,7 @@ function DjBooth({ data, reducedMotion }: StationProps) {
         <group ref={platter} position={[0, 0.045, 0]}>
           <mesh>
             <cylinderGeometry args={[0.4, 0.4, 0.02, 40]} />
-            <meshStandardMaterial color="#0b0b0f" roughness={0.3} />
+            <ToonMaterial color="#0b0b0f" />
           </mesh>
           <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <circleGeometry args={[0.3, 40]} />
@@ -354,10 +343,7 @@ function DjBooth({ data, reducedMotion }: StationProps) {
         </mesh>
       </group>
       {/* mixer */}
-      <mesh position={[0, 1.14, 0.35]}>
-        <boxGeometry args={[0.6, 0.08, 0.5]} />
-        <meshStandardMaterial color="#222" />
-      </mesh>
+      <Block size={[0.6, 0.08, 0.5]} position={[0, 1.14, 0.35]} color="#222" />
       {[-0.15, 0, 0.15].map((z, i) => (
         <mesh key={z} position={[0.1, 1.2, 0.35 + z]}>
           <boxGeometry args={[0.05, 0.04, 0.08]} />
@@ -366,15 +352,9 @@ function DjBooth({ data, reducedMotion }: StationProps) {
       ))}
       {/* crate of on-deck records */}
       <group position={[0.2, 0, 1.75]}>
-        <mesh position={[0, 0.25, 0]}>
-          <boxGeometry args={[0.7, 0.5, 0.6]} />
-          <meshStandardMaterial color="#8a5a2b" roughness={0.9} />
-        </mesh>
+        <Block size={[0.7, 0.5, 0.6]} position={[0, 0.25, 0]} color="#8a5a2b" />
         {[-0.2, -0.05, 0.1].map((x, i) => (
-          <mesh key={x} position={[x, 0.55, 0]} rotation={[0, 0, 0.12 - i * 0.08]}>
-            <boxGeometry args={[0.03, 0.5, 0.5]} />
-            <meshStandardMaterial color={['#ff4fd8', '#ffe066', '#38e1ff'][i]} />
-          </mesh>
+          <Block size={[0.035, 0.5, 0.5]} key={x} position={[x, 0.55, 0]} rotation={[0, 0, 0.12 - i * 0.08]} color={['#ff4fd8', '#ffe066', '#38e1ff'][i]} radius={0.015} />
         ))}
       </group>
     </group>
@@ -400,12 +380,9 @@ function BallotBox({ data, reducedMotion }: StationProps) {
     <group position={[4.6, 0, 4.4]} rotation={[0, Math.PI / 4, 0]}>
       <mesh position={[0, 0.4, 0]}>
         <cylinderGeometry args={[0.35, 0.45, 0.8, 8]} />
-        <meshStandardMaterial color="#2b2147" />
+        <ToonMaterial color="#2b2147" />
       </mesh>
-      <mesh position={[0, 1.15, 0]}>
-        <boxGeometry args={[0.9, 0.7, 0.9]} />
-        <meshStandardMaterial color="#f3ead2" roughness={0.7} />
-      </mesh>
+      <Block size={[0.9, 0.7, 0.9]} position={[0, 1.15, 0]} color="#f3ead2" />
       <mesh position={[0, 1.15, 0.452]}>
         <planeGeometry args={[0.6, 0.3]} />
         <meshBasicMaterial color={color} toneMapped={false} />
@@ -418,12 +395,12 @@ function BallotBox({ data, reducedMotion }: StationProps) {
       {[0, 1, 2, 3].map((i) => (
         <mesh key={i} position={[0.65, 0.84 + i * 0.05, 0.1]}>
           <cylinderGeometry args={[0.13, 0.13, 0.045, 20]} />
-          <meshStandardMaterial color={i % 2 ? '#ffb547' : '#ff4fd8'} />
+          <ToonMaterial color={i % 2 ? '#ffb547' : '#ff4fd8'} />
         </mesh>
       ))}
       <mesh position={[0.65, 0.4, 0.1]}>
         <cylinderGeometry args={[0.18, 0.2, 0.82, 10]} />
-        <meshStandardMaterial color="#2b2147" />
+        <ToonMaterial color="#2b2147" />
       </mesh>
       <mesh position={[0, 2.05, 0]}>
         <planeGeometry args={[1.4, 0.44]} />
@@ -528,10 +505,7 @@ function LineupWall({ data, reducedMotion }: StationProps) {
         const act = data.podium[i];
         return (
           <group key={i} position={[medal.x, 0, -6.15]}>
-            <mesh position={[0, medal.height / 2, 0]}>
-              <boxGeometry args={[0.82, medal.height, 0.8]} />
-              <meshStandardMaterial color="#241a3d" roughness={0.5} />
-            </mesh>
+            <Block size={[0.82, medal.height, 0.8]} position={[0, medal.height / 2, 0]} color="#241a3d" />
             {/* medal-coloured top and trim */}
             <mesh position={[0, medal.height + 0.015, 0]}>
               <boxGeometry args={[0.86, 0.03, 0.84]} />
@@ -688,15 +662,9 @@ function Crates({ data }: StationProps) {
   return (
     <group position={[-6.5, 0, 3.4]}>
       {/* shelf */}
-      <mesh position={[0, 1, 0]}>
-        <boxGeometry args={[0.7, 2, 3.2]} />
-        <meshStandardMaterial color="#5c3a1e" roughness={0.9} />
-      </mesh>
+      <Block size={[0.7, 2, 3.2]} position={[0, 1, 0]} color="#5c3a1e" />
       {[0.68, 1.36].map((y) => (
-        <mesh key={y} position={[0.36, y, 0]}>
-          <boxGeometry args={[0.04, 0.05, 3.1]} />
-          <meshStandardMaterial color="#7a4f2b" />
-        </mesh>
+        <Block size={[0.04, 0.05, 3.1]} key={y} position={[0.36, y, 0]} color="#7a4f2b" />
       ))}
       {covers.map((url, i) => (
         <Cover
@@ -708,15 +676,9 @@ function Crates({ data }: StationProps) {
       {/* floor crates */}
       {[0, 1].map((i) => (
         <group key={i} position={[1.1, 0, -0.7 + i * 1.3]}>
-          <mesh position={[0, 0.25, 0]}>
-            <boxGeometry args={[0.8, 0.5, 1]} />
-            <meshStandardMaterial color="#9b6a35" roughness={0.9} />
-          </mesh>
+          <Block size={[0.8, 0.5, 1]} position={[0, 0.25, 0]} color="#9b6a35" />
           {[-0.3, -0.15, 0, 0.15, 0.3].map((z, j) => (
-            <mesh key={z} position={[0, 0.55, z]} rotation={[0.15 - j * 0.04, 0, 0]}>
-              <boxGeometry args={[0.6, 0.55, 0.03]} />
-              <meshStandardMaterial color={['#ff4fd8', '#38e1ff', '#7dff9b', '#ffe066', '#b78cff'][(i + j) % 5]} />
-            </mesh>
+            <Block size={[0.6, 0.55, 0.035]} key={z} position={[0, 0.55, z]} rotation={[0.15 - j * 0.04, 0, 0]} color={['#ff4fd8', '#38e1ff', '#7dff9b', '#ffe066', '#b78cff'][(i + j) % 5]} radius={0.015} />
           ))}
         </group>
       ))}
@@ -738,7 +700,7 @@ function Cover({
       {texture ? (
         <meshBasicMaterial map={texture} />
       ) : (
-        <meshStandardMaterial color="#38e1ff" />
+        <ToonMaterial color="#38e1ff" />
       )}
     </mesh>
   );
@@ -752,15 +714,9 @@ function Corkboard({ data }: StationProps) {
     <group position={[5.7, 0, -1.4]} rotation={[0, Math.PI / 4, 0]}>
       {/* easel legs */}
       {[-0.7, 0.7].map((x) => (
-        <mesh key={x} position={[x, 0.9, -0.1]} rotation={[0.12, 0, 0]}>
-          <boxGeometry args={[0.07, 1.9, 0.07]} />
-          <meshStandardMaterial color="#5c3a1e" />
-        </mesh>
+        <Block size={[0.07, 1.9, 0.07]} key={x} position={[x, 0.9, -0.1]} rotation={[0.12, 0, 0]} color="#5c3a1e" />
       ))}
-      <mesh position={[0, 1.45, 0]}>
-        <boxGeometry args={[1.9, 1.3, 0.08]} />
-        <meshStandardMaterial color="#b9844f" roughness={1} />
-      </mesh>
+      <Block size={[1.9, 1.3, 0.08]} position={[0, 1.45, 0]} color="#b9844f" />
       {Array.from({ length: notes }).map((_, i) => (
         <group
           key={i}
@@ -769,13 +725,11 @@ function Corkboard({ data }: StationProps) {
         >
           <mesh>
             <planeGeometry args={[0.46, 0.4]} />
-            <meshStandardMaterial
-              color={i < data.openPollCount ? '#fff3a3' : '#f4efe6'}
-            />
+            <ToonMaterial color={i < data.openPollCount ? '#fff3a3' : '#f4efe6'} />
           </mesh>
           <mesh position={[0, 0.15, 0.02]}>
             <sphereGeometry args={[0.035, 8, 8]} />
-            <meshStandardMaterial color={['#ff5470', '#38e1ff', '#7dff9b'][i % 3]} />
+            <ToonMaterial color={['#ff5470', '#38e1ff', '#7dff9b'][i % 3]} />
           </mesh>
           {[0.04, -0.04, -0.12].map((y) => (
             <mesh key={y} position={[0, y, 0.005]}>
@@ -802,13 +756,10 @@ function Jukebox({ data, reducedMotion }: StationProps) {
   });
   return (
     <group position={[5.6, 0, -6.2]}>
-      <mesh position={[0, 0.8, 0]}>
-        <boxGeometry args={[1.3, 1.6, 0.8]} />
-        <meshStandardMaterial color="#5a1f3d" roughness={0.5} />
-      </mesh>
+      <Block size={[1.3, 1.6, 0.8]} position={[0, 0.8, 0]} color="#5a1f3d" />
       <mesh position={[0, 1.6, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.65, 0.65, 0.8, 24, 1, false, 0, Math.PI]} />
-        <meshStandardMaterial color="#5a1f3d" roughness={0.5} />
+        <ToonMaterial color="#5a1f3d" />
       </mesh>
       {/* glowing arch */}
       <mesh position={[0, 1.6, 0.41]}>
@@ -840,11 +791,11 @@ function ExitDoor() {
     <group position={[-ROOM_HALF + 0.02, 0, 6]}>
       <mesh position={[0.02, 1.25, 0]} rotation={[0, Math.PI / 2, 0]}>
         <planeGeometry args={[1.3, 2.5]} />
-        <meshStandardMaterial color="#3d2c5e" />
+        <ToonMaterial color="#3d2c5e" />
       </mesh>
       <mesh position={[0.04, 1.25, 0]} rotation={[0, Math.PI / 2, 0]}>
         <planeGeometry args={[1.1, 2.3]} />
-        <meshStandardMaterial color="#0f0b1c" />
+        <ToonMaterial color="#0f0b1c" />
       </mesh>
       <mesh position={[0.06, 1.2, 0.4]}>
         <sphereGeometry args={[0.05, 8, 8]} />

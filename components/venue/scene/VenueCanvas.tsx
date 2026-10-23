@@ -1,12 +1,13 @@
 'use client';
 
 import * as THREE from 'three';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { PerformanceMonitor } from '@react-three/drei';
 import { Canvas, ThreeEvent } from '@react-three/fiber';
 import { Room } from './Room';
 import { Stations, StationSceneData } from './Stations';
 import { Friends, Player } from './Characters';
-import { CameraRig, CameraFocus } from './CameraRig';
+import { CameraRig, CameraFocus, CAMERA_FOV } from './CameraRig';
 import { AnchorProjector } from './anchors';
 import { Confetti, MusicNotes } from './Effects';
 import { ROOM_HALF, SPAWN, StationId, Vec3 } from '../stations';
@@ -44,13 +45,15 @@ export default function VenueCanvas({
   onLeaveStation,
 }: VenueCanvasProps) {
   const playerPosition = useRef(new THREE.Vector3(...SPAWN));
+  // drop resolution on devices that can't keep up
+  const [dpr, setDpr] = useState(1.75);
   // don't leave a pointer cursor behind if the scene goes while hovering
   useEffect(() => () => void (document.body.style.cursor = ''), []);
   return (
     <Canvas
-      orthographic
-      camera={{ position: [40, 37, 40], zoom: 20, near: 0.1, far: 200 }}
-      dpr={[1, 1.75]}
+      shadows="soft"
+      camera={{ position: [40, 37, 40], fov: CAMERA_FOV, near: 1, far: 250 }}
+      dpr={[1, dpr]}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       frameloop={paused ? 'never' : 'always'}
       style={{ touchAction: 'none' }}
@@ -58,10 +61,29 @@ export default function VenueCanvas({
         gl.setClearColor('#07050d');
       }}
     >
+      <PerformanceMonitor
+        onDecline={() => setDpr(1)}
+        onIncline={() => setDpr(1.75)}
+      />
       <fog attach="fog" args={['#07050d', 50, 80]} />
-      <ambientLight intensity={0.55} />
-      <hemisphereLight args={['#9d8cff', '#1b1530', 0.9]} />
-      <directionalLight position={[8, 14, 6]} intensity={1.1} />
+      <ambientLight intensity={0.7} />
+      <hemisphereLight args={['#b9a8ff', '#1b1530', 0.8]} />
+      {/* key light: the one that casts the (soft, cartoon) shadows */}
+      <directionalLight
+        position={[6, 14, 9]}
+        intensity={1.6}
+        castShadow
+        shadow-mapSize={[1024, 1024]}
+        shadow-camera-left={-10}
+        shadow-camera-right={10}
+        shadow-camera-top={10}
+        shadow-camera-bottom={-10}
+        shadow-camera-near={1}
+        shadow-camera-far={40}
+        shadow-bias={-0.0005}
+        shadow-normalBias={0.03}
+        shadow-radius={6}
+      />
       <pointLight
         position={[0.5, 3, -4]}
         color={sceneData.moodColor}

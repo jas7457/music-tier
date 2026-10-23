@@ -461,3 +461,151 @@ export function lineupPosterTexture({
   ctx.fillText('ALL AGES  ·  NO REFUNDS  ·  ONE NIGHT ONLY', width / 2, height - 66);
   return finish(canvas);
 }
+
+function seeded(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+/** Painted wooden floorboards, tiling. */
+export function floorTexture() {
+  const size = 512;
+  const { canvas, ctx } = makeCanvas(size, size);
+  const rand = seeded(7);
+  const boards = 8;
+  const boardW = size / boards;
+  for (let i = 0; i < boards; i++) {
+    let y = -rand() * 200;
+    while (y < size) {
+      const length = 140 + rand() * 220;
+      const shade = 0.85 + rand() * 0.3;
+      ctx.fillStyle = `rgb(${Math.round(54 * shade)}, ${Math.round(38 * shade)}, ${Math.round(78 * shade)})`;
+      ctx.fillRect(i * boardW, y, boardW, length);
+      // grain
+      ctx.strokeStyle = 'rgba(255,255,255,0.035)';
+      ctx.lineWidth = 2;
+      for (let g = 0; g < 4; g++) {
+        const gx = i * boardW + 6 + rand() * (boardW - 12);
+        ctx.beginPath();
+        ctx.moveTo(gx, y + 4);
+        ctx.bezierCurveTo(gx + 6, y + length * 0.3, gx - 6, y + length * 0.7, gx, y + length - 4);
+        ctx.stroke();
+      }
+      // board ends
+      ctx.fillStyle = 'rgba(10,6,20,0.55)';
+      ctx.fillRect(i * boardW, y, boardW, 3);
+      y += length;
+    }
+    // gaps between boards
+    ctx.fillStyle = 'rgba(10,6,20,0.6)';
+    ctx.fillRect(i * boardW, 0, 3, size);
+  }
+  const texture = finish(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(3, 3);
+  return texture;
+}
+
+/** Striped club wallpaper with a little star motif, tiling. */
+export function wallpaperTexture() {
+  const size = 256;
+  const { canvas, ctx } = makeCanvas(size, size);
+  ctx.fillStyle = '#2a1e47';
+  ctx.fillRect(0, 0, size, size);
+  for (let x = 0; x < size; x += 64) {
+    ctx.fillStyle = '#31244f';
+    ctx.fillRect(x, 0, 32, size);
+  }
+  ctx.fillStyle = 'rgba(255, 210, 120, 0.22)';
+  ctx.font = `700 22px ${FONT}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (let y = 32; y < size; y += 64) {
+    for (let x = 48; x < size; x += 64) {
+      ctx.fillText('★', x + ((y / 64) % 2) * 0, y);
+    }
+  }
+  const texture = finish(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  return texture;
+}
+
+/** A night skyline for the windows; offset at runtime for parallax. */
+export function skylineTexture() {
+  const width = 1024;
+  const height = 512;
+  const { canvas, ctx } = makeCanvas(width, height);
+  const sky = ctx.createLinearGradient(0, 0, 0, height);
+  sky.addColorStop(0, '#0b0820');
+  sky.addColorStop(0.6, '#3a1a5c');
+  sky.addColorStop(1, '#ff5fa2');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, width, height);
+  const rand = seeded(42);
+  // stars
+  for (let i = 0; i < 120; i++) {
+    ctx.fillStyle = `rgba(255,255,255,${0.3 + rand() * 0.6})`;
+    ctx.fillRect(rand() * width, rand() * height * 0.5, 2, 2);
+  }
+  // moon
+  ctx.fillStyle = '#fff4d6';
+  ctx.beginPath();
+  ctx.arc(width * 0.78, height * 0.22, 34, 0, Math.PI * 2);
+  ctx.fill();
+  // two rows of buildings
+  [
+    { color: '#24123f', base: 0.55, max: 0.35 },
+    { color: '#12092a', base: 0.7, max: 0.4 },
+  ].forEach(({ color, base, max }) => {
+    let x = 0;
+    while (x < width) {
+      const w = 40 + rand() * 80;
+      const h = height * (1 - base) + rand() * height * max;
+      const top = height - h;
+      ctx.fillStyle = color;
+      ctx.fillRect(x, top, w, h);
+      // lit windows
+      for (let wy = top + 10; wy < height - 10; wy += 16) {
+        for (let wx = x + 8; wx < x + w - 8; wx += 14) {
+          if (rand() > 0.6) {
+            ctx.fillStyle = rand() > 0.5 ? '#ffd88a' : '#7ce7ff';
+            ctx.fillRect(wx, wy, 6, 8);
+          }
+        }
+      }
+      x += w + 4;
+    }
+  });
+  const texture = finish(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  return texture;
+}
+
+/** Vertical fade for light beams: bright at the lamp, gone at the floor. */
+export function beamTexture() {
+  const { canvas, ctx } = makeCanvas(4, 256);
+  const fade = ctx.createLinearGradient(0, 0, 0, 256);
+  fade.addColorStop(0, 'rgba(255,255,255,0.0)');
+  fade.addColorStop(0.15, 'rgba(255,255,255,0.25)');
+  fade.addColorStop(1, 'rgba(255,255,255,1)');
+  ctx.fillStyle = fade;
+  ctx.fillRect(0, 0, 4, 256);
+  return finish(canvas);
+}
+
+/** A soft round spot (sparkles, glows). */
+export function glowTexture() {
+  const { canvas, ctx } = makeCanvas(64, 64);
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.4, 'rgba(255,255,255,0.5)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
+  return finish(canvas);
+}

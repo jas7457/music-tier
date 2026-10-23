@@ -6,6 +6,7 @@ import { ThreeEvent, useFrame } from '@react-three/fiber';
 import { Billboard } from '@react-three/drei';
 import { showBubble, useTrackAnchor } from './anchors';
 import { findPath, freeSpot, stepTowards } from './pathing';
+import { Ink, ToonMaterial } from './toon';
 import { useMovementKeys } from './keyboard';
 import { STATION_ORDER, STATIONS, type StationId } from '../stations';
 import type { FriendState } from '../venueModel';
@@ -249,33 +250,48 @@ export function Body({
         <meshBasicMaterial color="#000" transparent opacity={0.35} depthWrite={false} />
       </mesh>
       <group ref={bodyRef}>
-        {/* legs */}
-        <mesh ref={leftLeg} position={[-0.12, 0.42, 0]} geometry={legGeometry}>
-          <meshStandardMaterial color="#1d1d2b" />
+        {/* stubby legs */}
+        <mesh ref={leftLeg} position={[-0.13, 0.42, 0]} geometry={legGeometry} castShadow>
+          <ToonMaterial color={shade(color, -0.35)} />
+          <Ink thickness={0.025} />
         </mesh>
-        <mesh ref={rightLeg} position={[0.12, 0.42, 0]} geometry={legGeometry}>
-          <meshStandardMaterial color="#1d1d2b" />
+        <mesh ref={rightLeg} position={[0.13, 0.42, 0]} geometry={legGeometry} castShadow>
+          <ToonMaterial color={shade(color, -0.35)} />
+          <Ink thickness={0.025} />
         </mesh>
-        {/* torso */}
-        <mesh position={[0, 0.82, 0]}>
-          <capsuleGeometry args={[0.23, 0.32, 6, 12]} />
-          <meshStandardMaterial color={color} roughness={0.6} />
+        {/* bean-shaped body */}
+        <mesh position={[0, 0.8, 0]} castShadow>
+          <capsuleGeometry args={[0.28, 0.3, 8, 16]} />
+          <ToonMaterial color={color} />
+          <Ink thickness={0.03} />
+        </mesh>
+        {/* backpack */}
+        <mesh position={[0, 0.8, -0.27]} castShadow>
+          <capsuleGeometry args={[0.14, 0.2, 6, 10]} />
+          <ToonMaterial color={shade(color, -0.2)} />
+          <Ink thickness={0.025} />
         </mesh>
         {/* arms pivot at the shoulder */}
-        <group ref={leftArm} position={[-0.29, 0.98, 0]}>
-          <mesh position={[0, -0.2, 0]}>
-            <capsuleGeometry args={[0.07, 0.28, 4, 8]} />
-            <meshStandardMaterial color={color} roughness={0.6} />
+        <group ref={leftArm} position={[-0.31, 0.95, 0]}>
+          <mesh position={[0, -0.18, 0]} castShadow>
+            <capsuleGeometry args={[0.075, 0.24, 4, 8]} />
+            <ToonMaterial color={color} />
+            <Ink thickness={0.02} />
           </mesh>
         </group>
-        <group ref={rightArm} position={[0.29, 0.98, 0]}>
-          <mesh position={[0, -0.2, 0]}>
-            <capsuleGeometry args={[0.07, 0.28, 4, 8]} />
-            <meshStandardMaterial color={color} roughness={0.6} />
+        <group ref={rightArm} position={[0.31, 0.95, 0]}>
+          <mesh position={[0, -0.18, 0]} castShadow>
+            <capsuleGeometry args={[0.075, 0.24, 4, 8]} />
+            <ToonMaterial color={color} />
+            <Ink thickness={0.02} />
           </mesh>
         </group>
         {/* head with the photo as a face that always looks at the camera */}
         <Billboard position={[0, 1.45, 0]}>
+          <mesh position={[0, 0, -0.01]}>
+            <circleGeometry args={[0.395, 32]} />
+            <meshBasicMaterial color="#140c24" />
+          </mesh>
           <mesh>
             <circleGeometry args={[0.36, 32]} />
             <meshBasicMaterial color={color} toneMapped={false} />
@@ -310,7 +326,15 @@ export function Body({
   );
 }
 
-const legGeometry = new THREE.CapsuleGeometry(0.08, 0.3, 4, 8).translate(
+/** A colour, lightened (+) or darkened (-) by amount (0..1). */
+function shade(color: string, amount: number) {
+  const c = new THREE.Color(color);
+  return amount >= 0
+    ? `#${c.lerp(new THREE.Color('#ffffff'), amount).getHexString()}`
+    : `#${c.lerp(new THREE.Color('#000000'), -amount).getHexString()}`;
+}
+
+const legGeometry = new THREE.CapsuleGeometry(0.1, 0.24, 4, 8).translate(
   0,
   -0.12,
   0,

@@ -7,7 +7,10 @@ import type { Vec3 } from '../stations';
 
 // The diorama is always seen from the front-right, a little above.
 const VIEW_DIR = new THREE.Vector3(1, 0.92, 1).normalize();
-const DISTANCE = 40;
+// A narrow lens far away: reads like the flat isometric view, but close
+// things shift a little more than far ones as the camera moves (parallax).
+export const CAMERA_FOV = 20;
+const HALF_FOV_TAN = Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV / 2));
 const START_TARGET = new THREE.Vector3(0, 0.9, 0.4);
 // look at your chest, not your feet
 const FOLLOW_HEIGHT = 0.9;
@@ -44,6 +47,8 @@ export function CameraRig({
   const userZoom = useRef(1);
   const zoom = useRef(0);
   const right = useRef(new THREE.Vector3());
+  const sway = useRef(new THREE.Vector3());
+  const lastTarget = useRef(new THREE.Vector3());
   const up = useRef(new THREE.Vector3());
 
   // a new focus resets any manual panning / zooming (by value: the focus
@@ -130,7 +135,7 @@ export function CameraRig({
 
   useFrame((state, delta) => {
     // mutated here, as R3F intends: the camera is the scene's, not React state
-    const cam = state.camera as THREE.OrthographicCamera;
+    const cam = state.camera;
     const portrait = size.width < size.height;
     // Stations are framed relative to the size that fits the whole room...
     const fitZoom = portrait
@@ -193,11 +198,31 @@ export function CameraRig({
       );
     }
 
-    cam.position.copy(target.current).addScaledVector(VIEW_DIR, DISTANCE);
+    // "zoom" is pixels per world unit at the target: back the camera off to
+    // the distance that gives that scale with this lens.
+    const distance = size.height / zoom.current / (2 * HALF_FOV_TAN);
+
+    // Lean slightly into the direction of travel: the camera swings a touch
+    // sideways as it chases its target, which sells the depth.
+    const velocity = target.current.clone().sub(lastTarget.current);
+    lastTarget.current.copy(target.current);
+    if (!reducedMotion && delta > 0) {
+      const lateral = velocity.dot(right.current) / delta;
+      sway.current.lerp(
+        right.current.clone().multiplyScalar(THREE.MathUtils.clamp(-lateral * 0.35, -1.6, 1.6)),
+        1 - Math.exp(-3 * delta),
+      );
+    }
+
+    cam.position
+      .copy(target.current)
+      .addScaledVector(VIEW_DIR, distance)
+      .add(sway.current);
     cam.lookAt(target.current);
-    if (Math.abs(cam.zoom - zoom.current) > 1e-4) {
-      cam.zoom = zoom.current;
-      cam.updateProjectionMatrix();
+    const persp = cam as unknown as THREE.PerspectiveCamera;
+    if (persp.isPerspectiveCamera && persp.fov !== CAMERA_FOV) {
+      persp.fov = CAMERA_FOV;
+      persp.updateProjectionMatrix();
     }
   });
 
