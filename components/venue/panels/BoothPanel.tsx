@@ -66,7 +66,8 @@ export function BoothPanel({ league, model, openRound }: PanelProps) {
         </section>
       )}
 
-      {round && getOnDeckInfo({ round, isRoundPage: true, isGeneralRoundSlot: false }).isVisible && (
+      {/* during submissions SongSubmission shows the on-deck list itself */}
+      {round && getOnDeckInfo({ round, isRoundPage: true, isGeneralRoundSlot: true }).isVisible && (
         <OnDeckFor round={round} />
       )}
 

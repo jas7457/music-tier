@@ -156,8 +156,10 @@ export function Venue({
     } else {
       url.searchParams.delete('round');
     }
+    // Pass null state: Next.js syncs its router with native history calls
+    // only when the state isn't its own, so router.refresh() keeps ?at=.
     const method = replace ? 'replaceState' : 'pushState';
-    window.history[method](window.history.state, '', url);
+    window.history[method](null, '', url);
   }, []);
 
   const goTo = useCallback(
