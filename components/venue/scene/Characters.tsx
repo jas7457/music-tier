@@ -6,6 +6,7 @@ import { ThreeEvent, useFrame } from '@react-three/fiber';
 import { Billboard } from '@react-three/drei';
 import { showBubble, useTrackAnchor } from './anchors';
 import { findPath, freeSpot, stepTowards } from './pathing';
+import { EMOTE_MS, getExpression, getMove } from '../expressions';
 import { Ink, ToonMaterial } from './toon';
 import { useMovementKeys } from './keyboard';
 import { STATION_ORDER, STATIONS, type StationId } from '../stations';
@@ -112,6 +113,7 @@ function Character({
 }) {
   const root = useRef<THREE.Group>(null);
   useTrackAnchor(`friend:${friend.user._id}`, root, 2.05);
+  useTrackAnchor(`say:${friend.user._id}`, root, 2.25);
 
   // glide to a new spot when their status changes rather than teleporting
   const current = useRef(new THREE.Vector3(...position));
@@ -215,6 +217,57 @@ export function Body({
     }
     if (leftLeg.current) leftLeg.current.rotation.x = 0;
     if (rightLeg.current) rightLeg.current.rotation.x = 0;
+
+    // acting out an emote takes over from the idle / dance loop
+    const expression = getExpression(friend.user._id);
+    const move = getMove(expression);
+    if (move && expression) {
+      const progress = Math.min(1, (Date.now() - expression.at) / EMOTE_MS);
+      const left = leftArm.current;
+      const right = rightArm.current;
+      body.rotation.z = 0;
+      body.rotation.y = 0;
+      body.position.y = 0;
+      if (left) {
+        left.rotation.set(0, 0, 0.15);
+      }
+      if (right) {
+        right.rotation.set(0, 0, -0.15);
+      }
+      switch (move) {
+        case 'wave':
+          if (right) {
+            right.rotation.z = -2.6 + Math.sin(t * 14) * 0.4;
+          }
+          body.rotation.z = -0.08;
+          break;
+        case 'spin':
+          body.rotation.y = progress * Math.PI * 4;
+          body.position.y = Math.abs(Math.sin(progress * Math.PI * 4)) * 0.25;
+          if (left) left.rotation.z = 2.4;
+          if (right) right.rotation.z = -2.4;
+          break;
+        case 'hop':
+          body.position.y = Math.abs(Math.sin(progress * Math.PI * 5)) * 0.4;
+          if (left) left.rotation.z = 1.2 + Math.sin(t * 20) * 0.3;
+          if (right) right.rotation.z = -1.2 - Math.sin(t * 20) * 0.3;
+          break;
+        case 'clap': {
+          const clap = Math.abs(Math.sin(t * 16)) * 0.5;
+          if (left) {
+            left.rotation.x = -1.3;
+            left.rotation.z = -0.2 - clap;
+          }
+          if (right) {
+            right.rotation.x = -1.3;
+            right.rotation.z = 0.2 + clap;
+          }
+          break;
+        }
+      }
+      return;
+    }
+
     if (pose === 'dance') {
       const beat = t * 4.2;
       body.position.y = Math.abs(Math.sin(beat)) * 0.16;
@@ -379,6 +432,7 @@ export function Player({
     openRef.current = openStation;
   }, [onNearStation, onLeaveStation, openStation]);
   useTrackAnchor(`friend:${me.user._id}`, root, 2.05);
+  useTrackAnchor(`say:${me.user._id}`, root, 2.25);
   const movingRef = useRef(false);
   const waypoints = useRef<THREE.Vector3[]>([]);
   const arrivedRef = useRef(onArrive);
@@ -500,7 +554,7 @@ export function Player({
           return;
         }
         e.stopPropagation();
-        showBubble(me.user._id);
+        showBubble(me.user._id, { sticky: true });
       }}
     >
       {/* spotlight on you */}

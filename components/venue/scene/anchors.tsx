@@ -114,12 +114,14 @@ let bubbleId: string | null = null;
 const bubbleListeners = new Set<() => void>();
 let bubbleTimer: ReturnType<typeof setTimeout> | null = null;
 
-export function showBubble(id: string | null) {
+export function showBubble(id: string | null, { sticky = false } = {}) {
   bubbleId = id;
   if (bubbleTimer) {
     clearTimeout(bubbleTimer);
+    bubbleTimer = null;
   }
-  if (id) {
+  // friends' status bubbles close themselves; your own menu stays open
+  if (id && !sticky) {
     bubbleTimer = setTimeout(() => showBubble(null), 3200);
   }
   bubbleListeners.forEach((listener) => listener());

@@ -35,6 +35,8 @@ import type { PanelProps } from './panels/types';
 import type { StationSceneData } from './scene/Stations';
 import { getRoundTitle } from '@/lib/utils/getRoundTitle';
 import { isTyping } from './scene/keyboard';
+import { EMOTES, express } from './expressions';
+import { openSelfMenu } from './hud/Expressions';
 import './venue.css';
 
 const VenueCanvas = dynamic(() => import('./scene/VenueCanvas'), {
@@ -138,6 +140,27 @@ export function Venue({
 
   // the page's deep-link station, as first rendered
   const [initial] = useState({ station: initialStation, roundId: initialRoundId });
+
+  // T to talk, 1-6 to emote (when you're not typing somewhere)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) {
+        return;
+      }
+      if (e.code === 'KeyT') {
+        e.preventDefault();
+        openSelfMenu(user._id, { typing: true });
+        return;
+      }
+      const digit = /^Digit([1-9])$/.exec(e.code);
+      const emote = digit ? EMOTES[Number(digit[1]) - 1] : undefined;
+      if (emote) {
+        express(user._id, { kind: 'emote', emote: emote.id });
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [user._id]);
 
   // the URL (?at=booth&round=…) is the source of truth for back/forward
   useEffect(() => {

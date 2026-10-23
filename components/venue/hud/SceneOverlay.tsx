@@ -4,6 +4,7 @@ import Link from '@/components/AppLink';
 import { STATION_ORDER, STATIONS, StationId } from '../stations';
 import type { FriendState } from '../venueModel';
 import { showBubble, useAnchorRef, useBubble } from '../scene/anchors';
+import { ExpressionBubbles, SelfMenu } from './Expressions';
 
 /**
  * DOM labels that float over the 3D scene: a name tag per station and the
@@ -43,9 +44,13 @@ export function SceneOverlay({
           onSelect={onSelect}
         />
       )}
-      {bubbleFriend && (
-        <FriendBubble key={bubbleFriend.user._id} friend={bubbleFriend} />
-      )}
+      <ExpressionBubbles />
+      {bubbleFriend &&
+        (bubbleFriend.isYou ? (
+          <SelfMenu key="self" userId={bubbleFriend.user._id} />
+        ) : (
+          <FriendBubble key={bubbleFriend.user._id} friend={bubbleFriend} />
+        ))}
     </div>
   );
 }
