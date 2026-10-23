@@ -36,7 +36,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#000000',
+  // the venue's backdrop, so the phone's status bar blends into the club
+  themeColor: '#07050d',
   maximumScale: 1,
   userScalable: false,
 };
@@ -64,8 +65,10 @@ export default async function RootLayout({
     <html lang="en" className={inter.variable}>
       <head>
         <script src="https://sdk.scdn.co/spotify-player.js" async></script>
-        <link rel="icon" href="/icon-192.png" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" href="/favicon-32.png" sizes="32x32" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/icon-192.png" sizes="192x192" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <style
           dangerouslySetInnerHTML={{
             __html: `:root {

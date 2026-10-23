@@ -1,6 +1,6 @@
 // Service Worker for Playlist Party
 // Cache version - increment this to force cache refresh
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME = `playlist-party-${CACHE_VERSION}`;
 
 // Time before falling back to cache when the network is slow/hanging.
@@ -8,7 +8,15 @@ const CACHE_NAME = `playlist-party-${CACHE_VERSION}`;
 const NETWORK_TIMEOUT_MS = 4000;
 
 // Assets to cache (minimal - we use network-first for everything)
-const STATIC_ASSETS = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png'];
+const STATIC_ASSETS = [
+  '/',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/icon-maskable-192.png',
+  '/icon-maskable-512.png',
+  '/apple-touch-icon.png',
+];
 
 // Install event - cache minimal static assets
 self.addEventListener('install', (event) => {
