@@ -1,8 +1,13 @@
 import { redirect } from 'next/navigation';
-import { getLeagueById, getUserByCookies } from '@/lib/data';
-import { LeaguePageClient } from './LeaguePageClient';
+import {
+  getLeagueById,
+  getLeagueSummaries,
+  getUserByCookies,
+} from '@/lib/data';
+import { getPolls } from '@/lib/polls';
 import Card from '@/components/Card';
 import { verifySessionToken } from '@/lib/auth';
+import { Venue } from '@/components/venue/Venue';
 
 type PageProps = {
   params: Promise<{ leagueId: string }>;
@@ -18,8 +23,14 @@ export default async function LeaguePage(props: PageProps) {
     redirect('/');
   }
 
-  const league = await getLeagueById(leagueId, payload.userId);
-  const user = await getUserByCookies(league ? league._id : leagueId);
+  const [league, otherLeagues, { polls }] = await Promise.all([
+    getLeagueById(leagueId, payload.userId),
+    getLeagueSummaries(payload.userId),
+    getPolls(payload.userId),
+  ]);
+  const user =
+    league?.users.find((member) => member._id === payload.userId) ??
+    (await getUserByCookies(league ? league._id : leagueId));
 
   if (!league || !user) {
     return (
@@ -34,5 +45,13 @@ export default async function LeaguePage(props: PageProps) {
     );
   }
 
-  return <LeaguePageClient league={league} user={user} />;
+  return (
+    <Venue
+      key={league._id}
+      league={league}
+      user={user}
+      otherLeagues={otherLeagues}
+      polls={polls}
+    />
+  );
 }

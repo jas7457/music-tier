@@ -1,6 +1,8 @@
 import Landing from '@/components/Landing';
 import Home from '@/components/Home';
+import { Venue } from '@/components/venue/Venue';
 import { getHomeLeagues, getUserByCookies } from '@/lib/data';
+import { getPolls } from '@/lib/polls';
 import { verifySessionToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 
@@ -25,7 +27,23 @@ export default async function Page() {
   }
 
   // Only the current league is populated; the rest are just summaries.
-  const { currentLeague, otherLeagues } = await getHomeLeagues(payload.userId);
+  const [{ currentLeague, otherLeagues }, { polls }] = await Promise.all([
+    getHomeLeagues(payload.userId),
+    getPolls(payload.userId),
+  ]);
+
+  if (currentLeague) {
+    const me =
+      currentLeague.users.find((member) => member._id === user._id) ?? user;
+    return (
+      <Venue
+        league={currentLeague}
+        user={me}
+        otherLeagues={otherLeagues}
+        polls={polls}
+      />
+    );
+  }
 
   return (
     <Home

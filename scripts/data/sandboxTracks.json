@@ -1,0 +1,749 @@
+[
+  {
+    "trackId": "6zeE5tKyr8Nu882DQhhSQI",
+    "title": "Dust in the Wind",
+    "artists": [
+      "Kansas"
+    ],
+    "albumName": "Point Of Know Return (Expanded Edition)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27359f0f56a7cd13526b5b4204c"
+  },
+  {
+    "trackId": "3dPQuX8Gs42Y7b454ybpMR",
+    "title": "Seven Nation Army",
+    "artists": [
+      "The White Stripes"
+    ],
+    "albumName": "Elephant",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2737028981d09d2e5833c9c78ad"
+  },
+  {
+    "trackId": "32kgOw8wejH7zUhtXCM8DH",
+    "title": "More Than a Feeling",
+    "artists": [
+      "Boston"
+    ],
+    "albumName": "Boston",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273cbdeb4ed581e56ac25609357"
+  },
+  {
+    "trackId": "1OxcIUqVmVYxT6427tbhDW",
+    "title": "Fly Away",
+    "artists": [
+      "Lenny Kravitz"
+    ],
+    "albumName": "5",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273f1157b7dcd21bae0c2c75d89"
+  },
+  {
+    "trackId": "57bgtoPSgt236HzfBOd8kj",
+    "title": "Thunderstruck",
+    "artists": [
+      "AC/DC"
+    ],
+    "albumName": "The Razors Edge",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2739a9b1cc067e4460da04adce2"
+  },
+  {
+    "trackId": "3l9u6a1jn2naA3xYyT0WGe",
+    "title": "Wish You Were Here",
+    "artists": [
+      "Pink Floyd"
+    ],
+    "albumName": "Wish You Were Here 50",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273c5bbb392e84b1ce4c29a709d"
+  },
+  {
+    "trackId": "2X6gdRlGOQgfaXU9ALUQFQ",
+    "title": "The Chain",
+    "artists": [
+      "Fleetwood Mac"
+    ],
+    "albumName": "Rumours",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2735e66bc0df2bd18e746dbb823"
+  },
+  {
+    "trackId": "1Y373MqadDRtclJNdnUXVc",
+    "title": "Paranoid - 2012 - Remaster",
+    "artists": [
+      "Black Sabbath"
+    ],
+    "albumName": "Paranoid (Remaster)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273d5fccf9ce08b6a1e7d12a222"
+  },
+  {
+    "trackId": "4gMgiXfqyzZLMhsksGmbQV",
+    "title": "Another Brick in the Wall, Pt. 2",
+    "artists": [
+      "Pink Floyd"
+    ],
+    "albumName": "The Wall",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273b694e89ba937dd2631ff584c"
+  },
+  {
+    "trackId": "5y4761pjcksXs1hNsCmc4n",
+    "title": "Sunshine Of Your Love",
+    "artists": [
+      "Cream"
+    ],
+    "albumName": "Disraeli Gears (Deluxe Edition)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2739d51d7681881215f856b6d73"
+  },
+  {
+    "trackId": "54X78diSLoUDI3joC2bjMz",
+    "title": "Purple Rain",
+    "artists": [
+      "Prince"
+    ],
+    "albumName": "Purple Rain",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273d52bfb90ee8dfeda8378b99b"
+  },
+  {
+    "trackId": "1wzbCuuomhYNtk1ACVo9RA",
+    "title": "Until It Sleeps - Remastered",
+    "artists": [
+      "Metallica"
+    ],
+    "albumName": "Ain't My Bitch (Remastered)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27360d45c45a9cc0de12756c154"
+  },
+  {
+    "trackId": "1i6N76fftMZhijOzFQ5ZtL",
+    "title": "Psycho Killer - 2005 Remaster",
+    "artists": [
+      "Talking Heads"
+    ],
+    "albumName": "Talking Heads '77 (Deluxe Version)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273e71708b667804f6241dd1a59"
+  },
+  {
+    "trackId": "4P5KoWXOxwuobLmHXLMobV",
+    "title": "Come As You Are",
+    "artists": [
+      "Nirvana"
+    ],
+    "albumName": "Nevermind (Remastered)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273e175a19e530c898d167d39bf"
+  },
+  {
+    "trackId": "3oEkrIfXfSh9zGnE7eBzSV",
+    "title": "The Winner Takes It All",
+    "artists": [
+      "ABBA"
+    ],
+    "albumName": "Super Trouper",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2734d08fc99eff4ed52dfce91fa"
+  },
+  {
+    "trackId": "6pPWRBubXOBAHnjl5ZIujB",
+    "title": "The Best",
+    "artists": [
+      "Tina Turner"
+    ],
+    "albumName": "Foreign Affair",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273a04b4373fd72bf81c8784adf"
+  },
+  {
+    "trackId": "3Cx4yrFaX8CeHwBMReOWXI",
+    "title": "We Didn't Start the Fire",
+    "artists": [
+      "Billy Joel"
+    ],
+    "albumName": "Storm Front",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273ce32b2f1b4b9e2f1c68f84cc"
+  },
+  {
+    "trackId": "3HCah9Waf9Jby9gLIWN4MI",
+    "title": "Eyes Without A Face - Remastered 1999",
+    "artists": [
+      "Billy Idol"
+    ],
+    "albumName": "Greatest Hits",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2735425de975a56867550d2dd65"
+  },
+  {
+    "trackId": "7FwBtcecmlpc1sLySPXeGE",
+    "title": "Dancing In the Dark",
+    "artists": [
+      "Bruce Springsteen"
+    ],
+    "albumName": "Born In The U.S.A.",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273a43a6482e327d623bb0c0f77"
+  },
+  {
+    "trackId": "56KqaFSGTb7ifpt16t5Y1N",
+    "title": "Rock the Casbah - Remastered",
+    "artists": [
+      "The Clash"
+    ],
+    "albumName": "Combat Rock (Remastered)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273280b72ca76b4734debfc190e"
+  },
+  {
+    "trackId": "6RNDeRnWsRMjPdNVgupZCs",
+    "title": "I Just Called To Say I Love You",
+    "artists": [
+      "Stevie Wonder"
+    ],
+    "albumName": "At The Close Of A Century",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273f97219e49a23bfdd4de7eed1"
+  },
+  {
+    "trackId": "1OOtq8tRnDM8kG2gqUPjAj",
+    "title": "Beat It",
+    "artists": [
+      "Michael Jackson"
+    ],
+    "albumName": "Thriller 25 Super Deluxe Edition",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2734121faee8df82c526cbab2be"
+  },
+  {
+    "trackId": "0J2p4KYdr6Mg4ET6JPlbe1",
+    "title": "Super Trouper",
+    "artists": [
+      "ABBA"
+    ],
+    "albumName": "Super Trouper",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2734d08fc99eff4ed52dfce91fa"
+  },
+  {
+    "trackId": "7Ewz6bJ97vUqk5HdkvguFQ",
+    "title": "Heaven",
+    "artists": [
+      "Bryan Adams"
+    ],
+    "albumName": "Reckless (30th Anniversary / Deluxe Edition)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273cf1fee2a55e98e22bf358512"
+  },
+  {
+    "trackId": "0GONea6G2XdnHWjNZd6zt3",
+    "title": "Summer Of '69",
+    "artists": [
+      "Bryan Adams"
+    ],
+    "albumName": "Reckless (30th Anniversary / Deluxe Edition)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273cf1fee2a55e98e22bf358512"
+  },
+  {
+    "trackId": "0X1sqQ652p1sceKM2nJlIJ",
+    "title": "Runaway",
+    "artists": [
+      "Bon Jovi"
+    ],
+    "albumName": "Bon Jovi",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273ede118b5f0e159dd18d42b90"
+  },
+  {
+    "trackId": "62LJFaYihsdVrrkgUOJC05",
+    "title": "Kiss",
+    "artists": [
+      "Prince"
+    ],
+    "albumName": "Parade - Music from the Motion Picture Under the Cherry Moon",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27323cc0f0a925845a3de4aca38"
+  },
+  {
+    "trackId": "0e3yhVeNaTfKIWQRw9U9sY",
+    "title": "Sacrifice",
+    "artists": [
+      "Elton John"
+    ],
+    "albumName": "Sleeping With The Past (Remastered with bonus tracks)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2735a0fca95bfacb33ca3580a29"
+  },
+  {
+    "trackId": "0uEp9E98JB5awlA084uaIg",
+    "title": "Doo Wop (That Thing)",
+    "artists": [
+      "Ms. Lauryn Hill"
+    ],
+    "albumName": "The Miseducation of Lauryn Hill",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273e08b1250db5f75643f1508c9"
+  },
+  {
+    "trackId": "6MdqqkQ8sSC0WB4i8PyRuQ",
+    "title": "No Diggity",
+    "artists": [
+      "Blackstreet, Dr. Dre, Queen Pen"
+    ],
+    "albumName": "Another Level",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27303ca37157b9ceefbe8fe225b"
+  },
+  {
+    "trackId": "0TxXEbxn52XsuAhxb6VFZw",
+    "title": "This Kiss",
+    "artists": [
+      "Faith Hill"
+    ],
+    "albumName": "The Hits",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2733ee43d5dbf7da3e65be844b3"
+  },
+  {
+    "trackId": "1Cwsd5xI8CajJz795oy4XF",
+    "title": "You Get What You Give",
+    "artists": [
+      "New Radicals"
+    ],
+    "albumName": "Maybe You've Been Brainwashed Too",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273dfdedd4553b40bbaab342dae"
+  },
+  {
+    "trackId": "11mwFrKvLXCbcVGNxffGyP",
+    "title": "Genie In a Bottle",
+    "artists": [
+      "Christina Aguilera"
+    ],
+    "albumName": "Christina Aguilera (Expanded Edition)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273f89996e214be1763b2a9e948"
+  },
+  {
+    "trackId": "2EoOZnxNgtmZaD8uUmz2nD",
+    "title": "Black Hole Sun",
+    "artists": [
+      "Soundgarden"
+    ],
+    "albumName": "Superunknown (Deluxe Edition)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273ae6d8e36136353d550b2587d"
+  },
+  {
+    "trackId": "57iDDD9N9tTWe75x6qhStw",
+    "title": "Bitter Sweet Symphony - Remastered 2016",
+    "artists": [
+      "The Verve"
+    ],
+    "albumName": "Urban Hymns (Remastered 2016)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273707d13d3f87652e737e94d45"
+  },
+  {
+    "trackId": "6kWJvPfC4DgUpRsXKNa9z9",
+    "title": "All That She Wants",
+    "artists": [
+      "Ace of Base"
+    ],
+    "albumName": "The Sign",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273fda5556cb6981c3113df6175"
+  },
+  {
+    "trackId": "3SFXsFpeGmBTtQvKiwYMDA",
+    "title": "Pretty Fly (For A White Guy)",
+    "artists": [
+      "The Offspring"
+    ],
+    "albumName": "Americana",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273cbd2ee7dff77bfb2b5f0af52"
+  },
+  {
+    "trackId": "47BBI51FKFwOMlIiX6m8ya",
+    "title": "I Want It That Way",
+    "artists": [
+      "Backstreet Boys"
+    ],
+    "albumName": "Millennium",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2732160c02bc56f192df0f4986b"
+  },
+  {
+    "trackId": "1zng9uqqXoPkmU05nsAlsw",
+    "title": "Bed Of Roses",
+    "artists": [
+      "Bon Jovi"
+    ],
+    "albumName": "Keep The Faith",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27359bfe048568a969c6f0bd08c"
+  },
+  {
+    "trackId": "1L94M3KIu7QluZe63g64rv",
+    "title": "Alive",
+    "artists": [
+      "Pearl Jam"
+    ],
+    "albumName": "Ten",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2732d0e5ab5bd2e234fbcffa3e0"
+  },
+  {
+    "trackId": "1Jaah2tmN9Hv81A87KZ1MU",
+    "title": "Torn",
+    "artists": [
+      "Natalie Imbruglia"
+    ],
+    "albumName": "Left Of The Middle",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27384bb2b1e87d5ba0bac8871a2"
+  },
+  {
+    "trackId": "3WkibOpDF7cQ5xntM1epyf",
+    "title": "It Wasn't Me",
+    "artists": [
+      "Shaggy, Rik Rok"
+    ],
+    "albumName": "Hot Shot",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2739449f9491c364d28a9668e17"
+  },
+  {
+    "trackId": "3NLrRZoMF0Lx6zTlYqeIo4",
+    "title": "Here Without You",
+    "artists": [
+      "3 Doors Down"
+    ],
+    "albumName": "Away From The Sun",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27383c39b0d32eb4a2064e1e228"
+  },
+  {
+    "trackId": "3ZOEytgrvLwQaqXreDs2Jx",
+    "title": "Can't Stop",
+    "artists": [
+      "Red Hot Chili Peppers"
+    ],
+    "albumName": "By the Way (Deluxe Edition)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273de1af2785a83cc660155a0c4"
+  },
+  {
+    "trackId": "0d28khcov6AiegSCpG5TuT",
+    "title": "Feel Good Inc.",
+    "artists": [
+      "Gorillaz, De La Soul"
+    ],
+    "albumName": "Demon Days",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273622aefd794f6fe4d8e714358"
+  },
+  {
+    "trackId": "5SkRLpaGtvYPhw02vZhQQ9",
+    "title": "All Falls Down",
+    "artists": [
+      "Kanye West, Syleena Johnson"
+    ],
+    "albumName": "The College Dropout",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27325b055377757b3cdd6f26b78"
+  },
+  {
+    "trackId": "5VGlqQANWDKJFl0MBG3sg2",
+    "title": "Use Somebody",
+    "artists": [
+      "Kings of Leon"
+    ],
+    "albumName": "Only By The Night",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2732519d01c0cca06f134eeadd8"
+  },
+  {
+    "trackId": "3NZJlJemX3mzjf56MqC5ML",
+    "title": "Forever",
+    "artists": [
+      "Chris Brown"
+    ],
+    "albumName": "Forever",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273b0d747e54b78eb460dcb9316"
+  },
+  {
+    "trackId": "7w87IxuO7BDcJ3YUqCyMTT",
+    "title": "Pumped Up Kicks",
+    "artists": [
+      "Foster The People"
+    ],
+    "albumName": "Torches",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273121d5f92cf90576907dfb1e5"
+  },
+  {
+    "trackId": "5hnyJvgoWiQUYZttV4wXy6",
+    "title": "Chasing Cars",
+    "artists": [
+      "Snow Patrol"
+    ],
+    "albumName": "Eyes Open",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2735da2756220da9b6f17924f8f"
+  },
+  {
+    "trackId": "0COqiPhxzoWICwFCS4eZcp",
+    "title": "Bring Me To Life",
+    "artists": [
+      "Evanescence"
+    ],
+    "albumName": "Fallen",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27325f49ab23f0ec6332efef432"
+  },
+  {
+    "trackId": "3aw9iWUQ3VrPQltgwvN9Xu",
+    "title": "Family Affair",
+    "artists": [
+      "Mary J. Blige"
+    ],
+    "albumName": "No More Drama",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273096a7fc9668305db9d3175fc"
+  },
+  {
+    "trackId": "5wQnmLuC1W7ATsArWACrgW",
+    "title": "Welcome to the Black Parade",
+    "artists": [
+      "My Chemical Romance"
+    ],
+    "albumName": "The Black Parade",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273663b6ce496144fa5c3670ac0"
+  },
+  {
+    "trackId": "0ARK753YaiJbpLUk7z5yIM",
+    "title": "Dilemma",
+    "artists": [
+      "Nelly, Kelly Rowland"
+    ],
+    "albumName": "Nellyville",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273a8b9f97b9ea065b9a857e93f"
+  },
+  {
+    "trackId": "2MLHyLy5z5l5YRp7momlgw",
+    "title": "Island In The Sun",
+    "artists": [
+      "Weezer"
+    ],
+    "albumName": "Weezer",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2731e0dc5baaabda304b0ad1815"
+  },
+  {
+    "trackId": "3XmwAZpIMNpTJy8faw3ajD",
+    "title": "expectations (feat. Chappell Roan)",
+    "artists": [
+      "Olivia Rodrigo, Chappell Roan"
+    ],
+    "albumName": "expectations (feat. Chappell Roan)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273706ab55cf3e8cb64efb0ccba"
+  },
+  {
+    "trackId": "6sGIMrtIzQjdzNndVxe397",
+    "title": "So Easy (To Fall In Love)",
+    "artists": [
+      "Olivia Dean"
+    ],
+    "albumName": "The Art of Loving",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2739a336bfb6d40bbd90a507417"
+  },
+  {
+    "trackId": "7yNf9YjeO5JXUE3JEBgnYc",
+    "title": "Babydoll",
+    "artists": [
+      "Dominic Fike"
+    ],
+    "albumName": "Don't Forget About Me, Demos",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2737b1b6f41c1645af9757d5616"
+  },
+  {
+    "trackId": "37UCSVSqiPGdR1DijOFyYY",
+    "title": "Midnight Sun",
+    "artists": [
+      "Zara Larsson"
+    ],
+    "albumName": "Midnight Sun",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27339905bfc6729b13ec7a7fead"
+  },
+  {
+    "trackId": "5ViLKrbyL3HD6wsq3AB9eI",
+    "title": "White Keys",
+    "artists": [
+      "Dominic Fike"
+    ],
+    "albumName": "White Keys",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2733696096119ef08824cf85ede"
+  },
+  {
+    "trackId": "36idurZmYRjJ56KQ8JD9bN",
+    "title": "Boston",
+    "artists": [
+      "STELLA LEFTY"
+    ],
+    "albumName": "Boston",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273e6cb19b02e38d18246ac334f"
+  },
+  {
+    "trackId": "6QKpHmO41jkd9pTp0FfmHs",
+    "title": "UNETHICAL",
+    "artists": [
+      "Faouzia"
+    ],
+    "albumName": "UNETHICAL",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273144d2b69317e926031436c78"
+  },
+  {
+    "trackId": "4LfCY65LvojKjWEnU7fNN4",
+    "title": "stupid song",
+    "artists": [
+      "Olivia Rodrigo"
+    ],
+    "albumName": "you seem pretty sad for a girl so in love",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2735cf234eeb7a2edf44bf64a46"
+  },
+  {
+    "trackId": "3sK8wGT43QFpWrvNQsrQya",
+    "title": "DtMF",
+    "artists": [
+      "Bad Bunny"
+    ],
+    "albumName": "DeBÍ TiRAR MáS FOToS",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273bbd45c8d36e0e045ef640411"
+  },
+  {
+    "trackId": "22NHkFYbgxB2Zirj29Gbp8",
+    "title": "oh yeah?",
+    "artists": [
+      "Steve Lacy"
+    ],
+    "albumName": "Oh yeah?",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2734ea9ba86cd9506a004bab042"
+  },
+  {
+    "trackId": "42UBPzRMh5yyz0EDPr6fr1",
+    "title": "Manchild",
+    "artists": [
+      "Sabrina Carpenter"
+    ],
+    "albumName": "Manchild",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273062c6573009fdebd43de443b"
+  },
+  {
+    "trackId": "7MZHqgTVTnN6xZGYAcEEAf",
+    "title": "Rein Me In (with Olivia Dean)",
+    "artists": [
+      "Sam Fender, Olivia Dean"
+    ],
+    "albumName": "Rein Me In (with Olivia Dean)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273ae318205b51b71541a2df121"
+  },
+  {
+    "trackId": "3Zu0AWO9PN2lP2kCls5mkq",
+    "title": "Angel Of My Dreams",
+    "artists": [
+      "JADE"
+    ],
+    "albumName": "THAT'S SHOWBIZ BABY!",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2737b08557c87f65f674d141953"
+  },
+  {
+    "trackId": "1qbmS6ep2hbBRaEZFpn7BX",
+    "title": "Man I Need",
+    "artists": [
+      "Olivia Dean"
+    ],
+    "albumName": "Man I Need",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273e3d69e17dde129037a1f09e2"
+  },
+  {
+    "trackId": "5Vz9XUiw2emOIRLobTMEkD",
+    "title": "Happiness Is So Sad",
+    "artists": [
+      "Swedish House Mafia, Lykke Li"
+    ],
+    "albumName": "Happiness Is So Sad",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273d62c835cd50b418a53a45c68"
+  },
+  {
+    "trackId": "4TwEdnSiTPDR1vg1QZ5K8W",
+    "title": "Beautiful People",
+    "artists": [
+      "David Guetta, Sia"
+    ],
+    "albumName": "Beautiful People",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27324db491237f9efe1f7210243"
+  },
+  {
+    "trackId": "3gXGtYT41b4FXYctdxMwCI",
+    "title": "Can I Ride",
+    "artists": [
+      "SIDEPIECE, 95 South"
+    ],
+    "albumName": "Can I Ride",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273ad34f97cb6c9164d8163fc11"
+  },
+  {
+    "trackId": "1LepWHpwtahzEQL0vNjpEt",
+    "title": "Just The Way You Are",
+    "artists": [
+      "Milky, Mall Grab"
+    ],
+    "albumName": "Just The Way You Are",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2736abc7b1d4d7fa509bb7ee2f6"
+  },
+  {
+    "trackId": "1GfJCWGLfdev016PSsrUO8",
+    "title": "Make Me Feel",
+    "artists": [
+      "oskar med k"
+    ],
+    "albumName": "Make Me Feel",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2731ec1a8ba575b3e1c0b527733"
+  },
+  {
+    "trackId": "3AsOa3cNh8bqF4q1temSHE",
+    "title": "Satisfy",
+    "artists": [
+      "Calvin Harris, Jazzy"
+    ],
+    "albumName": "Satisfy",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2735958dec5acf1c3dc8b355d50"
+  },
+  {
+    "trackId": "1OcV53oesLQw3VTW9I3uD3",
+    "title": "Waterfalls (feat. Sam Harper & Bobby Harvey)",
+    "artists": [
+      "James Hype, Sam Harper, Bobby Harvey"
+    ],
+    "albumName": "Waterfalls (feat. Sam Harper & Bobby Harvey)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273f60d7f051679fab1ecb2a381"
+  },
+  {
+    "trackId": "3xQPerJjDVZrSFVE340D8r",
+    "title": "Comes and Goes",
+    "artists": [
+      "KETTAMA"
+    ],
+    "albumName": "Comes and Goes",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2735d8230552e1c797f1bc8fc11"
+  },
+  {
+    "trackId": "6aynKW70w06W8LyZaKpdAX",
+    "title": "Closure",
+    "artists": [
+      "D.O.D, Hayley May"
+    ],
+    "albumName": "Closure",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273a199246794de13c2f722404e"
+  },
+  {
+    "trackId": "3kPNkracUxYvwpzkdpHMQQ",
+    "title": "Dior (feat. Chrystal)",
+    "artists": [
+      "MK, Chrystal"
+    ],
+    "albumName": "Dior (feat. Chrystal)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2737e983766c7794c2cab297207"
+  },
+  {
+    "trackId": "5MHzqBhWNta6P2jqws2CbA",
+    "title": "No Air",
+    "artists": [
+      "NGHTMRE, Jordin Sparks"
+    ],
+    "albumName": "No Air",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2737774434e5afd2506d198c9c5"
+  },
+  {
+    "trackId": "6IAu19Ylpuu6PRhU0x4wff",
+    "title": "Could You Be Loved (with LP Giobbi)",
+    "artists": [
+      "Bob Marley & The Wailers, LP Giobbi"
+    ],
+    "albumName": "Could You Be Loved (with LP Giobbi)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b27332a2c1a0e548ac4234692650"
+  },
+  {
+    "trackId": "0kl6Ozan3fuUdCl6TlB15v",
+    "title": "Talk To You (ft. 54 Ultra)",
+    "artists": [
+      "ANOTR, 54 Ultra"
+    ],
+    "albumName": "Talk To You (ft. 54 Ultra)",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273b42ed7f52290f1583760a7e2"
+  },
+  {
+    "trackId": "2BoSbGSp2OaDBOx5NFHkrr",
+    "title": "On 2nite",
+    "artists": [
+      "Silva Bumpa"
+    ],
+    "albumName": "On 2nite",
+    "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b273df5399677b85e9f581bb9833"
+  }
+]

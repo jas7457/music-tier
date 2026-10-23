@@ -22,6 +22,10 @@ export function usePullToRefresh({
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
+      // The 3D venue owns its own touch gestures.
+      if (document.querySelector('.venue-root')) {
+        return;
+      }
       // Only start if we're at the top of the page
       if (window.scrollY <= 0 && !isMusicPlayerExpanded) {
         touchStartY.current = e.touches[0].clientY;

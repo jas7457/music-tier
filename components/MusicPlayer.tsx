@@ -156,6 +156,35 @@ export default function MusicPlayer({
     setDragY(0);
   };
 
+  // Publish the bar's height so full-screen views (the venue) can sit above it.
+  useEffect(() => {
+    const root = document.documentElement;
+    const container = playlistRef.current;
+    if (!currentTrack || !container) {
+      root.style.setProperty('--music-player-h', '0px');
+      return;
+    }
+    const bars = Array.from(
+      container.querySelectorAll<HTMLElement>('[data-music-player-bar]'),
+    );
+    const update = () => {
+      const height = Math.max(
+        0,
+        ...bars.map((bar) => bar.getBoundingClientRect().height),
+      );
+      root.style.setProperty('--music-player-h', `${height}px`);
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    bars.forEach((bar) => observer.observe(bar));
+    window.addEventListener('resize', update);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', update);
+      root.style.setProperty('--music-player-h', '0px');
+    };
+  }, [currentTrack]);
+
   if (!currentTrack) {
     return null;
   }
@@ -163,7 +192,10 @@ export default function MusicPlayer({
   return (
     <div ref={playlistRef}>
       {/* Mobile Collapsed Player */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 w-screen">
+      <div
+        data-music-player-bar
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 w-screen"
+      >
         {/* Playlist Panel - Mobile */}
         {showPlaylist && playlist.length > 0 && (
           <div className="absolute bottom-full left-0 right-0 mb-2 mx-2 max-h-96 overflow-y-auto rounded-2xl shadow-[0_-8px_32px_-4px_rgba(0,0,0,0.35)]">
@@ -447,7 +479,10 @@ export default function MusicPlayer({
       </div>
 
       {/* Desktop Player */}
-      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-50 w-screen">
+      <div
+        data-music-player-bar
+        className="hidden md:block fixed bottom-0 left-0 right-0 z-50 w-screen"
+      >
         <div className="relative backdrop-blur-md bg-linear-to-b from-primary/60 to-primary-dark/60 border-t border-white/25 shadow-[0_-8px_32px_-4px_rgba(0,0,0,0.35)]">
           <div className="absolute inset-0 bg-black/30"></div>
 

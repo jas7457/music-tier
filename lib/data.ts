@@ -629,6 +629,25 @@ export type LeagueSummary = {
   memberCount: number;
 };
 
+function toLeagueSummary(league: RawLeague): LeagueSummary {
+  return {
+    _id: league._id,
+    title: league.title,
+    leagueStartDate: getStartOfDayAtHour(
+      league.leagueStartDate,
+      league.transitionHour ?? 0,
+    ),
+    memberCount: league.users.length,
+  };
+}
+
+/** Lightweight summaries of every league the user is in. */
+export async function getLeagueSummaries(
+  userId: string,
+): Promise<LeagueSummary[]> {
+  return (await getRawUserLeagues(userId)).map(toLeagueSummary);
+}
+
 /**
  * For the home page: the first league in display order (the current one)
  * fully populated, plus lightweight summaries of every other league.
@@ -644,15 +663,7 @@ export async function getHomeLeagues(userId: string): Promise<{
   const [currentLeague] = await populateLeagues([rawLeagues[0]], userId);
   return {
     currentLeague,
-    otherLeagues: rawLeagues.slice(1).map((league) => ({
-      _id: league._id,
-      title: league.title,
-      leagueStartDate: getStartOfDayAtHour(
-        league.leagueStartDate,
-        league.transitionHour ?? 0,
-      ),
-      memberCount: league.users.length,
-    })),
+    otherLeagues: rawLeagues.slice(1).map(toLeagueSummary),
   };
 }
 

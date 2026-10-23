@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
-import { getLeagueById, getUser } from '@/lib/data';
-import { RoundPageClient } from './RoundPageClient';
+import { getLeagueById, getLeagueSummaries, getUser } from '@/lib/data';
+import { getPolls } from '@/lib/polls';
+import { Venue } from '@/components/venue/Venue';
+import type { StationId } from '@/components/venue/stations';
 import Card from '@/components/Card';
 import { getAllRounds } from '@/lib/utils/getAllRounds';
 import { verifySessionToken } from '@/lib/auth';
@@ -19,9 +21,11 @@ export default async function RoundPage(props: PageProps) {
     redirect('/');
   }
 
-  const [user, league] = await Promise.all([
+  const [user, league, otherLeagues, { polls }] = await Promise.all([
     getUser(payload.userId, 'any'),
     getLeagueById(leagueId, payload.userId),
+    getLeagueSummaries(payload.userId),
+    getPolls(payload.userId),
   ]);
 
   const round = (() => {
@@ -74,11 +78,36 @@ export default async function RoundPage(props: PageProps) {
     );
   }
 
+  // Links to a round (notifications, shared URLs) open the venue at the
+  // station where that round needs you.
+  const isCurrent = league.rounds.current?._id === round._id;
+  const initialStation: StationId = (() => {
+    if (!isCurrent) {
+      return 'crates';
+    }
+    switch (round.stage) {
+      case 'submission':
+        return 'booth';
+      case 'voting':
+      case 'currentUserVotingCompleted':
+        return 'ballot';
+      default:
+        return 'crates';
+    }
+  })();
+  const me = league.users.find(
+    (member) => member._id === user._id.toString(),
+  ) ?? { ...user, _id: user._id.toString(), index: 0 };
+
   return (
-    <RoundPageClient
-      round={round}
+    <Venue
+      key={league._id}
       league={league}
-      currentUser={{ ...user, _id: user._id.toString(), index: 0 }}
+      user={me}
+      otherLeagues={otherLeagues}
+      polls={polls}
+      initialStation={initialStation}
+      initialRoundId={initialStation === 'crates' ? round._id : null}
     />
   );
 }

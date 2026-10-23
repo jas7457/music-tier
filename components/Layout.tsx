@@ -74,7 +74,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       return null;
     }
     return (
-      <div className="sticky top-0 grid grid-cols-[auto_1fr_auto] gap-2 items-center glass-strong text-ink px-3 py-2.5 relative z-50 rounded-none">
+      <div className="app-chrome sticky top-0 grid grid-cols-[auto_1fr_auto] gap-2 items-center glass-strong text-ink px-3 py-2.5 relative z-50 rounded-none">
         <Link href="/" className="flex items-center gap-4">
           <Image
             src={logo.src}
@@ -248,18 +248,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen app-canvas pb-28" data-portal-root>
       {/* Colour field the frosted surfaces above refract */}
-      <div className="aurora" aria-hidden="true">
+      <div className="aurora app-chrome" aria-hidden="true">
         <div className="aurora-blob aurora-blob-1" />
         <div className="aurora-blob aurora-blob-2" />
         <div className="aurora-blob aurora-blob-3" />
       </div>
 
       <NavigationProgressBar />
-      <PullToRefreshIndicator
-        pullDistance={pullDistance}
-        isRefreshing={isRefreshing}
-        shouldTriggerRefresh={shouldTriggerRefresh}
-      />
+      <div className="app-chrome">
+        <PullToRefreshIndicator
+          pullDistance={pullDistance}
+          isRefreshing={isRefreshing}
+          shouldTriggerRefresh={shouldTriggerRefresh}
+        />
+      </div>
       {userHeader}
       {isChristmas() && (
         <div
@@ -274,10 +276,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         ></div>
       )}
-      <div className="relative z-1 p-3 md:p-6">
+      <div className="app-content relative z-1 p-3 md:p-6">
         {/* Search is available on every page once signed in. */}
         {user && (
-          <div className="max-w-4xl mx-auto">
+          <div className="app-chrome max-w-4xl mx-auto">
             <SearchBar />
           </div>
         )}

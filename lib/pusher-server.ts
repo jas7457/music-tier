@@ -30,12 +30,16 @@ function getPusherServer() {
 export async function triggerRealTimeUpdate({
   userIds,
 }: { userIds?: string[] } = {}) {
+  // Sandbox mode must never publish to the real (shared) Pusher channels.
+  if (process.env.SANDBOX === '1') {
+    return;
+  }
   const pusher = getPusherServer();
   await pusher.trigger(PUSHER_REAL_TIME_UPDATES, 'update', { userIds });
 }
 
 export async function triggerNotifications(notifications: Notification[]) {
-  if (notifications.length === 0) {
+  if (notifications.length === 0 || process.env.SANDBOX === '1') {
     return;
   }
   const pusher = getPusherServer();
