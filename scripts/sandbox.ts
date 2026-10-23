@@ -91,8 +91,10 @@ async function main() {
         // Process env wins over .env.local in Next.
         MONGO_DB_URI: uri,
         SANDBOX: '1',
-        // Make sure nothing can reach real services from the sandbox.
-        PUSHER_SECRET: 'sandbox-disabled',
+        // Make sure nothing can reach real services from the sandbox. Pusher
+        // only works if you give it its own test app (SANDBOX_PUSHER_* in
+        // .env.sandbox or the environment); otherwise it's switched off.
+        ...sandboxPusherEnv(),
         MAILGUN_API_KEY: 'sandbox-disabled',
         MAILGUN_DOMAIN: 'sandbox.invalid',
         VAPID_PUBLIC_KEY: '',
@@ -104,6 +106,41 @@ async function main() {
     console.error(error);
     await stop(1);
   }
+}
+
+/**
+ * A separate, free Pusher app for testing live features (who's online,
+ * movement, emotes) locally. Read from SANDBOX_PUSHER_APP_ID / _KEY / _SECRET
+ * / _CLUSTER in the environment or a gitignored .env.sandbox file. Without
+ * them the sandbox gets a dead secret, so it can't touch the real app.
+ */
+function sandboxPusherEnv(): Record<string, string> {
+  const file = path.resolve(process.cwd(), '.env.sandbox');
+  const fromFile: Record<string, string> = {};
+  if (fs.existsSync(file)) {
+    for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
+      const match = /^\s*([A-Z0-9_]+)\s*=\s*['"]?(.*?)['"]?\s*$/.exec(line);
+      if (match) {
+        fromFile[match[1]] = match[2];
+      }
+    }
+  }
+  const get = (name: string) => process.env[name] || fromFile[name];
+  const appId = get('SANDBOX_PUSHER_APP_ID');
+  const key = get('SANDBOX_PUSHER_KEY');
+  const secret = get('SANDBOX_PUSHER_SECRET');
+  const cluster = get('SANDBOX_PUSHER_CLUSTER') || 'us2';
+  if (appId && key && secret) {
+    console.log(`📡 Pusher: sandbox test app ${appId} (live features on)`);
+    return {
+      PUSHER_APP_ID: appId,
+      NEXT_PUBLIC_PUSHER_KEY: key,
+      PUSHER_SECRET: secret,
+      NEXT_PUBLIC_PUSHER_CLUSTER: cluster,
+    };
+  }
+  console.log('📡 Pusher: off (add SANDBOX_PUSHER_* to .env.sandbox for live features)');
+  return { PUSHER_SECRET: 'sandbox-disabled' };
 }
 
 void main();

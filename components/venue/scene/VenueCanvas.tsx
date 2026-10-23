@@ -27,6 +27,8 @@ export type VenueCanvasProps = {
   onFloorTap: (point: Vec3) => void;
   onNearStation: (id: StationId | null) => void;
   openStation: StationId | null;
+  // who's in the venue right now
+  online: ReadonlySet<string>;
   onLeaveStation: () => void;
 };
 
@@ -44,6 +46,7 @@ export default function VenueCanvas({
   onNearStation,
   openStation,
   onLeaveStation,
+  online,
 }: VenueCanvasProps) {
   const playerPosition = useRef(new THREE.Vector3(...SPAWN));
   // drop resolution on devices that can't keep up
@@ -52,7 +55,7 @@ export default function VenueCanvas({
   useEffect(() => () => void (document.body.style.cursor = ''), []);
   return (
     <Canvas
-      shadows="soft"
+      shadows
       camera={{ position: [40, 37, 40], fov: CAMERA_FOV, near: 1, far: 250 }}
       dpr={[1, dpr]}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
@@ -129,7 +132,7 @@ export default function VenueCanvas({
         reducedMotion={reducedMotion}
         onSelect={onSelectStation}
       />
-      <Friends friends={friends} reducedMotion={reducedMotion} />
+      <Friends friends={friends} reducedMotion={reducedMotion} online={online} />
       <MusicNotes reducedMotion={reducedMotion} />
       <Confetti reducedMotion={reducedMotion} />
       <Player

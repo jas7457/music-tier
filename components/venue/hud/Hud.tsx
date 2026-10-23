@@ -19,9 +19,12 @@ export function Hud({
   isOpen,
   isWide,
   nearStation,
+  onlineCount,
   onSelect,
 }: {
   isWide: boolean;
+  // people in the venue right now, you included (0 when we can't tell)
+  onlineCount: number;
   nearStation: StationId | null;
   league: PopulatedLeague;
   user: PopulatedUser;
@@ -81,6 +84,12 @@ export function Hud({
                 </>
               )}
             </span>
+            {onlineCount > 1 && (
+              <span className="venue-online-count">
+                <span className="venue-online-dot" />
+                {onlineCount - 1} {onlineCount - 1 === 1 ? 'friend' : 'friends'} here now
+              </span>
+            )}
           </span>
         </button>
         <div className="flex items-center gap-2">

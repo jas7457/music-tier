@@ -1227,3 +1227,46 @@ body:has(.venue-root) {
     transform: translateY(-8px);
   }
 }
+
+/* who's here (live presence) */
+.venue-online-count {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #86efac;
+}
+.venue-online-dot,
+.venue-bubble-presence::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+  flex: none;
+}
+.venue-bubble-presence {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9a8fb0;
+}
+.venue-bubble-presence::before {
+  content: '';
+  background: #c4bcd6;
+  box-shadow: none;
+}
+.venue-bubble-presence[data-online] {
+  color: #16a34a;
+}
+.venue-bubble-presence[data-online]::before {
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+}

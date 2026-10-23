@@ -42,6 +42,11 @@ export function PusherProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const pusherClient = new PusherClient(PUSHER_PUBLIC_KEY, {
       cluster: PUSHER_CLUSTER,
+      // for presence channels (the venue's who's-online / live movement)
+      channelAuthorization: {
+        endpoint: '/api/pusher/auth',
+        transport: 'ajax',
+      },
     });
 
     // eslint-disable-next-line react-hooks/set-state-in-effect

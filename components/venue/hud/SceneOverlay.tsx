@@ -15,8 +15,10 @@ export function SceneOverlay({
   questStation,
   badges,
   friends,
+  online,
   onSelect,
 }: {
+  online: ReadonlySet<string>;
   showLabels: boolean;
   questStation: StationId | null;
   badges: Partial<Record<StationId, string>>;
@@ -49,7 +51,11 @@ export function SceneOverlay({
         (bubbleFriend.isYou ? (
           <SelfMenu key="self" userId={bubbleFriend.user._id} />
         ) : (
-          <FriendBubble key={bubbleFriend.user._id} friend={bubbleFriend} />
+          <FriendBubble
+            key={bubbleFriend.user._id}
+            friend={bubbleFriend}
+            isOnline={online.has(bubbleFriend.user._id)}
+          />
         ))}
     </div>
   );
@@ -85,7 +91,13 @@ function StationLabel({
   );
 }
 
-function FriendBubble({ friend }: { friend: FriendState }) {
+function FriendBubble({
+  friend,
+  isOnline,
+}: {
+  friend: FriendState;
+  isOnline: boolean;
+}) {
   const ref = useAnchorRef(`friend:${friend.user._id}`);
   return (
     <div ref={ref} className="venue-anchor">
@@ -104,6 +116,9 @@ function FriendBubble({ friend }: { friend: FriendState }) {
             : `${friend.user.firstName} ${friend.user.lastName}`.trim() ||
               friend.user.userName}
         </strong>
+        <span className="venue-bubble-presence" data-online={isOnline || undefined}>
+          {isOnline ? 'Here now' : 'Not here right now'}
+        </span>
         <span>{friend.status}</span>
         {friend.place !== null && (
           <span className="venue-bubble-meta">

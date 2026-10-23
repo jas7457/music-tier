@@ -40,3 +40,6 @@ scripts/data/data.json
 
 # Local sandbox database (pnpm dev:sandbox)
 .sandbox-db/
+
+# Sandbox's own Pusher test app (secrets)
+.env.sandbox

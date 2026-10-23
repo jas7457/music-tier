@@ -7,6 +7,7 @@ import { Billboard } from '@react-three/drei';
 import { showBubble, useTrackAnchor } from './anchors';
 import { findPath, freeSpot, stepTowards } from './pathing';
 import { EMOTE_MS, getExpression, getMove } from '../expressions';
+import { getRemoteSpot, reportPosition } from '../live';
 import { Ink, ToonMaterial } from './toon';
 import { useMovementKeys } from './keyboard';
 import { STATION_ORDER, STATIONS, type StationId } from '../stations';
@@ -52,9 +53,12 @@ function getSpot(kind: 'dance' | 'wait', index: number, count: number): Vec3 {
 export function Friends({
   friends,
   reducedMotion,
+  online,
 }: {
   friends: FriendState[];
   reducedMotion: boolean;
+  // who's in the venue right now: they walk where they really are
+  online: ReadonlySet<string>;
 }) {
   const others = friends.filter((friend) => !friend.isYou);
   const done = others.filter((friend) => friend.isDone);
@@ -69,6 +73,7 @@ export function Friends({
           pose="dance"
           reducedMotion={reducedMotion}
           seed={i}
+          live={online.has(friend.user._id)}
         />
       ))}
       {waiting.map((friend, i) => (
@@ -79,6 +84,7 @@ export function Friends({
           pose="wait"
           reducedMotion={reducedMotion}
           seed={i + 10}
+          live={online.has(friend.user._id)}
         />
       ))}
     </group>
@@ -104,27 +110,58 @@ function Character({
   pose,
   reducedMotion,
   seed,
+  live,
 }: {
   friend: FriendState;
   position: Vec3;
   pose: Pose;
   reducedMotion: boolean;
   seed: number;
+  // online right now: walks to where they really are instead of their spot
+  live: boolean;
 }) {
   const root = useRef<THREE.Group>(null);
   useTrackAnchor(`friend:${friend.user._id}`, root, 2.05);
   useTrackAnchor(`say:${friend.user._id}`, root, 2.25);
+  const movingRef = useRef(false);
 
   // glide to a new spot when their status changes rather than teleporting
   const current = useRef(new THREE.Vector3(...position));
   const target = useMemo(() => new THREE.Vector3(...position), [position]);
+  const liveTarget = useMemo(() => new THREE.Vector3(), []);
 
   useFrame((_, delta) => {
-    if (!root.current) {
+    const group = root.current;
+    if (!group) {
       return;
     }
-    current.current.lerp(target, Math.min(1, delta * 2));
-    root.current.position.copy(current.current);
+    const spot = live ? getRemoteSpot(friend.user._id) : undefined;
+    if (!spot) {
+      movingRef.current = false;
+      current.current.lerp(target, Math.min(1, delta * 2));
+      group.position.copy(current.current);
+      return;
+    }
+    // walk after where they say they are (it arrives a few times a second)
+    liveTarget.set(spot.x, 0, spot.z);
+    const toGoal = liveTarget.clone().sub(current.current);
+    const distance = toGoal.length();
+    if (distance > 6 || reducedMotion) {
+      current.current.copy(liveTarget);
+      movingRef.current = false;
+    } else if (distance > 0.04) {
+      const step = Math.min(distance, Math.min(delta, 0.1) * 5);
+      current.current.addScaledVector(toGoal.normalize(), step);
+      group.rotation.y = lerpAngle(
+        group.rotation.y,
+        Math.atan2(toGoal.x, toGoal.z),
+        Math.min(1, delta * 12),
+      );
+      movingRef.current = true;
+    } else {
+      movingRef.current = false;
+    }
+    group.position.copy(current.current);
   });
 
   return (
@@ -141,12 +178,21 @@ function Character({
       onPointerOver={() => (document.body.style.cursor = 'pointer')}
       onPointerOut={() => (document.body.style.cursor = '')}
     >
+      {live && (
+        // online now: a green glow under their feet
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.07, 0]}>
+          <ringGeometry args={[0.42, 0.54, 32]} />
+          <meshBasicMaterial color="#4ade80" transparent opacity={0.9} toneMapped={false} />
+        </mesh>
+      )}
       <Body
         friend={friend}
         pose={pose}
         moving={false}
+        movingRef={movingRef}
         reducedMotion={reducedMotion}
         seed={seed}
+        online={live}
       />
     </group>
   );
@@ -159,12 +205,15 @@ export function Body({
   reducedMotion,
   seed,
   movingRef,
+  online = false,
 }: {
   friend: FriendState;
   pose: Pose;
   moving: boolean;
   reducedMotion: boolean;
   seed: number;
+  // show a green "online" dot on their face
+  online?: boolean;
   // when given, read each frame instead of `moving` (for the player)
   movingRef?: React.RefObject<boolean>;
 }) {
@@ -368,7 +417,19 @@ export function Body({
               ))}
             </group>
           )}
-          {pose === 'wait' && (
+          {online && (
+            <group position={[0.27, 0.27, 0.03]}>
+              <mesh>
+                <circleGeometry args={[0.1, 20]} />
+                <meshBasicMaterial color="#140c24" />
+              </mesh>
+              <mesh position={[0, 0, 0.005]}>
+                <circleGeometry args={[0.075, 20]} />
+                <meshBasicMaterial color="#4ade80" toneMapped={false} />
+              </mesh>
+            </group>
+          )}
+          {pose === 'wait' && !online && (
             <mesh position={[0.42, 0.42, 0.02]}>
               <planeGeometry args={[0.5, 0.25]} />
               <meshBasicMaterial map={waitBubble} transparent toneMapped={false} />
@@ -506,6 +567,7 @@ export function Player({
       movingRef.current = moved;
       group.position.copy(pos);
       reportNear(pos);
+      reportPosition(pos.x, pos.z);
       // walking away from an open station closes its panel
       const open = openRef.current;
       if (moved && open) {
@@ -542,6 +604,7 @@ export function Player({
     movingRef.current = waypoints.current.length > 0;
     group.position.copy(pos);
     reportNear(pos);
+    reportPosition(pos.x, pos.z);
   });
 
 

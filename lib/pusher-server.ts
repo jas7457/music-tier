@@ -6,6 +6,7 @@ import {
   PUSHER_PUBLIC_KEY,
   PUSHER_SECRET_KEY,
   PUSHER_NOTIFICATIONS,
+  PRODUCTION_PUSHER_KEY,
 } from './utils/constants';
 
 import type { Notification } from './notifications';
@@ -13,7 +14,15 @@ import { isSandbox } from '@/lib/sandbox';
 
 let pusherInstance: Pusher | null = null;
 
-function getPusherServer() {
+/**
+ * Whether this server may talk to Pusher. The sandbox only may when it's
+ * pointed at its own test app, never the real one.
+ */
+export function canUsePusher(): boolean {
+  return !isSandbox() || PUSHER_PUBLIC_KEY !== PRODUCTION_PUSHER_KEY;
+}
+
+export function getPusherServer() {
   if (!pusherInstance) {
     pusherInstance = new Pusher({
       appId: PUSHER_APP_ID,
@@ -32,7 +41,7 @@ export async function triggerRealTimeUpdate({
   userIds,
 }: { userIds?: string[] } = {}) {
   // Sandbox mode must never publish to the real (shared) Pusher channels.
-  if (isSandbox()) {
+  if (!canUsePusher()) {
     return;
   }
   const pusher = getPusherServer();
@@ -40,7 +49,7 @@ export async function triggerRealTimeUpdate({
 }
 
 export async function triggerNotifications(notifications: Notification[]) {
-  if (notifications.length === 0 || isSandbox()) {
+  if (notifications.length === 0 || !canUsePusher()) {
     return;
   }
   const pusher = getPusherServer();

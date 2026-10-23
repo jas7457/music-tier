@@ -36,6 +36,7 @@ import type { StationSceneData } from './scene/Stations';
 import { getRoundTitle } from '@/lib/utils/getRoundTitle';
 import { isTyping } from './scene/keyboard';
 import { EMOTES, express } from './expressions';
+import { useLivePresence, useOnline } from './live';
 import { openSelfMenu } from './hud/Expressions';
 import './venue.css';
 
@@ -95,6 +96,9 @@ export function Venue({
   initialRoundId?: string | null;
 }) {
   useRealTimeUpdates(getLeagueRefreshBoundaries(league));
+  // who's here right now (Pusher presence); harmless if unavailable
+  useLivePresence(league._id, user._id);
+  const online = useOnline();
 
   const model = useMemo(() => buildVenueModel(league, user), [league, user]);
   const me = model.friends.find((friend) => friend.isYou) ?? {
@@ -407,6 +411,7 @@ export function Venue({
               onSelectStation={goTo}
               onNearStation={setNearStation}
               openStation={location.station}
+              online={online}
               onLeaveStation={close}
               onFloorTap={(point) => {
                 setDestination(point);
@@ -429,6 +434,7 @@ export function Venue({
               : {}
           }
           friends={model.friends}
+          online={online}
           onSelect={goTo}
         />
       )}
@@ -440,6 +446,7 @@ export function Venue({
         selected={location.station}
         isOpen={isOpen}
         isWide={isWide}
+        onlineCount={online.size}
         nearStation={location.station ? null : nearStation}
         onSelect={goTo}
       />
