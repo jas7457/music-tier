@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import CompletedRound from '@/components/CompletedRound';
 import { BallotBox } from '../ballot/BallotBox';
-import { RoundInfo } from '@/components/RoundInfo';
+import { RoundSleeve } from '../RoundSleeve';
 import { ToggleButton } from '@/components/ToggleButton';
 import type {
   PopulatedLeague,
@@ -46,35 +46,10 @@ export function RoundResults({
     phaseOverride ??
     (seen === 'unknown' ? null : seen === 'new' && hasResults ? 'intro' : 'full');
 
-  const previousRoundId = round.previousRound?._id;
-  const nextRoundId = round.nextRound?._id;
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-1">
-        {(previousRoundId || nextRoundId) && (
-          <div className="rr-nav">
-            <div className="truncate">
-              {round.previousRound && previousRoundId && (
-                <button
-                  type="button"
-                  onClick={() => openRound(previousRoundId)}
-                >
-                  ← Round {round.previousRound.roundIndex + 1}
-                </button>
-              )}
-            </div>
-            <div className="truncate text-right">
-              {round.nextRound && nextRoundId && (
-                <button type="button" onClick={() => openRound(nextRoundId)}>
-                  Round {round.nextRound.roundIndex + 1} →
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-        <RoundInfo league={league} round={round} />
-      </div>
+      <RoundSleeve round={round} league={league} openRound={openRound} />
 
       {phase === 'intro' && (
         <div className="rr-intro">

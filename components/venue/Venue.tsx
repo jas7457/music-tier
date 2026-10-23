@@ -346,7 +346,10 @@ export function Venue({
     if (location.station === 'crates' && location.roundId) {
       const round = model.allRounds.find((r) => r._id === location.roundId);
       if (round) {
-        return getRoundTitle(round);
+        // the sleeve shows the theme big; the header just says which round
+        return round.title && !round.isHidden
+          ? getRoundTitle(round)
+          : `Round ${round.roundIndex + 1}`;
       }
     }
     return station?.label ?? '';

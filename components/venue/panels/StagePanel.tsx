@@ -1,15 +1,13 @@
 'use client';
 
-import { RoundInfo } from '@/components/RoundInfo';
+import { RoundSleeve } from './RoundSleeve';
 import { CreateRound } from '@/components/CreateRound';
 import { Avatar } from '@/components/Avatar';
 import { MultiLine } from '@/components/MultiLine';
-import { GracePeriodNotice } from '@/components/GracePeriodNotice';
 import { LeagueHero } from '@/components/LeagueHero';
 import { DateTime } from '@/components/DateTime';
 import { STATIONS } from '../stations';
 import type { PanelProps } from './types';
-import { Countdown } from '../hud/Countdown';
 
 /** The main stage: what this round is about and what you should do next. */
 export function StagePanel({ league, user, model, goTo, openRound }: PanelProps) {
@@ -23,9 +21,7 @@ export function StagePanel({ league, user, model, goTo, openRound }: PanelProps)
           <div className="venue-eyebrow" style={{ color: model.theme.color }}>
             Now playing · {model.theme.label}
           </div>
-          <RoundInfo league={league} round={round} />
-          {round.gracePeriod && <GracePeriodNotice round={round} />}
-          <StageDeadline round={round} />
+          <RoundSleeve round={round} league={league} />
           <div className="mt-3 grid gap-2">
             {round.stage === 'submission' && round._id && (
               <button
@@ -139,37 +135,6 @@ function Stat({ value, label }: { value: React.ReactNode; label: string }) {
       <div className="text-[10px] font-semibold uppercase tracking-widest text-ink-subtle">
         {label}
       </div>
-    </div>
-  );
-}
-
-function StageDeadline({
-  round,
-}: {
-  round: NonNullable<PanelProps['model']['currentRound']>;
-}) {
-  const deadline = (() => {
-    switch (round.stage) {
-      case 'submission':
-        return { label: 'Submissions close in', at: round.submissionEndDate };
-      case 'voting':
-      case 'currentUserVotingCompleted':
-        return { label: 'Voting closes in', at: round.votingEndDate };
-      case 'upcoming':
-        return { label: 'Opens in', at: round.submissionStartDate };
-      default:
-        return null;
-    }
-  })();
-  if (!deadline) {
-    return null;
-  }
-  return (
-    <div className="mt-3 flex items-center justify-between rounded-xl bg-black/5 px-3 py-2">
-      <span className="text-xs font-semibold uppercase tracking-widest text-ink-subtle">
-        {deadline.label}
-      </span>
-      <Countdown to={deadline.at} className="font-bold tabular-nums" />
     </div>
   );
 }

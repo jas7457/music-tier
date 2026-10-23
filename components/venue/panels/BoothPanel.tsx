@@ -64,7 +64,7 @@ export function BoothPanel({ league, model, goTo, openRound }: PanelProps) {
       {/* during submissions SongSubmission shows the on-deck list itself */}
       {round && getOnDeckInfo({ round, isRoundPage: true, isGeneralRoundSlot: true }).isVisible && (
         <section className="venue-card">
-          <OnDeckFor round={round} />
+          <OnDeckList round={round} />
         </section>
       )}
 
@@ -104,7 +104,8 @@ export function BoothPanel({ league, model, goTo, openRound }: PanelProps) {
   );
 }
 
-function OnDeckFor({ round }: { round: PopulatedRound }) {
+/** Your on-deck songs for a round, kept in sync with refreshed data. */
+export function OnDeckList({ round }: { round: PopulatedRound }) {
   const [onDeck, setOnDeck] = useState<
     Parameters<typeof OnDeckSubmissionsList>[0]['onDeckSubmissions']
   >(round.onDeckSubmissions);

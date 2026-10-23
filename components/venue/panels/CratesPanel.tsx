@@ -1,10 +1,10 @@
 'use client';
 
-import { Round } from '@/components/Round';
 import { RoundResults } from './results/RoundResults';
-import { RoundInfo } from '@/components/RoundInfo';
+import { RoundSleeve } from './RoundSleeve';
+import { getOnDeckInfo } from '@/components/OnDeckSubmissions';
 import { BallotBox } from './ballot/BallotBox';
-import { BoothSubmission } from './BoothPanel';
+import { BoothSubmission, OnDeckList } from './BoothPanel';
 import { getRoundTitle } from '@/lib/utils/getRoundTitle';
 import type { PopulatedRound } from '@/lib/types';
 import { getRoundResults } from '../venueModel';
@@ -49,10 +49,7 @@ export function CratesPanel({
   if (selected && (isVoting || isSubmitting)) {
     return (
       <div className="venue-panel">
-        <div className="grid gap-1">
-          <RoundNav round={selected} openRound={openRound} />
-          <RoundInfo league={league} round={selected} />
-        </div>
+        <RoundSleeve round={selected} league={league} openRound={openRound} />
         {isVoting ? (
           <BallotBox
             key={`${selected._id}-${selected.stage}`}
@@ -68,16 +65,26 @@ export function CratesPanel({
   }
 
   if (selected) {
+    const isMine = selected.creatorId === user._id;
+    const showOnDeck = getOnDeckInfo({
+      round: selected,
+      isRoundPage: true,
+      isGeneralRoundSlot: false,
+    }).isVisible;
     return (
       <div className="venue-panel">
-        <Round
-          key={`${selected._id}-${selected.stage}`}
-          currentUser={user}
+        <RoundSleeve
+          key={selected._id}
           round={selected}
           league={league}
-          isRoundPage
-          onNavigateRound={openRound}
+          openRound={openRound}
+          editable={isMine && selected.stage === 'upcoming' && Boolean(selected._id)}
         />
+        {showOnDeck && (
+          <section className="venue-card">
+            <OnDeckList round={selected} />
+          </section>
+        )}
       </div>
     );
   }
@@ -155,46 +162,5 @@ function Sleeve({
         {status}
       </div>
     </button>
-  );
-}
-
-/** Previous / next round, staying inside the crates. */
-function RoundNav({
-  round,
-  openRound,
-}: {
-  round: PopulatedRound;
-  openRound: (roundId: string) => void;
-}) {
-  const previousId = round.previousRound?._id;
-  const nextId = round.nextRound?._id;
-  if (!previousId && !nextId) {
-    return null;
-  }
-  return (
-    <div className="grid grid-cols-2 gap-1 text-sm">
-      <div className="truncate">
-        {round.previousRound && previousId && (
-          <button
-            type="button"
-            className="font-medium text-primary-dark hover:underline"
-            onClick={() => openRound(previousId)}
-          >
-            ← Round {round.previousRound.roundIndex + 1}
-          </button>
-        )}
-      </div>
-      <div className="truncate text-right">
-        {round.nextRound && nextId && (
-          <button
-            type="button"
-            className="font-medium text-primary-dark hover:underline"
-            onClick={() => openRound(nextId)}
-          >
-            Round {round.nextRound.roundIndex + 1} →
-          </button>
-        )}
-      </div>
-    </div>
   );
 }
