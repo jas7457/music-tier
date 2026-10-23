@@ -21,8 +21,10 @@ export type Vec3 = [number, number, number];
 export type Station = {
   id: StationId;
   label: string;
-  // short verb-y hint shown on the dock and in the scene
+  // short verb-y hint (panel subtitles, accessibility)
   hint: string;
+  // one-word dock label
+  short: string;
   emoji: string;
   // neon color used for the station's glow, marker and dock icon
   color: string;
@@ -37,6 +39,7 @@ export type Station = {
 export const STATIONS: Record<StationId, Station> = {
   stage: {
     id: 'stage',
+    short: 'Theme',
     label: 'Main Stage',
     hint: "This round's theme",
     emoji: '🎤',
@@ -47,6 +50,7 @@ export const STATIONS: Record<StationId, Station> = {
   },
   booth: {
     id: 'booth',
+    short: 'Submit',
     label: 'DJ Booth',
     hint: 'Submit your song',
     emoji: '💿',
@@ -57,6 +61,7 @@ export const STATIONS: Record<StationId, Station> = {
   },
   ballot: {
     id: 'ballot',
+    short: 'Vote',
     label: 'Ballot Box',
     hint: 'Vote & guess',
     emoji: '🗳️',
@@ -67,6 +72,7 @@ export const STATIONS: Record<StationId, Station> = {
   },
   lineup: {
     id: 'lineup',
+    short: 'Ranks',
     label: 'Lineup Wall',
     hint: 'Standings',
     emoji: '🏆',
@@ -77,6 +83,7 @@ export const STATIONS: Record<StationId, Station> = {
   },
   crates: {
     id: 'crates',
+    short: 'Rounds',
     label: 'Record Crates',
     hint: 'All rounds',
     emoji: '📦',
@@ -87,6 +94,7 @@ export const STATIONS: Record<StationId, Station> = {
   },
   board: {
     id: 'board',
+    short: 'Polls',
     label: 'Corkboard',
     hint: 'Polls',
     emoji: '📌',
@@ -97,6 +105,7 @@ export const STATIONS: Record<StationId, Station> = {
   },
   jukebox: {
     id: 'jukebox',
+    short: 'Recap',
     label: 'Jukebox',
     hint: 'League recap',
     emoji: '🎶',
@@ -107,6 +116,7 @@ export const STATIONS: Record<StationId, Station> = {
   },
   exit: {
     id: 'exit',
+    short: 'You',
     label: 'Exit',
     hint: 'Leagues & you',
     emoji: '🚪',

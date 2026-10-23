@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import { Billboard } from '@react-three/drei';
 import { showBubble, useTrackAnchor } from './anchors';
+import { findPath, freeSpot } from './pathing';
 import type { FriendState } from '../venueModel';
 import {
   AVATAR_COLORS,
@@ -332,7 +333,7 @@ export function Player({
   const root = useRef<THREE.Group>(null);
   useTrackAnchor(`friend:${me.user._id}`, root, 2.05);
   const movingRef = useRef(false);
-  const target = useRef<THREE.Vector3 | null>(null);
+  const waypoints = useRef<THREE.Vector3[]>([]);
   const arrivedRef = useRef(onArrive);
   useEffect(() => {
     arrivedRef.current = onArrive;
@@ -342,13 +343,16 @@ export function Player({
     if (!destination) {
       return;
     }
-    target.current = new THREE.Vector3(
-      THREE.MathUtils.clamp(destination[0], -ROOM_HALF + 0.6, ROOM_HALF - 0.4),
-      0,
-      THREE.MathUtils.clamp(destination[2], -ROOM_HALF + 0.6, ROOM_HALF - 0.4),
-    );
+    const goal = freeSpot({
+      x: THREE.MathUtils.clamp(destination[0], -ROOM_HALF + 0.6, ROOM_HALF - 0.4),
+      z: THREE.MathUtils.clamp(destination[2], -ROOM_HALF + 0.6, ROOM_HALF - 0.4),
+    });
+    const start = positionRef.current;
+    const path = findPath({ x: start.x, z: start.z }, goal);
+    waypoints.current = path.map((p) => new THREE.Vector3(p.x, 0, p.z));
     if (reducedMotion) {
-      positionRef.current.copy(target.current);
+      positionRef.current.copy(waypoints.current[waypoints.current.length - 1]);
+      waypoints.current = [];
     }
   }, [destination, reducedMotion, positionRef]);
 
@@ -358,22 +362,28 @@ export function Player({
       return;
     }
     const pos = positionRef.current;
-    const goal = target.current;
-    if (goal) {
+    let budget = Math.min(delta, 0.1) * 4.2;
+    while (waypoints.current.length > 0 && budget > 0) {
+      const goal = waypoints.current[0];
       const toGoal = goal.clone().sub(pos);
       const distance = toGoal.length();
-      if (distance < 0.05) {
-        target.current = null;
-        movingRef.current = false;
-        arrivedRef.current?.();
-      } else {
-        movingRef.current = true;
-        const step = Math.min(distance, delta * 4.2);
-        pos.add(toGoal.normalize().multiplyScalar(step));
-        const heading = Math.atan2(toGoal.x, toGoal.z);
-        group.rotation.y = lerpAngle(group.rotation.y, heading, Math.min(1, delta * 12));
+      if (distance < 1e-3) {
+        waypoints.current.shift();
+        continue;
+      }
+      const step = Math.min(distance, budget);
+      budget -= step;
+      pos.add(toGoal.normalize().multiplyScalar(step));
+      const heading = Math.atan2(toGoal.x, toGoal.z);
+      group.rotation.y = lerpAngle(group.rotation.y, heading, Math.min(1, delta * 12));
+      if (step === distance) {
+        waypoints.current.shift();
+        if (waypoints.current.length === 0) {
+          arrivedRef.current?.();
+        }
       }
     }
+    movingRef.current = waypoints.current.length > 0;
     group.position.copy(pos);
   });
 

@@ -301,7 +301,15 @@ export function buildVenueModel(
     standings,
     friends,
     quest,
-    theme: getStageTheme(currentRound),
+    theme: (() => {
+      if (!currentRound && league.status === 'completed') {
+        return { label: 'Season wrapped', color: '#b78cff' };
+      }
+      if (!currentRound && league.status === 'upcoming') {
+        return { label: 'Doors open soon', color: '#38e1ff' };
+      }
+      return getStageTheme(currentRound);
+    })(),
     userHasCreatedRound,
     canCreateKickoff,
     canCreateBonus,

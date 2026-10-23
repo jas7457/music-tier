@@ -57,7 +57,7 @@ body:has(.venue-root) {
   background:
     radial-gradient(circle, #ff4fd8 0 14%, #111 15% 18%, transparent 19%),
     repeating-radial-gradient(circle, #111 0 2px, #1d1d26 2px 4px);
-  animation: spin 1.4s linear infinite;
+  animation: venue-spin 1.4s linear infinite;
   box-shadow: 0 0 40px #ff4fd855;
 }
 
@@ -197,7 +197,7 @@ body:has(.venue-root) {
 .venue-dock {
   display: flex;
   gap: 4px;
-  max-width: 100%;
+  width: min(100%, 600px);
   overflow-x: auto;
   padding: 6px;
   border-radius: 22px;
@@ -209,6 +209,15 @@ body:has(.venue-root) {
     0 12px 30px -10px rgb(0 0 0 / 0.7);
   scrollbar-width: none;
 }
+@media (max-width: 420px) {
+  .venue-dock {
+    gap: 1px;
+    padding: 5px;
+  }
+  .venue-dock-label {
+    font-size: 9px;
+  }
+}
 .venue-dock::-webkit-scrollbar {
   display: none;
 }
@@ -217,8 +226,10 @@ body:has(.venue-root) {
   display: grid;
   justify-items: center;
   gap: 2px;
-  min-width: 52px;
-  padding: 6px 4px 5px;
+  min-width: 0;
+  flex: 1 1 0;
+  overflow: hidden;
+  padding: 6px 2px 5px;
   border-radius: 16px;
   color: rgb(255 255 255 / 0.75);
   transition:
@@ -249,7 +260,9 @@ body:has(.venue-root) {
   line-height: 1;
 }
 .venue-dock-label {
-  font-size: 9.5px;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 10px;
   font-weight: 600;
   white-space: nowrap;
   letter-spacing: 0.01em;
@@ -298,6 +311,13 @@ body:has(.venue-root) {
   transition: transform 0.2s;
   cursor: pointer;
   user-select: none;
+}
+@media (max-width: 767px) {
+  .venue-label {
+    padding: 3px 7px 3px 5px;
+    font-size: 10px;
+    gap: 3px;
+  }
 }
 .venue-label:hover,
 .venue-label[data-hovered] {
@@ -489,7 +509,7 @@ body:has(.venue-root) {
   background: linear-gradient(
     135deg,
     var(--cta),
-    color-mix(in oklab, var(--cta) 60%, #6d28d9)
+    color-mix(in oklab, var(--cta) 70%, #1a0b2e)
   );
   box-shadow: 0 8px 20px -8px var(--cta);
   transition: transform 0.15s;
@@ -714,5 +734,11 @@ body:has(.venue-root) {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+}
+
+@keyframes venue-spin {
+  to {
+    transform: rotate(360deg);
   }
 }

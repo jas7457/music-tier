@@ -8,6 +8,7 @@ import { Stations, StationSceneData } from './Stations';
 import { Friends, Player } from './Characters';
 import { CameraRig, CameraFocus } from './CameraRig';
 import { AnchorProjector } from './anchors';
+import { Confetti, MusicNotes } from './Effects';
 import { ROOM_HALF, SPAWN, StationId, Vec3 } from '../stations';
 import type { FriendState } from '../venueModel';
 
@@ -93,6 +94,8 @@ export default function VenueCanvas({
         onSelect={onSelectStation}
       />
       <Friends friends={friends} reducedMotion={reducedMotion} />
+      <MusicNotes reducedMotion={reducedMotion} />
+      <Confetti reducedMotion={reducedMotion} />
       <Player
         me={me}
         destination={destination}

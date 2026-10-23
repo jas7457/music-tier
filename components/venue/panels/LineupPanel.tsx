@@ -1,13 +1,13 @@
 'use client';
 
-import { LeagueStandings } from '@/components/LeagueStandings';
+import { LineupPoster } from './lineup/LineupPoster';
 import type { PanelProps } from './types';
 
-/** The lineup wall: league standings. */
-export function LineupPanel({ league }: PanelProps) {
+/** The lineup wall: league standings as a festival gig poster. */
+export function LineupPanel(props: PanelProps) {
   return (
     <div className="venue-panel">
-      <LeagueStandings league={league} />
+      <LineupPoster {...props} />
     </div>
   );
 }

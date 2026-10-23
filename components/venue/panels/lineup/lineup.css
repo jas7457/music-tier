@@ -1,0 +1,493 @@
+/* Lineup wall: a festival gig poster. */
+.lineup-wrap {
+  display: grid;
+  gap: 18px;
+}
+
+.lineup-poster {
+  --paper: #f3e6c8;
+  --paper-dark: #e5d3a8;
+  --ink: #1d1530;
+  --hot: #e8344e;
+  --sun: #f5a524;
+  container-type: inline-size;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 18px 14px 14px;
+  border-radius: 14px;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 100% 0%, rgb(232 52 78 / 0.22), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgb(245 165 36 / 0.3), transparent 50%),
+    var(--paper);
+  box-shadow:
+    inset 0 0 0 3px var(--ink),
+    inset 0 0 0 6px var(--paper),
+    inset 0 0 0 7px var(--ink),
+    0 10px 24px -12px rgb(0 0 0 / 0.5);
+  text-align: center;
+}
+/* halftone dots */
+.lineup-poster::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(rgb(29 21 48 / 0.16) 1.2px, transparent 1.6px);
+  background-size: 9px 9px;
+  mask-image: linear-gradient(160deg, #000, transparent 45%, transparent 70%, #000);
+}
+.lineup-stars {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, var(--hot) 0 2px, transparent 3px) 12% 8% / 120px 140px,
+    radial-gradient(circle, var(--ink) 0 1.5px, transparent 2.5px) 70% 30% / 90px 110px;
+  opacity: 0.35;
+}
+
+.lineup-kicker {
+  margin: 6px 0 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+.lineup-banner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto 14px;
+  padding: 5px 12px;
+  width: max-content;
+  max-width: 100%;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--ink);
+  transform: rotate(-1.5deg);
+}
+.lineup-banner b {
+  color: var(--sun);
+}
+.lineup-tier-label {
+  margin: 4px 0 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--hot);
+}
+.lineup-rule {
+  height: 0;
+  margin: 10px 24px;
+  border-top: 2px dashed var(--ink);
+  opacity: 0.4;
+}
+
+/* An act */
+.lineup-act-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 4px;
+  text-align: left;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+.lineup-act-head:active {
+  background: rgb(29 21 48 / 0.08);
+}
+.lineup-avatar {
+  box-shadow: 0 0 0 2px var(--ink) !important;
+}
+.lineup-act-main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+.lineup-act-name {
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.lineup-act-meta {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+.lineup-act-points {
+  display: grid;
+  justify-items: end;
+  line-height: 1;
+}
+.lineup-act-points b {
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.lineup-act-points small {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.lineup-you {
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  vertical-align: middle;
+  color: #fff;
+  background: var(--hot);
+}
+
+.lineup-act[data-tier='head'] {
+  margin-bottom: 6px;
+}
+.lineup-act[data-tier='head'] .lineup-act-name {
+  font-size: clamp(30px, 13cqw, 62px);
+  color: var(--hot);
+  text-shadow: 2px 2px 0 var(--ink);
+}
+.lineup-act[data-tier='head'] .lineup-act-points b {
+  font-size: clamp(30px, 12cqw, 52px);
+}
+.lineup-act[data-tier='co'] .lineup-act-name {
+  font-size: clamp(22px, 8.5cqw, 38px);
+}
+.lineup-act[data-tier='co'] .lineup-act-points b {
+  font-size: clamp(22px, 8cqw, 34px);
+}
+.lineup-guests {
+  display: grid;
+  gap: 0;
+}
+.lineup-act[data-tier='guest'] .lineup-act-name {
+  font-size: clamp(15px, 5.2cqw, 20px);
+}
+.lineup-act[data-tier='guest'] .lineup-act-points b {
+  font-size: 18px;
+}
+.lineup-act[data-tier='guest'] .lineup-act-meta {
+  font-size: 11px;
+}
+.lineup-act[data-open='true'] > .lineup-act-head {
+  background: rgb(29 21 48 / 0.08);
+}
+
+/* Set list */
+.lineup-setlist {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 8px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.55);
+  text-align: left;
+  list-style: none;
+}
+.lineup-set {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lineup-set-empty {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  border: 2px dashed rgb(29 21 48 / 0.3);
+  opacity: 0.6;
+  font-weight: 900;
+}
+.lineup-set-body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  line-height: 1.2;
+}
+.lineup-set-round {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hot);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lineup-set-song {
+  font-size: 14px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lineup-set-artist {
+  font-size: 12px;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lineup-set-score {
+  display: grid;
+  justify-items: end;
+  line-height: 1.05;
+}
+.lineup-set-score b {
+  font-size: 20px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.lineup-set-score small {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.lineup-footer {
+  margin-top: 12px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+/* TBA state */
+.lineup-tba {
+  padding: 28px 16px 22px;
+}
+.lineup-tba-title {
+  font-size: clamp(44px, 20cqw, 84px);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--hot);
+  text-shadow: 3px 3px 0 var(--ink);
+  animation: lineup-wobble 3s ease-in-out infinite;
+}
+.lineup-tba-sub {
+  margin: 14px auto 16px;
+  max-width: 28ch;
+  font-size: 14px;
+  font-weight: 700;
+}
+.lineup-tba-acts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.lineup-tba-act {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 900;
+  filter: grayscale(1) contrast(0.8);
+  opacity: 0.6;
+}
+@keyframes lineup-wobble {
+  50% {
+    transform: rotate(-2deg) scale(1.03);
+  }
+}
+
+/* Bump chart */
+.lineup-bump {
+  padding: 10px;
+  border-radius: 18px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+.lineup-bump svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.lineup-bump-grid {
+  stroke: rgb(0 0 0 / 0.08);
+}
+.lineup-bump-label {
+  font-size: 9px;
+  font-weight: 800;
+  fill: var(--color-ink-subtle);
+}
+.lineup-bump-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-ink-subtle);
+}
+.lineup-bump-legend span[data-focus='true'] {
+  color: var(--color-ink);
+}
+.lineup-bump-legend i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-radius: 50%;
+}
+
+/* Wrap-up */
+.lineup-encore {
+  text-align: center;
+  display: grid;
+  gap: 6px;
+}
+.lineup-encore-title {
+  font-size: 26px;
+  font-weight: 900;
+}
+.lineup-encore p {
+  font-size: 14px;
+  color: var(--color-ink-muted);
+}
+.lineup-encore-people {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 6px;
+}
+.lineup-fan {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+.lineup-fan-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary-darker);
+}
+.lineup-fan-name {
+  font-size: 18px;
+  font-weight: 800;
+}
+.lineup-fan-sub {
+  font-size: 12px;
+  color: var(--color-ink-muted);
+}
+
+/* Guess accuracy */
+.lineup-guess-list {
+  display: grid;
+  gap: 8px;
+}
+.lineup-guess {
+  padding: 0;
+  overflow: hidden;
+}
+.lineup-guess-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+}
+.lineup-guess-rank {
+  min-width: 24px;
+  font-weight: 800;
+  color: var(--color-ink-subtle);
+}
+.lineup-guess-who {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+.lineup-guess-who small,
+.lineup-guess-acc small {
+  font-size: 11px;
+  color: var(--color-ink-muted);
+}
+.lineup-guess-acc {
+  display: grid;
+  justify-items: end;
+}
+.lineup-guess-acc b {
+  font-size: 20px;
+  font-weight: 900;
+}
+.lineup-guess-body {
+  display: grid;
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+.lineup-guess-round {
+  margin: 4px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-ink-muted);
+}
+.lineup-guess-item {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #ecfdf5;
+  box-shadow: inset 0 0 0 1px rgb(5 150 105 / 0.2);
+}
+.lineup-guess-item[data-correct='false'] {
+  background: #fef2f2;
+  box-shadow: inset 0 0 0 1px rgb(220 38 38 / 0.2);
+}
+.lineup-guess-verdict {
+  font-size: 12px;
+  font-weight: 800;
+  color: #047857;
+}
+.lineup-guess-item[data-correct='false'] .lineup-guess-verdict {
+  color: #b91c1c;
+}
+.lineup-guess-row {
+  display: flex;
+  gap: 10px;
+}
+.lineup-guess-info {
+  display: grid;
+  min-width: 0;
+  font-size: 13px;
+}
+.lineup-guess-info small {
+  color: var(--color-ink-muted);
+}
+.lineup-guess-info span {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--color-ink-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lineup-tba-title {
+    animation: none;
+  }
+}

@@ -109,6 +109,19 @@ export function Venue({
   const isWide = useMediaQuery('(min-width: 768px)');
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
+  // Ask for notification permission on the first tap (browsers require a
+  // user gesture), as the old home page did.
+  useEffect(() => {
+    if (!('Notification' in window) || Notification.permission !== 'default') {
+      return;
+    }
+    const requestPermission = () => {
+      Notification.requestPermission();
+    };
+    document.addEventListener('click', requestPermission, { once: true });
+    return () => document.removeEventListener('click', requestPermission);
+  }, []);
+
   // the URL (?at=booth&round=…) is the source of truth for back/forward
   useEffect(() => {
     const fromUrl = readLocation();
@@ -262,7 +275,7 @@ export function Venue({
     ? isWide
       ? { x: -cover.right / 2, y: 0 }
       : { x: 0, y: cover.bottom / 2 - 24 }
-    : { x: 0, y: isWide ? 10 : 40 };
+    : { x: 0, y: isWide ? 10 : 25 };
 
   return (
     <div className="venue-root" data-open={isOpen || undefined}>

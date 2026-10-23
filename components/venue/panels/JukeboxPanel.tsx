@@ -60,7 +60,7 @@ export function JukeboxPanel({ league, model, openRound }: PanelProps) {
               >
                 <div className="flex -space-x-3 shrink-0">
                   {round.submissions.slice(0, 3).map((s) => (
-                    // eslint-disable-next-line @next/next/no-img-element
+                     
                     <img
                       key={s._id}
                       src={s.trackInfo.albumImageUrl}

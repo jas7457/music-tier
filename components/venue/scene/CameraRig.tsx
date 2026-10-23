@@ -31,7 +31,7 @@ export function CameraRig({
   screenOffset: { x: number; y: number };
   reducedMotion: boolean;
 }) {
-  const { camera, size, gl } = useThree();
+  const { size, gl } = useThree();
   const target = useRef(OVERVIEW_TARGET.clone());
   const pan = useRef(new THREE.Vector3());
   const userZoom = useRef(1);
@@ -116,9 +116,15 @@ export function CameraRig({
     };
   }, [gl]);
 
-  useFrame((_, delta) => {
-    const cam = camera as THREE.OrthographicCamera;
-    const overviewZoom = Math.min(size.width / 18.5, size.height / 18);
+  useFrame((state, delta) => {
+    // mutated here, as R3F intends: the camera is the scene's, not React state
+    const cam = state.camera as THREE.OrthographicCamera;
+    // Landscape fits the whole room. Portrait phones zoom in so the room
+    // fills the height and the sides are a pan away.
+    const overviewZoom =
+      size.width < size.height
+        ? Math.min(size.width / 12, size.height / 17)
+        : Math.min(size.width / 18.5, size.height / 18);
     const desiredZoom =
       overviewZoom * (focus ? focus.zoom : 1) * userZoom.current;
 

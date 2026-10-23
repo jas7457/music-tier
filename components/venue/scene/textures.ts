@@ -190,14 +190,13 @@ function loadImageFrom(src: string) {
   });
 }
 
-// hosts we've seen refuse CORS go straight to the proxy next time
-const proxiedHosts = new Set<string>();
+// Whether each host serves CORS-readable images, learned from its first image
+// so the rest of that host's images don't each fail once first.
+const hostAllowsCors = new Map<string, Promise<boolean>>();
 
 function loadImage(url: string) {
   let promise = imageCache.get(url);
   if (!promise) {
-    // Straight from the host if it allows CORS, else via the same-origin
-    // image optimizer (hosts are allowed in next.config.js).
     const host = (() => {
       try {
         return new URL(url).host;
@@ -205,14 +204,24 @@ function loadImage(url: string) {
         return '';
       }
     })();
+    // Same-origin image optimizer for hosts without CORS (allowed hosts are
+    // listed in next.config.js).
     const viaProxy = () =>
       loadImageFrom(`/_next/image?url=${encodeURIComponent(url)}&w=256&q=75`);
-    promise = proxiedHosts.has(host)
-      ? viaProxy()
-      : loadImageFrom(url).catch(() => {
-          proxiedHosts.add(host);
-          return viaProxy();
-        });
+    const known = hostAllowsCors.get(host);
+    if (known) {
+      promise = known.then((allows) => (allows ? loadImageFrom(url) : viaProxy()));
+    } else {
+      const direct = loadImageFrom(url);
+      hostAllowsCors.set(
+        host,
+        direct.then(
+          () => true,
+          () => false,
+        ),
+      );
+      promise = direct.catch(viaProxy);
+    }
     // forget failures so a later visit can retry
     promise.catch(() => imageCache.delete(url));
     imageCache.set(url, promise);
@@ -286,3 +295,18 @@ export const AVATAR_COLORS = [
   '#6366f1',
   '#d946ef',
 ];
+
+/** Three music-note glyphs in a row, one per 128px cell (for sprite atlases). */
+export function noteAtlasTexture() {
+  const { canvas, ctx } = makeCanvas(384, 128);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `700 96px ${FONT}`;
+  ['♪', '♫', '♬'].forEach((glyph, i) => {
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 16;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(glyph, 64 + i * 128, 68);
+  });
+  return finish(canvas);
+}

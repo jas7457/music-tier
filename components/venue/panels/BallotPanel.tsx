@@ -1,6 +1,6 @@
 'use client';
 
-import VotingRound from '@/components/VotingRound';
+import { BallotBox } from './ballot/BallotBox';
 import type { PanelProps } from './types';
 
 /** The ballot box: spend your points and guess who brought what. */
@@ -29,7 +29,7 @@ export function BallotPanel({ league, user, model, goTo }: PanelProps) {
   }
   return (
     <div className="venue-panel">
-      <VotingRound
+      <BallotBox
         key={round.stage}
         round={round}
         league={league}

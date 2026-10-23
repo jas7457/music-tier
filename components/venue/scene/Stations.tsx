@@ -305,7 +305,7 @@ function DjBooth({ data, reducedMotion }: StationProps) {
             <meshStandardMaterial color="#0b0b0f" roughness={0.3} />
           </mesh>
           <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.16, 32]} />
+            <circleGeometry args={[0.3, 40]} />
             {art ? (
               <meshBasicMaterial map={art} toneMapped={false} />
             ) : (

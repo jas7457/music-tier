@@ -1,6 +1,7 @@
 'use client';
 
 import { Round } from '@/components/Round';
+import { RoundResults } from './results/RoundResults';
 import { getRoundTitle } from '@/lib/utils/getRoundTitle';
 import type { PopulatedRound } from '@/lib/types';
 import { getRoundResults } from '../venueModel';
@@ -22,6 +23,20 @@ export function CratesPanel({
     ? model.allRounds.find((round) => round._id === roundId)
     : undefined;
 
+  if (selected?.stage === 'completed' && selected._id) {
+    return (
+      <div className="venue-panel">
+        <RoundResults
+          key={selected._id}
+          round={selected}
+          league={league}
+          user={user}
+          openRound={openRound}
+        />
+      </div>
+    );
+  }
+
   if (selected) {
     return (
       <div className="venue-panel">
@@ -36,17 +51,24 @@ export function CratesPanel({
     );
   }
 
+  // Kickoff/bonus rounds can sit in any of the league's round lists, so group
+  // from all of them.
+  const seen = new Set<string>();
+  const everyRound = sortRounds(model.allRounds).filter((round) => {
+    const key = round._id || `pending-${round.roundIndex}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
   const groups: Array<{ title: string; rounds: PopulatedRound[] }> = [
-    { title: 'Kickoff', rounds: league.rounds.kickoff },
+    { title: 'Kickoff', rounds: everyRound.filter((r) => r.isKickoffRound) },
     {
       title: 'This season',
-      rounds: sortRounds([
-        ...league.rounds.completed,
-        ...(league.rounds.current ? [league.rounds.current] : []),
-        ...league.rounds.upcoming,
-      ]).filter((r) => !r.isBonusRound && !r.isKickoffRound),
+      rounds: everyRound.filter((r) => !r.isKickoffRound && !r.isBonusRound),
     },
-    { title: 'Bonus', rounds: league.rounds.bonus },
+    { title: 'Bonus', rounds: everyRound.filter((r) => r.isBonusRound) },
   ].filter((group) => group.rounds.length > 0);
 
   return (
@@ -102,7 +124,7 @@ function Sleeve({
     >
       <div className="venue-sleeve-art">
         {art ? (
-          // eslint-disable-next-line @next/next/no-img-element
+           
           <img src={art} alt="" loading="lazy" />
         ) : (
           <span>{round.roundIndex + 1}</span>

@@ -125,11 +125,12 @@ export function Hud({
                 data-quest={(quest?.urgent && quest.station === id) || undefined}
                 style={{ '--station-color': station.color } as React.CSSProperties}
                 onClick={() => onSelect(id)}
+                aria-label={`${station.label}: ${station.hint}`}
               >
                 <span className="venue-dock-emoji" aria-hidden>
                   {station.emoji}
                 </span>
-                <span className="venue-dock-label">{station.hint}</span>
+                <span className="venue-dock-label">{station.short}</span>
               </button>
             );
           })}
