@@ -23,6 +23,7 @@ export type VenueCanvasProps = {
   reducedMotion: boolean;
   onSelectStation: (id: StationId) => void;
   onFloorTap: (point: Vec3) => void;
+  onNearStation: (id: StationId | null) => void;
 };
 
 export default function VenueCanvas({
@@ -36,6 +37,7 @@ export default function VenueCanvas({
   reducedMotion,
   onSelectStation,
   onFloorTap,
+  onNearStation,
 }: VenueCanvasProps) {
   const playerPosition = useRef(new THREE.Vector3(...SPAWN));
   // don't leave a pointer cursor behind if the scene goes while hovering
@@ -101,6 +103,7 @@ export default function VenueCanvas({
         destination={destination}
         reducedMotion={reducedMotion}
         positionRef={playerPosition}
+        onNearStation={onNearStation}
       />
     </Canvas>
   );

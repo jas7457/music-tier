@@ -123,3 +123,33 @@ export function findPath(start: Point, goal: Point, depth = 0): Point[] {
   }
   return best ?? [goal];
 }
+
+const ROOM_LIMIT = 6.6;
+
+/** Whether a spot on the floor is walkable (inside the room, not furniture). */
+export function isWalkable(p: Point): boolean {
+  if (Math.abs(p.x) > ROOM_LIMIT || Math.abs(p.z) > ROOM_LIMIT) {
+    return false;
+  }
+  return !OBSTACLES.some((box) => inside(p, box));
+}
+
+/**
+ * One step of free movement (keyboard): goes as far as it can and slides
+ * along walls and furniture instead of stopping dead.
+ */
+export function stepTowards(from: Point, dx: number, dz: number): Point {
+  const full = { x: from.x + dx, z: from.z + dz };
+  if (isWalkable(full)) {
+    return full;
+  }
+  const alongX = { x: from.x + dx, z: from.z };
+  if (dx !== 0 && isWalkable(alongX)) {
+    return alongX;
+  }
+  const alongZ = { x: from.x, z: from.z + dz };
+  if (dz !== 0 && isWalkable(alongZ)) {
+    return alongZ;
+  }
+  return from;
+}

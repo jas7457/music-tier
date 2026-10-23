@@ -5,7 +5,9 @@ import { useEffect, useMemo, useRef } from 'react';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import { Billboard } from '@react-three/drei';
 import { showBubble, useTrackAnchor } from './anchors';
-import { findPath, freeSpot } from './pathing';
+import { findPath, freeSpot, stepTowards } from './pathing';
+import { useMovementKeys } from './keyboard';
+import { STATION_ORDER, STATIONS, type StationId } from '../stations';
 import type { FriendState } from '../venueModel';
 import {
   AVATAR_COLORS,
@@ -322,15 +324,25 @@ export function Player({
   destination,
   reducedMotion,
   onArrive,
+  onNearStation,
   positionRef,
 }: {
   me: FriendState;
   destination: Vec3 | null;
   reducedMotion: boolean;
   onArrive?: () => void;
+  // after walking with the keyboard: the station you're standing at, if any
+  onNearStation?: (id: StationId | null) => void;
   positionRef: React.RefObject<THREE.Vector3>;
 }) {
   const root = useRef<THREE.Group>(null);
+  const readKeys = useMovementKeys();
+  const nearRef = useRef<StationId | null>(null);
+  const usedKeysRef = useRef(false);
+  const nearCallback = useRef(onNearStation);
+  useEffect(() => {
+    nearCallback.current = onNearStation;
+  }, [onNearStation]);
   useTrackAnchor(`friend:${me.user._id}`, root, 2.05);
   const movingRef = useRef(false);
   const waypoints = useRef<THREE.Vector3[]>([]);
@@ -348,6 +360,7 @@ export function Player({
       z: THREE.MathUtils.clamp(destination[2], -ROOM_HALF + 0.6, ROOM_HALF - 0.4),
     });
     const start = positionRef.current;
+    usedKeysRef.current = false;
     const path = findPath({ x: start.x, z: start.z }, goal);
     waypoints.current = path.map((p) => new THREE.Vector3(p.x, 0, p.z));
     if (reducedMotion) {
@@ -356,13 +369,58 @@ export function Player({
     }
   }, [destination, reducedMotion, positionRef]);
 
+  const reportNear = (pos: THREE.Vector3) => {
+    // only offered after keyboard walking; taps open stations directly
+    let near: StationId | null = null;
+    if (usedKeysRef.current) {
+      let best = 1.6;
+      for (const id of STATION_ORDER) {
+        const [x, , z] = STATIONS[id].approach;
+        const distance = Math.hypot(pos.x - x, pos.z - z);
+        if (distance < best) {
+          best = distance;
+          near = id;
+        }
+      }
+    }
+    if (near !== nearRef.current) {
+      nearRef.current = near;
+      nearCallback.current?.(near);
+    }
+  };
+
   useFrame((_, delta) => {
     const group = root.current;
     if (!group) {
       return;
     }
     const pos = positionRef.current;
-    let budget = Math.min(delta, 0.1) * 4.2;
+    const speed = 4.2;
+
+    // Keyboard: walk in the held direction, relative to the screen (up is
+    // away from the camera), sliding along furniture.
+    const input = readKeys();
+    if (input) {
+      waypoints.current = [];
+      usedKeysRef.current = true;
+      const step = Math.min(delta, 0.1) * speed;
+      const dx = (input.x - input.y) * Math.SQRT1_2;
+      const dz = (-input.x - input.y) * Math.SQRT1_2;
+      const next = stepTowards({ x: pos.x, z: pos.z }, dx * step, dz * step);
+      const moved = next.x !== pos.x || next.z !== pos.z;
+      pos.set(next.x, 0, next.z);
+      group.rotation.y = lerpAngle(
+        group.rotation.y,
+        Math.atan2(dx, dz),
+        Math.min(1, delta * 14),
+      );
+      movingRef.current = moved;
+      group.position.copy(pos);
+      reportNear(pos);
+      return;
+    }
+
+    let budget = Math.min(delta, 0.1) * speed;
     while (waypoints.current.length > 0 && budget > 0) {
       const goal = waypoints.current[0];
       const toGoal = goal.clone().sub(pos);
@@ -385,7 +443,10 @@ export function Player({
     }
     movingRef.current = waypoints.current.length > 0;
     group.position.copy(pos);
+    reportNear(pos);
   });
+
+
 
   return (
     <group

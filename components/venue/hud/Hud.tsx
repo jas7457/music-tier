@@ -18,9 +18,11 @@ export function Hud({
   selected,
   isOpen,
   isWide,
+  nearStation,
   onSelect,
 }: {
   isWide: boolean;
+  nearStation: StationId | null;
   league: PopulatedLeague;
   user: PopulatedUser;
   model: VenueModel;
@@ -123,7 +125,22 @@ export function Hud({
         // on phones the panel covers the dock: keep it out of the tab order
         inert={isOpen && !isWide}
       >
-        {quest && !isOpen && (
+        {nearStation && !isOpen && (
+          <button
+            type="button"
+            className="venue-near"
+            style={
+              { '--station-color': STATIONS[nearStation].color } as React.CSSProperties
+            }
+            onClick={() => onSelect(nearStation)}
+          >
+            <kbd>E</kbd>
+            <span>
+              {STATIONS[nearStation].emoji} Open {STATIONS[nearStation].label}
+            </span>
+          </button>
+        )}
+        {quest && !isOpen && !nearStation && (
           <button
             type="button"
             className="venue-quest"

@@ -34,6 +34,7 @@ import { ExitPanel } from './panels/ExitPanel';
 import type { PanelProps } from './panels/types';
 import type { StationSceneData } from './scene/Stations';
 import { getRoundTitle } from '@/lib/utils/getRoundTitle';
+import { isTyping } from './scene/keyboard';
 import './venue.css';
 
 const VenueCanvas = dynamic(() => import('./scene/VenueCanvas'), {
@@ -112,6 +113,8 @@ export function Venue({
     initialStation ? [...STATIONS[initialStation].approach] : null,
   );
   const [cover, setCover] = useState({ bottom: 0, right: 0 });
+  // the station you've walked up to with the keyboard
+  const [nearStation, setNearStation] = useState<StationId | null>(null);
   const [webglFailed, setWebglFailed] = useState(false);
   const isWide = useMediaQuery('(min-width: 768px)');
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
@@ -199,6 +202,33 @@ export function Venue({
     },
     [navigate, location.station],
   );
+
+  const goToRef = useRef(goTo);
+  useEffect(() => {
+    goToRef.current = goTo;
+  }, [goTo]);
+
+  // E (or Enter) opens the station you're standing at
+  useEffect(() => {
+    if (!nearStation || location.station) {
+      return;
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) {
+        return;
+      }
+      const onControl = (e.target as HTMLElement | null)?.closest?.(
+        'button, a, [role="button"]',
+      );
+      if (e.code === 'KeyE' || (e.code === 'Enter' && !onControl)) {
+        e.preventDefault();
+        goToRef.current(nearStation);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [nearStation, location.station]);
+
 
   const openRound = useCallback(
     (roundId: string) => {
@@ -338,6 +368,7 @@ export function Venue({
               paused={isOpen && !isWide && sheetSize === 'full'}
               reducedMotion={reducedMotion}
               onSelectStation={goTo}
+              onNearStation={setNearStation}
               onFloorTap={(point) => {
                 setDestination(point);
                 if (isOpen) {
@@ -370,6 +401,7 @@ export function Venue({
         selected={location.station}
         isOpen={isOpen}
         isWide={isWide}
+        nearStation={location.station ? null : nearStation}
         onSelect={goTo}
       />
 

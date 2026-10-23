@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { findPath, freeSpot } from './pathing';
+import { findPath, freeSpot, isWalkable, stepTowards } from './pathing';
 import { SPAWN, STATIONS, STATION_ORDER } from '../stations';
 
 const at = (v: readonly number[]) => ({ x: v[0], z: v[2] });
@@ -41,5 +41,28 @@ describe('freeSpot', () => {
     for (const id of STATION_ORDER) {
       expect(freeSpot(at(STATIONS[id].approach))).toEqual(at(STATIONS[id].approach));
     }
+  });
+});
+
+describe('stepTowards', () => {
+  it('moves freely on open floor', () => {
+    expect(stepTowards({ x: 0, z: 0 }, 0.1, 0.1)).toEqual({ x: 0.1, z: 0.1 });
+  });
+
+  it('stops at the walls', () => {
+    expect(stepTowards({ x: 6.55, z: 0 }, 0.2, 0)).toEqual({ x: 6.55, z: 0 });
+  });
+
+  it('slides along furniture instead of stopping', () => {
+    // just in front of the stage's edge (z -3.95 with margin), pushing
+    // diagonally into it
+    const next = stepTowards({ x: 0, z: -3.9 }, 0.1, -0.1);
+    expect(next).toEqual({ x: 0.1, z: -3.9 });
+  });
+
+  it('agrees with isWalkable', () => {
+    expect(isWalkable({ x: 0, z: 0 })).toBe(true);
+    expect(isWalkable({ x: 0.5, z: -5.5 })).toBe(false); // on the stage
+    expect(isWalkable({ x: 9, z: 0 })).toBe(false); // outside the room
   });
 });
