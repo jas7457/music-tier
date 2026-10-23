@@ -18,11 +18,14 @@ export function Round({
   round,
   league,
   isRoundPage,
+  onNavigateRound,
 }: {
   currentUser: PopulatedUser;
   round: PopulatedRound;
   league: PopulatedLeague;
   isRoundPage: boolean;
+  // when given, previous/next round go through this instead of a page link
+  onNavigateRound?: (roundId: string) => void;
 }) {
   const [showVotesView, setShowVotesView] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -152,22 +155,28 @@ export function Round({
           <div className="grid grid-cols-[1fr_1fr] gap-1 text-sm">
             <div className="truncate">
               {round.previousRound && previousRoundId && (
-                <Link
+                <RoundNavLink
                   href={`/leagues/${league._id}/rounds/${round.previousRound._id}`}
-                  className="inline-flex items-center gap-1 font-medium text-primary-dark hover:text-primary-darkest hover:underline"
+                  onNavigate={
+                    onNavigateRound
+                      ? () => onNavigateRound(previousRoundId)
+                      : undefined
+                  }
                 >
                   ← Round {round.previousRound.roundIndex + 1}
-                </Link>
+                </RoundNavLink>
               )}
             </div>
             <div className="truncate text-right">
               {round.nextRound && nextRoundId && (
-                <Link
+                <RoundNavLink
                   href={`/leagues/${league._id}/rounds/${round.nextRound._id}`}
-                  className="inline-flex items-center gap-1 font-medium text-primary-dark hover:text-primary-darkest hover:underline"
+                  onNavigate={
+                    onNavigateRound ? () => onNavigateRound(nextRoundId) : undefined
+                  }
                 >
                   Round {round.nextRound.roundIndex + 1} →
-                </Link>
+                </RoundNavLink>
               )}
             </div>
           </div>
@@ -268,5 +277,30 @@ export function Round({
         </div>
       )}
     </div>
+  );
+}
+
+function RoundNavLink({
+  href,
+  onNavigate,
+  children,
+}: {
+  href: string;
+  onNavigate?: () => void;
+  children: React.ReactNode;
+}) {
+  const className =
+    'inline-flex items-center gap-1 font-medium text-primary-dark hover:text-primary-darkest hover:underline';
+  if (onNavigate) {
+    return (
+      <button type="button" className={className} onClick={onNavigate}>
+        {children}
+      </button>
+    );
+  }
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
   );
 }

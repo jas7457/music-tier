@@ -46,6 +46,7 @@ export function CratesPanel({
           round={selected}
           league={league}
           isRoundPage
+          onNavigateRound={openRound}
         />
       </div>
     );

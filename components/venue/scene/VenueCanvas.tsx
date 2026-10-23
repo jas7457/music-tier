@@ -1,7 +1,7 @@
 'use client';
 
 import * as THREE from 'three';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Canvas, ThreeEvent } from '@react-three/fiber';
 import { Room } from './Room';
 import { Stations, StationSceneData } from './Stations';
@@ -23,7 +23,6 @@ export type VenueCanvasProps = {
   reducedMotion: boolean;
   onSelectStation: (id: StationId) => void;
   onFloorTap: (point: Vec3) => void;
-  onPlayerArrive?: () => void;
 };
 
 export default function VenueCanvas({
@@ -37,9 +36,10 @@ export default function VenueCanvas({
   reducedMotion,
   onSelectStation,
   onFloorTap,
-  onPlayerArrive,
 }: VenueCanvasProps) {
   const playerPosition = useRef(new THREE.Vector3(...SPAWN));
+  // don't leave a pointer cursor behind if the scene goes while hovering
+  useEffect(() => () => void (document.body.style.cursor = ''), []);
   return (
     <Canvas
       orthographic
@@ -100,7 +100,6 @@ export default function VenueCanvas({
         me={me}
         destination={destination}
         reducedMotion={reducedMotion}
-        onArrive={onPlayerArrive}
         positionRef={playerPosition}
       />
     </Canvas>

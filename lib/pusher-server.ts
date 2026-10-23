@@ -9,6 +9,7 @@ import {
 } from './utils/constants';
 
 import type { Notification } from './notifications';
+import { isSandbox } from '@/lib/sandbox';
 
 let pusherInstance: Pusher | null = null;
 
@@ -31,7 +32,7 @@ export async function triggerRealTimeUpdate({
   userIds,
 }: { userIds?: string[] } = {}) {
   // Sandbox mode must never publish to the real (shared) Pusher channels.
-  if (process.env.SANDBOX === '1') {
+  if (isSandbox()) {
     return;
   }
   const pusher = getPusherServer();
@@ -39,7 +40,7 @@ export async function triggerRealTimeUpdate({
 }
 
 export async function triggerNotifications(notifications: Notification[]) {
-  if (notifications.length === 0 || process.env.SANDBOX === '1') {
+  if (notifications.length === 0 || isSandbox()) {
     return;
   }
   const pusher = getPusherServer();

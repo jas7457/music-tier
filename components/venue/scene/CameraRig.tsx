@@ -39,11 +39,14 @@ export function CameraRig({
   const right = useRef(new THREE.Vector3());
   const up = useRef(new THREE.Vector3());
 
-  // a new focus resets any manual panning / zooming
+  // a new focus resets any manual panning / zooming (by value: the focus
+  // object itself is rebuilt on every render)
+  const focusPoint = focus?.point;
+  const focusZoom = focus?.zoom;
   useEffect(() => {
     pan.current.set(0, 0, 0);
     userZoom.current = 1;
-  }, [focus]);
+  }, [focusPoint, focusZoom]);
 
   // gestures
   useEffect(() => {
@@ -87,6 +90,8 @@ export function CameraRig({
       pan.current
         .addScaledVector(right.current, -dx / z)
         .addScaledVector(up.current, dy / z);
+      // no dead zone past the edge of the room
+      pan.current.clampLength(0, 9);
     };
     const onUp = (e: PointerEvent) => {
       pointers.delete(e.pointerId);

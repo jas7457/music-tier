@@ -7,13 +7,14 @@ import {
   deleteSpotifyTokenCookies,
   setSpotifyTokenCookies,
 } from '@/lib/spotifyCookies';
+import { isSandbox } from '@/lib/sandbox';
 
 export async function POST(request: NextRequest) {
   const refreshToken = request.cookies.get('spotify_refresh_token')?.value;
 
   // The sandbox (pnpm dev:sandbox) signs in with fake Spotify tokens; don't
   // let a failed refresh sign the fake user out.
-  if (process.env.SANDBOX === '1') {
+  if (isSandbox()) {
     return NextResponse.json({ success: true });
   }
 

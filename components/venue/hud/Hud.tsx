@@ -17,8 +17,10 @@ export function Hud({
   model,
   selected,
   isOpen,
+  isWide,
   onSelect,
 }: {
+  isWide: boolean;
   league: PopulatedLeague;
   user: PopulatedUser;
   model: VenueModel;
@@ -115,7 +117,12 @@ export function Hud({
         </div>
       )}
 
-      <div className="venue-bottom" data-open={isOpen || undefined}>
+      <div
+        className="venue-bottom"
+        data-open={isOpen || undefined}
+        // on phones the panel covers the dock: keep it out of the tab order
+        inert={isOpen && !isWide}
+      >
         {quest && !isOpen && (
           <button
             type="button"

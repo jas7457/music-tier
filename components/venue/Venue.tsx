@@ -1,7 +1,14 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Component, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Component,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { PopulatedLeague, PopulatedPoll, PopulatedUser } from '@/lib/types';
 import type { LeagueSummary } from '@/lib/data';
 import { useRealTimeUpdates } from '@/lib/PusherContext';
@@ -122,9 +129,26 @@ export function Venue({
     return () => document.removeEventListener('click', requestPermission);
   }, []);
 
+  // How many history entries the venue has pushed on top of the page's own
+  // entry, so closing can go back instead of piling up entries.
+  const pushedRef = useRef(0);
+
+  // the page's deep-link station, as first rendered
+  const [initial] = useState({ station: initialStation, roundId: initialRoundId });
+
   // the URL (?at=booth&round=…) is the source of truth for back/forward
   useEffect(() => {
     const fromUrl = readLocation();
+    if (!fromUrl && initial.station) {
+      // deep links (/leagues/x/rounds/y) open a station: put it in the URL
+      // so refresh and back agree with what's on screen
+      const url = new URL(window.location.href);
+      url.searchParams.set('at', initial.station);
+      if (initial.roundId) {
+        url.searchParams.set('round', initial.roundId);
+      }
+      window.history.replaceState(null, '', url);
+    }
     if (fromUrl) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocation(fromUrl);
@@ -133,6 +157,7 @@ export function Venue({
       }
     }
     const onPop = () => {
+      pushedRef.current = Math.max(0, pushedRef.current - 1);
       const next = readLocation() ?? { station: null, roundId: null };
       setLocation(next);
       if (next.station) {
@@ -141,7 +166,7 @@ export function Venue({
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
-  }, []);
+  }, [initial]);
 
   const navigate = useCallback((next: Location, replace = false) => {
     setLocation(next);
@@ -158,8 +183,12 @@ export function Venue({
     }
     // Pass null state: Next.js syncs its router with native history calls
     // only when the state isn't its own, so router.refresh() keeps ?at=.
-    const method = replace ? 'replaceState' : 'pushState';
-    window.history[method](null, '', url);
+    if (replace) {
+      window.history.replaceState(null, '', url);
+    } else {
+      pushedRef.current += 1;
+      window.history.pushState(null, '', url);
+    }
   }, []);
 
   const goTo = useCallback(
@@ -180,7 +209,16 @@ export function Venue({
   );
 
   const close = useCallback(() => {
-    navigate({ station: null, roundId: null });
+    if (pushedRef.current > 0) {
+      // back to the entry we started from; popstate syncs the state
+      const steps = pushedRef.current;
+      // the single popstate this fires decrements it to 0
+      pushedRef.current = 1;
+      window.history.go(-steps);
+      setLocation({ station: null, roundId: null });
+      return;
+    }
+    navigate({ station: null, roundId: null }, true);
   }, [navigate]);
 
   const station = location.station ? STATIONS[location.station] : null;
@@ -331,6 +369,7 @@ export function Venue({
         model={model}
         selected={location.station}
         isOpen={isOpen}
+        isWide={isWide}
         onSelect={goTo}
       />
 

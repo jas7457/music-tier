@@ -3,6 +3,7 @@
 import Link from '@/components/AppLink';
 import { Avatar } from '@/components/Avatar';
 import { useAuth } from '@/lib/AuthContext';
+import { formatDate } from '@/lib/utils/formatDate';
 import type { PanelProps } from './types';
 
 /** The exit: other leagues, your profile, settings, sign out. */
@@ -33,12 +34,13 @@ export function ExitPanel({ league, user, otherLeagues }: PanelProps) {
             {others.map((other) => (
               <Link key={other._id} href={`/leagues/${other._id}`} className="venue-row">
                 <span className="text-2xl" aria-hidden>
-                  {other.leagueStartDate > now ? '🎟️' : '🏚️'}
+                  {other.leagueStartDate > now ? '🎟️' : '🏟️'}
                 </span>
                 <div className="min-w-0">
                   <div className="font-semibold truncate">{other.title}</div>
                   <div className="text-xs text-ink-subtle">
-                    {other.leagueStartDate > now ? 'Opening soon' : 'Past league'} ·{' '}
+                    {other.leagueStartDate > now ? 'Opens' : 'Opened'}{' '}
+                    {formatDate(other.leagueStartDate, { year: 'numeric' })} ·{' '}
                     {other.memberCount} players
                   </div>
                 </div>

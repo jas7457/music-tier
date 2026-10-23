@@ -40,6 +40,8 @@ export function Sheet({
   const dragStart = useRef<{ y: number; time: number } | null>(null);
   const [viewportHeight, setViewportHeight] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const update = () => setViewportHeight(window.innerHeight);
@@ -48,27 +50,41 @@ export function Sheet({
     return () => window.removeEventListener('resize', update);
   }, []);
 
-  const height = (() => {
-    if (!viewportHeight) {
-      return 0;
-    }
-    return size === 'full'
-      ? viewportHeight - 56
-      : Math.round(viewportHeight * 0.58);
-  })();
-
-  // tell the camera what's covered
+  // Heights are CSS (so they account for the music player bar below the
+  // sheet); report what's actually covered to the camera.
   useEffect(() => {
-    if (!open) {
+    const element = sectionRef.current;
+    if (!open || !element) {
       onCoverChange({ bottom: 0, right: 0 });
       return;
     }
     if (isWide) {
       onCoverChange({ bottom: 0, right: 460 });
-    } else {
-      onCoverChange({ bottom: height, right: 0 });
+      return;
     }
-  }, [open, isWide, height, onCoverChange]);
+    const measure = () => {
+      const bottom = parseFloat(getComputedStyle(element).bottom) || 0;
+      onCoverChange({ bottom: element.offsetHeight + bottom, right: 0 });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [open, isWide, size, onCoverChange]);
+
+  // Move focus into the panel when it opens and give it back when it closes.
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const previous = document.activeElement as HTMLElement | null;
+    titleRef.current?.focus({ preventScroll: true });
+    return () => {
+      if (previous && document.contains(previous)) {
+        previous.focus({ preventScroll: true });
+      }
+    };
+  }, [open]);
 
   // new content starts at the top
   useEffect(() => {
@@ -80,7 +96,8 @@ export function Sheet({
       return;
     }
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      // popovers / search handle their own Escape first
+      if (e.key === 'Escape' && !e.defaultPrevented) {
         onClose();
       }
     };
@@ -160,7 +177,13 @@ export function Sheet({
             {emoji}
           </span>
         )}
-        <h2 className="venue-sheet-title truncate">{title}</h2>
+        <h2
+          ref={titleRef}
+          tabIndex={-1}
+          className="venue-sheet-title truncate outline-none"
+        >
+          {title}
+        </h2>
       </div>
       <div className="flex items-center gap-1">
         {!isWide && (
@@ -191,6 +214,8 @@ export function Sheet({
 
   return (
     <section
+      ref={sectionRef}
+      data-size={size}
       aria-hidden={!open}
       aria-label={title}
       className={twMerge(
@@ -202,7 +227,6 @@ export function Sheet({
         isWide
           ? undefined
           : {
-              height: height || '58vh',
               transform: open
                 ? `translateY(${Math.max(0, dragOffset)}px)`
                 : 'translateY(105%)',

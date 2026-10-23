@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { getCollection } from '@/lib/mongodb';
 import {
   League,
@@ -60,7 +61,11 @@ type RawLeague = Omit<League, '_id'> & { _id: string };
  * leagues newest first, then upcoming ones, with test leagues last. Cheap — a
  * single query — so callers can decide which leagues to populate.
  */
-async function getRawUserLeagues(userId: string): Promise<RawLeague[]> {
+// Cached per request: venue pages ask for it more than once (the league plus
+// the summaries of the others).
+const getRawUserLeagues = cache(async function getRawUserLeagues(
+  userId: string,
+): Promise<RawLeague[]> {
   const { leaguesCollection } = await dbPromise;
   const now = Date.now();
   return (
@@ -92,7 +97,7 @@ async function getRawUserLeagues(userId: string): Promise<RawLeague[]> {
       }
       return leagueB.leagueStartDate - leagueA.leagueStartDate;
     });
-}
+});
 
 function groupBy<T>(items: T[], getKey: (item: T) => string) {
   const map = new Map<string, T[]>();

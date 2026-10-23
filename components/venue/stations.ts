@@ -139,7 +139,10 @@ export const STATION_ORDER: StationId[] = [
 ];
 
 export function isStationId(value: unknown): value is StationId {
-  return typeof value === 'string' && value in STATIONS;
+  return (
+    typeof value === 'string' &&
+    Object.prototype.hasOwnProperty.call(STATIONS, value)
+  );
 }
 
 // Where the player appears when they walk in.

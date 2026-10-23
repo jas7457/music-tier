@@ -8,6 +8,7 @@ import { CELEBRATE_EVENT, type CelebrateDetail } from '../celebrate';
 import { noteAtlasTexture, useCanvasTexture } from './textures';
 
 const CONFETTI = 140;
+const HIDDEN = new THREE.Vector3(0, -100, 0);
 const COLORS = ['#ff4fd8', '#38e1ff', '#7dff9b', '#ffe066', '#ffb547', '#b78cff'];
 
 /**
@@ -85,7 +86,7 @@ export function Confetti({ reducedMotion }: { reducedMotion: boolean }) {
         p.rotation.y += p.spin.y * delta;
         p.rotation.z += p.spin.z * delta;
       }
-      dummy.position.copy(p.life > 0 ? p.position : new THREE.Vector3(0, -100, 0));
+      dummy.position.copy(p.life > 0 ? p.position : HIDDEN);
       dummy.rotation.copy(p.rotation);
       dummy.updateMatrix();
       instance.setMatrixAt(i, dummy.matrix);

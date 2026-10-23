@@ -43,9 +43,11 @@ function StationHit({
   onSelect,
   isQuest,
   anchor = true,
+  reducedMotion,
   children,
 }: {
   id: StationId;
+  reducedMotion: boolean;
   onSelect: (id: StationId) => void;
   isQuest: boolean;
   // whether this is the station's labelled spot (props can share a station)
@@ -82,7 +84,13 @@ function StationHit({
       >
         {children}
       </group>
-      {isQuest && <QuestRing position={station.approach} color={station.color} />}
+      {isQuest && (
+        <QuestRing
+          position={station.approach}
+          color={station.color}
+          reducedMotion={reducedMotion}
+        />
+      )}
       {anchor && <StaticAnchor id={`station:${id}`} position={labelPos} />}
     </group>
   );
@@ -91,13 +99,15 @@ function StationHit({
 function QuestRing({
   position,
   color,
+  reducedMotion,
 }: {
   position: [number, number, number];
   color: string;
+  reducedMotion: boolean;
 }) {
   const ref = useRef<THREE.Mesh>(null);
   useFrame(({ clock }) => {
-    if (!ref.current) {
+    if (!ref.current || reducedMotion) {
       return;
     }
     const t = (clock.elapsedTime % 1.6) / 1.6;
@@ -125,7 +135,7 @@ export function Stations({
 }: StationProps & {
   onSelect: (id: StationId) => void;
 }) {
-  const common = { onSelect };
+  const common = { onSelect, reducedMotion };
   return (
     <group>
       <StationHit id="stage" {...common} isQuest={data.questStation === 'stage'}>

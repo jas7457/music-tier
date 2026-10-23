@@ -3,6 +3,7 @@ import type { User } from '@/databaseTypes';
 import { getCollection } from '@/lib/mongodb';
 import { createSessionToken } from '@/lib/auth';
 import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/sessionCookie';
+import { isSandbox } from '@/lib/sandbox';
 
 /**
  * Sandbox-only login (pnpm dev:sandbox). Signs in as a seeded fake user without
@@ -13,13 +14,15 @@ import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/sessionCookie';
  *   &next=/leagues/...             -> where to land (default /)
  */
 export async function GET(request: NextRequest) {
-  if (process.env.SANDBOX !== '1') {
+  if (!isSandbox()) {
     return new NextResponse('Not found', { status: 404 });
   }
 
   const userName = request.nextUrl.searchParams.get('userName') ?? 'jason';
   const next = request.nextUrl.searchParams.get('next');
-  const redirectTo = next && /^\/(?!\/)/.test(next) ? next : '/';
+  // same-origin paths only ("/x", not "//x" or "/\\x", which browsers treat as hosts)
+  const redirectTo =
+    next && /^\/(?![/\\])/.test(next) && !next.includes('\\') ? next : '/';
 
   const usersCollection = await getCollection<User>('users');
   const user = await usersCollection.findOne({ userName });

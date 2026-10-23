@@ -13,6 +13,7 @@ import type {
 import { getRoundResults } from '../../venueModel';
 import { RevealStage } from './RevealStage';
 import { markRevealSeen, useRevealSeen } from './useRevealSeen';
+import { getOnDeckInfo, OnDeckSubmissionsList } from '@/components/OnDeckSubmissions';
 import './reveal.css';
 
 type Phase = 'intro' | 'playing' | 'full';
@@ -164,8 +165,31 @@ export function RoundResults({
           ) : (
             <CompletedRound round={round} users={league.users} />
           )}
+          {getOnDeckInfo({ round, isRoundPage: true, isGeneralRoundSlot: true })
+            .isVisible && <OnDeck round={round} />}
         </>
       )}
     </div>
+  );
+}
+
+/** Your on-deck songs for the round, which can go on the side playlist. */
+function OnDeck({ round }: { round: PopulatedRound }) {
+  const [onDeck, setOnDeck] = useState<
+    Parameters<typeof OnDeckSubmissionsList>[0]['onDeckSubmissions']
+  >(round.onDeckSubmissions);
+  // keep in sync with refreshed data, as components/Round.tsx does
+  const [synced, setSynced] = useState(round.onDeckSubmissions);
+  if (synced !== round.onDeckSubmissions) {
+    setSynced(round.onDeckSubmissions);
+    setOnDeck(round.onDeckSubmissions);
+  }
+  return (
+    <OnDeckSubmissionsList
+      round={round}
+      isRoundPage
+      onDeckSubmissions={onDeck}
+      onUpdate={setOnDeck}
+    />
   );
 }

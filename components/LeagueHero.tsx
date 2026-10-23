@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PopulatedLeague, PopulatedUser } from '@/lib/types';
 import { ConfirmUploadButton } from './UploadThing';
 import { useToast } from '@/lib/ToastContext';
+import { useData } from '@/lib/DataContext';
 import { HapticButton } from './HapticButton';
 import { Portal } from './Portal';
 
@@ -22,6 +23,8 @@ export function LeagueHero({
   className?: string;
 }) {
   const toast = useToast();
+  // refetch so other views of the photo (e.g. the venue wall) update
+  const { refreshData } = useData();
   const [leagueImageUrl, setLeagueImageUrl] = useState(league.heroImageUrl);
   const [focalX, setFocalX] = useState(league.heroImageFocalX ?? 50);
   const [focalY, setFocalY] = useState(league.heroImageFocalY ?? 50);
@@ -189,6 +192,7 @@ export function LeagueHero({
         throw new Error(error.error || 'Failed to update focal point');
       }
       setHeroState('edit');
+      refreshData('manual');
       toast.show({
         variant: 'success',
         message: 'Focal point updated!',
@@ -245,6 +249,7 @@ export function LeagueHero({
                   setFocalX(50);
                   setFocalY(50);
                   setHeroState('edit');
+                  refreshData('manual');
                   toast.show({
                     variant: 'success',
                     message: 'Hero image updated successfully!',

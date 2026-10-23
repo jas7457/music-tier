@@ -107,6 +107,12 @@ function OnDeckFor({ round }: { round: PopulatedRound }) {
   const [onDeck, setOnDeck] = useState<
     Parameters<typeof OnDeckSubmissionsList>[0]['onDeckSubmissions']
   >(round.onDeckSubmissions);
+  // keep in sync with refreshed data, as components/Round.tsx does
+  const [synced, setSynced] = useState(round.onDeckSubmissions);
+  if (synced !== round.onDeckSubmissions) {
+    setSynced(round.onDeckSubmissions);
+    setOnDeck(round.onDeckSubmissions);
+  }
   return (
     <OnDeckSubmissionsList
       round={round}

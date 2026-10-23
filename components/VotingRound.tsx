@@ -100,6 +100,11 @@ export default function VotingRound({
   });
 
   useEffect(() => {
+    // Only an unsent ballot is a draft. Viewing a finished round's votes must
+    // not overwrite the draft of the round that's open for voting.
+    if (round.stage !== 'voting') {
+      return;
+    }
     localStorage.setItem(
       LOCAL_STORAGE_KEY,
       JSON.stringify({
@@ -109,7 +114,7 @@ export default function VotingRound({
         votes,
       }),
     );
-  }, [votes, round._id, league._id, currentUser._id]);
+  }, [votes, round.stage, round._id, league._id, currentUser._id]);
   const [saving, setSaving] = useState(false);
 
   // Calculate total votes used
