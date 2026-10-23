@@ -5,13 +5,14 @@ import { CreateRound } from '@/components/CreateRound';
 import { Avatar } from '@/components/Avatar';
 import { MultiLine } from '@/components/MultiLine';
 import { GracePeriodNotice } from '@/components/GracePeriodNotice';
+import { LeagueHero } from '@/components/LeagueHero';
 import { DateTime } from '@/components/DateTime';
 import { STATIONS } from '../stations';
 import type { PanelProps } from './types';
 import { Countdown } from '../hud/Countdown';
 
 /** The main stage: what this round is about and what you should do next. */
-export function StagePanel({ league, model, goTo, openRound }: PanelProps) {
+export function StagePanel({ league, user, model, goTo, openRound }: PanelProps) {
   const round = model.currentRound;
   const upcoming = league.rounds.upcoming.filter((r) => !r.isHidden).slice(0, 3);
 
@@ -107,6 +108,11 @@ export function StagePanel({ league, model, goTo, openRound }: PanelProps) {
 
       <section className="venue-card">
         <h3 className="venue-section-title">About {league.title}</h3>
+        <LeagueHero
+          league={league}
+          user={user}
+          className="relative mb-3 h-44 overflow-hidden rounded-xl bg-surface-sunken ring-1 ring-line"
+        />
         <p className="text-sm text-ink-muted leading-relaxed">
           <MultiLine>{league.description}</MultiLine>
         </p>

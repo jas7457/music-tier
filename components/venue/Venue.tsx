@@ -188,6 +188,8 @@ export function Venue({
   const sceneData: StationSceneData = useMemo(() => {
     const round = model.currentRound;
     return {
+      heroImageUrl: league.heroImageUrl ?? null,
+      heroFocal: [league.heroImageFocalX ?? 50, league.heroImageFocalY ?? 50],
       marqueeTitle: round
         ? getRoundTitle(round, false)
         : league.status === 'completed'

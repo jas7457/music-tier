@@ -7,6 +7,8 @@ import { logo } from '@/lib/utils/constants';
 import { STATION_ORDER, STATIONS, StationId } from '../stations';
 import type { VenueModel } from '../venueModel';
 import { Countdown } from './Countdown';
+import { SearchBar } from '@/components/SearchBar';
+import { useState } from 'react';
 
 /** Everything drawn over the 3D room: top bar, next-step prompt, dock. */
 export function Hud({
@@ -39,6 +41,7 @@ export function Hud({
     }
   })();
   const quest = model.quest;
+  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <>
@@ -76,15 +79,41 @@ export function Hud({
             </span>
           </span>
         </button>
-        <button
-          type="button"
-          className="venue-avatar-button"
-          onClick={() => onSelect('exit')}
-          aria-label="You, your leagues and settings"
-        >
-          <Avatar user={user} size={10} includeLink={false} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="venue-round-button"
+            onClick={() => setSearchOpen((open) => !open)}
+            aria-label={searchOpen ? 'Close search' : 'Search songs, artists and rounds'}
+            aria-expanded={searchOpen}
+          >
+            {searchOpen ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.5-3.5" />
+              </svg>
+            )}
+          </button>
+          <button
+            type="button"
+            className="venue-avatar-button"
+            onClick={() => onSelect('exit')}
+            aria-label="You, your leagues and settings"
+          >
+            <Avatar user={user} size={10} includeLink={false} />
+          </button>
+        </div>
       </header>
+
+      {searchOpen && (
+        <div className="venue-search">
+          <SearchBar />
+        </div>
+      )}
 
       <div className="venue-bottom" data-open={isOpen || undefined}>
         {quest && !isOpen && (

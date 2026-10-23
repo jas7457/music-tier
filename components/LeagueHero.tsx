@@ -1,36 +1,27 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { PopulatedLeague, PopulatedUser } from '@/lib/types';
-import { CreateRound } from './CreateRound';
-import { MaybeLink } from './MaybeLink';
-import { Avatar } from './Avatar';
-import { MultiLine } from './MultiLine';
-import { Pill } from './Pill';
-import { LeagueRounds } from './LeagueRounds';
-import { LeagueStandings } from './LeagueStandings';
-import { ToggleButton } from './ToggleButton';
-import { getAllRounds } from '@/lib/utils/getAllRounds';
-import { DateTime } from './DateTime';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { PopulatedLeague, PopulatedUser } from '@/lib/types';
 import { ConfirmUploadButton } from './UploadThing';
 import { useToast } from '@/lib/ToastContext';
 import { HapticButton } from './HapticButton';
-import { PlaylistPartyPlayback } from './playback/PlaylistPartyPlayback';
 import { Portal } from './Portal';
-import { useSpotifyPlayer } from '@/lib/SpotifyPlayerContext';
 
-export function League({
+/**
+ * The league's cover photo: tap to view full screen (pinch to zoom), and for
+ * the member who owns it, upload / replace it and pick its focal point.
+ * Renders nothing when there's no photo and you can't add one.
+ */
+export function LeagueHero({
   league,
   user,
+  className = 'relative h-56 md:h-64 overflow-hidden rounded-card bg-surface-sunken ring-1 ring-line shadow-soft',
 }: {
   league: PopulatedLeague;
   user: PopulatedUser;
+  className?: string;
 }) {
   const toast = useToast();
-  const { playTrack } = useSpotifyPlayer();
-  const [showStandings, setShowStandings] = useState(
-    league.status === 'completed',
-  );
   const [leagueImageUrl, setLeagueImageUrl] = useState(league.heroImageUrl);
   const [focalX, setFocalX] = useState(league.heroImageFocalX ?? 50);
   const [focalY, setFocalY] = useState(league.heroImageFocalY ?? 50);
@@ -52,7 +43,7 @@ export function League({
     x: number;
     y: number;
   } | null>(null);
-  const [playbackOpen, setPlaybackOpen] = useState(false);
+
 
   // Reset zoom when closing full-screen
   useEffect(() => {
@@ -167,81 +158,6 @@ export function League({
   const handleTouchEnd = () => {
     touchStartRef.current = null;
   };
-
-  const {
-    userHasCreatedRound,
-    userHasCreatedBonusRound,
-    userHasCreatedKickoffRound,
-    userCanCreateBonusRound,
-    userCanCreateKickoffRound,
-  } = useMemo(() => {
-    if (!user) {
-      return {
-        userHasCreatedRound: false,
-        userCanCreateBonusRound: false,
-        userHasCreatedBonusRound: false,
-        userCanCreateKickoffRound: false,
-        userHasCreatedKickoffRound: false,
-      };
-    }
-
-    // Check if user has created their round for this league
-    const allRounds = getAllRounds(league, {
-      includeFake: false,
-    });
-
-    return allRounds.reduce(
-      (acc, round) => {
-        if (round.creatorId !== user._id) {
-          return acc;
-        }
-        if (round.isBonusRound) {
-          acc.userHasCreatedBonusRound = true;
-        } else if (round.isKickoffRound) {
-          acc.userHasCreatedKickoffRound = true;
-        } else {
-          acc.userHasCreatedRound = true;
-        }
-        return acc;
-      },
-      {
-        userHasCreatedRound: false,
-        userHasCreatedBonusRound: false,
-        userHasCreatedKickoffRound: false,
-        userCanCreateBonusRound: league.bonusRoundUserIds.includes(user._id),
-        userCanCreateKickoffRound: league.kickoffRoundUserIds.includes(
-          user._id,
-        ),
-      },
-    );
-  }, [league, user]);
-
-  const finalVoteTimestamp = useMemo(() => {
-    const allVotes = league.rounds.completed.flatMap((round) => round.votes);
-    return allVotes.reduce(
-      (latest, vote) => Math.max(latest, vote.voteDate),
-      0,
-    );
-  }, [league]);
-
-  if (!user) {
-    return null;
-  }
-
-  const text = (() => {
-    switch (league.status) {
-      case 'active':
-        return 'Active';
-      case 'completed':
-        return 'Completed';
-      case 'upcoming':
-        return 'Upcoming';
-      case 'pending':
-        return 'Pending';
-      default:
-        return 'Unexpected league status. If you see this, tell Jason';
-    }
-  })();
 
   const handleFocalClick = async (e: React.MouseEvent<HTMLImageElement>) => {
     if (savingFocal) return;
@@ -415,8 +331,13 @@ export function League({
     }
   })();
 
+
+  if (!leagueImageUrl && league.heroImageUserId !== user._id) {
+    return null;
+  }
+
   return (
-    <div className="flex flex-col gap-6">
+    <>
       {/* Full-Screen Image Viewer */}
       {isImageFullScreen && leagueImageUrl && (
         <Portal>
@@ -462,7 +383,7 @@ export function League({
       )}
 
       {/* Hero Banner with Cover Photo */}
-      <div className="relative h-64 md:h-80 overflow-hidden rounded-card bg-surface-sunken ring-1 ring-line shadow-soft">
+      <div className={className}>
         {/* Background Image - cover normally, contained + centered in focal-pick mode */}
         {leagueImageUrl &&
           (heroStage === 'focal' ? (
@@ -499,26 +420,6 @@ export function League({
               }}
             />
           ))}
-
-        {/* Playlist Party Playback Overlay */}
-        {heroStage !== 'focal' && league.playback && (
-          <div className="absolute inset-0 bg-linear-to-br from-primary/50 to-black/40 backdrop-blur-sm flex justify-center items-center z-50">
-            <HapticButton
-              onClick={() => {
-                if (league.playback?.topSong) {
-                  playTrack({
-                    trackInfo: league.playback.topSong.trackInfo,
-                    round: 'same',
-                  });
-                }
-                setPlaybackOpen(true);
-              }}
-              className="px-6 py-3.5 rounded-full bg-white/10 ring-1 ring-white/40 backdrop-blur-md text-white font-semibold text-lg tracking-tight shadow-pop transition-all hover:scale-105 hover:bg-white/20 flex items-center gap-2"
-            >
-              🎵 Playlist Party Playback 🎵
-            </HapticButton>
-          </div>
-        )}
 
         {/* Gradient Overlay for readability */}
         {heroStage !== 'focal' && (
@@ -560,158 +461,8 @@ export function League({
           </div>
         )}
 
-        {/* Title and Status overlaid on cover */}
-        {heroStage !== 'focal' && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10">
-            <div className="flex flex-wrap items-center gap-3">
-              <MaybeLink
-                href={`/leagues/${league._id}`}
-                className="text-3xl md:text-4xl font-bold tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]"
-              >
-                {league.title}
-              </MaybeLink>
-              <Pill status={league.status}>{text}</Pill>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* League Info Section */}
-      <div className="flex flex-col gap-4">
-        {/* Avatars and Description */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          {league.users.map((user) => (
-            <Avatar
-              key={user._id}
-              user={user}
-              includeTooltip
-              tooltipText={`${user.userName}'s profile`}
-            />
-          ))}
-        </div>
-
-        <p className="text-ink-muted leading-relaxed">
-          <MultiLine>{league.description}</MultiLine>
-        </p>
-
-        {/* League stats — bento tiles */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
-          <div className="bento-tile glass p-3 md:p-4">
-            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
-              {league.numberOfRounds}
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
-              Rounds
-            </div>
-          </div>
-
-          <div className="bento-tile glass p-3 md:p-4">
-            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
-              {league.users.length}
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
-              Members
-            </div>
-          </div>
-
-          <div className="bento-tile glass p-3 md:p-4">
-            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
-              {league.daysForSubmission}
-              <span className="text-base font-semibold text-ink-subtle ml-1">
-                d
-              </span>
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
-              To submit
-            </div>
-          </div>
-
-          <div className="bento-tile glass p-3 md:p-4">
-            <div className="text-2xl md:text-3xl font-bold tabular-nums text-ink">
-              {league.daysForVoting}
-              <span className="text-base font-semibold text-ink-subtle ml-1">
-                d
-              </span>
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-ink-subtle mt-0.5">
-              To vote
-            </div>
-          </div>
-        </div>
-
-        {/* Timeline note and Rounds/Standings toggle */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm text-ink-subtle">
-            {league.status === 'completed' && finalVoteTimestamp > 0 && (
-              <DateTime prefix="League ended:">{finalVoteTimestamp}</DateTime>
-            )}
-            {league.status === 'upcoming' && (
-              <DateTime prefix="League starting:">
-                {league.leagueStartDate}
-              </DateTime>
-            )}
-          </div>
-
-          {/* Toggle between Rounds and Standings */}
-          <div className="inline-flex gap-1 p-1 rounded-control glass">
-            <ToggleButton
-              onClick={() => setShowStandings(false)}
-              selected={!showStandings}
-            >
-              Rounds
-            </ToggleButton>
-            <ToggleButton
-              onClick={() => setShowStandings(true)}
-              selected={showStandings}
-            >
-              Standings
-            </ToggleButton>
-          </div>
-        </div>
-      </div>
-
-      {/* Create Kickoff Round */}
-      {userCanCreateKickoffRound && !userHasCreatedKickoffRound && (
-        <CreateRound
-          leagueId={league._id}
-          isBonusRound={false}
-          isKickoffRound={true}
-        />
-      )}
-
-      {/* Create Round */}
-      {userHasCreatedRound ? null : (
-        <CreateRound
-          leagueId={league._id}
-          isBonusRound={false}
-          isKickoffRound={false}
-        />
-      )}
-
-      {/* Create Bonus Round */}
-      {userCanCreateBonusRound && !userHasCreatedBonusRound && (
-        <CreateRound
-          leagueId={league._id}
-          isBonusRound={true}
-          isKickoffRound={false}
-        />
-      )}
-
-      {/* Content */}
-      {showStandings ? (
-        <LeagueStandings league={league} />
-      ) : (
-        <LeagueRounds league={league} />
-      )}
-
-      {/* Playlist Party Playback Modal */}
-      {playbackOpen && (
-        <PlaylistPartyPlayback
-          league={league}
-          isOpen={playbackOpen}
-          onClose={() => setPlaybackOpen(false)}
-        />
-      )}
-    </div>
+    </>
   );
 }

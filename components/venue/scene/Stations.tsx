@@ -1,7 +1,7 @@
 'use client';
 
 import * as THREE from 'three';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import { STATIONS, StationId, ROOM_HALF } from '../stations';
 import {
@@ -14,6 +14,8 @@ import { NeonTube } from './Room';
 import { StaticAnchor } from './anchors';
 
 export type StationSceneData = {
+  heroImageUrl: string | null;
+  heroFocal: [number, number];
   marqueeTitle: string;
   marqueeSubtitle: string;
   moodColor: string;
@@ -40,11 +42,14 @@ function StationHit({
   id,
   onSelect,
   isQuest,
+  anchor = true,
   children,
 }: {
   id: StationId;
   onSelect: (id: StationId) => void;
   isQuest: boolean;
+  // whether this is the station's labelled spot (props can share a station)
+  anchor?: boolean;
   children: React.ReactNode;
 }) {
   const station = STATIONS[id];
@@ -78,7 +83,7 @@ function StationHit({
         {children}
       </group>
       {isQuest && <QuestRing position={station.approach} color={station.color} />}
-      <StaticAnchor id={`station:${id}`} position={labelPos} />
+      {anchor && <StaticAnchor id={`station:${id}`} position={labelPos} />}
     </group>
   );
 }
@@ -167,6 +172,11 @@ export function Stations({
       <StationHit id="exit" {...common} isQuest={data.questStation === 'exit'}>
         <ExitDoor />
       </StationHit>
+      {data.heroImageUrl && (
+        <StationHit id="stage" {...common} isQuest={false} anchor={false}>
+          <HeroFrame url={data.heroImageUrl} focal={data.heroFocal} />
+        </StationHit>
+      )}
     </group>
   );
 }
@@ -639,6 +649,53 @@ function ExitDoor() {
       <mesh position={[0.05, 2.9, 0]} rotation={[0, Math.PI / 2, 0]}>
         <planeGeometry args={[1.1, 0.38]} />
         <meshBasicMaterial map={sign} transparent toneMapped={false} />
+      </mesh>
+    </group>
+  );
+}
+
+/* ------------------------- League photo on the wall -------------------- */
+
+const FRAME_W = 2.4;
+const FRAME_H = 1.6;
+
+/** The league's cover photo, framed on the left wall (cropped round its focal point). */
+function HeroFrame({ url, focal }: { url: string; focal: [number, number] }) {
+  const source = useImageTexture(url);
+  const texture = useMemo(() => {
+    if (!source?.image) {
+      return null;
+    }
+    const image = source.image as HTMLImageElement;
+    const t = source.clone();
+    // cover-crop to the frame's aspect, centred on the focal point
+    const imageAspect = image.width / image.height;
+    const frameAspect = FRAME_W / FRAME_H;
+    if (imageAspect > frameAspect) {
+      t.repeat.set(frameAspect / imageAspect, 1);
+    } else {
+      t.repeat.set(1, imageAspect / frameAspect);
+    }
+    t.offset.set(
+      THREE.MathUtils.clamp((focal[0] / 100) * (1 - t.repeat.x) * 1, 0, 1 - t.repeat.x),
+      THREE.MathUtils.clamp((1 - focal[1] / 100) * (1 - t.repeat.y), 0, 1 - t.repeat.y),
+    );
+    t.needsUpdate = true;
+    return t;
+  }, [source, focal]);
+  useEffect(() => () => texture?.dispose(), [texture]);
+  if (!texture) {
+    return null;
+  }
+  return (
+    <group position={[-ROOM_HALF + 0.03, 2.5, -4.4]} rotation={[0, Math.PI / 2, 0]}>
+      <mesh position={[0, 0, -0.01]}>
+        <boxGeometry args={[FRAME_W + 0.2, FRAME_H + 0.2, 0.06]} />
+        <meshStandardMaterial color="#d4af37" metalness={0.7} roughness={0.35} />
+      </mesh>
+      <mesh position={[0, 0, 0.03]}>
+        <planeGeometry args={[FRAME_W, FRAME_H]} />
+        <meshBasicMaterial map={texture} toneMapped={false} />
       </mesh>
     </group>
   );

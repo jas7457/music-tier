@@ -45,11 +45,5 @@ export default async function Page() {
     );
   }
 
-  return (
-    <Home
-      currentLeague={currentLeague}
-      otherLeagues={otherLeagues}
-      user={user}
-    />
-  );
+  return <Home />;
 }
