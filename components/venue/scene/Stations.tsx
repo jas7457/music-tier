@@ -56,9 +56,12 @@ function StationHit({
   onSelect,
   isQuest,
   anchor = true,
+  shifted = true,
   reducedMotion,
   children,
 }: {
+  // move the props with the station (false for props placed in room coords)
+  shifted?: boolean;
   id: StationId;
   reducedMotion: boolean;
   onSelect: (id: StationId) => void;
@@ -95,7 +98,7 @@ function StationHit({
           document.body.style.cursor = '';
         }}
       >
-        {children}
+        <group position={shifted ? station.shift : undefined}>{children}</group>
       </group>
       {isQuest && (
         <QuestRing
@@ -197,7 +200,13 @@ export function Stations({
         <ExitDoor />
       </StationHit>
       {data.heroImageUrl && (
-        <StationHit id="stage" {...common} isQuest={false} anchor={false}>
+        <StationHit
+          id="stage"
+          {...common}
+          isQuest={false}
+          anchor={false}
+          shifted={false}
+        >
           <HeroFrame url={data.heroImageUrl} focal={data.heroFocal} />
         </StationHit>
       )}
@@ -788,7 +797,9 @@ function ExitDoor() {
     [],
   );
   return (
-    <group position={[-ROOM_HALF + 0.02, 0, 6]}>
+    // original-plan coordinates (left wall at x = -7); the station shift
+    // moves it onto the real wall
+    <group position={[-6.98, 0, 6]}>
       <mesh position={[0.02, 1.25, 0]} rotation={[0, Math.PI / 2, 0]}>
         <planeGeometry args={[1.3, 2.5]} />
         <ToonMaterial color="#3d2c5e" />
@@ -843,7 +854,7 @@ function HeroFrame({ url, focal }: { url: string; focal: [number, number] }) {
     return null;
   }
   return (
-    <group position={[-ROOM_HALF + 0.03, 2.5, -4.4]} rotation={[0, Math.PI / 2, 0]}>
+    <group position={[-ROOM_HALF + 0.03, 2.5, -6.6]} rotation={[0, Math.PI / 2, 0]}>
       <mesh position={[0, 0, -0.01]}>
         <boxGeometry args={[FRAME_W + 0.2, FRAME_H + 0.2, 0.06]} />
         <meshStandardMaterial color="#d4af37" metalness={0.7} roughness={0.35} />

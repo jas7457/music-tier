@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import { useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import type { Vec3 } from '../stations';
+import { ROOM_HALF, type Vec3 } from '../stations';
 
 // The diorama is always seen from the front-right, a little above.
 const VIEW_DIR = new THREE.Vector3(1, 0.92, 1).normalize();
@@ -103,7 +103,7 @@ export function CameraRig({
         .addScaledVector(right.current, -dx / z)
         .addScaledVector(up.current, dy / z);
       // no dead zone past the edge of the room
-      pan.current.clampLength(0, 9);
+      pan.current.clampLength(0, ROOM_HALF + 2);
     };
     const onUp = (e: PointerEvent) => {
       pointers.delete(e.pointerId);
@@ -179,8 +179,8 @@ export function CameraRig({
       .add(pan.current);
 
     // keep the room on screen
-    desiredTarget.x = THREE.MathUtils.clamp(desiredTarget.x, -7.5, 7.5);
-    desiredTarget.z = THREE.MathUtils.clamp(desiredTarget.z, -7.5, 7.5);
+    desiredTarget.x = THREE.MathUtils.clamp(desiredTarget.x, -ROOM_HALF - 0.5, ROOM_HALF + 0.5);
+    desiredTarget.z = THREE.MathUtils.clamp(desiredTarget.z, -ROOM_HALF - 0.5, ROOM_HALF + 0.5);
     desiredTarget.y = THREE.MathUtils.clamp(desiredTarget.y, -6, 6);
 
     const snap = reducedMotion || zoom.current === 0;

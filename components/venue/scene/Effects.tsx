@@ -112,10 +112,13 @@ export function Confetti({ reducedMotion }: { reducedMotion: boolean }) {
 /** Little glowing notes drifting up out of the speakers and the jukebox. */
 export function MusicNotes({ reducedMotion }: { reducedMotion: boolean }) {
   const textures = useCanvasTexture(noteAtlasTexture, []);
+  // the stage speakers and the jukebox, in room coordinates
+  const stage = STATIONS.stage.shift;
+  const jukebox = STATIONS.jukebox.shift;
   const sources: Array<[number, number, number]> = [
-    [-1.65, 2.4, -5.4],
-    [3.6, 1.9, -5.4],
-    [5.6, 2.2, -5.8],
+    [-1.65 + stage[0], 2.4, -5.4 + stage[2]],
+    [3.6 + stage[0], 1.9, -5.4 + stage[2]],
+    [5.6 + jukebox[0], 2.2, -5.8 + jukebox[2]],
   ];
   const notes = useMemo(
     () =>

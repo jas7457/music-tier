@@ -21,28 +21,29 @@ import { ROOM_HALF, type Vec3 } from '../stations';
 
 export type Pose = 'dance' | 'idle' | 'wait';
 
-const DANCE_CENTER: Vec3 = [0, 0, 0.6];
+const DANCE_CENTER: Vec3 = [0, 0, 0];
 
 /** Floor spots for people who are done (dancing) or still to go (lounging). */
 function getSpot(kind: 'dance' | 'wait', index: number, count: number): Vec3 {
   if (kind === 'dance') {
     const angle = (index / Math.max(count, 1)) * Math.PI * 2 + 0.4;
-    const radius = count <= 3 ? 1.2 : 1.9;
+    const radius = count <= 3 ? 1.8 : 2.8;
     return [
       DANCE_CENTER[0] + Math.cos(angle) * radius,
       0,
       DANCE_CENTER[2] + Math.sin(angle) * radius,
     ];
   }
+  // by the couch, then at the bar
   const lounge: Vec3[] = [
-    [1.2, 0, 5.3],
-    [2.2, 0, 5.4],
-    [3.2, 0, 5.3],
-    [5.6, 0, 2.2],
-    [6, 0, 0.9],
-    [-1.2, 0, 5.6],
-    [-2.2, 0, 5.2],
-    [0, 0, 6.2],
+    [1.2, 0, 8.6],
+    [2.3, 0, 8.7],
+    [3.3, 0, 8.6],
+    [7.4, 0, 2.3],
+    [7.4, 0, 3.6],
+    [-0.4, 0, 8.4],
+    [7.4, 0, 4.9],
+    [0.6, 0, 7.4],
   ];
   return lounge[index % lounge.length];
 }

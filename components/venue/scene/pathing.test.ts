@@ -10,11 +10,14 @@ describe('findPath', () => {
   });
 
   it('detours round the DJ booth instead of walking through it', () => {
-    const path = findPath({ x: -6.5, z: -3 }, { x: -6.5, z: 1.5 });
+    // straight up the wall side, which the booth (x -10.2..-9, z -3.3..0) blocks
+    const path = findPath({ x: -9.6, z: -5 }, { x: -9.6, z: 2 });
     expect(path.length).toBeGreaterThan(1);
-    // every leg stays clear of the booth's footprint (x -6.55..-4.65)
+    // every corner it turns at is clear of the booth's footprint (+ margin)
     for (const point of path.slice(0, -1)) {
-      expect(point.x < -6.5 || point.x > -4.7 || point.z < -2.4 || point.z > 1.6).toBe(true);
+      expect(
+        point.x < -10.55 || point.x > -8.65 || point.z < -3.65 || point.z > 0.4,
+      ).toBe(true);
     }
   });
 
@@ -33,8 +36,8 @@ describe('freeSpot', () => {
   });
 
   it('pushes a tap on the stage to its edge', () => {
-    const spot = freeSpot({ x: 0.5, z: -4.8 });
-    expect(spot.z).toBeGreaterThan(-4.3);
+    const spot = freeSpot({ x: 0, z: -9 });
+    expect(spot.z).toBeGreaterThan(-8.3);
   });
 
   it('keeps every station approach point clear of furniture', () => {
@@ -50,19 +53,19 @@ describe('stepTowards', () => {
   });
 
   it('stops at the walls', () => {
-    expect(stepTowards({ x: 6.55, z: 0 }, 0.2, 0)).toEqual({ x: 6.55, z: 0 });
+    expect(stepTowards({ x: 10.55, z: 0 }, 0.2, 0)).toEqual({ x: 10.55, z: 0 });
   });
 
   it('slides along furniture instead of stopping', () => {
-    // just in front of the stage's edge (z -3.95 with margin), pushing
+    // just in front of the stage's edge (z -7.95 with margin), pushing
     // diagonally into it
-    const next = stepTowards({ x: 0, z: -3.9 }, 0.1, -0.1);
-    expect(next).toEqual({ x: 0.1, z: -3.9 });
+    const next = stepTowards({ x: 0, z: -7.9 }, 0.1, -0.1);
+    expect(next).toEqual({ x: 0.1, z: -7.9 });
   });
 
   it('agrees with isWalkable', () => {
     expect(isWalkable({ x: 0, z: 0 })).toBe(true);
-    expect(isWalkable({ x: 0.5, z: -5.5 })).toBe(false); // on the stage
-    expect(isWalkable({ x: 9, z: 0 })).toBe(false); // outside the room
+    expect(isWalkable({ x: 0, z: -9.5 })).toBe(false); // on the stage
+    expect(isWalkable({ x: 13, z: 0 })).toBe(false); // outside the room
   });
 });

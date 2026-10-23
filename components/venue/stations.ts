@@ -4,7 +4,7 @@
  * with walls along the back (z = -ROOM_HALF) and left (x = -ROOM_HALF).
  */
 
-export const ROOM_HALF = 7;
+export const ROOM_HALF = 11;
 
 export type StationId =
   | 'stage'
@@ -34,9 +34,29 @@ export type Station = {
   focus: Vec3;
   // how much closer than the overview the camera zooms
   zoom: number;
+  // Where the station's set piece sits in the room. Each set piece is built
+  // around its spot in the original, smaller room plan and moved here as a
+  // whole; approach/focus above are already moved.
+  shift: Vec3;
 };
 
-export const STATIONS: Record<StationId, Station> = {
+/** How far each station's set piece moves from the original room plan. */
+const SHIFTS: Record<StationId, Vec3> = {
+  stage: [-0.5, 0, -4],
+  booth: [-4, 0, -1.2],
+  ballot: [1.4, 0, 2.1],
+  lineup: [-2.9, 0, -4],
+  crates: [-4, 0, 1.1],
+  board: [2.8, 0, 0.4],
+  jukebox: [2.9, 0, -4],
+  exit: [-4, 0, 3.5],
+};
+
+function add(a: Vec3, b: Vec3): Vec3 {
+  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+}
+
+const PLAN: Record<StationId, Omit<Station, 'shift'>> = {
   stage: {
     id: 'stage',
     short: 'Theme',
@@ -127,6 +147,22 @@ export const STATIONS: Record<StationId, Station> = {
   },
 };
 
+export const STATIONS = Object.fromEntries(
+  (Object.keys(PLAN) as StationId[]).map((id) => {
+    const station = PLAN[id];
+    const shift = SHIFTS[id];
+    return [
+      id,
+      {
+        ...station,
+        shift,
+        approach: add(station.approach, shift),
+        focus: add(station.focus, shift),
+      },
+    ];
+  }),
+) as Record<StationId, Station>;
+
 export const STATION_ORDER: StationId[] = [
   'stage',
   'booth',
@@ -146,4 +182,4 @@ export function isStationId(value: unknown): value is StationId {
 }
 
 // Where the player appears when they walk in.
-export const SPAWN: Vec3 = [1.8, 0, 4.1];
+export const SPAWN: Vec3 = [2.2, 0, 6.4];

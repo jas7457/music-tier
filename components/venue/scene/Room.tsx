@@ -24,17 +24,21 @@ const WALL_THICKNESS = 0.3;
 export function Room({
   moodColor,
   reducedMotion,
+  playerRef,
 }: {
   moodColor: string;
   reducedMotion: boolean;
+  // your position, so the dance floor can light up under you
+  playerRef?: React.RefObject<THREE.Vector3>;
 }) {
   return (
     <group>
       <Floor />
       <Walls />
-      <Window position={[5.1, 3.05, -ROOM_HALF + 0.02]} axis="x" />
-      <Window position={[-ROOM_HALF + 0.02, 3.15, 3.3]} axis="z" />
-      <Window position={[-ROOM_HALF + 0.02, 2.95, -0.8]} axis="z" />
+      <Window position={[4.6, 3.05, -ROOM_HALF + 0.02]} axis="x" />
+      <Window position={[-3.9, 3.15, -ROOM_HALF + 0.02]} axis="x" />
+      <Window position={[-ROOM_HALF + 0.02, 3.15, 1.4]} axis="z" />
+      <Window position={[-ROOM_HALF + 0.02, 3.15, 7.4]} axis="z" />
 
       {/* neon trim along the top of the walls */}
       <NeonTube
@@ -61,14 +65,18 @@ export function Room({
         radius={0.035}
       />
 
-      <DanceFloor moodColor={moodColor} reducedMotion={reducedMotion} />
+      <DanceFloor
+        moodColor={moodColor}
+        reducedMotion={reducedMotion}
+        playerRef={playerRef}
+      />
       <DiscoBall reducedMotion={reducedMotion} />
       <Sparkles reducedMotion={reducedMotion} />
       <LightBeams moodColor={moodColor} reducedMotion={reducedMotion} />
       <Couch />
-      <Plant position={[6.3, 0, 6.3]} />
-      <Plant position={[-6.3, 0, -6.3]} />
-      <Plant position={[6.3, 0, -3.4]} scale={0.8} />
+      <Plant position={[ROOM_HALF - 0.7, 0, ROOM_HALF - 0.7]} />
+      <Plant position={[-ROOM_HALF + 0.7, 0, -ROOM_HALF + 0.7]} />
+      <Plant position={[ROOM_HALF - 0.7, 0, -ROOM_HALF + 2.2]} scale={0.8} />
       <StringLights reducedMotion={reducedMotion} />
     </group>
   );
@@ -258,64 +266,151 @@ export function NeonTube({
 }
 
 const TILE = 0.95;
-const TILES = 6;
+const TILES = 9;
+
+/*
+ * The dance floor runs a little light show: a handful of patterns that take
+ * turns (crossfading), timed to a ~120 bpm beat, with tiles easing between
+ * colours instead of snapping. The tile you're standing on always lights up.
+ */
+
+const BPM = 120;
+const PATTERN_SECONDS = 9;
+
+type Tile = { x: number; z: number; u: number; v: number; r: number; a: number };
+// returns brightness 0..1 and a hue 0..1 for a tile at a moment
+type Pattern = (tile: Tile, t: number, beat: number, seed: number) => [number, number];
+
+/** Tiny deterministic hash -> 0..1 (stable per tile and beat). */
+function hash(a: number, b: number, c: number) {
+  const n = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453;
+  return n - Math.floor(n);
+}
+
+const PATTERNS: Pattern[] = [
+  // ripples: rings burst out from the middle on every beat
+  (tile, t, beat) => {
+    const phase = (t * (BPM / 60)) % 1;
+    const ring = Math.abs(tile.r - phase * 7);
+    const wave = Math.max(0, 1 - ring * 1.4);
+    return [wave, (beat * 0.13 + tile.r * 0.05) % 1];
+  },
+  // spiral: a rotating pinwheel
+  (tile, t) => {
+    const arm = Math.sin(tile.a * 3 + tile.r * 0.9 - t * 3.2);
+    return [Math.max(0, arm) ** 2, (tile.a / (Math.PI * 2) + t * 0.05 + 1) % 1];
+  },
+  // equalizer: columns jump to random levels each beat
+  (tile, t, beat) => {
+    const level = 2 + hash(tile.u, beat, 3) * 7;
+    const lit = tile.v < level ? 1 : 0;
+    return [lit * (0.5 + (tile.v / 9) * 0.5), 0.75 - (tile.v / 9) * 0.45];
+  },
+  // sparkle: random tiles flash and fade
+  (tile, t, beat) => {
+    const local = (t * (BPM / 60) * 2) % 1;
+    const chosen = hash(tile.u, tile.v, Math.floor(t * (BPM / 60) * 2)) > 0.78;
+    return [chosen ? 1 - local : 0, hash(tile.v, tile.u, beat)];
+  },
+  // checker: a checkerboard that pops on the beat and swaps colours
+  (tile, t, beat) => {
+    const on = (tile.u + tile.v + beat) % 2 === 0;
+    const pop = 1 - ((t * (BPM / 60)) % 1) * 0.6;
+    return [on ? pop : 0.05, beat % 2 ? 0.92 : 0.52];
+  },
+  // diagonal sweep: bands slide across in shifting colours
+  (tile, t) => {
+    const band = Math.sin((tile.u - tile.v) * 0.8 - t * 4);
+    return [Math.max(0, band), ((tile.u + tile.v) / 18 + t * 0.08) % 1];
+  },
+];
 
 function DanceFloor({
   moodColor,
   reducedMotion,
+  playerRef,
 }: {
   moodColor: string;
   reducedMotion: boolean;
+  playerRef?: React.RefObject<THREE.Vector3>;
 }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const palette = useMemo(
-    () =>
-      [moodColor, '#ff4fd8', '#38e1ff', '#7dff9b', '#ffe066'].map(
-        (c) => new THREE.Color(c),
-      ),
-    [moodColor],
-  );
-  const dark = useMemo(() => new THREE.Color('#2a2144'), []);
-  const tmp = useMemo(() => new THREE.Color(), []);
-
-  const matrices = useMemo(() => {
-    const m = new THREE.Matrix4();
-    const list: THREE.Matrix4[] = [];
-    for (let x = 0; x < TILES; x++) {
-      for (let z = 0; z < TILES; z++) {
-        m.makeTranslation(
-          (x - (TILES - 1) / 2) * TILE,
-          0.045,
-          (z - (TILES - 1) / 2) * TILE + 0.6,
-        );
-        list.push(m.clone());
+  const tiles = useMemo(() => {
+    const list: Tile[] = [];
+    const half = (TILES - 1) / 2;
+    for (let u = 0; u < TILES; u++) {
+      for (let v = 0; v < TILES; v++) {
+        const x = (u - half) * TILE;
+        const z = (v - half) * TILE;
+        list.push({ x, z, u, v, r: Math.hypot(u - half, v - half), a: Math.atan2(v - half, u - half) });
       }
     }
     return list;
   }, []);
+  const current = useMemo(() => tiles.map(() => new THREE.Color('#2a2144')), [tiles]);
+  const mood = useMemo(() => new THREE.Color(moodColor), [moodColor]);
+  const dark = useMemo(() => new THREE.Color('#231b3b'), []);
+  const target = useMemo(() => new THREE.Color(), []);
+  const lit = useMemo(() => new THREE.Color(), []);
+  const order = useMemo(() => {
+    // shuffle the running order so it doesn't feel like a loop
+    const indices = PATTERNS.map((_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(hash(i, 7, 9) * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    return indices;
+  }, []);
 
-  const lastStep = useRef(-1);
-  useFrame(({ clock }) => {
+  // place the tiles once
+  useEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) {
       return;
     }
-    // tiles change on the beat (~120 bpm), not every frame
-    const step = reducedMotion ? 0 : Math.floor(clock.elapsedTime * 2);
-    if (step === lastStep.current) {
-      return;
-    }
-    lastStep.current = step;
-    matrices.forEach((matrix, i) => {
-      mesh.setMatrixAt(i, matrix);
-      const x = Math.floor(i / TILES);
-      const z = i % TILES;
-      const lit =
-        (x * 7 + z * 13 + step * 5) % 4 === 0 || (x + z + step) % 5 === 0;
-      tmp.copy(lit ? palette[(x + z + step) % palette.length] : dark);
-      mesh.setColorAt(i, tmp);
+    const m = new THREE.Matrix4();
+    tiles.forEach((tile, i) => {
+      m.makeTranslation(tile.x, 0.045, tile.z);
+      mesh.setMatrixAt(i, m);
+      mesh.setColorAt(i, dark);
     });
     mesh.instanceMatrix.needsUpdate = true;
+  }, [tiles, dark]);
+
+  useFrame(({ clock }, delta) => {
+    const mesh = meshRef.current;
+    if (!mesh) {
+      return;
+    }
+    const t = reducedMotion ? 4 : clock.elapsedTime;
+    const beat = Math.floor(t * (BPM / 60));
+    const slot = Math.floor(t / PATTERN_SECONDS);
+    const into = (t % PATTERN_SECONDS) / PATTERN_SECONDS;
+    const now = PATTERNS[order[slot % order.length]];
+    const next = PATTERNS[order[(slot + 1) % order.length]];
+    // crossfade over the last 15% of each pattern's turn
+    const blend = THREE.MathUtils.smoothstep(into, 0.85, 1);
+    const you = playerRef?.current;
+    const ease = reducedMotion ? 1 : 1 - Math.exp(-10 * delta);
+
+    tiles.forEach((tile, i) => {
+      const [b1, h1] = now(tile, t, beat, slot);
+      const [b2, h2] = next(tile, t, beat, slot + 1);
+      let brightness = b1 * (1 - blend) + b2 * blend;
+      let hue = blend < 0.5 ? h1 : h2;
+      // the tile under your feet
+      if (you && Math.abs(you.x - tile.x) < TILE / 2 && Math.abs(you.z - tile.z) < TILE / 2) {
+        brightness = 1;
+        hue = 0.13;
+      }
+      // mix the room's mood colour in so the floor matches the round stage
+      lit.setHSL(hue, 0.95, 0.6).lerp(mood, 0.25);
+      target.copy(dark).lerp(lit, Math.min(1, brightness));
+      // quick to light up, slower to fade
+      const rate = brightness > 0.5 ? Math.min(1, ease * 2) : ease;
+      current[i].lerp(target, rate);
+      mesh.setColorAt(i, current[i]);
+    });
     if (mesh.instanceColor) {
       mesh.instanceColor.needsUpdate = true;
     }
@@ -323,10 +418,10 @@ function DanceFloor({
 
   return (
     <group>
-      {/* a raised stage-like platform the tiles sit in */}
+      {/* a raised platform the tiles sit in */}
       <Block
         size={[TILE * TILES + 0.36, 0.05, TILE * TILES + 0.36]}
-        position={[0, 0.025, 0.6]}
+        position={[0, 0.025, 0]}
         color="#0d0a18"
         radius={0.05}
         castShadow={false}
@@ -352,7 +447,7 @@ function DiscoBall({ reducedMotion }: { reducedMotion: boolean }) {
     }
   });
   return (
-    <group position={[0, 3.6, 0.6]}>
+    <group position={[0, 3.7, 0]}>
       <mesh position={[0, 0.55, 0]}>
         <cylinderGeometry args={[0.015, 0.015, 1.1, 6]} />
         <meshBasicMaterial color="#888" />
@@ -379,9 +474,9 @@ function Sparkles({ reducedMotion }: { reducedMotion: boolean }) {
   const group = useRef<THREE.Group>(null);
   const specks = useMemo(
     () =>
-      Array.from({ length: 22 }, (_, i) => ({
-        radius: 1.2 + ((i * 37) % 10) * 0.45,
-        angle: (i / 22) * Math.PI * 2,
+      Array.from({ length: 34 }, (_, i) => ({
+        radius: 1.4 + ((i * 37) % 10) * 0.65,
+        angle: (i / 34) * Math.PI * 2,
         color: ['#ffffff', '#ffe9a8', '#b9f3ff', '#ffc2f0'][i % 4],
       })),
     [],
@@ -397,7 +492,7 @@ function Sparkles({ reducedMotion }: { reducedMotion: boolean }) {
       child.position.set(
         Math.cos(a) * speck.radius,
         0.12,
-        0.6 + Math.sin(a) * speck.radius,
+        Math.sin(a) * speck.radius,
       );
       const material = (child as THREE.Mesh).material as THREE.MeshBasicMaterial;
       material.opacity = 0.35 + Math.sin(t * 6 + i) * 0.25;
@@ -433,9 +528,10 @@ function LightBeams({
   const fade = useCanvasTexture(beamTexture, []);
   const beams = useMemo(
     () => [
-      { origin: [-5, 4.1, -6.6], color: moodColor, speed: 0.5, phase: 0 },
-      { origin: [5, 4.1, -6.6], color: '#ff4fd8', speed: 0.42, phase: 2 },
-      { origin: [-6.6, 4.1, 2], color: '#38e1ff', speed: 0.36, phase: 4 },
+      { origin: [-6.5, 4.1, -ROOM_HALF + 0.4], color: moodColor, speed: 0.5, phase: 0 },
+      { origin: [6.5, 4.1, -ROOM_HALF + 0.4], color: '#ff4fd8', speed: 0.42, phase: 2 },
+      { origin: [-ROOM_HALF + 0.4, 4.1, 2], color: '#38e1ff', speed: 0.36, phase: 4 },
+      { origin: [-ROOM_HALF + 0.4, 4.1, -6], color: '#ffe066', speed: 0.3, phase: 1 },
     ],
     [moodColor],
   );
@@ -465,21 +561,21 @@ function Beam({
 }) {
   const ref = useRef<THREE.Group>(null);
   const aim = useMemo(() => new THREE.Vector3(), []);
-  const length = 5.5;
+  const length = 7.5;
   useFrame(({ clock }) => {
     if (!ref.current) {
       return;
     }
     const t = reducedMotion ? phase : clock.elapsedTime * speed + phase;
     // aim at a point wandering around the dance floor
-    aim.set(Math.sin(t) * 2.6, 0, 0.6 + Math.cos(t * 1.3) * 2.6);
+    aim.set(Math.sin(t) * 3.8, 0, Math.cos(t * 1.3) * 3.8);
     ref.current.lookAt(aim);
   });
   return (
     <group ref={ref} position={origin as [number, number, number]}>
       {/* cone tip is at +Y; turn it so the tip sits at the lamp and it opens along +Z (lookAt) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, length / 2]}>
-        <coneGeometry args={[1, length, 32, 1, true]} />
+        <coneGeometry args={[1.3, length, 32, 1, true]} />
         <meshBasicMaterial
           color={color}
           alphaMap={fade}
@@ -508,7 +604,7 @@ function Beam({
 function Couch() {
   const velvet = '#6b3280';
   return (
-    <group position={[2.2, 0, 6.2]}>
+    <group position={[2.2, 0, 9.6]}>
       <Block size={[3.1, 0.42, 1]} position={[0, 0.27, 0]} color="#4f2460" radius={0.12} />
       {/* seat cushions */}
       {[-0.98, 0, 0.98].map((x) => (
@@ -578,17 +674,17 @@ function StringLights({ reducedMotion }: { reducedMotion: boolean }) {
     const list: THREE.Vector3[] = [];
     const curves: THREE.CatmullRomCurve3[] = [];
     const strands: Array<[THREE.Vector3, THREE.Vector3]> = [
-      [new THREE.Vector3(-ROOM_HALF, 4.9, ROOM_HALF + 0.3), new THREE.Vector3(0, 4.9, ROOM_HALF + 0.3)],
-      [new THREE.Vector3(0, 4.9, ROOM_HALF + 0.3), new THREE.Vector3(ROOM_HALF + 0.3, 4.9, ROOM_HALF + 0.3)],
-      [new THREE.Vector3(ROOM_HALF + 0.3, 4.9, ROOM_HALF + 0.3), new THREE.Vector3(ROOM_HALF + 0.3, 4.9, 0)],
-      [new THREE.Vector3(ROOM_HALF + 0.3, 4.9, 0), new THREE.Vector3(ROOM_HALF + 0.3, 4.9, -ROOM_HALF)],
+      [new THREE.Vector3(-ROOM_HALF, 6.1, ROOM_HALF + 0.3), new THREE.Vector3(0, 6.1, ROOM_HALF + 0.3)],
+      [new THREE.Vector3(0, 6.1, ROOM_HALF + 0.3), new THREE.Vector3(ROOM_HALF + 0.3, 6.1, ROOM_HALF + 0.3)],
+      [new THREE.Vector3(ROOM_HALF + 0.3, 6.1, ROOM_HALF + 0.3), new THREE.Vector3(ROOM_HALF + 0.3, 6.1, 0)],
+      [new THREE.Vector3(ROOM_HALF + 0.3, 6.1, 0), new THREE.Vector3(ROOM_HALF + 0.3, 6.1, -ROOM_HALF)],
     ];
     strands.forEach(([a, b]) => {
       const mid = a.clone().add(b).multiplyScalar(0.5);
-      mid.y -= 0.4; // sag
+      mid.y -= 0.55; // sag
       const curve = new THREE.CatmullRomCurve3([a, mid, b]);
       curves.push(curve);
-      curve.getSpacedPoints(12).forEach((p, i) => {
+      curve.getSpacedPoints(16).forEach((p, i) => {
         if (i > 0) {
           list.push(p.clone().add(new THREE.Vector3(0, -0.08, 0)));
         }

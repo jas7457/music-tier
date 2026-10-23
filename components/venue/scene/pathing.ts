@@ -1,3 +1,5 @@
+import { ROOM_HALF } from '../stations';
+
 /**
  * Tiny floor-plan pathfinding: the room is open apart from a few pieces of
  * furniture (axis-aligned boxes on the floor). Walk straight when the way is
@@ -9,16 +11,27 @@ type Box = { x1: number; z1: number; x2: number; z2: number };
 
 const MARGIN = 0.35;
 
-// Footprints of the furniture, matching scene/Room.tsx and scene/Stations.tsx.
+// Footprints of the furniture, in room coordinates (see scene/Stations.tsx,
+// whose set pieces are moved by STATIONS[id].shift, and scene/Decor.tsx).
 const OBSTACLES: Box[] = [
-  { x1: -2.2, z1: -7, x2: 3.2, z2: -4.3 }, // stage
-  { x1: -6.2, z1: -2.1, x2: -5, z2: 1.25 }, // DJ booth + crate
-  { x1: 3.9, z1: 3.7, x2: 5.4, z2: 5.1 }, // ballot box
-  { x1: 0.7, z1: 5.75, x2: 3.7, z2: 6.65 }, // couch
-  { x1: -7, z1: 1.7, x2: -5, z2: 5 }, // record shelf + crates
-  { x1: -5.9, z1: -6.6, x2: -3.3, z2: -5.7 }, // lineup podium
-  { x1: 4.9, z1: -6.7, x2: 6.3, z2: -5.7 }, // jukebox
-  { x1: 5, z1: -2.1, x2: 6.4, z2: -0.7 }, // corkboard
+  { x1: -2.7, z1: -11, x2: 2.7, z2: -8.3 }, // stage
+  { x1: -10.2, z1: -3.3, x2: -9, z2: 0.05 }, // DJ booth + crate
+  { x1: 5.3, z1: 5.8, x2: 6.8, z2: 7.2 }, // ballot box
+  { x1: 0.6, z1: 9.1, x2: 3.8, z2: 10.1 }, // couch
+  { x1: -11, z1: 2.8, x2: -9, z2: 6.1 }, // record shelf + crates
+  { x1: -8.8, z1: -10.6, x2: -6.2, z2: -9.7 }, // lineup podium
+  { x1: 7.8, z1: -10.7, x2: 9.2, z2: -9.7 }, // jukebox
+  { x1: 7.8, z1: -1.7, x2: 9.2, z2: -0.3 }, // corkboard
+  { x1: -5.5, z1: -5.5, x2: -4.5, z2: -4.5 }, // speaker stacks
+  { x1: 4.5, z1: -5.5, x2: 5.5, z2: -4.5 },
+  { x1: -5.5, z1: 4.5, x2: -4.5, z2: 5.5 },
+  { x1: 8.3, z1: 1.4, x2: 10.4, z2: 6.2 }, // bar
+  { x1: 3.4, z1: -10.9, x2: 5.9, z2: -9.9 }, // arcade
+  { x1: -6.5, z1: 7.2, x2: -4.7, z2: 8 }, // lounge tables
+  { x1: 5.5, z1: -5.6, x2: 7.3, z2: -4.8 },
+  { x1: -10, z1: 8.1, x2: -7.6, z2: 8.5 }, // velvet rope
+  { x1: -3.5, z1: -8.1, x2: -2.9, z2: -7.5 }, // balloons
+  { x1: 2.9, z1: -8.1, x2: 3.5, z2: -7.5 },
 ].map((box) => ({
   x1: box.x1 - MARGIN,
   z1: box.z1 - MARGIN,
@@ -102,7 +115,7 @@ export function findPath(start: Point, goal: Point, depth = 0): Point[] {
   let best: Point[] | null = null;
   let bestLength = Infinity;
   for (const corner of corners) {
-    if (Math.abs(corner.x) > 6.8 || Math.abs(corner.z) > 6.8) {
+    if (Math.abs(corner.x) > ROOM_HALF - 0.2 || Math.abs(corner.z) > ROOM_HALF - 0.2) {
       continue;
     }
     if (crosses(start, corner, blocker)) {
@@ -124,7 +137,7 @@ export function findPath(start: Point, goal: Point, depth = 0): Point[] {
   return best ?? [goal];
 }
 
-const ROOM_LIMIT = 6.6;
+const ROOM_LIMIT = ROOM_HALF - 0.4;
 
 /** Whether a spot on the floor is walkable (inside the room, not furniture). */
 export function isWalkable(p: Point): boolean {

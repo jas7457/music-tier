@@ -10,6 +10,7 @@ import { Friends, Player } from './Characters';
 import { CameraRig, CameraFocus, CAMERA_FOV } from './CameraRig';
 import { AnchorProjector } from './anchors';
 import { Confetti, MusicNotes } from './Effects';
+import { Decor } from './Decor';
 import { ROOM_HALF, SPAWN, StationId, Vec3 } from '../stations';
 import type { FriendState } from '../venueModel';
 
@@ -70,28 +71,29 @@ export default function VenueCanvas({
       <hemisphereLight args={['#b9a8ff', '#1b1530', 0.8]} />
       {/* key light: the one that casts the (soft, cartoon) shadows */}
       <directionalLight
-        position={[6, 14, 9]}
+        position={[8, 18, 12]}
         intensity={1.6}
         castShadow
-        shadow-mapSize={[1024, 1024]}
-        shadow-camera-left={-10}
-        shadow-camera-right={10}
-        shadow-camera-top={10}
-        shadow-camera-bottom={-10}
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-left={-15}
+        shadow-camera-right={15}
+        shadow-camera-top={15}
+        shadow-camera-bottom={-15}
         shadow-camera-near={1}
-        shadow-camera-far={40}
+        shadow-camera-far={50}
         shadow-bias={-0.0005}
         shadow-normalBias={0.03}
         shadow-radius={6}
       />
       <pointLight
-        position={[0.5, 3, -4]}
+        position={[0, 3, -8]}
         color={sceneData.moodColor}
         intensity={18}
         distance={10}
       />
-      <pointLight position={[-4.5, 2.5, -0.8]} color="#38e1ff" intensity={10} distance={6} />
-      <pointLight position={[4.5, 2.5, 4]} color="#ffb547" intensity={8} distance={6} />
+      <pointLight position={[-8.5, 2.5, -2]} color="#38e1ff" intensity={10} distance={6} />
+      <pointLight position={[6, 2.5, 6.5]} color="#ffb547" intensity={8} distance={6} />
+      <pointLight position={[0, 3, 0]} color="#ff9ae6" intensity={10} distance={9} />
 
       <AnchorProjector />
       <CameraRig
@@ -116,7 +118,12 @@ export default function VenueCanvas({
         <meshBasicMaterial visible={false} />
       </mesh>
 
-      <Room moodColor={sceneData.moodColor} reducedMotion={reducedMotion} />
+      <Room
+        moodColor={sceneData.moodColor}
+        reducedMotion={reducedMotion}
+        playerRef={playerPosition}
+      />
+      <Decor moodColor={sceneData.moodColor} reducedMotion={reducedMotion} />
       <Stations
         data={sceneData}
         reducedMotion={reducedMotion}
