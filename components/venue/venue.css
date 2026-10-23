@@ -434,6 +434,43 @@ body:has(.venue-root) {
   font-weight: 700;
 }
 
+.venue-pointer-anchor:not([data-offscreen='true']) {
+  /* the station's own label does the job while it's on screen */
+  visibility: hidden !important;
+}
+.venue-pointer {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgb(14 10 26 / 0.85);
+  box-shadow:
+    inset 0 0 0 2px var(--station-color),
+    0 0 20px -2px var(--station-color);
+  animation: venue-bob 1.4s ease-in-out infinite;
+}
+.venue-pointer-emoji {
+  font-size: 22px;
+}
+.venue-pointer-arrow {
+  position: absolute;
+  inset: 0;
+  transform: rotate(var(--angle, 0rad));
+}
+.venue-pointer-arrow::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  margin-top: -8px;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 11px solid var(--station-color);
+  filter: drop-shadow(0 0 4px var(--station-color));
+}
+
 /* ------------------------------- Sheet ---------------------------------- */
 
 .venue-sheet {

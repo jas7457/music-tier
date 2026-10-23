@@ -268,9 +268,20 @@ export function Venue({
         : league.title.toUpperCase(),
       moodColor: model.theme.color,
       spinningArt: model.spinningTrackArt,
+      leagueTitle: league.title,
+      podium: model.standings
+        .filter((s) => s.points > 0)
+        .slice(0, 3)
+        .map((s) => ({
+          name: s.user.firstName || s.user.userName,
+          photoUrl: s.user.photoUrl,
+          colorIndex: s.user.index,
+          place: s.place,
+          points: s.points,
+        })),
       lineup: model.standings
         .filter((s) => s.points > 0)
-        .slice(0, 6)
+        .slice(0, 9)
         .map((s) => ({
           name: s.user.firstName || s.user.userName,
           points: s.points,
@@ -369,6 +380,8 @@ export function Venue({
               reducedMotion={reducedMotion}
               onSelectStation={goTo}
               onNearStation={setNearStation}
+              openStation={location.station}
+              onLeaveStation={close}
               onFloorTap={(point) => {
                 setDestination(point);
                 if (isOpen) {

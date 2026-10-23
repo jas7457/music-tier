@@ -15,6 +15,8 @@ import { useFrame, useThree } from '@react-three/fiber';
 type Anchor = {
   position: THREE.Vector3;
   element: HTMLElement | null;
+  // stick to the screen edge (pointing at it) instead of hiding when off-screen
+  edge: boolean;
 };
 
 const anchors = new Map<string, Anchor>();
@@ -22,7 +24,7 @@ const anchors = new Map<string, Anchor>();
 function getAnchor(id: string) {
   let anchor = anchors.get(id);
   if (!anchor) {
-    anchor = { position: new THREE.Vector3(), element: null };
+    anchor = { position: new THREE.Vector3(), element: null, edge: false };
     anchors.set(id, anchor);
   }
   return anchor;
@@ -34,16 +36,17 @@ export function setAnchorPosition(id: string, x: number, y: number, z: number) {
 }
 
 /** Ref callback for the DOM element that should follow an anchor. */
-export function useAnchorRef(id: string) {
+export function useAnchorRef(id: string, { edge = false } = {}) {
   return useCallback(
     (element: HTMLElement | null) => {
       getAnchor(id).element = element;
+      getAnchor(id).edge = edge;
       if (element) {
         // hidden until the first projection places it
         element.style.visibility = 'hidden';
       }
     },
-    [id],
+    [id, edge],
   );
 }
 
@@ -74,6 +77,24 @@ export function AnchorProjector() {
       projected.copy(anchor.position).project(camera);
       const x = (projected.x * 0.5 + 0.5) * size.width;
       const y = (-projected.y * 0.5 + 0.5) * size.height;
+      if (anchor.edge) {
+        // keep it on screen, pinned to the nearest edge, and say which way
+        // the real spot is
+        const margin = 36;
+        const inside =
+          x > margin &&
+          x < size.width - margin &&
+          y > margin + 60 &&
+          y < size.height - margin - 150;
+        const cx = THREE.MathUtils.clamp(x, margin, size.width - margin);
+        const cy = THREE.MathUtils.clamp(y, margin + 60, size.height - margin - 150);
+        const angle = Math.atan2(y - cy, x - cx);
+        element.style.visibility = 'visible';
+        element.dataset.offscreen = inside ? '' : 'true';
+        element.style.setProperty('--angle', `${angle}rad`);
+        element.style.transform = `translate3d(${cx.toFixed(1)}px, ${cy.toFixed(1)}px, 0) translate(-50%, -50%)`;
+        return;
+      }
       const onScreen =
         projected.z < 1 &&
         x > -100 &&

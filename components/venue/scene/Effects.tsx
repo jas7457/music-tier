@@ -113,7 +113,7 @@ export function Confetti({ reducedMotion }: { reducedMotion: boolean }) {
 export function MusicNotes({ reducedMotion }: { reducedMotion: boolean }) {
   const textures = useCanvasTexture(noteAtlasTexture, []);
   const sources: Array<[number, number, number]> = [
-    [-2.6, 1.9, -5.4],
+    [-1.65, 2.4, -5.4],
     [3.6, 1.9, -5.4],
     [5.6, 2.2, -5.8],
   ];

@@ -310,3 +310,154 @@ export function noteAtlasTexture() {
   });
   return finish(canvas);
 }
+
+/**
+ * A festival gig poster of the standings: the leader headlines in huge red
+ * type, the next two co-headline, everyone else is a "special guest".
+ */
+export function lineupPosterTexture({
+  leagueTitle,
+  acts,
+}: {
+  leagueTitle: string;
+  acts: Array<{ name: string; points: number; place: number }>;
+}) {
+  const width = 768;
+  const height = 960;
+  const { canvas, ctx } = makeCanvas(width, height);
+
+  // paper with a warm gradient and halftone dots
+  const paper = ctx.createLinearGradient(0, 0, 0, height);
+  paper.addColorStop(0, '#fff3d6');
+  paper.addColorStop(1, '#f7c9b4');
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, width, height);
+  for (let y = 12; y < height; y += 22) {
+    for (let x = 12 + ((y / 22) % 2) * 11; x < width; x += 22) {
+      const fade = y / height;
+      ctx.fillStyle = `rgba(214, 64, 92, ${0.05 + fade * 0.12})`;
+      ctx.beginPath();
+      ctx.arc(x, y, 2.2 + fade * 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // double border
+  ctx.strokeStyle = '#1d1430';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(22, 22, width - 44, height - 44);
+  ctx.lineWidth = 3;
+  ctx.strokeRect(40, 40, width - 80, height - 80);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+
+  // "<league> presents"
+  ctx.fillStyle = '#1d1430';
+  ctx.font = `800 26px ${FONT}`;
+  const presents = `${leagueTitle.toUpperCase()} PRESENTS`;
+  ctx.fillText(
+    wrap(ctx, presents, width - 140, 1)[0] ?? '',
+    width / 2,
+    100,
+  );
+
+  // banner
+  ctx.save();
+  ctx.translate(width / 2, 150);
+  ctx.rotate(-0.025);
+  ctx.fillStyle = '#1d1430';
+  ctx.fillRect(-250, -34, 500, 56);
+  ctx.fillStyle = '#ffd34d';
+  ctx.font = `900 30px ${FONT}`;
+  ctx.fillText('★  THE LINEUP  ★', 0, 6);
+  ctx.restore();
+
+  const fitText = (text: string, maxWidth: number, size: number, weight = 900) => {
+    let s = size;
+    ctx.font = `${weight} ${s}px ${FONT}`;
+    while (ctx.measureText(text).width > maxWidth && s > 18) {
+      s -= 2;
+      ctx.font = `${weight} ${s}px ${FONT}`;
+    }
+    return s;
+  };
+
+  if (acts.length === 0) {
+    ctx.fillStyle = '#d6405c';
+    fitText('LINEUP TBA', width - 140, 110);
+    ctx.fillText('LINEUP TBA', width / 2, 470);
+    ctx.fillStyle = '#1d1430';
+    ctx.font = `700 30px ${FONT}`;
+    ctx.fillText('Results after round one', width / 2, 530);
+    return finish(canvas);
+  }
+
+  let y = 250;
+  const [headliner, ...rest] = acts;
+
+  // headliner
+  ctx.fillStyle = '#d6405c';
+  ctx.font = `800 22px ${FONT}`;
+  ctx.fillText('H E A D L I N I N G', width / 2, y - 22);
+  const headSize = fitText(headliner.name.toUpperCase(), width - 130, 150);
+  y += headSize * 0.82;
+  // drop shadow for the poster-print look
+  ctx.fillStyle = '#1d1430';
+  ctx.fillText(headliner.name.toUpperCase(), width / 2 + 5, y + 5);
+  ctx.fillStyle = '#d6405c';
+  ctx.fillText(headliner.name.toUpperCase(), width / 2, y);
+  ctx.fillStyle = '#1d1430';
+  ctx.font = `800 28px ${FONT}`;
+  y += 46;
+  ctx.fillText(`${headliner.points} PTS`, width / 2, y);
+
+  // co-headliners
+  const coHeads = rest.slice(0, 2);
+  if (coHeads.length > 0) {
+    y += 70;
+    const line = coHeads.map((a) => a.name.toUpperCase()).join('  ·  ');
+    ctx.fillStyle = '#1d1430';
+    const size = fitText(line, width - 130, 76);
+    ctx.fillText(line, width / 2, y);
+    y += size * 0.2 + 34;
+    ctx.font = `700 24px ${FONT}`;
+    ctx.fillStyle = '#6b3a52';
+    ctx.fillText(
+      coHeads.map((a) => `${a.points} PTS`).join('      ·      '),
+      width / 2,
+      y,
+    );
+  }
+
+  // special guests
+  const guests = rest.slice(2);
+  if (guests.length > 0) {
+    y += 70;
+    ctx.fillStyle = '#d6405c';
+    ctx.font = `800 20px ${FONT}`;
+    ctx.fillText('W I T H   S P E C I A L   G U E S T S', width / 2, y);
+    y += 50;
+    ctx.fillStyle = '#1d1430';
+    const lines: string[] = [];
+    for (let i = 0; i < guests.length; i += 2) {
+      lines.push(
+        guests
+          .slice(i, i + 2)
+          .map((a) => a.name.toUpperCase())
+          .join('  ★  '),
+      );
+    }
+    lines.slice(0, 3).forEach((text) => {
+      fitText(text, width - 140, 44, 800);
+      ctx.fillText(text, width / 2, y);
+      y += 54;
+    });
+  }
+
+  // footer
+  ctx.fillStyle = '#1d1430';
+  ctx.font = `700 18px ${FONT}`;
+  ctx.fillText('ALL AGES  ·  NO REFUNDS  ·  ONE NIGHT ONLY', width / 2, height - 66);
+  return finish(canvas);
+}

@@ -48,7 +48,7 @@ export function useMovementKeys() {
       }
       // inside a panel the arrows scroll it; WASD still walks
       const inPanel = (e.target as HTMLElement | null)?.closest?.(
-        '.venue-sheet, .venue-search',
+        '.venue-sheet-body, .venue-search',
       );
       if (inPanel && e.code.startsWith('Arrow')) {
         return;

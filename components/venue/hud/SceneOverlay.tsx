@@ -36,6 +36,13 @@ export function SceneOverlay({
             onSelect={onSelect}
           />
         ))}
+      {showLabels && questStation && (
+        <QuestPointer
+          key={questStation}
+          id={questStation}
+          onSelect={onSelect}
+        />
+      )}
       {bubbleFriend && (
         <FriendBubble key={bubbleFriend.user._id} friend={bubbleFriend} />
       )}
@@ -100,6 +107,37 @@ function FriendBubble({ friend }: { friend: FriendState }) {
         )}
         <Link href={`/users/${friend.user._id}`}>View profile →</Link>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Where your next task is: hidden while the station is on screen, otherwise
+ * an arrow on the screen edge pointing the way. Tap it to go there.
+ */
+function QuestPointer({
+  id,
+  onSelect,
+}: {
+  id: StationId;
+  onSelect: (id: StationId) => void;
+}) {
+  const ref = useAnchorRef(`pointer:${id}`, { edge: true });
+  const station = STATIONS[id];
+  return (
+    <div ref={ref} className="venue-anchor venue-pointer-anchor">
+      <button
+        type="button"
+        className="venue-pointer"
+        style={{ '--station-color': station.color } as React.CSSProperties}
+        onClick={() => onSelect(id)}
+        aria-label={`Go to the ${station.label}`}
+      >
+        <span className="venue-pointer-arrow" aria-hidden />
+        <span className="venue-pointer-emoji" aria-hidden>
+          {station.emoji}
+        </span>
+      </button>
     </div>
   );
 }

@@ -16,7 +16,7 @@ const OBSTACLES: Box[] = [
   { x1: 3.9, z1: 3.7, x2: 5.4, z2: 5.1 }, // ballot box
   { x1: 0.7, z1: 5.75, x2: 3.7, z2: 6.65 }, // couch
   { x1: -7, z1: 1.7, x2: -5, z2: 5 }, // record shelf + crates
-  { x1: -5, z1: -6.6, x2: -4.2, z2: -5.8 }, // trophy
+  { x1: -5.9, z1: -6.6, x2: -3.3, z2: -5.7 }, // lineup podium
   { x1: 4.9, z1: -6.7, x2: 6.3, z2: -5.7 }, // jukebox
   { x1: 5, z1: -2.1, x2: 6.4, z2: -0.7 }, // corkboard
 ].map((box) => ({

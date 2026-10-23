@@ -8,7 +8,9 @@ import type { Vec3 } from '../stations';
 // The diorama is always seen from the front-right, a little above.
 const VIEW_DIR = new THREE.Vector3(1, 0.92, 1).normalize();
 const DISTANCE = 40;
-const OVERVIEW_TARGET = new THREE.Vector3(0, 0.6, 0.4);
+const START_TARGET = new THREE.Vector3(0, 0.9, 0.4);
+// look at your chest, not your feet
+const FOLLOW_HEIGHT = 0.9;
 
 export type CameraFocus = {
   point: Vec3;
@@ -16,23 +18,28 @@ export type CameraFocus = {
 } | null;
 
 /**
- * Orthographic camera that glides between the overview and a focused
- * station, keeping the focused thing inside the part of the screen the
- * panel doesn't cover. One-finger drag pans, pinch / wheel zooms.
+ * Orthographic camera that follows you around the room up close, and frames
+ * a station when its panel is open (keeping it inside the part of the screen
+ * the panel doesn't cover). One-finger drag looks around (it drifts back to
+ * you once you walk), pinch / wheel zooms.
  */
 export function CameraRig({
   focus,
+  follow,
   // where the visible area's centre sits, relative to the canvas centre,
   // in CSS px (+y is up)
   screenOffset,
   reducedMotion,
 }: {
   focus: CameraFocus;
+  // the player's position, followed when no station is open
+  follow: React.RefObject<THREE.Vector3>;
   screenOffset: { x: number; y: number };
   reducedMotion: boolean;
 }) {
   const { size, gl } = useThree();
-  const target = useRef(OVERVIEW_TARGET.clone());
+  const target = useRef(START_TARGET.clone());
+  const lastFollow = useRef(new THREE.Vector3(Infinity, 0, 0));
   const pan = useRef(new THREE.Vector3());
   const userZoom = useRef(1);
   const zoom = useRef(0);
@@ -74,8 +81,8 @@ export function CameraRig({
         if (pinchDistance > 0) {
           userZoom.current = THREE.MathUtils.clamp(
             userZoom.current * (distance / pinchDistance),
-            0.7,
-            3.5,
+            0.5,
+            2.5,
           );
         }
         pinchDistance = distance;
@@ -103,8 +110,8 @@ export function CameraRig({
       e.preventDefault();
       userZoom.current = THREE.MathUtils.clamp(
         userZoom.current * Math.exp(-e.deltaY * 0.0015),
-        0.7,
-        3.5,
+        0.5,
+        2.5,
       );
     };
     element.addEventListener('pointerdown', onDown);
@@ -124,14 +131,28 @@ export function CameraRig({
   useFrame((state, delta) => {
     // mutated here, as R3F intends: the camera is the scene's, not React state
     const cam = state.camera as THREE.OrthographicCamera;
-    // Landscape fits the whole room. Portrait phones zoom in so the room
-    // fills the height and the sides are a pan away.
-    const overviewZoom =
-      size.width < size.height
-        ? Math.min(size.width / 12, size.height / 17)
-        : Math.min(size.width / 18.5, size.height / 18);
+    const portrait = size.width < size.height;
+    // Stations are framed relative to the size that fits the whole room...
+    const fitZoom = portrait
+      ? Math.min(size.width / 12, size.height / 17)
+      : Math.min(size.width / 18.5, size.height / 18);
+    // ...while walking around the camera stays close: a few metres of room
+    // around you, so you explore to find things.
+    const followZoom = portrait
+      ? Math.min(size.width / 7.5, size.height / 12)
+      : Math.min(size.width / 13, size.height / 9.5);
     const desiredZoom =
-      overviewZoom * (focus ? focus.zoom : 1) * userZoom.current;
+      (focus ? fitZoom * focus.zoom : followZoom) * userZoom.current;
+
+    // Walking pulls the camera back to you after looking around.
+    const you = follow.current;
+    if (!focus && you) {
+      const moved = lastFollow.current.distanceToSquared(you) > 1e-6;
+      lastFollow.current.copy(you);
+      if (moved) {
+        pan.current.multiplyScalar(Math.exp(-4 * delta));
+      }
+    }
 
     // camera axes (fixed orientation, so they only need computing once,
     // but this is cheap and survives resizes)
@@ -142,15 +163,19 @@ export function CameraRig({
     }
 
     const desiredTarget = (
-      focus ? new THREE.Vector3(...focus.point) : OVERVIEW_TARGET.clone()
+      focus
+        ? new THREE.Vector3(...focus.point)
+        : you
+          ? new THREE.Vector3(you.x, FOLLOW_HEIGHT, you.z)
+          : START_TARGET.clone()
     )
       .addScaledVector(right.current, -screenOffset.x / desiredZoom)
       .addScaledVector(up.current, -screenOffset.y / desiredZoom)
       .add(pan.current);
 
     // keep the room on screen
-    desiredTarget.x = THREE.MathUtils.clamp(desiredTarget.x, -8, 8);
-    desiredTarget.z = THREE.MathUtils.clamp(desiredTarget.z, -8, 8);
+    desiredTarget.x = THREE.MathUtils.clamp(desiredTarget.x, -7.5, 7.5);
+    desiredTarget.z = THREE.MathUtils.clamp(desiredTarget.z, -7.5, 7.5);
     desiredTarget.y = THREE.MathUtils.clamp(desiredTarget.y, -6, 6);
 
     const snap = reducedMotion || zoom.current === 0;

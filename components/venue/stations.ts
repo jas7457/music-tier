@@ -78,8 +78,8 @@ export const STATIONS: Record<StationId, Station> = {
     emoji: '🏆',
     color: '#ffe066',
     approach: [-4.4, 0, -4.2],
-    focus: [-4.6, 1.8, -6.2],
-    zoom: 1.9,
+    focus: [-4.6, 2.3, -6],
+    zoom: 1.45,
   },
   crates: {
     id: 'crates',
@@ -146,4 +146,4 @@ export function isStationId(value: unknown): value is StationId {
 }
 
 // Where the player appears when they walk in.
-export const SPAWN: Vec3 = [0.6, 0, 4.6];
+export const SPAWN: Vec3 = [1.8, 0, 4.1];

@@ -325,8 +325,14 @@ export function Player({
   reducedMotion,
   onArrive,
   onNearStation,
+  openStation,
+  onLeaveStation,
   positionRef,
 }: {
+  // the station whose panel is open, if any
+  openStation?: StationId | null;
+  // you walked (with the keyboard) too far from the open station
+  onLeaveStation?: () => void;
   me: FriendState;
   destination: Vec3 | null;
   reducedMotion: boolean;
@@ -340,9 +346,13 @@ export function Player({
   const nearRef = useRef<StationId | null>(null);
   const usedKeysRef = useRef(false);
   const nearCallback = useRef(onNearStation);
+  const leaveCallback = useRef(onLeaveStation);
+  const openRef = useRef(openStation);
   useEffect(() => {
     nearCallback.current = onNearStation;
-  }, [onNearStation]);
+    leaveCallback.current = onLeaveStation;
+    openRef.current = openStation;
+  }, [onNearStation, onLeaveStation, openStation]);
   useTrackAnchor(`friend:${me.user._id}`, root, 2.05);
   const movingRef = useRef(false);
   const waypoints = useRef<THREE.Vector3[]>([]);
@@ -417,6 +427,15 @@ export function Player({
       movingRef.current = moved;
       group.position.copy(pos);
       reportNear(pos);
+      // walking away from an open station closes its panel
+      const open = openRef.current;
+      if (moved && open) {
+        const [x, , z] = STATIONS[open].approach;
+        if (Math.hypot(pos.x - x, pos.z - z) > LEAVE_DISTANCE) {
+          openRef.current = null;
+          leaveCallback.current?.();
+        }
+      }
       return;
     }
 
@@ -475,6 +494,9 @@ export function Player({
     </group>
   );
 }
+
+// how far (world units) you can wander from a station before its panel closes
+const LEAVE_DISTANCE = 2.6;
 
 function lerpAngle(from: number, to: number, t: number) {
   let diff = to - from;

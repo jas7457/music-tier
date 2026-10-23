@@ -2,10 +2,13 @@
 
 import * as THREE from 'three';
 import { useEffect, useMemo, useRef } from 'react';
+import { Billboard } from '@react-three/drei';
 import { ThreeEvent, useFrame } from '@react-three/fiber';
 import { STATIONS, StationId, ROOM_HALF } from '../stations';
 import {
-  cardTexture,
+  AVATAR_COLORS,
+  initialTexture,
+  lineupPosterTexture,
   neonTexture,
   useCanvasTexture,
   useImageTexture,
@@ -20,7 +23,16 @@ export type StationSceneData = {
   marqueeSubtitle: string;
   moodColor: string;
   spinningArt: string | null;
+  leagueTitle: string;
   lineup: Array<{ name: string; points: number; place: number }>;
+  // top three of the standings, for the podium
+  podium: Array<{
+    name: string;
+    photoUrl?: string;
+    colorIndex: number;
+    place: number;
+    points: number;
+  }>;
   crateArt: string[];
   pollCount: number;
   openPollCount: number;
@@ -92,6 +104,7 @@ function StationHit({
         />
       )}
       {anchor && <StaticAnchor id={`station:${id}`} position={labelPos} />}
+      {anchor && <StaticAnchor id={`pointer:${id}`} position={labelPos} />}
     </group>
   );
 }
@@ -269,8 +282,8 @@ function Stage({ data }: StationProps) {
         </mesh>
       </group>
       {/* speakers */}
-      {[-2.6, 3.6].map((x) => (
-        <group key={x} position={[x, 0, -5.8]}>
+      {[-1.65, 3.6].map((x) => (
+        <group key={x} position={[x, x < 0 ? 0.5 : 0, -5.8]}>
           <mesh position={[0, 0.9, 0]}>
             <boxGeometry args={[0.9, 1.8, 0.8]} />
             <meshStandardMaterial color="#141020" roughness={0.7} />
@@ -422,65 +435,246 @@ function BallotBox({ data, reducedMotion }: StationProps) {
 
 /* ----------------------------- Lineup wall ---------------------------- */
 
-function LineupWall({ data }: StationProps) {
+const MEDALS = [
+  { color: '#ffcf3f', height: 0.95, x: -4.6 }, // 1st, centre and tallest
+  { color: '#cfd6e6', height: 0.65, x: -5.45 }, // 2nd, left
+  { color: '#e0915a', height: 0.45, x: -3.75 }, // 3rd, right
+];
+
+function LineupWall({ data, reducedMotion }: StationProps) {
   const poster = useCanvasTexture(
     () =>
-      cardTexture({
-        title: 'The Lineup',
-        lines:
-          data.lineup.length > 0
-            ? data.lineup.map((entry) => `${entry.place}. ${entry.name} · ${entry.points}`)
-            : ['Results after round 1'],
-        background: '#ffe066',
-        width: 512,
-        height: 680,
+      lineupPosterTexture({
+        leagueTitle: data.leagueTitle,
+        acts: data.lineup,
       }),
-    [JSON.stringify(data.lineup)],
+    [data.leagueTitle, JSON.stringify(data.lineup)],
   );
+  const sign = useCanvasTexture(
+    () =>
+      neonTexture({
+        text: 'THE LINEUP',
+        color: '#ffcf3f',
+        width: 1024,
+        height: 200,
+        fontSize: 140,
+      }),
+    [],
+  );
+  const trophy = useRef<THREE.Group>(null);
+  const bulbs = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => {
+    if (reducedMotion) {
+      return;
+    }
+    if (trophy.current) {
+      trophy.current.rotation.y = clock.elapsedTime * 0.9;
+      trophy.current.position.y = 1.02 + Math.sin(clock.elapsedTime * 2) * 0.04;
+    }
+    // chasing marquee bulbs
+    bulbs.current?.children.forEach((bulb, i) => {
+      const on = Math.floor(clock.elapsedTime * 6 - i) % 3 === 0;
+      ((bulb as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(
+        on ? '#fff3c4' : '#7a5a1a',
+      );
+    });
+  });
+
+  // frame of bulbs around the poster
+  const bulbPositions = useMemo(() => {
+    const list: Array<[number, number]> = [];
+    const w = 1.45;
+    const top = 3.95;
+    const bottom = 1.2;
+    for (let x = -w; x <= w + 0.001; x += 0.29) {
+      list.push([x, top], [x, bottom]);
+    }
+    for (let y = bottom + 0.275; y < top - 0.1; y += 0.275) {
+      list.push([-w, y], [w, y]);
+    }
+    return list;
+  }, []);
+
   return (
     <group>
-      <mesh position={[-4.6, 2.3, -6.97]}>
-        <planeGeometry args={[2.2, 2.92]} />
-        <meshStandardMaterial map={poster} roughness={0.8} emissive="#ffffff" emissiveIntensity={0.18} emissiveMap={poster} />
-      </mesh>
-      {/* tape */}
-      {[
-        [-5.6, 3.7],
-        [-3.6, 3.7],
-      ].map(([x, y]) => (
-        <mesh key={x} position={[x, y, -6.95]} rotation={[0, 0, x < -4 ? 0.5 : -0.5]}>
-          <planeGeometry args={[0.4, 0.12]} />
-          <meshBasicMaterial color="#f5f0e6" transparent opacity={0.85} />
+      {/* poster in a gold frame */}
+      <group position={[-4.6, 2.575, -6.97]}>
+        <mesh position={[0, 0, -0.02]}>
+          <boxGeometry args={[2.7, 3.1, 0.06]} />
+          <meshStandardMaterial color="#c99a2e" metalness={0.8} roughness={0.3} />
         </mesh>
-      ))}
-      <Trophy position={[-4.6, 0, -6.2]} />
+        <mesh position={[0, 0, 0.015]}>
+          <planeGeometry args={[2.4, 2.8]} />
+          <meshBasicMaterial map={poster} toneMapped={false} />
+        </mesh>
+      </group>
+      <group ref={bulbs} position={[-4.6, 0, -6.9]}>
+        {bulbPositions.map(([x, y], i) => (
+          <mesh key={i} position={[x, y, 0]}>
+            <sphereGeometry args={[0.045, 8, 8]} />
+            <meshBasicMaterial color="#fff3c4" toneMapped={false} />
+          </mesh>
+        ))}
+      </group>
+      {/* neon sign above it all */}
+      <mesh position={[-4.6, 4.22, -6.9]}>
+        <planeGeometry args={[2.4, 0.47]} />
+        <meshBasicMaterial map={sign} transparent toneMapped={false} />
+      </mesh>
+      <pointLight position={[-4.6, 2.6, -5.6]} color="#ffd88a" intensity={6} distance={4} />
+
+      {/* the podium */}
+      {MEDALS.map((medal, i) => {
+        const act = data.podium[i];
+        return (
+          <group key={i} position={[medal.x, 0, -6.15]}>
+            <mesh position={[0, medal.height / 2, 0]}>
+              <boxGeometry args={[0.82, medal.height, 0.8]} />
+              <meshStandardMaterial color="#241a3d" roughness={0.5} />
+            </mesh>
+            {/* medal-coloured top and trim */}
+            <mesh position={[0, medal.height + 0.015, 0]}>
+              <boxGeometry args={[0.86, 0.03, 0.84]} />
+              <meshStandardMaterial
+                color={medal.color}
+                metalness={0.85}
+                roughness={0.25}
+                emissive={medal.color}
+                emissiveIntensity={0.15}
+              />
+            </mesh>
+            <PodiumNumber place={i + 1} color={medal.color} height={medal.height} />
+            {act && (
+              <PodiumFace
+                act={act}
+                color={medal.color}
+                height={medal.height}
+                crowned={i === 0}
+              />
+            )}
+          </group>
+        );
+      })}
+      {/* trophy floating over the winner's spot */}
+      <group ref={trophy} position={[-4.6, 1.02, -6.55]} scale={0.7}>
+        <TrophyCup />
+      </group>
     </group>
   );
 }
 
-function Trophy({ position }: { position: [number, number, number] }) {
+function PodiumNumber({
+  place,
+  color,
+  height,
+}: {
+  place: number;
+  color: string;
+  height: number;
+}) {
+  const texture = useCanvasTexture(
+    () =>
+      neonTexture({
+        text: String(place),
+        color,
+        width: 256,
+        height: 256,
+        fontSize: 200,
+      }),
+    [place, color],
+  );
   return (
-    <group position={position}>
-      <mesh position={[0, 0.4, 0]}>
-        <boxGeometry args={[0.7, 0.8, 0.7]} />
-        <meshStandardMaterial color="#2b2147" />
+    <mesh position={[0, height / 2, 0.405]}>
+      <planeGeometry args={[0.5, 0.5]} />
+      <meshBasicMaterial map={texture} transparent toneMapped={false} />
+    </mesh>
+  );
+}
+
+/** A standee of the player: their face on a disc, ringed in their medal colour. */
+function PodiumFace({
+  act,
+  color,
+  height,
+  crowned,
+}: {
+  act: StationSceneData['podium'][number];
+  color: string;
+  height: number;
+  crowned: boolean;
+}) {
+  const fallback = useCanvasTexture(
+    () =>
+      initialTexture(
+        act.name.charAt(0).toUpperCase(),
+        AVATAR_COLORS[act.colorIndex % AVATAR_COLORS.length],
+      ),
+    [act.name, act.colorIndex],
+  );
+  const face = useImageTexture(act.photoUrl, { circle: true, fallback });
+  return (
+    <Billboard position={[0, height + 0.55, 0]}>
+      <mesh>
+        <circleGeometry args={[0.42, 40]} />
+        <meshBasicMaterial color={color} toneMapped={false} />
       </mesh>
-      <mesh position={[0, 0.9, 0]}>
+      <mesh position={[0, 0, 0.01]}>
+        <circleGeometry args={[0.37, 40]} />
+        <meshBasicMaterial map={face} toneMapped={false} />
+      </mesh>
+      {crowned && (
+        <group position={[0, 0.5, 0.02]}>
+          <mesh>
+            <planeGeometry args={[0.46, 0.15]} />
+            <meshBasicMaterial color="#ffcf3f" toneMapped={false} />
+          </mesh>
+          {[-0.17, 0, 0.17].map((x) => (
+            <mesh key={x} position={[x, 0.12, 0]}>
+              <circleGeometry args={[0.08, 3, Math.PI / 2]} />
+              <meshBasicMaterial color="#ffcf3f" toneMapped={false} />
+            </mesh>
+          ))}
+        </group>
+      )}
+    </Billboard>
+  );
+}
+
+function TrophyCup() {
+  const gold = (
+    <meshStandardMaterial
+      color="#ffcf3f"
+      metalness={0.9}
+      roughness={0.2}
+      emissive="#7a5200"
+      emissiveIntensity={0.4}
+    />
+  );
+  return (
+    <group>
+      <mesh position={[0, 0.1, 0]}>
         <cylinderGeometry args={[0.12, 0.18, 0.2, 12]} />
-        <meshStandardMaterial color="#ffcf3f" metalness={0.9} roughness={0.25} />
+        {gold}
       </mesh>
-      <mesh position={[0, 1.08, 0]}>
+      <mesh position={[0, 0.28, 0]}>
         <cylinderGeometry args={[0.04, 0.06, 0.18, 8]} />
-        <meshStandardMaterial color="#ffcf3f" metalness={0.9} roughness={0.25} />
+        {gold}
       </mesh>
-      <mesh position={[0, 1.36, 0]}>
+      <mesh position={[0, 0.56, 0]}>
         <cylinderGeometry args={[0.24, 0.1, 0.4, 16, 1, true]} />
-        <meshStandardMaterial color="#ffcf3f" metalness={0.9} roughness={0.25} side={THREE.DoubleSide} />
+        <meshStandardMaterial
+          color="#ffcf3f"
+          metalness={0.9}
+          roughness={0.2}
+          emissive="#7a5200"
+          emissiveIntensity={0.4}
+          side={THREE.DoubleSide}
+        />
       </mesh>
-      {[-1, 1].map((s) => (
-        <mesh key={s} position={[s * 0.25, 1.38, 0]} rotation={[0, 0, Math.PI / 2]}>
+      {[-1, 1].map((side) => (
+        <mesh key={side} position={[side * 0.25, 0.58, 0]} rotation={[0, 0, Math.PI / 2]}>
           <torusGeometry args={[0.08, 0.02, 6, 12, Math.PI]} />
-          <meshStandardMaterial color="#ffcf3f" metalness={0.9} roughness={0.25} />
+          {gold}
         </mesh>
       ))}
     </group>

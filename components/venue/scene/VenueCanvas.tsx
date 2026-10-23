@@ -24,6 +24,8 @@ export type VenueCanvasProps = {
   onSelectStation: (id: StationId) => void;
   onFloorTap: (point: Vec3) => void;
   onNearStation: (id: StationId | null) => void;
+  openStation: StationId | null;
+  onLeaveStation: () => void;
 };
 
 export default function VenueCanvas({
@@ -38,6 +40,8 @@ export default function VenueCanvas({
   onSelectStation,
   onFloorTap,
   onNearStation,
+  openStation,
+  onLeaveStation,
 }: VenueCanvasProps) {
   const playerPosition = useRef(new THREE.Vector3(...SPAWN));
   // don't leave a pointer cursor behind if the scene goes while hovering
@@ -70,6 +74,7 @@ export default function VenueCanvas({
       <AnchorProjector />
       <CameraRig
         focus={focus}
+        follow={playerPosition}
         screenOffset={screenOffset}
         reducedMotion={reducedMotion}
       />
@@ -104,6 +109,8 @@ export default function VenueCanvas({
         reducedMotion={reducedMotion}
         positionRef={playerPosition}
         onNearStation={onNearStation}
+        openStation={openStation}
+        onLeaveStation={onLeaveStation}
       />
     </Canvas>
   );
