@@ -217,14 +217,37 @@ export function buildVenueModel(
     };
   });
 
+  const writeYourRound: Quest | null =
+    !userHasCreatedRound && league.status !== 'completed'
+      ? {
+          station: 'stage',
+          title: 'Write your round',
+          detail: 'Pick a theme for everyone',
+          urgent: true,
+        }
+      : null;
+
   const quest = ((): Quest | null => {
-    if (!userHasCreatedRound && league.status !== 'completed') {
+    // Things with a deadline come first: your song, then your votes.
+    if (currentRound?.stage === 'submission' && currentRound._id && !currentRound.userSubmission) {
       return {
-        station: 'stage',
-        title: 'Write your round',
-        detail: 'Pick a theme for everyone',
+        station: 'booth',
+        title: 'Drop your track',
+        detail: currentRound.title,
         urgent: true,
       };
+    }
+    if (currentRound?.stage === 'voting') {
+      return {
+        station: 'ballot',
+        title: 'Cast your votes',
+        detail: `${league.votesPerRound} chips to spend`,
+        urgent: true,
+      };
+    }
+    // Then your own round theme, which everyone is waiting on eventually.
+    if (writeYourRound) {
+      return writeYourRound;
     }
     switch (currentRound?.stage) {
       case 'submission': {
@@ -251,13 +274,6 @@ export function buildVenueModel(
           urgent: false,
         };
       }
-      case 'voting':
-        return {
-          station: 'ballot',
-          title: 'Cast your votes',
-          detail: `${league.votesPerRound} chips to spend`,
-          urgent: true,
-        };
       case 'currentUserVotingCompleted':
         return {
           station: 'ballot',

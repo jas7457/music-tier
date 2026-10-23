@@ -856,3 +856,191 @@ body:has(.venue-root) {
     transform: rotate(360deg);
   }
 }
+
+/* ===========================================================================
+   Buttons: one chunky cartoon style for everything in the venue, matching
+   the scene's ink outlines. A 2px ink outline plus a solid ink "edge" under
+   the button that it sinks into when pressed.
+   =========================================================================== */
+
+.venue-root {
+  --ink: #140c24;
+  --btn-edge: 4px;
+}
+
+/* --- the shared look ---------------------------------------------------- */
+.venue-root .venue-cta,
+.venue-root .venue-chip,
+.venue-root .rr-reveal-btn,
+.venue-root .ballot-tray-next,
+.venue-root .ballot-plus,
+.venue-sheet button[class*='bg-primary']:not([class*='bg-primary-lightest']),
+.venue-sheet button[class*='bg-amber-600'],
+.venue-sheet button[class*='bg-emerald-500'],
+.venue-sheet button[class*='bg-red-500'],
+.venue-sheet button[class*='bg-white/70'],
+.venue-sheet button[class*='ring-ink/15'],
+.venue-sheet a[class*='bg-primary']:not([class*='bg-primary-lightest']) {
+  border: 2px solid var(--ink) !important;
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.35),
+    0 var(--btn-edge) 0 var(--ink) !important;
+  font-weight: 800 !important;
+  text-shadow: none;
+  transition:
+    transform 0.08s ease-out,
+    box-shadow 0.08s ease-out,
+    filter 0.15s !important;
+  animation: none;
+}
+.venue-root .venue-cta:hover:not(:disabled),
+.venue-root .venue-chip:hover,
+.venue-root .rr-reveal-btn:hover,
+.venue-root .ballot-tray-next:hover,
+.venue-root .ballot-plus:hover:not(:disabled),
+.venue-sheet button[class*='bg-primary']:hover:not(:disabled),
+.venue-sheet button[class*='bg-amber-600']:hover:not(:disabled),
+.venue-sheet button[class*='bg-white/70']:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.venue-root .venue-cta:active:not(:disabled),
+.venue-root .venue-chip:active,
+.venue-root .rr-reveal-btn:active,
+.venue-root .ballot-tray-next:active,
+.venue-root .ballot-plus:active:not(:disabled),
+.venue-sheet button[class*='bg-primary']:active:not(:disabled),
+.venue-sheet button[class*='bg-amber-600']:active:not(:disabled),
+.venue-sheet button[class*='bg-emerald-500']:active:not(:disabled),
+.venue-sheet button[class*='bg-red-500']:active:not(:disabled),
+.venue-sheet button[class*='bg-white/70']:active:not(:disabled),
+.venue-sheet button[class*='ring-ink/15']:active:not(:disabled) {
+  transform: translateY(var(--btn-edge)) !important;
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.35),
+    0 0 0 var(--ink) !important;
+}
+.venue-root .venue-cta:disabled,
+.venue-root .ballot-plus:disabled,
+.venue-sheet button[class*='bg-primary']:disabled,
+.venue-sheet button[class*='bg-amber-600']:disabled,
+.venue-sheet button[class*='bg-white/70']:disabled {
+  opacity: 0.45;
+  box-shadow: 0 2px 0 var(--ink) !important;
+  transform: translateY(2px);
+}
+
+/* --- colours: flat and bold, like the props ------------------------------ */
+.venue-root .venue-cta {
+  --cta: #8b5cf6;
+  padding: 13px 16px;
+  margin-bottom: var(--btn-edge);
+  border-radius: 16px;
+  color: #fff;
+  background: var(--cta);
+  text-shadow: 0 2px 0 rgb(20 12 36 / 0.35);
+  letter-spacing: -0.01em;
+}
+.venue-root .venue-chip {
+  padding: 5px 12px;
+  border-radius: 999px;
+  color: var(--ink);
+  background: #ffe066;
+}
+.venue-root .rr-reveal-btn {
+  color: var(--ink);
+  background: #ffd23f;
+}
+.venue-root .ballot-tray-next {
+  color: var(--ink);
+  background: #ffe066;
+  --btn-edge: 3px;
+}
+.venue-root .ballot-plus {
+  color: #fff;
+  background: #8b5cf6;
+  --btn-edge: 3px;
+}
+.venue-sheet button[class*='bg-primary']:not([class*='bg-primary-lightest']),
+.venue-sheet a[class*='bg-primary']:not([class*='bg-primary-lightest']) {
+  background: #8b5cf6 !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+}
+.venue-sheet button[class*='bg-amber-600'] {
+  background: #ffb547 !important;
+  color: var(--ink) !important;
+  border-radius: 12px !important;
+}
+.venue-sheet button[class*='bg-emerald-500'] {
+  background: #34d399 !important;
+  --btn-edge: 3px;
+}
+.venue-sheet button[class*='bg-red-500'] {
+  background: #fb7185 !important;
+  --btn-edge: 3px;
+}
+.venue-sheet button[class*='bg-white/70'],
+.venue-sheet button[class*='ring-ink/15'] {
+  background: #fff !important;
+  color: var(--ink) !important;
+  border-radius: 12px !important;
+  --tw-ring-shadow: 0 0 #0000;
+}
+/* small pills (e.g. "+ Side playlist") get a smaller edge */
+.venue-sheet button[class*='p-1 '][class*='bg-primary'],
+.venue-sheet button[class*='py-1.5'] {
+  --btn-edge: 3px;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+/* --- rows and cards you can tap ------------------------------------------ */
+.venue-root .venue-row {
+  border: 2px solid var(--ink);
+  box-shadow: 0 3px 0 var(--ink);
+  margin-bottom: 3px;
+  transition:
+    transform 0.08s,
+    box-shadow 0.08s;
+}
+.venue-root .venue-row:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+/* --- segmented toggles (Results / Your votes) ---------------------------- */
+.venue-sheet [class*='inline-flex'][class*='glass'],
+.venue-sheet .flex.justify-center.gap-2:has(> button[class*='rounded-[0.5rem]']) {
+  padding: 3px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.venue-sheet button[class*='rounded-[0.5rem]'] {
+  border-radius: 999px !important;
+  font-weight: 800 !important;
+}
+.venue-sheet button[class*='rounded-[0.5rem]'][class*='bg-white/90'] {
+  background: #ffe066 !important;
+  color: var(--ink) !important;
+  box-shadow: inset 0 0 0 2px var(--ink) !important;
+}
+
+/* --- small round icon buttons in the panel header ------------------------ */
+.venue-root .venue-icon-button {
+  border: 2px solid var(--ink);
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 3px 0 var(--ink);
+  transition:
+    transform 0.08s,
+    box-shadow 0.08s;
+}
+.venue-root .venue-icon-button:hover {
+  background: #fff7d6;
+}
+.venue-root .venue-icon-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--ink);
+}

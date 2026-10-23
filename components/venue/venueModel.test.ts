@@ -179,3 +179,26 @@ describe('getStandings', () => {
     ]);
   });
 });
+
+describe('quest priority', () => {
+  it('puts an open ballot ahead of writing your round', () => {
+    const current = round('r1', 'voting', bob, {
+      submissions: [submission('s1', bob, 'r1')],
+    });
+    // nobody has written a round for alice
+    const model = buildVenueModel(league({ current }), alice);
+    expect(model.quest).toMatchObject({ station: 'ballot' });
+  });
+
+  it('puts an owed song ahead of writing your round', () => {
+    const current = round('r1', 'submission', bob);
+    const model = buildVenueModel(league({ current }), alice);
+    expect(model.quest).toMatchObject({ station: 'booth' });
+  });
+
+  it('asks you to write your round once nothing is due', () => {
+    const current = round('r1', 'currentUserVotingCompleted', bob);
+    const model = buildVenueModel(league({ current }), alice);
+    expect(model.quest).toMatchObject({ station: 'stage', title: 'Write your round' });
+  });
+});
