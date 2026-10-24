@@ -14,6 +14,10 @@ const HALF_FOV_TAN = Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV / 2));
 const START_TARGET = new THREE.Vector3(0, 0.9, 0.4);
 // look at your chest, not your feet
 const FOLLOW_HEIGHT = 0.9;
+// How far the view travels per unit of finger drag. >1 so a swipe moves more
+// than a strict 1:1 would: the camera smooths toward its target, so without
+// this a drag feels like it lags behind your finger.
+const PAN_SENSITIVITY = 2.2;
 
 export type CameraFocus = {
   point: Vec3;
@@ -96,7 +100,7 @@ export function CameraRig({
       if (e.buttons === 0 && e.pointerType === 'mouse') {
         return;
       }
-      const z = zoom.current || 1;
+      const z = (zoom.current || 1) / PAN_SENSITIVITY;
       const dx = next.x - previous.x;
       const dy = next.y - previous.y;
       pan.current
