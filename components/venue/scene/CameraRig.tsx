@@ -23,6 +23,9 @@ const PAN_SENSITIVITY = 1.5;
 // than a slow drag of the same length, like flinging a scroll view.
 const FLICK_GAIN = 1;
 const MOMENTUM_DECAY = 5;
+// Below this finger speed (px/s) a release doesn't glide at all, so small,
+// slow drags stop where you let go instead of drifting.
+const FLICK_MIN_SPEED = 350;
 // A release counts as a flick only if the finger was still moving just before
 // it lifted (ignore a drag that paused and then let go).
 const FLICK_MAX_IDLE_MS = 70;
@@ -142,12 +145,16 @@ export function CameraRig({
       // lifting the last finger of a one-finger drag: fling if still moving
       if (wasSingle && remaining === 0) {
         const idle = e.timeStamp - lastMoveTime;
-        const z = (zoom.current || 1) / PAN_SENSITIVITY;
-        if (idle <= FLICK_MAX_IDLE_MS) {
+        const speed = Math.hypot(screenVel.x, screenVel.y);
+        // Only fling past a threshold, and ramp the glide up from zero there,
+        // so small nudges don't drift while fast flicks still carry.
+        if (idle <= FLICK_MAX_IDLE_MS && speed > FLICK_MIN_SPEED) {
+          const z = (zoom.current || 1) / PAN_SENSITIVITY;
+          const ramp = ((speed - FLICK_MIN_SPEED) / speed) * FLICK_GAIN;
           panVelocity.current
             .copy(right.current)
-            .multiplyScalar((-screenVel.x / z) * FLICK_GAIN)
-            .addScaledVector(up.current, (screenVel.y / z) * FLICK_GAIN);
+            .multiplyScalar((-screenVel.x / z) * ramp)
+            .addScaledVector(up.current, (screenVel.y / z) * ramp);
         }
         screenVel = { x: 0, y: 0 };
       }
