@@ -17,7 +17,15 @@ const FOLLOW_HEIGHT = 0.9;
 // How far the view travels per unit of finger drag. >1 so a swipe moves more
 // than a strict 1:1 would: the camera smooths toward its target, so without
 // this a drag feels like it lags behind your finger.
-const PAN_SENSITIVITY = 2.2;
+const PAN_SENSITIVITY = 1.5;
+// Flick momentum: how much of the finger's release speed is carried into a
+// glide, and how fast that glide slows down. A quick swipe coasts further
+// than a slow drag of the same length, like flinging a scroll view.
+const FLICK_GAIN = 1;
+const MOMENTUM_DECAY = 5;
+// A release counts as a flick only if the finger was still moving just before
+// it lifted (ignore a drag that paused and then let go).
+const FLICK_MAX_IDLE_MS = 70;
 
 export type CameraFocus = {
   point: Vec3;
@@ -48,6 +56,7 @@ export function CameraRig({
   const target = useRef(START_TARGET.clone());
   const lastFollow = useRef(new THREE.Vector3(Infinity, 0, 0));
   const pan = useRef(new THREE.Vector3());
+  const panVelocity = useRef(new THREE.Vector3());
   const userZoom = useRef(1);
   const zoom = useRef(0);
   const right = useRef(new THREE.Vector3());
@@ -69,9 +78,16 @@ export function CameraRig({
     const element = gl.domElement;
     const pointers = new Map<number, { x: number; y: number }>();
     let pinchDistance = 0;
+    // recent finger speed in screen px/s, smoothed, for flick momentum
+    let screenVel = { x: 0, y: 0 };
+    let lastMoveTime = 0;
 
     const onDown = (e: PointerEvent) => {
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      // grabbing stops any glide in progress
+      panVelocity.current.set(0, 0, 0);
+      screenVel = { x: 0, y: 0 };
+      lastMoveTime = e.timeStamp;
       if (pointers.size === 2) {
         const [a, b] = Array.from(pointers.values());
         pinchDistance = Math.hypot(a.x - b.x, a.y - b.y);
@@ -108,11 +124,31 @@ export function CameraRig({
         .addScaledVector(up.current, dy / z);
       // no dead zone past the edge of the room
       pan.current.clampLength(0, ROOM_HALF + 2);
+      // sample the finger's speed (EMA), so a flick on release carries on
+      const dt = (e.timeStamp - lastMoveTime) / 1000;
+      lastMoveTime = e.timeStamp;
+      if (dt > 0) {
+        screenVel.x = screenVel.x * 0.5 + (dx / dt) * 0.5;
+        screenVel.y = screenVel.y * 0.5 + (dy / dt) * 0.5;
+      }
     };
     const onUp = (e: PointerEvent) => {
+      const wasSingle = pointers.size === 1;
       pointers.delete(e.pointerId);
       if (pointers.size < 2) {
         pinchDistance = 0;
+      }
+      // lifting the last finger of a one-finger drag: fling if still moving
+      if (wasSingle && pointers.size === 0) {
+        const idle = e.timeStamp - lastMoveTime;
+        const z = (zoom.current || 1) / PAN_SENSITIVITY;
+        if (idle <= FLICK_MAX_IDLE_MS) {
+          panVelocity.current
+            .copy(right.current)
+            .multiplyScalar((-screenVel.x / z) * FLICK_GAIN)
+            .addScaledVector(up.current, (screenVel.y / z) * FLICK_GAIN);
+        }
+        screenVel = { x: 0, y: 0 };
       }
     };
     const onWheel = (e: WheelEvent) => {
@@ -152,6 +188,20 @@ export function CameraRig({
       : Math.min(size.width / 13, size.height / 9.5);
     const desiredZoom =
       (focus ? fitZoom * focus.zoom : followZoom) * userZoom.current;
+
+    // Flick momentum: a quick swipe keeps gliding, then eases to a stop.
+    if (panVelocity.current.lengthSq() > 1e-6) {
+      if (focus) {
+        panVelocity.current.set(0, 0, 0);
+      } else {
+        pan.current.addScaledVector(panVelocity.current, delta);
+        panVelocity.current.multiplyScalar(Math.exp(-MOMENTUM_DECAY * delta));
+        pan.current.clampLength(0, ROOM_HALF + 2);
+        if (panVelocity.current.lengthSq() < 1e-4) {
+          panVelocity.current.set(0, 0, 0);
+        }
+      }
+    }
 
     // Walking pulls the camera back to you after looking around.
     const you = follow.current;
