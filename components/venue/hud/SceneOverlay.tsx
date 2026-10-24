@@ -1,6 +1,7 @@
 'use client';
 
 import Link from '@/components/AppLink';
+import { formatTimeAgo } from '@/lib/utils/formatDate';
 import { STATION_ORDER, STATIONS, StationId } from '../stations';
 import type { FriendState } from '../venueModel';
 import { showBubble, useAnchorRef, useBubble } from '../scene/anchors';
@@ -117,7 +118,11 @@ function FriendBubble({
               friend.user.userName}
         </strong>
         <span className="venue-bubble-presence" data-online={isOnline || undefined}>
-          {isOnline ? 'Here now' : 'Not here right now'}
+          {isOnline
+            ? 'Here now'
+            : friend.user.lastActive
+              ? `Last here ${formatTimeAgo(friend.user.lastActive)}`
+              : 'Not here right now'}
         </span>
         <span>{friend.status}</span>
         {friend.place !== null && (

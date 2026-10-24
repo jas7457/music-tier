@@ -46,6 +46,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Not in this league' }, { status: 403 });
   }
 
+  // Stamp when they were last here, so others can see "last active" later.
+  // Fire-and-forget: joining the venue shouldn't wait on this write.
+  void users
+    .updateOne({ _id: user._id }, { $set: { lastActive: Date.now() } })
+    .catch(() => {
+      // a failed heartbeat shouldn't block presence
+    });
+
   const userInfo: VenueMemberInfo = {
     userName: user.userName,
     photoUrl: user.photoUrl,

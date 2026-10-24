@@ -114,9 +114,43 @@ function senderOf(metadata: unknown): string | null {
   return typeof id === 'string' ? id : null;
 }
 
+/** How often we tell the server we're still in the venue. */
+const HEARTBEAT_EVERY_MS = 60_000;
+
+/** Mark us active now; keepalive so the final beat survives the page closing. */
+function sendHeartbeat(keepalive = false) {
+  try {
+    void fetch('/api/venue/heartbeat', {
+      method: 'POST',
+      keepalive,
+    }).catch(() => {});
+  } catch {
+    // best-effort: a missed heartbeat just means a slightly stale "last active"
+  }
+}
+
 /** Joins the league's venue channel while the venue is open. */
 export function useLivePresence(leagueId: string, userId: string) {
   const { pusher } = usePusher();
+
+  // Keep "last active" fresh while the venue is open, and stamp a final beat
+  // as it closes / the tab goes away, so it reflects when they left.
+  useEffect(() => {
+    sendHeartbeat();
+    const timer = setInterval(sendHeartbeat, HEARTBEAT_EVERY_MS);
+    const onHide = () => {
+      if (document.visibilityState === 'hidden') {
+        sendHeartbeat(true);
+      }
+    };
+    document.addEventListener('visibilitychange', onHide);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', onHide);
+      // left the venue (navigated away in-app): record it now
+      sendHeartbeat(true);
+    };
+  }, [leagueId]);
 
   useEffect(() => {
     if (!pusher) {

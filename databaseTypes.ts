@@ -22,6 +22,8 @@ export type User = {
   lastName: string;
   userName: string;
   signupDate: number;
+  // last time they were seen in the venue (ms epoch); used for "last active"
+  lastActive?: number;
   photoUrl?: string;
   phoneNumber?: string;
   phoneCarrier?: 'verizon' | 'att' | 'tmobile';
