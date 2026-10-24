@@ -135,11 +135,12 @@ export function CameraRig({
     const onUp = (e: PointerEvent) => {
       const wasSingle = pointers.size === 1;
       pointers.delete(e.pointerId);
-      if (pointers.size < 2) {
+      const remaining = pointers.size;
+      if (remaining < 2) {
         pinchDistance = 0;
       }
       // lifting the last finger of a one-finger drag: fling if still moving
-      if (wasSingle && pointers.size === 0) {
+      if (wasSingle && remaining === 0) {
         const idle = e.timeStamp - lastMoveTime;
         const z = (zoom.current || 1) / PAN_SENSITIVITY;
         if (idle <= FLICK_MAX_IDLE_MS) {
