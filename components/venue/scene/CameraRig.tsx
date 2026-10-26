@@ -26,6 +26,11 @@ const MOMENTUM_DECAY = 5;
 // Below this finger speed (px/s) a release doesn't glide at all, so small,
 // slow drags stop where you let go instead of drifting.
 const FLICK_MIN_SPEED = 350;
+// Fog starts / is solid this far beyond the point the camera looks at, so it
+// only ever swallows the void past the room, at any zoom (a fixed fog
+// distance made the room go dark when you zoomed out).
+const FOG_NEAR_PAST_TARGET = 23;
+const FOG_FAR_PAST_TARGET = 53;
 // A release counts as a flick only if the finger was still moving just before
 // it lifted (ignore a drag that paused and then let go).
 const FLICK_MAX_IDLE_MS = 70;
@@ -263,6 +268,11 @@ export function CameraRig({
     // "zoom" is pixels per world unit at the target: back the camera off to
     // the distance that gives that scale with this lens.
     const distance = size.height / zoom.current / (2 * HALF_FOV_TAN);
+    const fog = state.scene.fog;
+    if (fog instanceof THREE.Fog) {
+      fog.near = distance + FOG_NEAR_PAST_TARGET;
+      fog.far = distance + FOG_FAR_PAST_TARGET;
+    }
 
     // Lean slightly into the direction of travel: the camera swings a touch
     // sideways as it chases its target, which sells the depth.
