@@ -23,14 +23,14 @@ const FOLLOW_HEIGHT = 0.9;
 // how much of the release speed carries into the glide
 const FLICK_GAIN = 1;
 // how quickly the glide slows (per second); it travels speed / this far
-const MOMENTUM_DECAY = 5;
+const MOMENTUM_DECAY = 2.2; // iOS's normal scroll deceleration is ~2
 // below this release speed (px/s) there's no glide, so small, slow drags
 // stop where you let go; just above it the glide ramps up from nothing
 const FLICK_MIN_SPEED = 350;
 // fastest glide (px/s), so a wild flick doesn't shoot across the room
 const FLICK_MAX_SPEED = 3000;
 // release speed is measured over this much of the end of the drag...
-const FLICK_SAMPLE_MS = 100;
+const FLICK_SAMPLE_MS = 60;
 // ...and a finger that stopped this long before lifting doesn't fling
 const FLICK_MAX_IDLE_MS = 50;
 
