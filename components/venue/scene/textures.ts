@@ -599,6 +599,34 @@ export function beamTexture() {
 }
 
 /** A soft round spot (sparkles, glows). */
+/**
+ * A soft, lumpy white puff (for smoke-machine haze): a cluster of faint
+ * radial blobs, fading out well before the edges so sprites never show a
+ * square outline. Seeded, so it looks the same on every load.
+ */
+export function hazeTexture() {
+  const size = 128;
+  const { canvas, ctx } = makeCanvas(size, size);
+  let seed = 7;
+  const random = () => {
+    seed = (seed * 16807) % 2147483647;
+    return seed / 2147483647;
+  };
+  for (let i = 0; i < 14; i++) {
+    const angle = random() * Math.PI * 2;
+    const spread = random() * size * 0.18;
+    const x = size / 2 + Math.cos(angle) * spread;
+    const y = size / 2 + Math.sin(angle) * spread;
+    const radius = size * (0.16 + random() * 0.16);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    g.addColorStop(0, `rgba(255,255,255,${0.18 + random() * 0.12})`);
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, size, size);
+  }
+  return finish(canvas);
+}
+
 export function glowTexture() {
   const { canvas, ctx } = makeCanvas(64, 64);
   const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);

@@ -69,7 +69,6 @@ export default function VenueCanvas({
         onDecline={() => setDpr(1)}
         onIncline={() => setDpr(1.75)}
       />
-      <fog attach="fog" args={['#07050d', 50, 80]} />
       <ambientLight intensity={0.7} />
       <hemisphereLight args={['#b9a8ff', '#1b1530', 0.8]} />
       {/* key light: the one that casts the (soft, cartoon) shadows */}

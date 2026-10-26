@@ -8,6 +8,7 @@ import {
   beamTexture,
   floorTexture,
   glowTexture,
+  hazeTexture,
   skylineTexture,
   useCanvasTexture,
   wallpaperTexture,
@@ -73,6 +74,7 @@ export function Room({
       <DiscoBall reducedMotion={reducedMotion} />
       <Sparkles reducedMotion={reducedMotion} />
       <LightBeams moodColor={moodColor} reducedMotion={reducedMotion} />
+      <Haze moodColor={moodColor} reducedMotion={reducedMotion} />
       <Couch />
       <Plant position={[ROOM_HALF - 0.7, 0, ROOM_HALF - 0.7]} />
       <Plant position={[-ROOM_HALF + 0.7, 0, -ROOM_HALF + 0.7]} />
@@ -512,6 +514,77 @@ function Sparkles({ reducedMotion }: { reducedMotion: boolean }) {
             toneMapped={false}
           />
         </mesh>
+      ))}
+    </group>
+  );
+}
+
+const HAZE_PUFFS = 11;
+// how far out from the middle the haze drifts (the dance floor is ~4.4 each way)
+const HAZE_REACH = 4.2;
+
+/**
+ * Smoke-machine haze hanging low over the dance floor: a few big, faint,
+ * camera-facing puffs that drift slowly round and breathe in and out, tinted
+ * a little with the room's mood colour.
+ */
+function Haze({
+  moodColor,
+  reducedMotion,
+}: {
+  moodColor: string;
+  reducedMotion: boolean;
+}) {
+  const puff = useCanvasTexture(hazeTexture, []);
+  const group = useRef<THREE.Group>(null);
+  const tint = useMemo(
+    () => new THREE.Color('#e4dcff').lerp(new THREE.Color(moodColor), 0.3),
+    [moodColor],
+  );
+  const puffs = useMemo(
+    () =>
+      Array.from({ length: HAZE_PUFFS }, (_, i) => ({
+        radius: 0.6 + hash(i, 1, 3) * (HAZE_REACH - 0.6),
+        angle: hash(i, 2, 5) * Math.PI * 2,
+        // half drift one way, half the other, all slowly
+        speed: (0.025 + hash(i, 3, 7) * 0.035) * (i % 2 ? 1 : -1),
+        height: 0.35 + hash(i, 4, 11) * 0.9,
+        width: 3.2 + hash(i, 5, 13) * 2.4,
+        opacity: 0.4 + hash(i, 6, 17) * 0.25,
+        phase: hash(i, 7, 19) * Math.PI * 2,
+      })),
+    [],
+  );
+  useFrame(({ clock }) => {
+    if (!group.current) {
+      return;
+    }
+    const t = reducedMotion ? 0 : clock.elapsedTime;
+    group.current.children.forEach((child, i) => {
+      const p = puffs[i];
+      const a = p.angle + t * p.speed;
+      child.position.set(
+        Math.cos(a) * p.radius,
+        p.height + Math.sin(t * 0.3 + p.phase) * 0.12,
+        Math.sin(a) * p.radius,
+      );
+      const material = (child as THREE.Sprite).material;
+      material.opacity = p.opacity * (0.75 + Math.sin(t * 0.4 + p.phase) * 0.25);
+    });
+  });
+  return (
+    <group ref={group}>
+      {puffs.map((p, i) => (
+        <sprite key={i} scale={[p.width, p.width * 0.55, 1]}>
+          <spriteMaterial
+            map={puff}
+            color={tint}
+            transparent
+            opacity={p.opacity}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </sprite>
       ))}
     </group>
   );
