@@ -11,7 +11,7 @@ import { HapticButton } from './HapticButton';
 
 import spotifyLogo from '../app/images/spotify.svg';
 import { useToast } from '@/lib/ToastContext';
-import { createSpotifyPlaylist } from '@/lib/utils/createSpotifyPlaylist';
+import { openSpotifyPlaylist } from '@/lib/utils/openSpotifyPlaylist';
 import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
 import { assertNever } from '@/lib/utils/never';
 import { InlineGap } from './InlineGap';
@@ -92,40 +92,23 @@ export function RoundInfo({
       return null;
     }
 
-    if (round.spotifyPlaylistId) {
-      return (
-        <a
-          href={`https://open.spotify.com/playlist/${round.spotifyPlaylistId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex gap-1 items-center hover:underline align-text-bottom"
-        >
-          <img
-            alt=""
-            src={spotifyLogo.src}
-            width={20}
-            title="Listen on Spotify"
-          />
-        </a>
-      );
-    }
-
+    // Always goes through the server, which checks the saved playlist still
+    // exists and makes a new one if it was deleted.
     return (
       <HapticButton
         disabled={creatingPlaylist}
         className="disabled:opacity-30 align-middle"
-        title="Create playlist"
+        title={
+          round.spotifyPlaylistId ? 'Listen on Spotify' : 'Create playlist'
+        }
         onClick={async () => {
           try {
             setCreatingPlaylist(true);
-            await createSpotifyPlaylist({ round });
+            await openSpotifyPlaylist({ round });
           } catch (err) {
-            const message = unknownToErrorString(
-              err,
-              'Error creating playlist',
-            );
+            const message = unknownToErrorString(err, 'Error opening playlist');
             toast.show({
-              title: 'Error creating playlist',
+              title: 'Error opening playlist',
               variant: 'error',
               message,
             });
