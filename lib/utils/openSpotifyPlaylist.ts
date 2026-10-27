@@ -1,11 +1,20 @@
 import { PopulatedRound } from '../types';
 import { APP_NAME } from './constants';
 
-export async function createSpotifyPlaylist({
+/**
+ * Opens the round's Spotify playlist in a new tab. The server makes the
+ * playlist if the round doesn't have one yet, or makes a fresh one if the
+ * saved one has been deleted.
+ *
+ * Call this straight from a click handler: the tab is opened right away
+ * (before waiting on the server) so browsers don't block it as a popup.
+ */
+export async function openSpotifyPlaylist({
   round,
 }: {
   round: PopulatedRound;
 }) {
+  const tab = window.open('', '_blank');
   try {
     const response = await fetch('/api/spotify/playlist', {
       method: 'POST',
@@ -24,16 +33,20 @@ export async function createSpotifyPlaylist({
 
     const data = await response.json();
     if (!data.success) {
-      throw new Error(data.error || 'Failed to create playlist');
+      throw new Error(data.error || 'Failed to open playlist');
     }
     if (!data.playlistId) {
       throw new Error('No playlist ID returned');
     }
-    window.open(
-      `https://open.spotify.com/playlist/${data.playlistId}`,
-      '_blank',
-    );
+    const url = `https://open.spotify.com/playlist/${data.playlistId}`;
+    if (tab && !tab.closed) {
+      tab.opener = null;
+      tab.location.href = url;
+    } else {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
   } catch (err) {
+    tab?.close();
     const errorMessage = (() => {
       if (typeof err === 'string') {
         return err;

@@ -6,7 +6,7 @@ import { MultiLine } from '@/components/MultiLine';
 import { GracePeriodNotice } from '@/components/GracePeriodNotice';
 import { useToast } from '@/lib/ToastContext';
 import { useData } from '@/lib/DataContext';
-import { createSpotifyPlaylist } from '@/lib/utils/createSpotifyPlaylist';
+import { openSpotifyPlaylist } from '@/lib/utils/openSpotifyPlaylist';
 import { unknownToErrorString } from '@/lib/utils/unknownToErrorString';
 import { MAX_DESCRIPTION_LENGTH } from '@/lib/utils/constants';
 import { formatDate } from '@/lib/utils/formatDate';
@@ -249,20 +249,9 @@ function PlaylistButton({
   if (!stageAllows || round.submissions.length < league.users.length) {
     return null;
   }
-  if (round.spotifyPlaylistId) {
-    return (
-      <a
-        className="rs-spotify"
-        href={`https://open.spotify.com/playlist/${round.spotifyPlaylistId}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        { }
-        <img alt="" src={spotifyLogo.src} width={18} height={18} />
-        Listen
-      </a>
-    );
-  }
+  // Always goes through the server, which checks the saved playlist still
+  // exists and makes a new one if it was deleted.
+  const hasPlaylist = Boolean(round.spotifyPlaylistId);
   return (
     <button
       type="button"
@@ -271,12 +260,12 @@ function PlaylistButton({
       onClick={async () => {
         try {
           setCreating(true);
-          await createSpotifyPlaylist({ round });
+          await openSpotifyPlaylist({ round });
         } catch (err) {
           toast.show({
-            title: 'Error creating playlist',
+            title: 'Error opening playlist',
             variant: 'error',
-            message: unknownToErrorString(err, 'Error creating playlist'),
+            message: unknownToErrorString(err, 'Error opening playlist'),
           });
         } finally {
           setCreating(false);
@@ -285,7 +274,13 @@ function PlaylistButton({
     >
       { }
       <img alt="" src={spotifyLogo.src} width={18} height={18} />
-      {creating ? 'Making…' : 'Make playlist'}
+      {creating
+        ? hasPlaylist
+          ? 'Opening…'
+          : 'Making…'
+        : hasPlaylist
+          ? 'Listen'
+          : 'Make playlist'}
     </button>
   );
 }

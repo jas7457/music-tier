@@ -3,7 +3,8 @@ import { ObjectId } from 'mongodb';
 /**
  * A tiny in-memory stand-in for the MongoDB driver, covering just the query
  * shapes lib/data.ts uses: equality (including "array contains"), `$in`,
- * `sort({ field: 1 | -1 })`, `find().toArray()` and `findOne()`.
+ * `$exists`, `sort({ field: 1 | -1 })`, `find().toArray()`, `findOne()` and
+ * `updateOne()` with `$set`.
  *
  * Matching is type-strict like real MongoDB: an ObjectId never equals its hex
  * string, so a test fails if the code mixes the two up.
@@ -26,9 +27,15 @@ function fieldMatches(docValue: unknown, condition: unknown): boolean {
     !(condition instanceof ObjectId)
   ) {
     const operators = Object.keys(condition);
-    const unsupported = operators.filter((op) => op !== '$in');
+    const unsupported = operators.filter(
+      (op) => op !== '$in' && op !== '$exists',
+    );
     if (unsupported.length > 0) {
       throw new Error(`fakeMongo: unsupported operator(s) ${unsupported}`);
+    }
+    if ('$exists' in condition) {
+      const exists = (condition as { $exists: boolean }).$exists;
+      return (docValue !== undefined) === exists;
     }
     const candidates = (condition as { $in: unknown[] }).$in;
     return candidates.some((candidate) => fieldMatches(docValue, candidate));
@@ -106,6 +113,21 @@ export class FakeCollection<T extends Doc = Doc> {
     const before = this.docs.length;
     this.docs = this.docs.filter((d) => !matches(d, filter));
     return { acknowledged: true, deletedCount: before - this.docs.length };
+  }
+
+  /** Supports `$set` only. */
+  async updateOne(filter: Filter, update: { $set?: Doc }) {
+    const unsupported = Object.keys(update).filter((op) => op !== '$set');
+    if (unsupported.length > 0) {
+      throw new Error(`fakeMongo: unsupported update(s) ${unsupported}`);
+    }
+    const doc = this.docs.find((d) => matches(d, filter));
+    if (doc) Object.assign(doc, update.$set ?? {});
+    return {
+      acknowledged: true,
+      matchedCount: doc ? 1 : 0,
+      modifiedCount: doc ? 1 : 0,
+    };
   }
 
   /** Supports `$set` and `$unset`, returning the document after the update. */
